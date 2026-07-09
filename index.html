@@ -10,78 +10,20 @@ layout: default
 
 <header class="blog-header">
   {% if site.logo %}
-    <a class="blog-logo" href="{{ site.url }}{{ site.baseurl }}" style="background-image: url('{{ site.logo | prepend: site.baseurl }}')">{{ site.title }}</a>
+    <a class="blog-logo" href="https://hokkienlang.wordpress.com" style="background-image: url('{{ site.logo | prepend: site.baseurl }}')">{{ site.title }}</a>
   {% endif %}
   <h1 class="blog-title">{{ site.title }}</h1>
   <h2 class="blog-description">{{ site.description }}</h2>
-  <div class="custom-links">
-    {% for social in site.social %}
-      {% if social.url %}
-        <a class="icon-{{ social.icon }}" href="{{ social.url }}" {% if social.desc %} title="{{ social.desc }}"{% endif %}>
-          <i class="fa fa-{{ social.icon }}"></i>
-        </a>
-        &nbsp;&nbsp;·&nbsp;&nbsp;
-      {% endif %}
-    {% endfor %}
-    <a href="{{ '/about/' | prepend: site.baseurl }}">關於 About</a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="{{ '/how-to-read-hokkien-hangul-zh-tw/' | prepend: site.baseurl }}">如何閱讀泉漳諺文</a>
-    &nbsp;&nbsp;·&nbsp;&nbsp;
-    <a href="{{ '/how-to-read-hokkien-hangul/' | prepend: site.baseurl }}">How to read Hokkien Hangul</a>
-  </div>
 </header>
 
 <main class="content" role="main">
 
-  <!-- Short Stories Section -->
-  <section class="stories">
-    <h2 class="index-headline has-text-align-center">短篇小說 Short stories</h2>
-    <div class="wp-block-columns">
-      <div class="wp-block-column">
-        <a href="{{ '/2025/01/26/the-egg/' | prepend: site.baseurl }}" class="cover-link">
-          <div class="cover-image" style="background-image: url('/assets/images/the_egg.png');"></div>
-          <p class="cover-text"><b><ruby style="position: relative">능<rt style="font-size:110%;position:absolute;top:-1.13em;left:0.24em">ˍ</rt></ruby></b></p>
-        </a>
-      </div>
-      <div class="wp-block-column">
-        <a href="{{ '/2025/03/15/left-behind/' | prepend: site.baseurl }}" class="cover-link">
-          <div class="cover-image" style="background-image: url('/assets/images/left_behind.png'); background-position:27% 50%;"></div>
-          <p class="cover-text"><b><ruby style="position: relative">킁<rt style="font-size:110%;position:absolute;top:-1.15em;left:0.2em">ˎ</rt></ruby>듸<ruby style="position: relative">신<rt style="font-size:110%;position:absolute;top:-1.15em;left:0.24em">ˍ</rt></ruby><ruby style="position: relative">ᄋᅷ<rt style="font-size:110%;position:absolute;top:-1.15em;left:0.24em">ˍ</rt></ruby></b></p>
-        </a>
-      </div>
-      <div class="wp-block-column">
-        <a href="{{ '/2025/05/25/one-fine-day/' | prepend: site.baseurl }}" class="cover-link">
-          <div class="cover-image" style="background-image: url('/assets/images/the_egg.png');"></div>
-          <p class="cover-text"><b>짇<ruby style='position: relative'>숟<rt style='font-size: 120%; position: absolute; top: -1.15em; left: 0.2em; z-index: -1;'>ꞈ</rt></ruby><ruby style='position: relative'>헝<rt style='font-size: 120%; position: absolute; top: -1.15em; left: 0.2em; z-index: -1;'>ˍ</rt></ruby>삐찓<ruby style='position: relative'>롼<rt style='font-size: 120%; position: absolute; top: -1.15em; left: 0.2em; z-index: -1;'>ˎ</rt></ruby>-에 뼹<ruby style='position: relative'>셩<rt style='font-size: 120%; position: absolute; top: -1.15em; left: 0.2em; z-index: -1;'>ˎ</rt></ruby></b></p>
-        </a>
-      </div>
-    </div>
-  </section>
-
-  <hr class="wp-block-separator"/>
-
-  <!-- Learn Hokkien Hangul Section -->
-  <section class="learn">
-    <h2 class="index-headline has-text-align-center">泉漳諺文學習 Learn Hokkien Hangul</h2>
-    <div style="margin-top:2em;"></div>
-    <div class="wp-block-buttons">
-      <div class="wp-block-button"><a class="wp-block-button__link has-dark-gray-background-color has-background has-medium-font-size has-text-align-center" href="{{ '/how-to-read-hokkien-hangul-zh-tw/' | prepend: site.baseurl }}">以中文（繁）開始學習</a></div>
-      <div class="wp-block-button is-style-outline"><a class="wp-block-button__link has-medium-font-size has-text-align-center" href="{{ '/how-to-read-hokkien-hangul/' | prepend: site.baseurl }}">Start learning in English</a></div>
-    </div>
-  </section>
-
-  <hr class="wp-block-separator is-style-default"/>
-
-  <!-- Songs Section -->
-  <section class="songs">
-    <h2 class="index-headline has-text-align-center">歌曲 Songs</h2>
-    <div style="margin-top:2em;"></div>
-    <div class="wp-block-buttons">
-      <div class="wp-block-button is-style-fill"><a class="wp-block-button__link" href="{{ '/2024/11/24/tii-or-or/' | prepend: site.baseurl }}">天烏烏</a></div>
-      <div class="wp-block-button is-style-fill"><a class="wp-block-button__link" href="{{ '/2024/11/30/hoaa-hi-tioh-ho/' | prepend: site.baseurl }}">歡喜就好</a></div>
-      <div class="wp-block-button"><a class="wp-block-button__link" href="{{ '/2024/12/15/ai-piaa-ziah-e-iaa/' | prepend: site.baseurl }}">愛拚才會贏</a></div>
-    </div>
-
+  <section>
+    <h2 class="index-headline has-text-align-center">
+      <a href="https://hokkienlang.wordpress.com">
+        Go to hokkienlang.wordpress.com
+      </a>
+    </h2>
   </section>
 
 </main>
