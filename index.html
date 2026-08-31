@@ -1,35 +1,45 @@
----
-layout: default
----
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="refresh" content="0; url=/tangliengim/">
+    <title>Hokkien Tangliengim</title>
+    <style>
+      body {
+        display: grid;
+        min-height: 100vh;
+        margin: 0;
+        place-items: center;
+        background: #f8fafc;
+        color: #102a43;
+        font-family: Calibri, "Segoe UI", Arial, sans-serif;
+      }
 
-<div class="teaserimage">
-  <div class="teaserimage-image" {% if site.cover %}style="background-image: url({{ site.cover | prepend: site.baseurl }})"{% endif %}>
-    Teaser Image
-  </div>
-</div>
+      main {
+        width: min(100% - 40px, 520px);
+        text-align: center;
+      }
 
-<header class="blog-header">
-  {% if site.logo %}
-    <a class="blog-logo" href="https://hokkienlang.wordpress.com" style="background-image: url('{{ site.logo | prepend: site.baseurl }}')">{{ site.title }}</a>
-  {% endif %}
-  <h1 class="blog-title">{{ site.title }}</h1>
-  <h2 class="blog-description">{{ site.description }}</h2>
-</header>
+      h1 {
+        margin: 0 0 12px;
+        font-size: 2rem;
+      }
 
-<main class="content" role="main">
-
-  <section style="text-align: center;">
-    <h2 class="index-headline">
-      <a href="https://hokkienlang.wordpress.com">
-        Go to hokkienlang.wordpress.com
-      </a>
-    </h2>
-
-    <h2 class="index-headline">
-      <a href="https://hokkienlang.wordpress.com/zh-tw">
-        請前往 hokkienlang.wordpress.com/zh-tw
-      </a>
-    </h2>
-  </section>
-
-</main>
+      a {
+        color: #0f766e;
+        font-weight: 700;
+      }
+    </style>
+    <script>
+      window.location.replace("/tangliengim/");
+    </script>
+  </head>
+  <body>
+    <main>
+      <h1>Hokkien Tangliengim</h1>
+      <p>Opening the dictionary...</p>
+      <p><a href="/tangliengim/">Open the Hokkien Tangliengim Dictionary</a></p>
+    </main>
+  </body>
+</html>
