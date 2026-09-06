@@ -9,7 +9,7 @@
       content="A browser-based Hokkien Tangliengim IME pad for typing Tangliengim Hangul and Hanri."
     >
     <link rel="icon" href="/favicon.ico">
-    <link rel="stylesheet" href="styles.css?v=20260906-ime-text-scale">
+    <link rel="stylesheet" href="styles.css?v=20260906-audio-controls">
   </head>
   <body>
     <main class="ime-shell">
@@ -42,7 +42,15 @@
         <div id="candidateBar" class="candidate-bar" aria-label="Hanri candidates" hidden></div>
 
         <div class="toolbar">
-          <button id="copyButton" class="tool-button primary" type="button">Copy</button>
+          <div class="toolbar-actions">
+            <button id="copyButton" class="tool-button primary" type="button">Copy</button>
+            <button id="audioButton" class="tool-button icon-tool" type="button" aria-label="Play audio">Listen</button>
+          </div>
+          <div class="sandhi-control" role="group" aria-label="Sandhi mode">
+            <span class="sandhi-label">Sandhi:</span>
+            <button id="taipeiButton" class="sandhi-button active" type="button" aria-pressed="true">Taipei</button>
+            <button id="singaporeButton" class="sandhi-button" type="button" aria-pressed="false">Singapore</button>
+          </div>
           <span id="statusLine" class="status-line">Loading dictionary...</span>
         </div>
       </section>
@@ -52,6 +60,6 @@
 
     <script src="/dictionary/web-hangul-ime.js?v=20260901-mobile-ime"></script>
     <script src="/dictionary/web-ime-core.js?v=20260906-shared-ime"></script>
-    <script src="ime.js?v=20260906-shared-ime"></script>
+    <script src="ime.js?v=20260906-audio-controls"></script>
   </body>
 </html>

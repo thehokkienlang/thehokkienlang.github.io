@@ -219,8 +219,16 @@ h1 {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 14px;
+  flex-wrap: wrap;
+  gap: 12px 14px;
   padding: 13px 14px;
+}
+
+.toolbar-actions,
+.sandhi-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .tool-button {
@@ -245,7 +253,44 @@ h1 {
   filter: brightness(0.98);
 }
 
+.icon-tool.playing {
+  border-color: rgba(190, 18, 60, 0.25);
+  background: #fff1f2;
+  color: #9f1239;
+}
+
+.sandhi-label {
+  color: #435469;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.sandhi-button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid #c2d0e0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #31516f;
+  cursor: pointer;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-size: 0.98rem;
+  font-weight: 850;
+}
+
+.sandhi-button.active {
+  border-color: #b8d0f6;
+  background: #eaf2ff;
+  color: var(--blue);
+}
+
+.sandhi-button:hover,
+.sandhi-button:focus-visible {
+  border-color: rgba(29, 112, 215, 0.45);
+}
+
 .status-line {
+  flex: 1 1 220px;
   min-width: 0;
   color: var(--muted);
   font-size: 0.92rem;
