@@ -135,7 +135,7 @@ h1 {
   resize: vertical;
   color: var(--text);
   font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
-  font-size: clamp(1.45rem, 5vw, 2.4rem);
+  font-size: clamp(1.35rem, 3.2vw, 1.85rem);
   line-height: 1.42;
   caret-color: rgba(29, 78, 216, 0.75);
 }
@@ -143,7 +143,8 @@ h1 {
 .ime-text::placeholder {
   color: #a5b0be;
   font-family: Calibri, "Segoe UI", Arial, sans-serif;
-  font-size: 1.1rem;
+  font-size: inherit;
+  line-height: inherit;
 }
 
 .clear-button {
