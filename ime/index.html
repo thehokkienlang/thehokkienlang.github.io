@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hokkien Tangliengim IME Pad</title>
+    <meta
+      name="description"
+      content="A browser-based Hokkien Tangliengim IME pad for typing Tangliengim Hangul and Hanri."
+    >
+    <link rel="icon" href="/favicon.ico">
+    <link rel="stylesheet" href="styles.css?v=20260906-shared-ime">
+  </head>
+  <body>
+    <main class="ime-shell">
+      <header class="ime-header">
+        <div class="brand">
+          <span class="brand-mark" aria-hidden="true">東<br><span>롕</span></span>
+          <div>
+            <p class="eyebrow">Hokkien Tangliengim</p>
+            <h1>IME Pad</h1>
+          </div>
+        </div>
+        <a class="dictionary-link" href="/dictionary/">Dictionary</a>
+      </header>
+
+      <section class="pad" aria-label="Hokkien Tangliengim IME Pad">
+        <label class="pad-label" for="imeText">Hanri + Hangul</label>
+        <div class="text-wrap">
+          <textarea
+            id="imeText"
+            class="ime-text"
+            autocomplete="off"
+            autocapitalize="off"
+            spellcheck="false"
+            placeholder="Type here..."
+            autofocus
+          ></textarea>
+          <button id="clearButton" class="clear-button" type="button" aria-label="Clear text">×</button>
+        </div>
+
+        <div id="candidateBar" class="candidate-bar" aria-label="Hanri candidates" hidden></div>
+
+        <div class="toolbar">
+          <button id="copyButton" class="tool-button primary" type="button">Copy</button>
+          <span id="statusLine" class="status-line">Loading dictionary...</span>
+        </div>
+      </section>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+    <script src="/dictionary/web-hangul-ime.js?v=20260901-mobile-ime"></script>
+    <script src="/dictionary/web-ime-core.js?v=20260906-shared-ime"></script>
+    <script src="ime.js?v=20260906-shared-ime"></script>
+  </body>
+</html>
