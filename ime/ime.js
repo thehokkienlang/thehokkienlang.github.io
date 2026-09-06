@@ -1,4 +1,4 @@
-const DATA_URL = "/dictionary/public/data/hokkien-hanri-dict.json?v=20260906-new-tsv-rows";
+const DATA_URL = "/dictionary/public/data/hokkien-hanri-dict.json?v=20260906-singapore-audio";
 
 const imeText = document.querySelector("#imeText");
 const clearButton = document.querySelector("#clearButton");
@@ -68,6 +68,13 @@ function normalizeAudioSegments(audio) {
   }));
 }
 
+function audioForCurrentSandhiMode(audio) {
+  if (state.sandhiMode === "singapore" && audio?.singapore) {
+    return audio.singapore;
+  }
+  return audio;
+}
+
 function dictionaryAudioPath(file) {
   const value = String(file || "");
   if (!value) return "";
@@ -76,7 +83,7 @@ function dictionaryAudioPath(file) {
 }
 
 function entrySegments(entry) {
-  return normalizeAudioSegments(entry.audio).map((segment) => ({
+  return normalizeAudioSegments(audioForCurrentSandhiMode(entry.audio)).map((segment) => ({
     ...segment,
     file: dictionaryAudioPath(segment.file),
   }));
@@ -141,11 +148,12 @@ function findReadingEntry(reading) {
 }
 
 function appendEntryAudio(entry, segments, missing) {
+  const audio = audioForCurrentSandhiMode(entry.audio);
   const audioSegments = entrySegments(entry);
   if (audioSegments.length) {
     segments.push(...audioSegments);
   }
-  for (const item of entry.audio?.missing || []) {
+  for (const item of audio?.missing || []) {
     if (!missing.includes(item)) missing.push(item);
   }
 }
