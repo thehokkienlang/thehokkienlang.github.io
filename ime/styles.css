@@ -232,31 +232,52 @@ h1 {
 }
 
 .tool-button {
-  min-height: 38px;
-  padding: 0 18px;
-  border: 1px solid #c2d0e0;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #233954;
+  display: inline-grid;
+  place-items: center;
+  width: 44px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--blue);
   cursor: pointer;
-  font-size: 1rem;
-  font-weight: 850;
+  line-height: 1;
 }
 
-.tool-button.primary {
-  border-color: rgba(15, 118, 110, 0.3);
-  background: var(--accent);
-  color: #ffffff;
+.tool-button:hover,
+.tool-button:focus-visible {
+  border-color: #d2e3fc;
+  background: #e8f0fe;
+  outline: none;
 }
 
-.tool-button:hover {
-  filter: brightness(0.98);
+.tool-icon {
+  width: 25px;
+  height: 25px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.35;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
-.icon-tool.playing {
-  border-color: rgba(190, 18, 60, 0.25);
-  background: #fff1f2;
+.copy-tool .tool-icon {
+  width: 26px;
+  height: 26px;
+}
+
+.audio-tool .stop-icon,
+.audio-tool.playing .audio-icon {
+  display: none;
+}
+
+.audio-tool.playing {
   color: #9f1239;
+}
+
+.audio-tool.playing .stop-icon {
+  display: block;
 }
 
 .sandhi-label {

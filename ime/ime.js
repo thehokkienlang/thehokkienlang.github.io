@@ -458,8 +458,8 @@ async function buildImeAudioBuffer(segments) {
 }
 
 function updateAudioButton(playing) {
-  audioButton.textContent = playing ? "Stop" : "Listen";
   audioButton.setAttribute("aria-label", playing ? "Stop audio" : "Play audio");
+  audioButton.setAttribute("title", playing ? "Stop" : "Listen");
   audioButton.classList.toggle("playing", playing);
 }
 
