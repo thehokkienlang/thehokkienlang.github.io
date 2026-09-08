@@ -1,0 +1,54 @@
+name: Deploy Tangliengim Website
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages-${{ github.event_name == 'pull_request' && github.ref || 'production' }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Install Python and Tkinter for the pronunciation engine
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+      - name: Check JavaScript syntax
+        run: |
+          node --check apps/dictionary/app.js
+          node --check apps/ime/ime.js
+          node --check shared/web-ime-core.js
+          node --check shared/web-hangul-ime.js
+      - name: Build both interfaces from the canonical TSV
+        run: python3 tools/build_site.py
+      - name: Validate routes, shared resources, and audio
+        run: python3 tools/check_site.py
+      - name: Check shared keyboard and sandhi integration
+        run: node tools/check_web_apps.cjs
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: _site
+
+  deploy:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
+      - name: Publish dictionary and IME together
+        id: deployment
+        uses: actions/deploy-pages@v4

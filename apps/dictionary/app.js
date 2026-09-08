@@ -1,0 +1,870 @@
+const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+const RESULTS_PER_PAGE = 10;
+const ImeCore = window.TangliengimImeCore;
+const {
+  createTextImeController,
+  displayTextNode,
+  headwordUnitAt,
+  normalizeLomariSearchAliases,
+  normalizeText,
+  queryVariants,
+  readingUnitAt,
+  readingUnitToneEnd,
+  renderInlineUpperToneReading,
+  renderToneMarkedReading,
+  searchableEntry,
+} = ImeCore;
+
+const state = {
+  entries: [],
+  groups: [],
+  inputMode: "lomari",
+  loaded: false,
+  currentPage: 1,
+};
+
+const searchInput = document.querySelector("#searchInput");
+const clearButton = document.querySelector("#clearButton");
+const summaryBar = document.querySelector("#summaryBar");
+const resultSummary = document.querySelector("#resultSummary");
+const dataStatus = document.querySelector("#dataStatus");
+const results = document.querySelector("#results");
+const template = document.querySelector("#resultTemplate");
+const pagination = document.querySelector("#pagination");
+const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
+const imeCandidates = document.querySelector("#imeCandidates");
+let searchImeController = null;
+let audioRunId = 0;
+let currentAudio = null;
+let sharedAudioContext = null;
+const decodedAudioCache = new Map();
+
+function visibleKind(kind) {
+  const names = {
+    plain_hanri: "Hanri",
+    mixed_hanri: "Mixed",
+    hangul_override: "Hangul",
+    numeric_override: "Number",
+    other: "Other",
+  };
+  return names[kind] || kind;
+}
+
+
+function groupKeyForEntry(entry) {
+  const headword = entry.hanri || entry.reading;
+  const reading = normalizeText(entry.readingBase || entry.reading || headword);
+  return `${headword}\u0000${reading}`;
+}
+
+function groupEntries(entries) {
+  const byHeadwordReading = new Map();
+  for (const entry of entries.filter(searchableEntry)) {
+    const headword = entry.hanri || entry.reading;
+    const key = groupKeyForEntry(entry);
+    if (!byHeadwordReading.has(key)) {
+      byHeadwordReading.set(key, {
+        hanri: headword,
+        kind: entry.kind,
+        priority: entry.priority,
+        row: entry.row,
+        readings: [],
+        search: {
+          hanri: normalizeText(headword),
+          reading: "",
+          readingBase: "",
+          lomari: "",
+          lomariAliases: "",
+          english: "",
+          all: "",
+        },
+      });
+    }
+
+    const group = byHeadwordReading.get(key);
+    group.priority = Math.min(group.priority, entry.priority);
+    group.row = Math.min(group.row, entry.row);
+    group.readings.push(entry);
+  }
+
+  const groups = [...byHeadwordReading.values()];
+  for (const group of groups) {
+    group.readings.sort((a, b) =>
+      a.priority - b.priority || a.row - b.row || a.reading.localeCompare(b.reading)
+    );
+    group.search.reading = normalizeText(group.readings.map((item) => item.reading).join(" "));
+    group.search.readingBase = normalizeText(group.readings.map((item) => item.readingBase).join(" "));
+    group.search.lomari = normalizeText(group.readings.map((item) => item.lomari).join(" "));
+    group.search.lomariAliases = normalizeLomariSearchAliases(group.readings.map((item) => item.lomari).join(" "));
+    group.search.english = normalizeText(group.readings.map((item) => item.english || "").join(" "));
+    group.search.all = [
+      group.search.hanri,
+      group.search.reading,
+      group.search.readingBase,
+      group.search.lomari,
+      group.search.lomariAliases,
+      group.search.english,
+      normalizeText(group.readings.map((item) => item.raw?.reading || "").join(" ")),
+    ].join(" ");
+  }
+
+  return groups.sort((a, b) => a.priority - b.priority || a.row - b.row || a.hanri.localeCompare(b.hanri));
+}
+
+function scoreField(value, query, boost) {
+  if (!value) return 0;
+  if (value === query) return 100 + boost;
+  if (value.startsWith(query)) return 80 + boost;
+  if (value.includes(query)) return 55 + boost;
+  return 0;
+}
+
+function scoreGroup(group, queries, mode) {
+  if (!queries.length) {
+    return 0;
+  }
+
+  const fields = [
+    { name: "hanri", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "reading", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "readingBase", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "lomari", boost: mode === "lomari" ? 6 : 0 },
+    { name: "english", boost: 0 },
+  ];
+
+  let best = 0;
+  for (const query of queries) {
+    for (const field of fields) {
+      const value = field.name === "lomari"
+        ? `${group.search.lomari || ""} ${group.search.lomariAliases || ""}`.trim()
+        : group.search[field.name] || "";
+      best = Math.max(best, scoreField(value, query, field.boost));
+    }
+  }
+
+  return best;
+}
+
+function searchGroups() {
+  const rawQuery = searchInput.value.trim();
+  const queries = queryVariants(rawQuery);
+
+  const matches = state.groups
+    .map((group) => ({ group, score: scoreGroup(group, queries, state.inputMode) }))
+    .filter((item) => item.score > 0)
+    .sort((a, b) =>
+      b.score - a.score ||
+      a.group.priority - b.group.priority ||
+      a.group.row - b.group.row ||
+      a.group.hanri.localeCompare(b.group.hanri)
+    );
+
+  const total = matches.length;
+  const totalPages = Math.ceil(total / RESULTS_PER_PAGE);
+  const page = totalPages
+    ? Math.max(1, Math.min(state.currentPage, totalPages))
+    : 1;
+  const start = (page - 1) * RESULTS_PER_PAGE;
+
+  return {
+    rawQuery,
+    shown: matches.slice(start, start + RESULTS_PER_PAGE).map((item) => item.group),
+    total,
+    page,
+    totalPages,
+  };
+}
+
+function findReadingUnitStart(text, start, unitText) {
+  let index = start;
+  while (index < text.length) {
+    const unit = readingUnitAt(text, index);
+    if (!unit) break;
+    if (unit.canCarryTone && unit.text === unitText) {
+      return index;
+    }
+    index = readingUnitToneEnd(text, unit);
+  }
+  return -1;
+}
+
+function findNextMixedReadingBoundary(source, sourceIndex, reading, readingIndex) {
+  let index = sourceIndex;
+  while (index < source.length) {
+    const unit = headwordUnitAt(source, index);
+    if (!unit) break;
+
+    if (unit.kind === "hangul") {
+      const match = findReadingUnitStart(reading, readingIndex, unit.text);
+      if (match >= 0) return match;
+    } else if (unit.kind === "literal") {
+      const match = reading.indexOf(unit.text, readingIndex);
+      if (match >= 0) return match;
+    }
+
+    index = unit.end;
+  }
+  return reading.length;
+}
+
+function appendHanriRuby(fragment, hanriText, readingText) {
+  if (!readingText) {
+    fragment.append(displayTextNode(hanriText));
+    return;
+  }
+
+  const ruby = document.createElement("ruby");
+  ruby.className = "entry-headword-ruby";
+  const base = document.createElement("span");
+  base.className = "entry-headword-base";
+  base.append(displayTextNode(hanriText));
+  const rt = document.createElement("rt");
+  rt.className = "entry-headword-reading";
+  rt.append(renderInlineUpperToneReading(readingText));
+  ruby.append(base, rt);
+  fragment.append(ruby);
+}
+
+function renderMixedEntryHeadword(group, reading) {
+  const fragment = document.createDocumentFragment();
+  const source = String(group.hanri || "");
+  let sourceIndex = 0;
+  let readingIndex = 0;
+
+  while (sourceIndex < source.length) {
+    const unit = headwordUnitAt(source, sourceIndex);
+    if (!unit) break;
+
+    if (unit.kind === "hanri") {
+      const boundary = findNextMixedReadingBoundary(source, unit.end, reading, readingIndex);
+      appendHanriRuby(fragment, unit.text, reading.slice(readingIndex, boundary));
+      readingIndex = boundary;
+    } else if (unit.kind === "hangul") {
+      const hangul = document.createElement("span");
+      hangul.className = "entry-headword-hangul entry-headword-inline-hangul";
+      hangul.append(renderToneMarkedReading(unit.raw));
+      fragment.append(hangul);
+
+      const readingUnit = readingUnitAt(reading, readingIndex);
+      if (readingUnit?.canCarryTone && readingUnit.text === unit.text) {
+        readingIndex = readingUnitToneEnd(reading, readingUnit);
+      }
+    } else {
+      fragment.append(displayTextNode(unit.text));
+      if (reading.startsWith(unit.text, readingIndex)) {
+        readingIndex += unit.text.length;
+      }
+    }
+
+    sourceIndex = unit.end;
+  }
+
+  return fragment;
+}
+
+function renderEntryHeadword(group) {
+  const fragment = document.createDocumentFragment();
+  const primaryReading = group.readings[0]?.reading || group.hanri || "";
+
+  if (group.kind === "hangul_override") {
+    const hangul = document.createElement("span");
+    hangul.className = "entry-headword-hangul";
+    hangul.append(renderToneMarkedReading(primaryReading));
+    fragment.append(hangul);
+    return fragment;
+  }
+
+  if (group.kind === "mixed_hanri") {
+    fragment.append(renderMixedEntryHeadword(group, primaryReading));
+    return fragment;
+  }
+
+  const ruby = document.createElement("ruby");
+  ruby.className = "entry-headword-ruby";
+  const base = document.createElement("span");
+  base.className = "entry-headword-base";
+  base.append(displayTextNode(group.hanri));
+  const rt = document.createElement("rt");
+  rt.className = "entry-headword-reading";
+  rt.append(renderInlineUpperToneReading(primaryReading));
+  ruby.append(base, rt);
+  fragment.append(ruby);
+  return fragment;
+}
+
+function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    return navigator.clipboard.writeText(text);
+  }
+
+  const textarea = document.createElement("textarea");
+  textarea.value = text;
+  textarea.setAttribute("readonly", "");
+  textarea.style.position = "fixed";
+  textarea.style.opacity = "0";
+  document.body.append(textarea);
+  textarea.select();
+  document.execCommand("copy");
+  textarea.remove();
+  return Promise.resolve();
+}
+
+function showToast(message) {
+  let toast = document.querySelector(".toast");
+  if (!toast) {
+    toast = document.createElement("div");
+    toast.className = "toast";
+    toast.setAttribute("role", "status");
+    toast.setAttribute("aria-live", "polite");
+    document.body.append(toast);
+  }
+
+  toast.textContent = message;
+  toast.classList.add("visible");
+  window.clearTimeout(showToast.timer);
+  showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
+}
+
+function stopAudio() {
+  audioRunId += 1;
+  if (currentAudio) {
+    try {
+      if (typeof currentAudio.stop === "function") currentAudio.stop();
+      else if (typeof currentAudio.pause === "function") currentAudio.pause();
+    } catch {
+      // Already stopped.
+    }
+    currentAudio = null;
+  }
+}
+
+function audioContext() {
+  if (!sharedAudioContext) {
+    const Context = window.AudioContext || window.webkitAudioContext;
+    if (!Context) {
+      throw new Error("Web Audio is not available");
+    }
+    sharedAudioContext = new Context();
+  }
+  return sharedAudioContext;
+}
+
+async function decodedAudioBuffer(file) {
+  const url = encodeURI(file);
+  if (decodedAudioCache.has(url)) {
+    return decodedAudioCache.get(url);
+  }
+
+  const bufferPromise = fetch(url)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      return response.arrayBuffer();
+    })
+    .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer));
+  decodedAudioCache.set(url, bufferPromise);
+  return bufferPromise;
+}
+
+function copyBufferChannels(buffer, startFrame, endFrame) {
+  const length = Math.max(1, endFrame - startFrame);
+  const channels = [];
+  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
+    channels.push(buffer.getChannelData(channel).slice(startFrame, startFrame + length));
+  }
+  return channels;
+}
+
+function crossfadeSamples(previous, next) {
+  const length = Math.min(previous.length, next.length);
+  const output = new Float32Array(length);
+  if (length <= 1) {
+    output.set(next.subarray(0, length));
+    return output;
+  }
+  for (let index = 0; index < length; index += 1) {
+    const alpha = index / (length - 1);
+    output[index] = previous[index] * (1 - alpha) + next[index] * alpha;
+  }
+  return output;
+}
+
+function speedUpChannels(channels, sampleRate, speedFactor) {
+  if (speedFactor <= 1 || !channels.length || !sampleRate) {
+    return channels;
+  }
+
+  const totalFrames = channels[0].length;
+  if (totalFrames <= sampleRate / 20) {
+    return channels;
+  }
+
+  const keepFrames = Math.max(1, Math.round(sampleRate * 0.1));
+  const removeFrames = Math.max(1, Math.round(keepFrames * (speedFactor - 1)));
+  const fadeFrames = Math.max(1, Math.round(sampleRate * 0.01));
+  const output = channels.map(() => []);
+  let position = 0;
+
+  while (position < totalFrames) {
+    const keepEnd = Math.min(position + keepFrames, totalFrames);
+    for (let channel = 0; channel < channels.length; channel += 1) {
+      const source = channels[channel];
+      const target = output[channel];
+      for (let index = position; index < keepEnd; index += 1) {
+        target.push(source[index]);
+      }
+    }
+    position = keepEnd;
+
+    if (position >= totalFrames) break;
+    const skipEnd = Math.min(position + removeFrames, totalFrames);
+    const canCrossfade = output[0].length >= fadeFrames && skipEnd + fadeFrames < totalFrames;
+
+    if (canCrossfade) {
+      for (let channel = 0; channel < channels.length; channel += 1) {
+        const target = output[channel];
+        const source = channels[channel];
+        const targetStart = target.length - fadeFrames;
+        for (let index = 0; index < fadeFrames; index += 1) {
+          const alpha = index / Math.max(1, fadeFrames - 1);
+          target[targetStart + index] =
+            target[targetStart + index] * (1 - alpha) + source[skipEnd + index] * alpha;
+        }
+      }
+      position = skipEnd + fadeFrames;
+    } else {
+      position = skipEnd;
+    }
+  }
+
+  return output.map((channel) => Float32Array.from(channel));
+}
+
+function fadeOutChannels(channels, sampleRate, fadeSeconds) {
+  const fadeFrames = Math.min(
+    channels[0]?.length || 0,
+    Math.max(1, Math.round(sampleRate * fadeSeconds))
+  );
+  if (fadeFrames <= 1) return channels;
+
+  for (const channel of channels) {
+    const start = channel.length - fadeFrames;
+    for (let index = 0; index < fadeFrames; index += 1) {
+      channel[start + index] *= (fadeFrames - index - 1) / (fadeFrames - 1);
+    }
+  }
+  return channels;
+}
+
+function audioTrimFrames(buffer, segment) {
+  let startSeconds = 0;
+  if (segment.englishClusterHelper) {
+    startSeconds = 0.24;
+  } else if (segment.trimStart) {
+    startSeconds = 0.2;
+  }
+  const endSeconds = segment.trimEnd ? 0.15 : 0;
+  let startFrame = Math.round(buffer.sampleRate * startSeconds);
+  let endFrame = buffer.length - Math.round(buffer.sampleRate * endSeconds);
+
+  if (startFrame >= endFrame) {
+    const overflow = startFrame - endFrame + 1;
+    const endTrimFrames = buffer.length - endFrame;
+    if (endTrimFrames >= overflow) {
+      endFrame += overflow;
+    } else {
+      startFrame = Math.max(0, startFrame - (overflow - endTrimFrames));
+      endFrame = buffer.length;
+    }
+  }
+
+  return {
+    startFrame: Math.max(0, Math.min(startFrame, buffer.length - 1)),
+    endFrame: Math.max(1, Math.min(endFrame, buffer.length)),
+  };
+}
+
+async function processedAudioSegment(segment) {
+  const buffer = await decodedAudioBuffer(segment.file);
+  const { startFrame, endFrame } = audioTrimFrames(buffer, segment);
+  let channels = copyBufferChannels(buffer, startFrame, endFrame);
+  channels = speedUpChannels(channels, buffer.sampleRate, Number(segment.speed) || 1);
+
+  if (segment.englishClusterHelper && channels[0]?.length) {
+    const maxFrames = Math.max(1, Math.round(buffer.sampleRate * 0.24));
+    channels = channels.map((channel) => channel.slice(0, Math.min(channel.length, maxFrames)));
+    fadeOutChannels(channels, buffer.sampleRate, 0.015);
+  }
+
+  return {
+    channels,
+    sampleRate: buffer.sampleRate,
+    channelCount: buffer.numberOfChannels,
+    canOverlapPrevious: Boolean(segment.trimStart),
+    lFinal: Boolean(segment.lFinal),
+    shortOverlapFinal: Boolean(segment.shortOverlapFinal),
+    englishClusterHelper: Boolean(segment.englishClusterHelper),
+  };
+}
+
+function overlapSeconds(previous, current) {
+  if (current.englishClusterHelper) return 0.04;
+  if (previous.englishClusterHelper) return 0.04;
+  if (previous.shortOverlapFinal) return 0.05;
+  if (previous.lFinal) return 0.15;
+  return 0.1;
+}
+
+function appendChannels(previousChannels, nextChannels, overlapFrames) {
+  const channelCount = previousChannels.length;
+  const previousLength = previousChannels[0].length;
+  const nextLength = nextChannels[0].length;
+  const overlap = Math.max(0, Math.min(overlapFrames, previousLength, nextLength));
+  const outputLength = previousLength + nextLength - overlap;
+  const outputChannels = [];
+
+  for (let channel = 0; channel < channelCount; channel += 1) {
+    const previous = previousChannels[channel];
+    const next = nextChannels[Math.min(channel, nextChannels.length - 1)];
+    const output = new Float32Array(outputLength);
+    output.set(previous.subarray(0, previousLength - overlap), 0);
+    if (overlap > 0) {
+      output.set(
+        crossfadeSamples(previous.subarray(previousLength - overlap), next.subarray(0, overlap)),
+        previousLength - overlap
+      );
+    }
+    output.set(next.subarray(overlap), previousLength);
+    outputChannels.push(output);
+  }
+
+  return outputChannels;
+}
+
+async function buildImeAudioBuffer(segments) {
+  const context = audioContext();
+  const processed = [];
+  for (const segment of segments) {
+    processed.push(await processedAudioSegment(segment));
+  }
+  if (!processed.length) {
+    throw new Error("No playable audio");
+  }
+
+  const sampleRate = processed[0].sampleRate;
+  const channelCount = processed[0].channelCount;
+  const leadFrames = Math.max(0, Math.round(sampleRate * 0.25));
+  let combined = Array.from({ length: channelCount }, () => new Float32Array(leadFrames));
+  let previousSegment = null;
+
+  for (const segment of processed) {
+    if (segment.sampleRate !== sampleRate || segment.channelCount !== channelCount) {
+      throw new Error("Audio files use different formats");
+    }
+
+    const overlap = previousSegment && segment.canOverlapPrevious
+      ? Math.round(sampleRate * overlapSeconds(previousSegment, segment))
+      : 0;
+    combined = appendChannels(combined, segment.channels, overlap);
+    previousSegment = segment;
+  }
+
+  const output = context.createBuffer(channelCount, combined[0].length, sampleRate);
+  for (let channel = 0; channel < channelCount; channel += 1) {
+    output.copyToChannel(combined[channel], channel);
+  }
+  return output;
+}
+
+function normalizeAudioSegments(audio) {
+  if (audio?.segments?.length) {
+    return audio.segments;
+  }
+  return (audio?.files || []).map((file) => ({
+    file,
+    trimStart: false,
+    trimEnd: false,
+    speed: 1,
+    lFinal: false,
+    shortOverlapFinal: false,
+    englishClusterHelper: false,
+  }));
+}
+
+async function playAudioSequence(audio, button) {
+  stopAudio();
+  const runId = audioRunId;
+  button.classList.add("playing");
+  button.disabled = true;
+  try {
+    const context = audioContext();
+    await context.resume();
+    const segments = normalizeAudioSegments(audio);
+    const buffer = await buildImeAudioBuffer(segments);
+    if (runId !== audioRunId) {
+      return;
+    }
+
+    await new Promise((resolve) => {
+      const source = context.createBufferSource();
+      source.buffer = buffer;
+      source.connect(context.destination);
+      source.addEventListener("ended", resolve, { once: true });
+      currentAudio = source;
+      source.start();
+    });
+  } finally {
+    if (runId === audioRunId) {
+      currentAudio = null;
+    }
+    button.classList.remove("playing");
+    button.disabled = false;
+  }
+}
+
+function renderReading(entry) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "reading";
+
+  const lomariField = document.createElement("div");
+  lomariField.className = "reading-field";
+  const lomariLabel = document.createElement("span");
+  lomariLabel.className = "field-label";
+  lomariLabel.textContent = "Lomari";
+  const lomari = document.createElement("span");
+  lomari.className = "lomari";
+  lomari.textContent = entry.lomari || " ";
+  lomariField.append(lomariLabel, lomari);
+
+  const englishField = document.createElement("div");
+  englishField.className = "reading-field english-field";
+  const englishLabel = document.createElement("span");
+  englishLabel.className = "field-label";
+  englishLabel.textContent = "English";
+  const english = document.createElement("span");
+  english.className = "english-gloss";
+  english.textContent = entry.english || " ";
+  englishField.append(englishLabel, english);
+
+  const actions = document.createElement("div");
+  actions.className = "reading-actions";
+
+  const audioSegments = normalizeAudioSegments(entry.audio);
+  const missingAudio = entry.audio?.missing || [];
+  const playButton = document.createElement("button");
+  playButton.className = "audio-reading";
+  playButton.type = "button";
+  playButton.textContent = "Listen";
+  playButton.setAttribute("aria-label", `Listen to ${entry.reading}`);
+  if (!audioSegments.length) {
+    playButton.disabled = true;
+    playButton.title = missingAudio.length ? `No audio for ${missingAudio.join(", ")}` : "No audio for this reading";
+  }
+  playButton.addEventListener("click", async () => {
+    if (!audioSegments.length) {
+      showToast(playButton.title);
+      return;
+    }
+    try {
+      await playAudioSequence(entry.audio, playButton);
+      if (missingAudio.length) {
+        showToast(`Missing audio: ${missingAudio.join(", ")}`);
+      }
+    } catch {
+      playButton.classList.remove("playing");
+      playButton.disabled = false;
+      showToast("Could not play audio");
+    }
+  });
+
+  const copyButton = document.createElement("button");
+  copyButton.className = "copy-reading";
+  copyButton.type = "button";
+  copyButton.textContent = "Copy";
+  copyButton.setAttribute("aria-label", `Copy ${entry.reading} ${entry.lomari || ""}`.trim());
+  copyButton.addEventListener("click", async () => {
+    const value = entry.lomari ? `${entry.reading}\t${entry.lomari}` : entry.reading;
+    try {
+      await copyText(value);
+      showToast("Reading copied");
+    } catch {
+      showToast("Could not copy reading");
+    }
+  });
+
+  actions.append(playButton, copyButton);
+  wrapper.append(lomariField, englishField, actions);
+  return wrapper;
+}
+
+function paginationItems(page, totalPages) {
+  if (totalPages <= 7) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (page <= 4) {
+    return [1, 2, 3, 4, 5, "ellipsis", totalPages];
+  }
+
+  if (page >= totalPages - 3) {
+    return [1, "ellipsis", totalPages - 4, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [1, "ellipsis-before", page - 1, page, page + 1, "ellipsis-after", totalPages];
+}
+
+function renderPagination(page, totalPages) {
+  pagination.replaceChildren();
+  pagination.hidden = totalPages <= 1;
+  if (totalPages <= 1) return;
+
+  const makeButton = (label, nextPage, options = {}) => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "page-button";
+    button.textContent = label;
+    button.disabled = options.disabled || false;
+    if (options.current) {
+      button.classList.add("current");
+      button.setAttribute("aria-current", "page");
+    }
+    button.addEventListener("click", () => {
+      state.currentPage = nextPage;
+      renderResults();
+      searchInput.focus();
+    });
+    return button;
+  };
+
+  pagination.append(makeButton("<", Math.max(1, page - 1), { disabled: page === 1 }));
+  for (const item of paginationItems(page, totalPages)) {
+    if (typeof item === "number") {
+      pagination.append(makeButton(String(item), item, { current: item === page }));
+    } else {
+      const ellipsis = document.createElement("span");
+      ellipsis.className = "page-ellipsis";
+      ellipsis.textContent = "...";
+      pagination.append(ellipsis);
+    }
+  }
+  pagination.append(makeButton(">", Math.min(totalPages, page + 1), { disabled: page === totalPages }));
+}
+
+function renderResults() {
+  if (!state.loaded) return;
+
+  const { rawQuery, shown, total, page, totalPages } = searchGroups();
+  results.replaceChildren();
+  clearButton.hidden = !searchInput.value;
+  searchImeController?.renderCandidates();
+
+  if (!rawQuery) {
+    summaryBar.hidden = true;
+    pagination.hidden = true;
+    pagination.replaceChildren();
+    resultSummary.textContent = "";
+    return;
+  }
+
+  summaryBar.hidden = false;
+
+  if (!shown.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty-state";
+    const title = document.createElement("strong");
+    title.textContent = "No matching entries yet";
+    const note = document.createElement("span");
+    note.textContent = "Try Hanri, Tangliengim Hangul, Lomari, or English meanings.";
+    empty.append(title, note);
+    results.append(empty);
+    resultSummary.textContent = "0 results";
+    pagination.hidden = true;
+    pagination.replaceChildren();
+    return;
+  }
+
+  for (const group of shown) {
+    const node = template.content.firstElementChild.cloneNode(true);
+    const hanri = node.querySelector(".hanri");
+    hanri.replaceChildren(renderEntryHeadword(group));
+    node.querySelector(".entry-meta").textContent = `${visibleKind(group.kind)} · ${group.readings.length} reading${group.readings.length === 1 ? "" : "s"}`;
+    const readings = node.querySelector(".readings");
+    group.readings.slice(0, 8).forEach((entry) => readings.append(renderReading(entry)));
+    if (group.readings.length > 8) {
+      const more = document.createElement("div");
+      more.className = "more-readings";
+      more.textContent = `+${group.readings.length - 8} more readings`;
+      readings.append(more);
+    }
+    results.append(node);
+  }
+
+  const rangeStart = (page - 1) * RESULTS_PER_PAGE + 1;
+  const rangeEnd = rangeStart + shown.length - 1;
+  resultSummary.textContent = `${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`;
+  renderPagination(page, totalPages);
+}
+
+function setInputMode(mode) {
+  state.inputMode = mode === "lomari" ? "lomari" : "hanri-hangul";
+  if (hangulKeyboardToggle) {
+    hangulKeyboardToggle.setAttribute("aria-pressed", String(state.inputMode === "hanri-hangul"));
+  }
+  searchInput.placeholder = "Type 漢字, 한글, Lomari, or English...";
+  searchInput.classList.toggle("hangul-ime-active", state.inputMode === "hanri-hangul");
+  searchImeController?.setEnabled();
+  state.currentPage = 1;
+  renderResults();
+}
+
+async function loadDictionary() {
+  try {
+    const response = await fetch(DATA_URL, { cache: "no-cache" });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    const data = await response.json();
+    state.entries = data.entries || [];
+    state.groups = groupEntries(state.entries);
+    searchImeController?.setEntries(state.entries);
+    state.loaded = true;
+    dataStatus.textContent = `${data.counts?.active_entries || state.entries.length} active TSV entries`;
+    renderResults();
+  } catch (error) {
+    state.loaded = true;
+    dataStatus.textContent = "Dictionary failed to load";
+    summaryBar.hidden = false;
+    pagination.hidden = true;
+    resultSummary.textContent = "The dictionary could not load. Please refresh and try again.";
+    results.replaceChildren();
+    const empty = document.createElement("div");
+    empty.className = "empty-state error";
+    empty.textContent = `Could not load dictionary data: ${error.message}`;
+    results.append(empty);
+  }
+}
+
+searchImeController = createTextImeController({
+  control: searchInput,
+  candidateContainer: imeCandidates,
+  enabled: () => state.inputMode === "hanri-hangul",
+  onUpdate: () => {
+    state.currentPage = 1;
+    renderResults();
+  },
+  enterBehavior: "none",
+});
+
+clearButton.addEventListener("click", () => {
+  searchImeController?.clear();
+  state.currentPage = 1;
+  renderResults();
+});
+hangulKeyboardToggle?.addEventListener("click", () => {
+  setInputMode(state.inputMode === "hanri-hangul" ? "lomari" : "hanri-hangul");
+  searchInput.focus();
+});
+
+loadDictionary();
+setInputMode("lomari");
