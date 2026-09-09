@@ -62,6 +62,22 @@ async function loadApp(route, script) {
   const dictionary = await loadApp('dictionary', 'app.js');
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
+  assert.deepEqual(
+    vm.runInContext('state.categories.map(category => category.id).join(",")', dictionary.context),
+    'food,place-names'
+  );
+  for (const category of ['food', 'place-names']) {
+    assert.ok(
+      vm.runInContext(`(() => {
+        state.activeCategory = ${JSON.stringify(category)};
+        const result = searchGroups();
+        const expected = state.categories.find(item => item.id === ${JSON.stringify(category)}).entryCount;
+        return result.rawQuery === '' && result.total === expected && result.shown.length === Math.min(10, expected);
+      })()`, dictionary.context),
+      `${category} must browse all categorised entries with ten-entry pagination`
+    );
+  }
+  vm.runInContext('state.activeCategory = ""', dictionary.context);
   assert.equal(
     vm.runInContext('TangliengimImeCore.normalizeEnglishSearch("neighbor")', dictionary.context),
     'neighbour',

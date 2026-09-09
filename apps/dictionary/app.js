@@ -19,6 +19,8 @@ const {
 const state = {
   entries: [],
   groups: [],
+  categories: [],
+  activeCategory: "",
   inputMode: "lomari",
   loaded: false,
   currentPage: 1,
@@ -34,6 +36,7 @@ const template = document.querySelector("#resultTemplate");
 const pagination = document.querySelector("#pagination");
 const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
 const imeCandidates = document.querySelector("#imeCandidates");
+const categoryFilters = document.querySelector("#categoryFilters");
 let searchImeController = null;
 let audioRunId = 0;
 let currentAudio = null;
@@ -74,6 +77,7 @@ function groupEntries(entries) {
         priority: entry.priority,
         row: entry.row,
         readings: [],
+        categories: [],
         search: {
           hanri: normalizeText(headword),
           reading: "",
@@ -97,6 +101,7 @@ function groupEntries(entries) {
     group.readings.sort((a, b) =>
       a.priority - b.priority || a.row - b.row || a.reading.localeCompare(b.reading)
     );
+    group.categories = [...new Set(group.readings.flatMap((item) => item.categories || []))];
     group.search.reading = normalizeText(group.readings.map((item) => item.reading).join(" "));
     group.search.readingBase = normalizeText(group.readings.map((item) => item.readingBase).join(" "));
     group.search.lomari = normalizeText(group.readings.map((item) => item.lomari).join(" "));
@@ -155,7 +160,11 @@ function searchGroups() {
   const queries = queryVariants(rawQuery);
 
   const matches = state.groups
-    .map((group) => ({ group, score: scoreGroup(group, queries, state.inputMode) }))
+    .filter((group) => !state.activeCategory || group.categories.includes(state.activeCategory))
+    .map((group) => ({
+      group,
+      score: queries.length ? scoreGroup(group, queries, state.inputMode) : (state.activeCategory ? 1 : 0),
+    }))
     .filter((item) => item.score > 0)
     .sort((a, b) =>
       b.score - a.score ||
@@ -178,6 +187,28 @@ function searchGroups() {
     page,
     totalPages,
   };
+}
+
+function activeCategoryLabel() {
+  return state.categories.find((category) => category.id === state.activeCategory)?.label || "";
+}
+
+function renderCategoryFilters() {
+  categoryFilters.replaceChildren();
+  for (const category of state.categories) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "category-button";
+    button.textContent = category.label;
+    button.setAttribute("aria-pressed", String(state.activeCategory === category.id));
+    button.addEventListener("click", () => {
+      state.activeCategory = state.activeCategory === category.id ? "" : category.id;
+      state.currentPage = 1;
+      renderCategoryFilters();
+      renderResults();
+    });
+    categoryFilters.append(button);
+  }
 }
 
 function findReadingUnitStart(text, start, unitText) {
@@ -737,7 +768,7 @@ function renderPagination(page, totalPages) {
     button.addEventListener("click", () => {
       state.currentPage = nextPage;
       renderResults();
-      searchInput.focus();
+      if (searchInput.value) searchInput.focus();
     });
     return button;
   };
@@ -764,7 +795,7 @@ function renderResults() {
   clearButton.hidden = !searchInput.value;
   searchImeController?.renderCandidates();
 
-  if (!rawQuery) {
+  if (!rawQuery && !state.activeCategory) {
     summaryBar.hidden = true;
     pagination.hidden = true;
     pagination.replaceChildren();
@@ -780,7 +811,9 @@ function renderResults() {
     const title = document.createElement("strong");
     title.textContent = "No matching entries yet";
     const note = document.createElement("span");
-    note.textContent = "Try Hanri, Tangliengim Hangul, Lomari, or English meanings.";
+    note.textContent = state.activeCategory
+      ? `No entries in ${activeCategoryLabel()} match this search.`
+      : "Try Hanri, Tangliengim Hangul, Lomari, or English meanings.";
     empty.append(title, note);
     results.append(empty);
     resultSummary.textContent = "0 results";
@@ -807,7 +840,8 @@ function renderResults() {
 
   const rangeStart = (page - 1) * RESULTS_PER_PAGE + 1;
   const rangeEnd = rangeStart + shown.length - 1;
-  resultSummary.textContent = `${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`;
+  const categoryPrefix = state.activeCategory ? `${activeCategoryLabel()} · ` : "";
+  resultSummary.textContent = `${categoryPrefix}${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`;
   renderPagination(page, totalPages);
 }
 
@@ -831,10 +865,12 @@ async function loadDictionary() {
     }
     const data = await response.json();
     state.entries = data.entries || [];
+    state.categories = data.categories || [];
     state.groups = groupEntries(state.entries);
     searchImeController?.setEntries(state.entries);
     state.loaded = true;
     dataStatus.textContent = `${data.counts?.active_entries || state.entries.length} active TSV entries`;
+    renderCategoryFilters();
     renderResults();
   } catch (error) {
     state.loaded = true;

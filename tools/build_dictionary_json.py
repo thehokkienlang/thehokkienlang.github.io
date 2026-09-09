@@ -17,12 +17,13 @@ from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TSV_PATH = REPO_ROOT / "data" / "hokkien_hanri_dict.tsv"
+DEFAULT_CATEGORY_PATH = REPO_ROOT / "data" / "dictionary_categories.tsv"
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "public" / "data" / "hokkien-hanri-dict.json"
 DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 def load_tone_marker_module():
@@ -196,10 +197,47 @@ def append_index(index: dict[str, list[str]], key: str, entry_id: str) -> None:
         index.setdefault(key, []).append(entry_id)
 
 
-def build_dictionary(tsv_path: Path, audio_root: Path = DEFAULT_AUDIO_ROOT) -> dict[str, Any]:
+def load_categories(path: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
+    labels: dict[str, str] = {}
+    memberships: dict[str, list[str]] = defaultdict(list)
+    seen: set[tuple[str, str]] = set()
+
+    with path.open("r", encoding="utf-8-sig", newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        required = {"category", "label", "hanri"}
+        missing = sorted(required - set(reader.fieldnames or []))
+        if missing:
+            raise ValueError(f"Category TSV is missing required column(s): {', '.join(missing)}")
+
+        for row_number, row in enumerate(reader, start=2):
+            category = str(row.get("category") or "").strip()
+            label = str(row.get("label") or "").strip()
+            hanri = str(row.get("hanri") or "").strip()
+            if not category and not label and not hanri:
+                continue
+            if not category or not label or not hanri:
+                raise ValueError(f"Incomplete category row {row_number}")
+            if category in labels and labels[category] != label:
+                raise ValueError(f"Conflicting labels for category {category!r}")
+            key = (category, hanri)
+            if key in seen:
+                raise ValueError(f"Duplicate category membership at row {row_number}: {category} / {hanri}")
+            seen.add(key)
+            labels[category] = label
+            memberships[hanri].append(category)
+
+    return labels, memberships
+
+
+def build_dictionary(
+    tsv_path: Path,
+    audio_root: Path = DEFAULT_AUDIO_ROOT,
+    category_path: Path = DEFAULT_CATEGORY_PATH,
+) -> dict[str, Any]:
     tone_marker = load_tone_marker_module()
     ime = load_ime_module()
     source_bytes = tsv_path.read_bytes()
+    category_labels, category_memberships = load_categories(category_path)
 
     entries: list[dict[str, Any]] = []
     skipped_rows: list[dict[str, Any]] = []
@@ -263,6 +301,7 @@ def build_dictionary(tsv_path: Path, audio_root: Path = DEFAULT_AUDIO_ROOT) -> d
                 "lomariKey": normalize_for_search(lomari),
                 "english": english,
                 "englishKey": normalize_for_search(english),
+                "categories": list(category_memberships.get(hanri, [])),
                 "audio": audio,
                 "priority": priority,
                 "raw": {
@@ -297,6 +336,18 @@ def build_dictionary(tsv_path: Path, audio_root: Path = DEFAULT_AUDIO_ROOT) -> d
 
     entries.sort(key=lambda item: (item["priority"], item["row"], item["reading"], item["hanri"]))
 
+    known_headwords = {entry["hanri"] for entry in entries if entry["hanri"]}
+    unknown_headwords = sorted(set(category_memberships) - known_headwords)
+    if unknown_headwords:
+        raise ValueError(f"Category TSV contains unknown headword(s): {', '.join(unknown_headwords)}")
+
+    category_groups: dict[str, set[tuple[str, str]]] = defaultdict(set)
+    for entry in entries:
+        if not entry["active"] or entry.get("correctedFrom"):
+            continue
+        for category in entry["categories"]:
+            category_groups[category].add((entry["hanri"], entry["reading"]))
+
     indexes: dict[str, dict[str, list[str]]] = {
         "byHanri": {},
         "byReading": {},
@@ -323,11 +374,21 @@ def build_dictionary(tsv_path: Path, audio_root: Path = DEFAULT_AUDIO_ROOT) -> d
         "source": str(tsv_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "sourceBytes": len(source_bytes),
         "sourceSha256": file_sha256(tsv_path),
+        "categorySource": str(category_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "categorySourceSha256": file_sha256(category_path),
         "columns": ["reading", "hanri", "priority", "corrected", "english"],
         "sort": "priority, row, reading, hanri",
         "counts": dict(sorted(counts.items())),
         "skippedRows": skipped_rows,
         "duplicateEffectiveReadings": duplicate_keys,
+        "categories": [
+            {
+                "id": category,
+                "label": label,
+                "entryCount": len(category_groups.get(category, set())),
+            }
+            for category, label in category_labels.items()
+        ],
         "entries": entries,
         "indexes": indexes,
     }
@@ -336,12 +397,13 @@ def build_dictionary(tsv_path: Path, audio_root: Path = DEFAULT_AUDIO_ROOT) -> d
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_TSV_PATH)
+    parser.add_argument("--categories", type=Path, default=DEFAULT_CATEGORY_PATH)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--audio-root", type=Path, default=DEFAULT_AUDIO_ROOT)
     parser.add_argument("--check", action="store_true", help="validate only; do not write output")
     args = parser.parse_args()
 
-    data = build_dictionary(args.input, args.audio_root)
+    data = build_dictionary(args.input, args.audio_root, args.categories)
     encoded = json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=False) + "\n"
 
     if args.check:

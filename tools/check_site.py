@@ -48,8 +48,16 @@ def main():
     assert script_sets[0] == script_sets[1], "Apps load different shared code versions"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
+    assert data["schemaVersion"] == 2
+    categories = {item["id"]: item for item in data["categories"]}
+    assert set(categories) == {"food", "place-names"}
+    assert all(item["entryCount"] > 0 for item in categories.values())
+    assert any("food" in entry["categories"] for entry in data["entries"])
+    assert any("place-names" in entry["categories"] for entry in data["entries"])
     digest = hashlib.sha256((ROOT / "data/hokkien_hanri_dict.tsv").read_bytes()).hexdigest()
     assert data["sourceSha256"] == digest, "Published JSON is out of sync with the TSV"
+    category_digest = hashlib.sha256((ROOT / "data/dictionary_categories.tsv").read_bytes()).hexdigest()
+    assert data["categorySourceSha256"] == category_digest, "Published JSON is out of sync with category data"
     assert data["entries"], "Empty dictionary"
     audio_paths = set()
     for entry in data["entries"]:

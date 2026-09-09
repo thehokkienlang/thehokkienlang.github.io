@@ -57,6 +57,7 @@ def main() -> int:
     manifest = {
         "routes": ["/dictionary/", "/ime/"],
         "sourceSha256": data["sourceSha256"],
+        "categorySourceSha256": data["categorySourceSha256"],
         "entries": len(data["entries"]),
         "shared": {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
