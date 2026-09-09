@@ -58,9 +58,13 @@ function groupKeyForEntry(entry) {
   return `${headword}\u0000${reading}`;
 }
 
+function visibleDictionaryEntry(entry) {
+  return searchableEntry(entry) && !entry.correctedFrom;
+}
+
 function groupEntries(entries) {
   const byHeadwordReading = new Map();
-  for (const entry of entries.filter(searchableEntry)) {
+  for (const entry of entries.filter(visibleDictionaryEntry)) {
     const headword = entry.hanri || entry.reading;
     const key = groupKeyForEntry(entry);
     if (!byHeadwordReading.has(key)) {

@@ -82,6 +82,23 @@ async function loadApp(route, script) {
     !vm.runInContext(`state.groups.some(group => group.readings.some(reading => /(^|;\\s*)neighbor($|;)/.test(reading.english || '')))`, dictionary.context),
     'The dictionary must not display neighbor as a separate spelling variant'
   );
+  assert.ok(
+    vm.runInContext(`state.entries.some(entry => entry.correctedFrom && entry.raw?.reading?.endsWith('*'))`, dictionary.context),
+    'Typo-correction rows must remain loaded for the IME'
+  );
+  assert.ok(
+    vm.runInContext(`state.groups.every(group => group.readings.every(reading => !reading.correctedFrom))`, dictionary.context),
+    'Typo-correction rows must not appear as dictionary entries'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const key = TangliengimImeCore.normalizeText(
+        TangliengimHangulIme.normalizeReadingBase('능잡1*')
+      );
+      return searchImeController.candidatesByReading.get(key)?.some(entry => entry.correctedFrom === '능잡1');
+    })()`, dictionary.context),
+    'The starred 능잡 typo must remain available to the IME candidate index'
+  );
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.ok(elements.get('#statusLine').textContent.includes('entries loaded'));
   for (const [word, taipei, singapore] of [
