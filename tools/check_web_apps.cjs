@@ -62,6 +62,26 @@ async function loadApp(route, script) {
   const dictionary = await loadApp('dictionary', 'app.js');
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
+  assert.equal(
+    vm.runInContext('TangliengimImeCore.normalizeEnglishSearch("neighbor")', dictionary.context),
+    'neighbour',
+    'American spellings must normalize to the British dictionary spelling'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const group = state.groups.find(item => item.readings.some(reading => reading.english === 'neighbour'));
+      return group && scoreGroup(group, queryVariants('neighbor'), 'lomari') > 0;
+    })()`, dictionary.context),
+    'American neighbor must find the British-only neighbour entry'
+  );
+  assert.ok(
+    vm.runInContext(`state.groups.some(group => group.readings.some(reading => reading.english === 'neighbour'))`, dictionary.context),
+    'The dictionary must display neighbour'
+  );
+  assert.ok(
+    !vm.runInContext(`state.groups.some(group => group.readings.some(reading => /(^|;\\s*)neighbor($|;)/.test(reading.english || '')))`, dictionary.context),
+    'The dictionary must not display neighbor as a separate spelling variant'
+  );
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.ok(elements.get('#statusLine').textContent.includes('entries loaded'));
   for (const [word, taipei, singapore] of [

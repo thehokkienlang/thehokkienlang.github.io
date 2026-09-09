@@ -3,7 +3,6 @@ import os
 import re
 import unicodedata
 from pathlib import Path
-from urllib.parse import quote
 
 # ==== 0. WRAP HANGUL+PUNC ====
 def nowrap_after_annotation(html: str) -> str:
@@ -1415,7 +1414,6 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
 def protect_hanri_hangul_annotations(
     text: str,
     include_lomari_title: bool = True,
-    use_wiktionary: bool = False,
 ):
     """
     Replace [Hanri + Hangul] blocks with safe placeholders before
@@ -1468,7 +1466,6 @@ def protect_hanri_hangul_annotations(
         protected[key] = annotate_chinese_word(
             hanri_word,
             hangul_reading,
-            use_wiktionary=use_wiktionary,
             include_lomari_title=include_lomari_title,
             continuation_hyphen=continuation_hyphen,
         )
@@ -2003,7 +2000,6 @@ def known_hanri_reading(ch: str, text: str, index: int) -> str | None:
 def protect_known_hanri_annotations(
     text: str,
     include_lomari_title: bool = True,
-    use_wiktionary: bool = False,
 ):
     """
     Automatically annotate known Hanri characters in normal sentence mode.
@@ -2048,7 +2044,6 @@ def protect_known_hanri_annotations(
             protected[key] = render_mixed_tsv_hanri_match(
                 hanri_key,
                 reading,
-                use_wiktionary=use_wiktionary,
                 include_lomari_title=include_lomari_title,
                 continuation_hyphen=continuation_hyphen,
             )
@@ -2066,7 +2061,6 @@ def protect_known_hanri_annotations(
             protected[key] = annotate_chinese_word(
                 hanri_word,
                 reading,
-                use_wiktionary=use_wiktionary,
                 include_lomari_title=include_lomari_title,
                 continuation_hyphen=continuation_hyphen,
             )
@@ -2189,8 +2183,7 @@ def convert_sentence(input_sentence: str) -> str:
     # 3) Convert normal Hangul tones
     processed = convert_segment_to_ruby(protected_input)
 
-    # 4) Old [Hangul + gloss/Hanri] Wiktionary-link mode has been removed.
-    # Leaving unmatched brackets as ordinary text is safer than guessing.
+    # 4) Leaving unmatched brackets as ordinary text is safer than guessing.
     wrapped = processed
 
     # 5) Restore protected annotations
@@ -2412,9 +2405,8 @@ def preview_tones_html(input_sentence: str) -> str:
 def core_convert(
     input_sentence: str,
     include_lomari_title: bool = True,
-    use_wiktionary: bool = False,
 ) -> str:
-    """Produce the inner HTML (ruby + <a> tooltips) but no <p> wrapper."""
+    """Produce the inner ruby HTML but no <p> wrapper."""
 
     # 1) Protect explicit [Hanri + Hangul] annotations first.  This prevents
     # old [Hangul + gloss] mode from seeing a half-converted bracket if the
@@ -2422,20 +2414,18 @@ def core_convert(
     protected_input, protected_hanri = protect_hanri_hangul_annotations(
         input_sentence,
         include_lomari_title,
-        use_wiktionary=use_wiktionary,
     )
 
     # 2) Then protect automatic known Hanri annotations.
     protected_input, protected_known_hanri = protect_known_hanri_annotations(
         protected_input,
         include_lomari_title,
-        use_wiktionary=use_wiktionary,
     )
 
     # 3) Convert normal Hangul tones
     processed = convert_segment_to_ruby(protected_input)
 
-    # 4) Old [Hangul + gloss/Hanri] Wiktionary-link mode has been removed.
+    # 4) Preserve unmatched bracket content as ordinary text.
     wrapped = processed
 
     # 5) Restore protected annotations
@@ -2529,21 +2519,6 @@ def clean_chinese_annotation_hangul_input(s: str) -> str:
     """
     return s.strip().strip(".,!?;:’“”。，！？；：、")
 
-
-def chinese_wiktionary_url(word: str) -> str:
-    """
-    Build Wiktionary URL for Chinese annotation mode.
-
-    Display text stays unchanged, but Wiktionary lookup can use
-    a normalised form for selected characters.
-
-    Example:
-      displayed text: 个
-      Wiktionary link: 個
-    """
-    lookup_word = word.replace("个", "個")
-
-    return "https://en.wiktionary.org/wiki/" + quote(lookup_word, safe="") + "#Chinese"
 
 def rt_left_for_chinese_word(word: str, hangul_display: str) -> str:
     """
@@ -2693,21 +2668,10 @@ def add_ruby_continuation_hyphen(hangul_display: str) -> str:
 def annotate_chinese_word(
     chinese_word: str,
     hangul_input: str,
-    use_wiktionary: bool = False,
     include_lomari_title: bool = True,
     continuation_hyphen: bool = False,
 ) -> str:
-    """
-    Produces Chinese ruby annotation.
-
-    If use_wiktionary is False:
-      <ruby>中文<rt>한글</rt></ruby>
-
-    If use_wiktionary is True:
-      <a href="Wiktionary URL" title="romanisation" ...>
-        <ruby>中文<rt>한글</rt></ruby>
-      </a>
-    """
+    """Produce a Chinese word with its Hangul reading as ruby text."""
 
     chinese_word = chinese_word.strip()
     hangul_raw = normalize_apostrophes(hangul_input.strip())
@@ -2732,27 +2696,11 @@ def annotate_chinese_word(
     hangul_escaped = html_lib.escape(hangul_display)
     lomari_escaped = html_lib.escape(lomari, quote=True)
 
-    title_attr = f' title="{lomari_escaped}"' if include_lomari_title and not use_wiktionary else ''
-    ruby_style = 'position: relative' if use_wiktionary else 'position: relative;white-space: nowrap'
-    ruby_html = (
-        f'<ruby style="{ruby_style}"{title_attr}>{chinese_escaped}'
+    title_attr = f' title="{lomari_escaped}"' if include_lomari_title else ''
+    return (
+        f'<ruby style="position: relative;white-space: nowrap"{title_attr}>{chinese_escaped}'
         f'<rt style="font-size: 57%;position: absolute;top: -1.2em;left: {left}">'
         f'{hangul_escaped}</rt></ruby>'
-    )
-
-    # Default: no Wiktionary link
-    if not use_wiktionary:
-        return ruby_html
-
-    # Optional: wrap with Wiktionary link
-    url = chinese_wiktionary_url(chinese_word)
-    url_escaped = html_lib.escape(url, quote=True)
-
-    return (
-        f'<a href="{url_escaped}" title="{lomari_escaped}" '
-        f'style="color: var(--wp--preset--color--primary);'
-        f'text-decoration: underline dotted;cursor: help;white-space: nowrap">'
-        f'{ruby_html}</a>'
     )
 
 def take_hangul_reading_units(reading: str, index: int, unit_count: int) -> tuple[str, int]:
@@ -2779,7 +2727,6 @@ def render_mixed_tsv_hanri_match(
     hanri_key: str,
     reading: str,
     include_lomari_title: bool = True,
-    use_wiktionary: bool = False,
     continuation_hyphen: bool = False,
 ) -> str:
     """Render a TSV key that mixes Hangul text with Hanri characters."""
@@ -2800,7 +2747,6 @@ def render_mixed_tsv_hanri_match(
             out.append(annotate_chinese_word(
                 hanri_run,
                 hangul_run,
-                use_wiktionary=use_wiktionary,
                 include_lomari_title=include_lomari_title,
                 continuation_hyphen=run_continuation_hyphen,
             ))
@@ -3089,7 +3035,6 @@ def make_multiline_song_html(source_text: str) -> tuple[str, str]:
         core = core_convert(
             line,
             include_lomari_title=False,
-            use_wiktionary=False,
         )
         html, lomari = wrap_core_html(core, "song", line)
         if numbered:
@@ -3287,7 +3232,6 @@ def convert_hangul_to_html(input_text: str, style: str = "plain") -> dict:
     core = core_convert(
         s,
         include_lomari_title=(style != "song"),
-        use_wiktionary=False,
     )
     html, lomari = wrap_core_html(core, style, s)
 

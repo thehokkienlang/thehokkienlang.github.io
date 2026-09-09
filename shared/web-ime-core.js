@@ -34,6 +34,67 @@ const TangliengimImeCore = (() => {
 
   const HANGUL_TONE_CHARS = new Set([...Object.keys(HANGUL_TONE_MARKS), "3"]);
   const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘", "'"]);
+  const AMERICAN_TO_BRITISH_ENGLISH = Object.freeze({
+    airplane: "aeroplane",
+    airplanes: "aeroplanes",
+    apologize: "apologise",
+    apologized: "apologised",
+    apologizes: "apologises",
+    apologizing: "apologising",
+    behavior: "behaviour",
+    behaviors: "behaviours",
+    center: "centre",
+    centers: "centres",
+    color: "colour",
+    colored: "coloured",
+    coloring: "colouring",
+    colors: "colours",
+    favor: "favour",
+    favorable: "favourable",
+    favored: "favoured",
+    favoring: "favouring",
+    favors: "favours",
+    gray: "grey",
+    harbor: "harbour",
+    harbors: "harbours",
+    honor: "honour",
+    honorable: "honourable",
+    honors: "honours",
+    kilometer: "kilometre",
+    kilometers: "kilometres",
+    labor: "labour",
+    labors: "labours",
+    neighbor: "neighbour",
+    neighbors: "neighbours",
+    organization: "organisation",
+    organizations: "organisations",
+    organize: "organise",
+    organized: "organised",
+    organizes: "organises",
+    organizing: "organising",
+    rancor: "rancour",
+    realize: "realise",
+    realized: "realised",
+    realizes: "realises",
+    realizing: "realising",
+    realization: "realisation",
+    realizations: "realisations",
+    recognize: "recognise",
+    recognized: "recognised",
+    recognizes: "recognises",
+    recognizing: "recognising",
+    romanization: "romanisation",
+    shriveled: "shrivelled",
+    socialize: "socialise",
+    socialized: "socialised",
+    socializes: "socialises",
+    socializing: "socialising",
+    theater: "theatre",
+    theaters: "theatres",
+    traveler: "traveller",
+    travelers: "travellers",
+    traveling: "travelling",
+  });
 
   function normalizeText(value) {
     return String(value || "")
@@ -41,6 +102,13 @@ const TangliengimImeCore = (() => {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^\p{Letter}\p{Number}\u1100-\u11FF\u3130-\u318F\u3400-\u4DBF\u4E00-\u9FFF\u{20000}-\u{2EBEF}]+/gu, "")
       .toLowerCase();
+  }
+
+  function normalizeEnglishSearch(value) {
+    const british = String(value || "").replace(/[A-Za-z]+/g, (word) =>
+      AMERICAN_TO_BRITISH_ENGLISH[word.toLowerCase()] || word
+    );
+    return normalizeText(british);
   }
 
   function normalizeNasalAlias(value, nasalMarker) {
@@ -75,6 +143,7 @@ const TangliengimImeCore = (() => {
   function queryVariants(rawQuery) {
     const variants = new Set([
       normalizeText(rawQuery),
+      normalizeEnglishSearch(rawQuery),
       normalizeNasalAlias(rawQuery, "l"),
       normalizeNasalAlias(rawQuery, "~"),
     ].filter(Boolean));
@@ -604,6 +673,7 @@ const TangliengimImeCore = (() => {
     displayTextNode,
     headwordUnitAt,
     isToneMark,
+    normalizeEnglishSearch,
     normalizeLomariSearchAliases,
     normalizeText,
     queryVariants,

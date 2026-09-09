@@ -5,6 +5,7 @@ const {
   createTextImeController,
   displayTextNode,
   headwordUnitAt,
+  normalizeEnglishSearch,
   normalizeLomariSearchAliases,
   normalizeText,
   queryVariants,
@@ -96,7 +97,7 @@ function groupEntries(entries) {
     group.search.readingBase = normalizeText(group.readings.map((item) => item.readingBase).join(" "));
     group.search.lomari = normalizeText(group.readings.map((item) => item.lomari).join(" "));
     group.search.lomariAliases = normalizeLomariSearchAliases(group.readings.map((item) => item.lomari).join(" "));
-    group.search.english = normalizeText(group.readings.map((item) => item.english || "").join(" "));
+    group.search.english = normalizeEnglishSearch(group.readings.map((item) => item.english || "").join(" "));
     group.search.all = [
       group.search.hanri,
       group.search.reading,
