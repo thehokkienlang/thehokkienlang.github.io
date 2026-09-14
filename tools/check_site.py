@@ -43,6 +43,10 @@ def main():
                 local_file(urljoin(route, reference))
         route_scripts[route] = parser.scripts
 
+    root_html = local_file("/").read_text(encoding="utf-8")
+    assert 'url=/ime/' in root_html and 'window.location.replace("/ime/")' in root_html
+    assert 'url=/dictionary/' not in root_html and 'window.location.replace("/dictionary/")' not in root_html
+
     dictionary_html = local_file("/dictionary/").read_text(encoding="utf-8")
     dictionary_view = local_file("/dictionary/dictionary-view.html").read_text(encoding="utf-8")
     dictionary_gate = local_file("/dictionary/gate.js").read_text(encoding="utf-8")

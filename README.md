@@ -6,7 +6,7 @@ pronunciation data, and audio.
 - [Dictionary](https://thehokkienlang.github.io/dictionary/)
 - [Web IME Pad](https://thehokkienlang.github.io/ime/)
 
-The root website redirects to the dictionary. Both interfaces are built and
+The root website redirects to the web IME Pad. Both interfaces are built and
 published together by one GitHub Pages workflow.
 
 ## Source layout
