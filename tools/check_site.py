@@ -33,7 +33,7 @@ def local_file(url):
 
 
 def main():
-    script_sets = []
+    route_scripts = {}
     for route in ("/", "/dictionary/", "/ime/"):
         parser = References()
         parser.feed(local_file(route).read_text(encoding="utf-8"))
@@ -41,11 +41,23 @@ def main():
             url = urlsplit(reference)
             if not url.scheme and not url.netloc:
                 local_file(urljoin(route, reference))
-        if route != "/":
-            shared = [src for src in parser.scripts if src.startswith("/shared/")]
-            assert len(shared) == 2, f"Shared composer/controller missing in {route}"
-            script_sets.append(shared)
-    assert script_sets[0] == script_sets[1], "Apps load different shared code versions"
+        route_scripts[route] = parser.scripts
+
+    dictionary_html = local_file("/dictionary/").read_text(encoding="utf-8")
+    dictionary_view = local_file("/dictionary/dictionary-view.html").read_text(encoding="utf-8")
+    dictionary_gate = local_file("/dictionary/gate.js").read_text(encoding="utf-8")
+    assert "gate.js?v=" in dictionary_html, "Dictionary gate script is not versioned"
+    assert 'name="robots" content="noindex, nofollow"' in dictionary_html
+    assert "searchInput" not in dictionary_html, "Dictionary search is exposed before unlocking"
+    assert "/shared/" not in dictionary_html, "Shared IME code loads before unlocking"
+    assert "dictionary-view.html" not in dictionary_html, "Dictionary view loads before unlocking"
+    assert "searchInput" in dictionary_view and "lockDictionaryButton" in dictionary_view
+    assert "client-side courtesy lock" in dictionary_gate
+    assert "localStorage.setItem" in dictionary_gate and "localStorage.removeItem" in dictionary_gate
+    ime_shared = [src for src in route_scripts["/ime/"] if src.startswith("/shared/")]
+    assert len(ime_shared) == 2, "Shared composer/controller missing in /ime/"
+    for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js"):
+        assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
     assert data["schemaVersion"] == 2
@@ -77,7 +89,7 @@ def main():
     assert not (SITE / "desktop").exists()
     assert not (SITE / "data").exists()
     assert not (SITE / ".git").exists()
-    print(f"OK: both routes, identical shared scripts, {len(data['entries'])} TSV entries, {len(audio_paths)} referenced recordings, preserved assets.")
+    print(f"OK: gated dictionary, public IME, {len(data['entries'])} TSV entries, {len(audio_paths)} referenced recordings, preserved assets.")
 
 
 if __name__ == "__main__":

@@ -28,6 +28,107 @@ body {
   color: var(--text);
 }
 
+.dictionary-locked {
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.lock-screen {
+  width: min(100%, 430px);
+}
+
+.lock-panel {
+  padding: clamp(24px, 6vw, 38px);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 18px 50px rgba(15, 23, 42, 0.09);
+}
+
+.lock-brand {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.lock-brand-mark {
+  width: 58px;
+  height: 58px;
+  flex: 0 0 auto;
+}
+
+.lock-note {
+  margin: 24px 0 18px;
+  color: var(--muted);
+  font-size: 0.95rem;
+  line-height: 1.55;
+}
+
+.access-form {
+  display: grid;
+  gap: 9px;
+}
+
+.access-form label {
+  color: #475569;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.access-form input {
+  width: 100%;
+  height: 48px;
+  padding: 0 13px;
+  border: 1px solid #b9c6d6;
+  border-radius: 7px;
+  background: #ffffff;
+  color: var(--text);
+  outline: none;
+}
+
+.access-form input:focus {
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.access-form input[aria-invalid="true"] {
+  border-color: #c2410c;
+}
+
+.access-form button {
+  min-height: 44px;
+  margin-top: 4px;
+  border: 1px solid var(--accent);
+  border-radius: 7px;
+  background: var(--accent);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.access-form button:hover,
+.access-form button:focus-visible {
+  background: var(--accent-strong);
+  outline: none;
+}
+
+.access-form button:focus-visible {
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+}
+
+.access-form button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.access-error {
+  min-height: 1.25em;
+  margin: 2px 0 0;
+  color: #9a3412;
+  font-size: 0.86rem;
+}
+
 button,
 input {
   font: inherit;
@@ -635,7 +736,34 @@ h1 {
   text-align: center;
 }
 
+.lock-dictionary-button {
+  margin-left: 10px;
+  padding: 2px 0;
+  border: 0;
+  border-bottom: 1px solid transparent;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: inherit;
+}
+
+.lock-dictionary-button:hover,
+.lock-dictionary-button:focus-visible {
+  border-bottom-color: currentColor;
+  color: var(--accent-strong);
+  outline: none;
+}
+
 @media (max-width: 720px) {
+  .dictionary-locked {
+    align-items: start;
+    padding: 18px;
+  }
+
+  .lock-panel {
+    margin-top: 8vh;
+  }
+
   .app-header {
     align-items: flex-start;
     flex-direction: column;
@@ -693,6 +821,16 @@ h1 {
 
   .pagination {
     flex-wrap: wrap;
+  }
+
+  .site-footer {
+    display: grid;
+    gap: 8px;
+  }
+
+  .lock-dictionary-button {
+    justify-self: center;
+    margin-left: 0;
   }
 
 }

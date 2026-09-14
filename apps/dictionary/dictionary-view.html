@@ -1,0 +1,73 @@
+<header class="app-header">
+  <div class="brand">
+    <img class="brand-mark" src="/assets/tangliengim-mark.svg" alt="" aria-hidden="true">
+    <div>
+      <p class="eyebrow">Hokkien Tangliengim</p>
+      <h1>Dictionary</h1>
+    </div>
+  </div>
+  <div class="data-status" id="dataStatus">Loading dictionary...</div>
+</header>
+
+<main class="app-shell">
+  <p class="construction-notice">
+    This website is still under construction. Entries, translations, and features are being actively refined.
+  </p>
+
+  <section class="search-panel" aria-label="Dictionary search">
+    <div class="search-heading">
+      <label class="search-label" for="searchInput">Search</label>
+      <div class="input-mode-group">
+        <button id="hangulKeyboardToggle" class="hangul-keyboard-toggle" type="button" aria-pressed="false">
+          <span class="toggle-label">Enable Hangul keyboard</span>
+          <span class="toggle-switch" aria-hidden="true">
+            <span class="toggle-knob"></span>
+          </span>
+        </button>
+      </div>
+    </div>
+    <div class="search-row">
+      <input
+        id="searchInput"
+        class="search-input"
+        type="search"
+        autocomplete="off"
+        autocapitalize="off"
+        spellcheck="false"
+        placeholder="Search Hanri, Hangul, Lomari, or English..."
+        autofocus
+      >
+      <button id="clearButton" class="icon-button" type="button" aria-label="Clear search">×</button>
+    </div>
+
+    <div class="ime-candidates" id="imeCandidates" aria-label="Hanri candidates"></div>
+  </section>
+
+  <nav class="category-browser" aria-label="Browse dictionary categories">
+    <span class="category-title">Browse:</span>
+    <div id="categoryFilters" class="category-filters"></div>
+  </nav>
+
+  <section id="summaryBar" class="summary-bar" aria-live="polite" hidden>
+    <span id="resultSummary">Loading entries...</span>
+  </section>
+
+  <section id="results" class="results" aria-label="Dictionary results"></section>
+
+  <nav id="pagination" class="pagination" aria-label="Search result pages" hidden></nav>
+</main>
+
+<footer class="site-footer">
+  <span>© 2026 Zhen Dong Woo. All rights reserved.</span>
+  <button id="lockDictionaryButton" class="lock-dictionary-button" type="button">Lock dictionary</button>
+</footer>
+
+<template id="resultTemplate">
+  <article class="entry">
+    <div class="entry-main">
+      <h2 class="hanri"></h2>
+      <div class="entry-meta"></div>
+    </div>
+    <div class="readings"></div>
+  </article>
+</template>

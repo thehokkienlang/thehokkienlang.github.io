@@ -23,6 +23,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y python3-tk
       - name: Check JavaScript syntax
         run: |
+          node --check apps/dictionary/gate.js
           node --check apps/dictionary/app.js
           node --check apps/ime/ime.js
           node --check shared/web-ime-core.js
