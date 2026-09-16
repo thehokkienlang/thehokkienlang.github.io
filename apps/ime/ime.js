@@ -512,6 +512,7 @@ async function playPadAudio() {
   if (!segments.length) {
     const message = missing.length ? `No audio for: ${missing.join(", ")}` : "No audible syllables to play";
     statusLine.textContent = message;
+    statusLine.hidden = false;
     showToast(message);
     return;
   }
@@ -537,6 +538,7 @@ async function playPadAudio() {
     if (missing.length) {
       const message = `Missing audio: ${missing.join(", ")}`;
       statusLine.textContent = message;
+      statusLine.hidden = false;
       showToast(message);
     }
   } catch {
@@ -568,9 +570,12 @@ async function loadDictionary() {
     setEntries(data.entries || []);
     imeController.setEntries(state.entries);
     updateLomariPreview();
-    statusLine.textContent = `${data.counts?.active_entries || data.entries?.length || 0} dictionary entries loaded`;
+    // A successful load is the normal state, so keep the toolbar quiet.
+    statusLine.textContent = "";
+    statusLine.hidden = true;
   } catch {
     statusLine.textContent = "Dictionary candidates unavailable; Hangul typing still works";
+    statusLine.hidden = false;
   }
 }
 
