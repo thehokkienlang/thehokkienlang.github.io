@@ -119,7 +119,8 @@ async function loadApp(route, script) {
     'The starred 능잡 typo must remain available to the IME candidate index'
   );
   const { context, elements } = await loadApp('ime', 'ime.js');
-  assert.ok(elements.get('#statusLine').textContent.includes('entries loaded'));
+  assert.equal(elements.get('#statusLine').textContent, '');
+  assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
