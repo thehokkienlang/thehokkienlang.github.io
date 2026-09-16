@@ -7,23 +7,32 @@ const audioButton = document.querySelector("#audioButton");
 const taipeiButton = document.querySelector("#taipeiButton");
 const singaporeButton = document.querySelector("#singaporeButton");
 const candidateBar = document.querySelector("#candidateBar");
+const lomariPreview = document.querySelector("#lomariPreview");
 const statusLine = document.querySelector("#statusLine");
 const toast = document.querySelector("#toast");
 
 const imeCore = window.TangliengimImeCore;
+const lomariCore = window.TangliengimLomariPreview;
 const imeController = imeCore.createTextImeController({
   control: imeText,
   candidateContainer: candidateBar,
   enabled: () => true,
+  onUpdate: updateLomariPreview,
   enterBehavior: "newline",
 });
 
 const state = {
   entries: [],
   hanriEntries: [],
+  hangulOverrides: new Map(),
   readingEntries: new Map(),
   sandhiMode: "taipei",
 };
+const lomariRenderer = lomariCore.createRenderer({
+  imeCore,
+  findHanriEntry,
+  findHangulOverride,
+});
 let audioRunId = 0;
 let currentAudio = null;
 let sharedAudioContext = null;
@@ -113,11 +122,16 @@ function setEntries(entries) {
       a.row - b.row
     );
   state.readingEntries = new Map();
+  state.hangulOverrides = new Map();
 
   for (const entry of state.entries) {
     addReadingEntry(entry.readingBase, entry);
     addReadingEntry(entry.reading, entry);
     addReadingEntry(entry.raw?.reading, entry);
+    if (entry.kind === "hangul_override") {
+      const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(entry.readingBase));
+      if (key && !state.hangulOverrides.has(key)) state.hangulOverrides.set(key, entry);
+    }
   }
 
   for (const candidates of state.readingEntries.values()) {
@@ -145,6 +159,16 @@ function findHanriEntry(text, index) {
 function findReadingEntry(reading) {
   const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
   return state.readingEntries.get(key)?.[0] || null;
+}
+
+function findHangulOverride(reading) {
+  const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
+  return state.hangulOverrides.get(key) || null;
+}
+
+function updateLomariPreview() {
+  lomariPreview.textContent = lomariRenderer.render(imeText.value, state.sandhiMode);
+  lomariPreview.scrollTop = lomariPreview.scrollHeight;
 }
 
 function appendEntryAudio(entry, segments, missing) {
@@ -531,6 +555,7 @@ function setSandhiMode(mode) {
   singaporeButton.classList.toggle("active", state.sandhiMode === "singapore");
   taipeiButton.setAttribute("aria-pressed", String(state.sandhiMode === "taipei"));
   singaporeButton.setAttribute("aria-pressed", String(state.sandhiMode === "singapore"));
+  updateLomariPreview();
 }
 
 async function loadDictionary() {
@@ -542,6 +567,7 @@ async function loadDictionary() {
     const data = await response.json();
     setEntries(data.entries || []);
     imeController.setEntries(state.entries);
+    updateLomariPreview();
     statusLine.textContent = `${data.counts?.active_entries || data.entries?.length || 0} dictionary entries loaded`;
   } catch {
     statusLine.textContent = "Dictionary candidates unavailable; Hangul typing still works";

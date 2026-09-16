@@ -25,6 +25,7 @@ jobs:
         run: |
           node --check apps/dictionary/gate.js
           node --check apps/dictionary/app.js
+          node --check apps/ime/lomari-preview.js
           node --check apps/ime/ime.js
           node --check shared/web-ime-core.js
           node --check shared/web-hangul-ime.js

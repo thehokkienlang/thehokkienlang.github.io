@@ -122,7 +122,6 @@ h1 {
 .text-wrap {
   position: relative;
   border-top: 1px solid #e4ebf3;
-  border-bottom: 1px solid #e4ebf3;
 }
 
 .ime-text {
@@ -165,6 +164,23 @@ h1 {
 .clear-button:hover {
   background: #edf3fa;
   color: #31445a;
+}
+
+.lomari-preview {
+  min-height: calc(1.45em + 16px);
+  max-height: calc(4.35em + 16px);
+  padding: 8px 16px;
+  overflow-y: auto;
+  border-top: 1px solid #e4ebf3;
+  border-bottom: 1px solid #e4ebf3;
+  background: #fbfcfe;
+  color: #667386;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-size: 1.08rem;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  user-select: text;
 }
 
 .candidate-bar {

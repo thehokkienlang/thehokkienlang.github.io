@@ -39,6 +39,13 @@
           <button id="clearButton" class="clear-button" type="button" aria-label="Clear text">×</button>
         </div>
 
+        <div
+          id="lomariPreview"
+          class="lomari-preview"
+          aria-label="Lomari romanisation"
+          aria-live="polite"
+        ></div>
+
         <div id="candidateBar" class="candidate-bar" aria-label="Hanri candidates" hidden></div>
 
         <div class="toolbar">
@@ -74,6 +81,7 @@
 
     <script src="/shared/web-hangul-ime.js"></script>
     <script src="/shared/web-ime-core.js"></script>
+    <script src="lomari-preview.js"></script>
     <script src="ime.js"></script>
   </body>
 </html>

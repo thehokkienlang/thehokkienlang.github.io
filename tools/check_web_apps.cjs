@@ -9,7 +9,7 @@ const data = JSON.parse(fs.readFileSync(path.join(root, 'public/data/hokkien-han
 function element() {
   return {
     value: '', textContent: '', selectionStart: 0, selectionEnd: 0, hidden: false,
-    style: {}, children: [],
+    style: {}, children: [], scrollTop: 0, scrollHeight: 0,
     classList: { add() {}, remove() {}, toggle() {} },
     addEventListener() {}, setAttribute() {}, focus() {},
     setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; },
@@ -41,7 +41,10 @@ async function loadApp(route, script) {
     },
   });
   context.window = context;
-  for (const file of ['shared/web-hangul-ime.js', 'shared/web-ime-core.js', `${route}/${script}`]) {
+  const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js'];
+  if (route === 'ime') files.push('ime/lomari-preview.js');
+  files.push(`${route}/${script}`);
+  for (const file of files) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
   }
   await new Promise(resolve => setImmediate(resolve));
@@ -117,6 +120,20 @@ async function loadApp(route, script) {
   );
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.ok(elements.get('#statusLine').textContent.includes('entries loaded'));
+  for (const [input, expected] of [
+    ['愛릐', 'ài-lì'],
+    ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
+    ['賣票', 'boe-phio'],
+    ['廈門', 'e-mńg'],
+    ['十殿閻君', 'jap-tien-giam-kûn'],
+  ]) {
+    vm.runInContext(`imeText.value = ${JSON.stringify(input)}; updateLomariPreview()`, context);
+    assert.equal(elements.get('#lomariPreview').textContent, expected, `Lomari preview: ${input}`);
+  }
+  vm.runInContext(`imeText.value = '米粉粿'; setSandhiMode('singapore')`, context);
+  assert.equal(elements.get('#lomariPreview').textContent, 'bī-hún-kuè', 'Singapore Lomari preview');
+  vm.runInContext('imeController.clear()', context);
+  assert.equal(elements.get('#lomariPreview').textContent, '', 'Clear must empty the Lomari preview');
   for (const [word, taipei, singapore] of [
     ['\u7e3d\u7d71', '1,2', '4,2'],
     ['\u7e3d\u7763', '1,3', '4,3'],
