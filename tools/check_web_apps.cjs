@@ -82,24 +82,24 @@ async function loadApp(route, script) {
   }
   vm.runInContext('state.activeCategory = ""', dictionary.context);
   assert.equal(
-    vm.runInContext('TangliengimImeCore.normalizeEnglishSearch("neighbor")', dictionary.context),
-    'neighbour',
+    vm.runInContext('TangliengimImeCore.normalizeEnglishSearch("neighbors")', dictionary.context),
+    'neighbours',
     'American spellings must normalize to the British dictionary spelling'
   );
   assert.ok(
     vm.runInContext(`(() => {
-      const group = state.groups.find(item => item.readings.some(reading => reading.english === 'neighbour'));
-      return group && scoreGroup(group, queryVariants('neighbor'), 'lomari') > 0;
+      const group = state.groups.find(item => item.readings.some(reading => /(^|;\\s*)neighbours($|;)/.test(reading.english || '')));
+      return group && scoreGroup(group, queryVariants('neighbors'), 'lomari') > 0;
     })()`, dictionary.context),
-    'American neighbor must find the British-only neighbour entry'
+    'American neighbors must find the British-only neighbours entry'
   );
   assert.ok(
-    vm.runInContext(`state.groups.some(group => group.readings.some(reading => reading.english === 'neighbour'))`, dictionary.context),
-    'The dictionary must display neighbour'
+    vm.runInContext(`state.groups.some(group => group.readings.some(reading => /(^|;\\s*)neighbours($|;)/.test(reading.english || '')))`, dictionary.context),
+    'The dictionary must display neighbours'
   );
   assert.ok(
-    !vm.runInContext(`state.groups.some(group => group.readings.some(reading => /(^|;\\s*)neighbor($|;)/.test(reading.english || '')))`, dictionary.context),
-    'The dictionary must not display neighbor as a separate spelling variant'
+    !vm.runInContext(`state.groups.some(group => group.readings.some(reading => /(^|;\\s*)neighbors($|;)/.test(reading.english || '')))`, dictionary.context),
+    'The dictionary must not display neighbors as a separate spelling variant'
   );
   assert.ok(
     vm.runInContext(`state.entries.some(entry => entry.correctedFrom && entry.raw?.reading?.endsWith('*'))`, dictionary.context),
