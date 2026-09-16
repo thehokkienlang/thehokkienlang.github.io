@@ -50,6 +50,7 @@ import difflib
 import importlib.util
 import os
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -86,6 +87,31 @@ def repo_data_path(name: str) -> Path:
 
 def repo_public_path(name: str) -> Path:
     return source_repo_root() / 'public' / name
+
+
+def github_repo_path_candidates() -> list[Path]:
+    """Return likely local checkouts of the website repository."""
+    env_path = os.environ.get('HOKKIEN_GITHUB_REPO_PATH')
+    candidates = [source_repo_root(), Path.home() / 'Documents' / 'GitHub' / 'thehokkienlang.github.io']
+    if env_path:
+        candidates.insert(0, Path(env_path))
+
+    unique: list[Path] = []
+    seen: set[str] = set()
+    for path in candidates:
+        key = str(path)
+        if key not in seen:
+            unique.append(path)
+            seen.add(key)
+    return unique
+
+
+def github_repo_for_tsv_sync() -> Path | None:
+    """Find a Git checkout which can receive the local dictionary TSV."""
+    for path in github_repo_path_candidates():
+        if (path / '.git').exists() and (path / 'data').is_dir():
+            return path
+    return None
 
 
 def hanri_tsv_path_candidates() -> list[Path]:
@@ -169,6 +195,13 @@ UI_TEXT = {
         'clear_text': 'Clear text',
         'copy_text': 'Copy text',
         'copy_html': 'Copy current text as HTML',
+        'sync_tsv': 'Sync TSV',
+        'tsv_sync_ready': 'New reading added. Sync TSV to GitHub when ready.',
+        'tsv_syncing': 'Syncing TSV to GitHub...',
+        'tsv_sync_complete': 'TSV synced to GitHub.',
+        'tsv_sync_repo_missing': 'GitHub repository not found. Set HOKKIEN_GITHUB_REPO_PATH.',
+        'tsv_sync_conflict': 'Website TSV has local changes. Commit or discard them before syncing.',
+        'tsv_sync_error': 'Could not sync TSV: {error}',
         'listen': 'Listen',
         'stop': 'Stop',
         'play': 'Play',
@@ -243,6 +276,13 @@ UI_TEXT = {
         'clear_text': '清除文字',
         'copy_text': '複製文字',
         'copy_html': '複製為 HTML',
+        'sync_tsv': '同步 TSV',
+        'tsv_sync_ready': '已加入新讀音。準備好後可將 TSV 同步到 GitHub。',
+        'tsv_syncing': '正在將 TSV 同步到 GitHub…',
+        'tsv_sync_complete': 'TSV 已同步到 GitHub。',
+        'tsv_sync_repo_missing': '找不到 GitHub 儲存庫。請設定 HOKKIEN_GITHUB_REPO_PATH。',
+        'tsv_sync_conflict': '網站 TSV 有本機變更。請先提交或捨棄變更，再同步。',
+        'tsv_sync_error': '無法同步 TSV：{error}',
         'listen': '聆聽',
         'stop': '停止',
         'play': '播放',
@@ -6257,11 +6297,13 @@ class ModernPillButton(tk.Canvas):
         selected_border: str = '#d2e3fc',
         padx: int = 18,
         cursor: str = 'hand2',
+        enabled: bool = True,
     ):
         self._text = str(text)
         self._command = command
         self._image = image
         self._selected = bool(selected)
+        self._enabled = bool(enabled)
         self._hover = False
         self._pressed = False
         self._font = font
@@ -6368,7 +6410,11 @@ class ModernPillButton(tk.Canvas):
         fill = self._selected_fill if self._selected else (self._hover_fill if self._hover else self._fill)
         outline = self._selected_border if self._selected else self._border
         fg = self._selected_fg if self._selected else self._fg
-        if self._pressed:
+        if not self._enabled:
+            fill = '#f1f3f4'
+            outline = '#e0e3e7'
+            fg = '#9aa0a6'
+        elif self._pressed:
             fill = '#d2e3fc'
             outline = self._selected_border
 
@@ -6389,6 +6435,8 @@ class ModernPillButton(tk.Canvas):
             self.create_text(left + text_width // 2, center_y, text=self._text, font=self._font, fill=fg)
 
     def _on_enter(self, _event=None) -> None:
+        if not self._enabled:
+            return
         self._hover = True
         self._draw()
 
@@ -6398,10 +6446,14 @@ class ModernPillButton(tk.Canvas):
         self._draw()
 
     def _on_press(self, _event=None) -> None:
+        if not self._enabled:
+            return
         self._pressed = True
         self._draw()
 
     def _on_release(self, event=None) -> None:
+        if not self._enabled:
+            return
         was_pressed = self._pressed
         self._pressed = False
         self._draw()
@@ -6420,6 +6472,18 @@ class ModernPillButton(tk.Canvas):
         value = bool(value)
         if self._selected != value:
             self._selected = value
+            self._draw()
+
+    def set_enabled(self, value: bool) -> None:
+        value = bool(value)
+        if self._enabled != value:
+            self._enabled = value
+            self._hover = False
+            self._pressed = False
+            try:
+                super().configure(cursor='hand2' if value else 'arrow')
+            except tk.TclError:
+                pass
             self._draw()
 
     def set_text(self, text: str) -> None:
@@ -6449,6 +6513,12 @@ class ModernPillButton(tk.Canvas):
                 self._command = value
             elif key == 'selected':
                 self._selected = bool(value)
+                redraw = True
+            elif key in {'enabled', 'state'}:
+                self._enabled = bool(value) if key == 'enabled' else str(value) != 'disabled'
+                self._hover = False
+                self._pressed = False
+                passthrough['cursor'] = 'hand2' if self._enabled else 'arrow'
                 redraw = True
             elif key == 'font':
                 self._font = value
@@ -6783,6 +6853,9 @@ class HokkienIMEPad:
         self.suppressed_hanri_contexts = set()
         self.always_on_top = tk.BooleanVar(value=False)
         self.html_style = tk.StringVar(value='plain')
+        self.tsv_sync_pending = False
+        self.tsv_sync_in_progress = False
+        self.tsv_sync_button = None
         self.tone_marker_module = None
         self.tone_marker_module_mtime = None
         self.roman_preview_after_id = None
@@ -6995,6 +7068,119 @@ class HokkienIMEPad:
         self.text.focus_set()
         return 'break'
 
+    def set_tsv_sync_button_enabled(self, enabled: bool) -> None:
+        if self.tsv_sync_button is None:
+            return
+        try:
+            self.tsv_sync_button.set_enabled(enabled)
+        except tk.TclError:
+            pass
+
+    def mark_tsv_sync_pending(self) -> None:
+        self.tsv_sync_pending = True
+        self.set_tsv_sync_button_enabled(True)
+        self.show_status_message(self.tr('tsv_sync_ready'))
+
+    def local_tsv_path_for_github_sync(self) -> Path:
+        converter = self.load_tone_marker_module()
+        if not hasattr(converter, 'hanri_tsv_path_for_write'):
+            raise RuntimeError('The local TSV writer is unavailable.')
+        path = Path(converter.hanri_tsv_path_for_write())
+        if not path.exists():
+            raise FileNotFoundError(f'Local TSV not found: {path}')
+        return path
+
+    @staticmethod
+    def run_git_command(repo: Path, *args: str) -> subprocess.CompletedProcess:
+        result = subprocess.run(
+            ['git', '-C', str(repo), *args],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='replace',
+            check=False,
+        )
+        if result.returncode != 0:
+            detail = (result.stderr or result.stdout).strip()
+            raise RuntimeError(detail or f'git {" ".join(args)} failed.')
+        return result
+
+    @classmethod
+    def push_tsv_to_github_repository(cls, source_tsv: Path, repo: Path) -> str:
+        destination = repo / 'data' / HANRI_TSV_FILENAME
+        relative_destination = destination.relative_to(repo).as_posix()
+        source_bytes = source_tsv.read_bytes()
+        destination_bytes = destination.read_bytes() if destination.exists() else None
+
+        if destination_bytes != source_bytes:
+            status = cls.run_git_command(repo, 'status', '--porcelain', '--', relative_destination).stdout.strip()
+            if status:
+                return 'conflict'
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(source_tsv, destination)
+
+        cls.run_git_command(repo, 'add', '--', relative_destination)
+        staged = subprocess.run(
+            ['git', '-C', str(repo), 'diff', '--cached', '--quiet', '--', relative_destination],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+            errors='replace',
+            check=False,
+        )
+        if staged.returncode == 1:
+            cls.run_git_command(repo, 'commit', '-m', 'Sync local TSV additions', '--', relative_destination)
+        elif staged.returncode != 0:
+            detail = (staged.stderr or staged.stdout).strip()
+            raise RuntimeError(detail or 'Could not inspect the staged TSV change.')
+
+        cls.run_git_command(repo, 'push', 'origin', 'main')
+        return 'success'
+
+    def sync_tsv_to_github(self) -> None:
+        if not self.tsv_sync_pending or self.tsv_sync_in_progress:
+            return
+
+        repo = github_repo_for_tsv_sync()
+        if repo is None:
+            self.show_status_message(self.tr('tsv_sync_repo_missing'), duration_ms=8000)
+            return
+
+        try:
+            source_tsv = self.local_tsv_path_for_github_sync()
+        except Exception as exc:
+            self.show_status_message(self.tr('tsv_sync_error', error=exc), duration_ms=8000)
+            return
+
+        self.tsv_sync_in_progress = True
+        self.set_tsv_sync_button_enabled(False)
+        self.show_status_message(self.tr('tsv_syncing'))
+
+        def worker() -> None:
+            try:
+                outcome = self.push_tsv_to_github_repository(source_tsv, repo)
+                error = ''
+            except Exception as exc:
+                outcome = 'error'
+                error = str(exc)
+            self.root.after(0, lambda: self.finish_tsv_github_sync(outcome, error))
+
+        threading.Thread(target=worker, daemon=True).start()
+
+    def finish_tsv_github_sync(self, outcome: str, error: str = '') -> None:
+        self.tsv_sync_in_progress = False
+        if outcome == 'success':
+            self.tsv_sync_pending = False
+            self.set_tsv_sync_button_enabled(False)
+            self.show_status_message(self.tr('tsv_sync_complete'))
+            return
+
+        self.set_tsv_sync_button_enabled(True)
+        if outcome == 'conflict':
+            self.show_status_message(self.tr('tsv_sync_conflict'), duration_ms=8000)
+        else:
+            self.show_status_message(self.tr('tsv_sync_error', error=error), duration_ms=9000)
+
     def keyboard_help_button_label(self) -> str:
         return self.tr('keyboard_guide_open' if self.keyboard_help_open else 'keyboard_guide_closed')
 
@@ -7046,6 +7232,7 @@ class HokkienIMEPad:
         updates = [
             (self.header_title_label, 'app_title'),
             (self.language_button, 'language_toggle'),
+            (self.tsv_sync_button, 'sync_tsv'),
             (self.settings_button, 'settings'),
             (self.hanri_button, 'hanri'),
             (self.ime_button, 'ime'),
@@ -7071,6 +7258,7 @@ class HokkienIMEPad:
         font_updates = [
             (self.header_title_label, ui_title_font),
             (self.language_button, language_button_font),
+            (self.tsv_sync_button, ui_bold_font),
             (self.settings_button, ui_bold_font),
             (self.hanri_button, ui_bold_font),
             (self.ime_button, ui_bold_font),
@@ -7593,6 +7781,14 @@ class HokkienIMEPad:
         )
         self.copy_html_button.pack(side='left', padx=(6, 0))
         self.copy_html_tooltip = self.add_tooltip(self.copy_html_button, self.tr('copy_html'))
+        self.tsv_sync_button = self.make_modern_button(
+            action_row,
+            text=self.tr('sync_tsv'),
+            command=self.sync_tsv_to_github,
+            min_width=82,
+            enabled=False,
+        )
+        self.tsv_sync_button.pack(side='left', padx=(6, 0))
 
         audio_inline = ttk.Frame(action_row, style='App.TFrame')
         audio_inline.pack(side='right', anchor='e')
@@ -11844,6 +12040,7 @@ class HokkienIMEPad:
             if hasattr(converter, 'append_hanri_reading_to_tsv'):
                 if converter.append_hanri_reading_to_tsv(hanri, reading):
                     reload_hanri_resources()
+                    self.mark_tsv_sync_pending()
 
         self.last_identical_tsv_detected = identical_entry_detected
         return True
