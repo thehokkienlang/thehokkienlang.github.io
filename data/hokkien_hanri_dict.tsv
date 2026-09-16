@@ -13,7 +13,7 @@ reading	hanri	priority	corrected	english
 인5	인ˉ	1		they, their
 아5	아ˉ	1		
 곻	곻	1		again
-낫2	낫ˋ	1		
+나2	나ˋ	1		
 렁2	렁ˋ	1		all
 빼2	빼ˋ	1		bad
 뻐2	뻐ˋ	1		wife
@@ -22,8 +22,7 @@ reading	hanri	priority	corrected	english
 쉬2	쉬ˋ	2		nice; pretty
 시5	시ˉ	1		is
 허5	허ˉ	1		give
-짖	짖	1		this
-쟟	쟟	1		this; so
+짇	짇	1		this
 쟈1	쟈ˆ	1		here
 힏	힏	1		that
 햐1	햐ˆ	1		there
@@ -32,17 +31,17 @@ reading	hanri	priority	corrected	english
 얓	얓	1		still; yet
 감2	감ˋ	1		(question marker)
 가2	가ˋ	1		to the extent
-제1	제ˆ	1		this
+제2	제ˋ	1		this
 쟣	쟣	1		then
 에당	에당	1		can; be able to
 뾔당	뾔당	1		cannot; will not be able to
 렁1정2	렁ˆ總	1		total; general; always
 안1니1	안ˆ니ˆ	1		like this; like that
 안1네1	안ˆ네ˆ	1		like this; like that
-쟟1니5	쟟ˆ니ˉ	1		this; so
+쟣1니5	쟣ˆ니ˉ	1		this; so
 햫	햫	1		
 햫1니5	햫ˆ니ˉ	1		
-헤1	헤ˆ	1		
+헤2	헤ˋ	1		
 0	0	1	컹	
 1	1	1	짇1	
 2	2	1	띠5	
@@ -2714,3 +2713,12 @@ reading	hanri	priority	corrected	english
 팧1퀴1	拍開	1		open; turn on
 꺟ᄐᅷ4	攑頭	1		raise one's head; wing of a house
 구1등4	久長	1		long; long-lasting
+나2	哪	1		
+나2	逽	1		
+햫	遐	1		
+햫1니5	遐邇	1		
+쟣	遮	1		this; so
+쟣1니5	遮邇	1		this; so
+짇	這	1		this
+힏	彼	1		that
+쟣	才	1		then
