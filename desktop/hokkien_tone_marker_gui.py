@@ -3164,7 +3164,7 @@ def wrap_core_html(core_html: str, style: str, source_text: str = "") -> tuple[s
         visible_text = visible_source_for_lomari_next_line(source_text)
         html = make_lomari_next_line_span(visible_text, lomari)
     elif style == "plain":
-        html = f'<span style="font-family:Sans-serif, Noto Sans TC">{core_html}</span>'
+        html = core_html
         lomari = ""
     elif style == "title":
         html = f'<span style="font-family:Sans-serif, Noto Sans TC">{core_html}</span>'
