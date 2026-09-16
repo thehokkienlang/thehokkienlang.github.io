@@ -3231,7 +3231,7 @@ def convert_hangul_to_html(input_text: str, style: str = "plain") -> dict:
 
     core = core_convert(
         s,
-        include_lomari_title=(style != "song"),
+        include_lomari_title=(style not in {"plain", "song"}),
     )
     html, lomari = wrap_core_html(core, style, s)
 
