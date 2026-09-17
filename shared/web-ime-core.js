@@ -394,6 +394,7 @@ const TangliengimImeCore = (() => {
       this.candidatesByReading = buildReadingCandidateMap(entries);
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
+      this.dismissedCandidateContext = null;
       this.internalUpdate = false;
 
       this.handleKeydown = this.handleKeydown.bind(this);
@@ -487,20 +488,26 @@ const TangliengimImeCore = (() => {
       if (!this.isEnabled()) return false;
       if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return false;
       if (event.key.length === 1) return true;
-      if (this.activeCandidates.length && ["ArrowUp", "ArrowDown"].includes(event.key)) return true;
-      return ["Backspace", "ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Tab"].includes(event.key);
+      if (this.activeCandidates.length && ["ArrowUp", "ArrowDown", "Tab", "Escape"].includes(event.key)) return true;
+      return ["Backspace", "ArrowLeft", "ArrowRight", "Home", "End", "Enter"].includes(event.key);
     }
 
     handleKeydown(event) {
       if (!this.shouldHandleKey(event)) return;
 
       if (this.activeCandidates.length) {
-        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+        if (event.key === "Escape") {
           event.preventDefault();
-          this.setCandidateIndex(this.activeCandidateIndex + (event.key === "ArrowDown" ? 1 : -1));
+          this.dismissCandidates();
           return;
         }
-        if (event.key === "Tab" || event.key === "Enter") {
+        if (["ArrowUp", "ArrowDown", "Tab"].includes(event.key)) {
+          event.preventDefault();
+          const backwards = event.key === "ArrowUp" || (event.key === "Tab" && event.shiftKey);
+          this.setCandidateIndex(this.activeCandidateIndex + (backwards ? -1 : 1));
+          return;
+        }
+        if (event.key === "Enter") {
           event.preventDefault();
           this.applyCandidate(this.activeCandidates[this.activeCandidateIndex]);
           return;
@@ -579,7 +586,7 @@ const TangliengimImeCore = (() => {
       if (
         event?.type === "keyup" &&
         this.activeCandidates.length &&
-        ["ArrowUp", "ArrowDown"].includes(event.key)
+        ["ArrowUp", "ArrowDown", "Tab"].includes(event.key)
       ) {
         return;
       }
@@ -651,6 +658,15 @@ const TangliengimImeCore = (() => {
         return;
       }
 
+      const context = this.candidateContextKey();
+      if (this.dismissedCandidateContext === context) {
+        this.activeCandidates = [];
+        this.activeCandidateIndex = 0;
+        this.candidateContainer.hidden = true;
+        return;
+      }
+      this.dismissedCandidateContext = null;
+
       this.activeCandidates = this.findCandidates();
       this.activeCandidateIndex = 0;
       this.candidateContainer.hidden = !this.activeCandidates.length;
@@ -659,6 +675,7 @@ const TangliengimImeCore = (() => {
       for (const [index, candidate] of this.activeCandidates.entries()) {
         const button = document.createElement("button");
         button.type = "button";
+        button.tabIndex = -1;
         button.className = "ime-candidate";
         button.setAttribute("role", "option");
         button.setAttribute("aria-selected", String(index === this.activeCandidateIndex));
@@ -692,6 +709,19 @@ const TangliengimImeCore = (() => {
         button.addEventListener("click", () => this.applyCandidate(candidate));
         this.candidateContainer.append(button);
       }
+    }
+
+    candidateContextKey() {
+      return `${this.control.value}\u0000${this.control.selectionStart ?? 0}\u0000${this.control.selectionEnd ?? 0}`;
+    }
+
+    dismissCandidates() {
+      this.dismissedCandidateContext = this.candidateContextKey();
+      this.activeCandidates = [];
+      this.activeCandidateIndex = 0;
+      this.candidateContainer.replaceChildren();
+      this.candidateContainer.hidden = true;
+      this.control.focus();
     }
 
     setCandidateIndex(index) {

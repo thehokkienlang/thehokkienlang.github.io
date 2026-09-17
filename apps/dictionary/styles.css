@@ -353,27 +353,8 @@ h1 {
 }
 
 .ime-candidates {
-  position: absolute;
   top: calc(100% + 4px);
   left: 0;
-  z-index: 30;
-  display: flex;
-  flex-direction: column;
-  gap: 1px;
-  width: max-content;
-  min-width: min(330px, 100%);
-  max-width: 100%;
-  max-height: 280px;
-  padding: 4px;
-  overflow-y: auto;
-  border: 1px solid #aebdce;
-  border-radius: 3px;
-  background: #ffffff;
-  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.2);
-}
-
-.ime-candidates[hidden] {
-  display: none;
 }
 
 .category-browser {
@@ -414,65 +395,6 @@ h1 {
   background: #eef7f6;
   color: var(--accent-strong);
   outline: none;
-}
-
-.ime-candidate {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 34px;
-  width: 100%;
-  max-width: 100%;
-  padding: 4px 10px 4px 6px;
-  border: 0;
-  border-radius: 2px;
-  background: #ffffff;
-  color: var(--text);
-  cursor: pointer;
-  font-size: 0.95rem;
-  font-weight: 750;
-}
-
-.ime-candidate:hover,
-.ime-candidate:focus-visible,
-.ime-candidate.selected {
-  background: #3875d6;
-  color: #ffffff;
-  outline: none;
-}
-
-.ime-candidate.selected .candidate-number,
-.ime-candidate.selected .candidate-reading {
-  color: #ffffff;
-}
-
-.candidate-number {
-  display: grid;
-  width: 22px;
-  height: 22px;
-  place-items: center;
-  border-radius: 5px;
-  background: #eef2f7;
-  color: #64748b;
-  font-family: Calibri, Arial, sans-serif;
-  font-size: 0.78rem;
-  font-weight: 800;
-}
-
-.candidate-hanri {
-  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
-  white-space: nowrap;
-}
-
-.candidate-hangul {
-  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
-}
-
-.candidate-reading {
-  color: var(--muted);
-  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
-  font-size: 0.86rem;
-  white-space: nowrap;
 }
 
 .summary-bar {

@@ -54,12 +54,16 @@ def main():
     assert "gate.js?v=" in dictionary_html, "Dictionary gate script is not versioned"
     assert 'name="robots" content="noindex, nofollow"' in dictionary_html
     assert "searchInput" not in dictionary_html, "Dictionary search is exposed before unlocking"
-    assert "/shared/" not in dictionary_html, "Shared IME code loads before unlocking"
+    assert "/shared/web-hangul-ime.js" not in dictionary_html
+    assert "/shared/web-ime-core.js" not in dictionary_html
     assert "dictionary-view.html" not in dictionary_html, "Dictionary view loads before unlocking"
     assert "searchInput" in dictionary_view and "lockDictionaryButton" in dictionary_view
     assert dictionary_view.index('class="search-row"') < dictionary_view.index('id="imeCandidates"')
     assert 'id="keyboardGuideButton"' in ime_html and 'id="keyboardLayout"' in ime_html
     assert ime_html.index('class="text-wrap"') < ime_html.index('id="candidateBar"')
+    assert '/shared/web-ime-menu.css?v=' in ime_html
+    assert '/shared/web-ime-menu.css?v=' in dictionary_html
+    assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view
     assert "client-side courtesy lock" in dictionary_gate
     assert "localStorage.setItem" in dictionary_gate and "localStorage.removeItem" in dictionary_gate
     ime_shared = [src for src in route_scripts["/ime/"] if src.startswith("/shared/")]

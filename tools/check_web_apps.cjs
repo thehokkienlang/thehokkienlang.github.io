@@ -156,12 +156,44 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
-      if (imeController.activeCandidates.length < 2) return true;
-      imeController.setCandidateIndex(1);
-      imeController.handleCursorChange({ type: 'keyup', key: 'ArrowDown' });
-      return imeController.activeCandidateIndex === 1;
+      imeController.composer.setText('랑', 1);
+      imeController.updateControlFromComposer();
+      if (imeController.activeCandidates.length < 2) return false;
+      let prevented = false;
+      const event = {
+        key: 'Tab', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() { prevented = true; },
+      };
+      imeController.handleKeydown(event);
+      imeController.handleCursorChange({ type: 'keyup', key: 'Tab' });
+      return prevented && imeController.activeCandidateIndex === 1;
     })()`, context),
-    'Candidate keyboard navigation must retain its selected row on keyup'
+    'Tab must advance the candidate highlight without accepting it'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      let prevented = false;
+      const event = {
+        key: 'Escape', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() { prevented = true; },
+      };
+      imeController.handleKeydown(event);
+      imeController.handleCursorChange({ type: 'keyup', key: 'Escape' });
+      return prevented && imeController.activeCandidates.length === 0 && candidateBar.hidden;
+    })()`, context),
+    'Escape must dismiss the popup while keeping the typed Hangul'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      let prevented = false;
+      imeController.handleKeydown({
+        key: 'Tab', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() { prevented = true; },
+      });
+      return !prevented;
+    })()`, context),
+    'Tab must retain normal browser focus navigation when no candidate menu is open'
   );
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],

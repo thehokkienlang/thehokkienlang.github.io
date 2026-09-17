@@ -1,0 +1,88 @@
+.hanri-candidate-menu {
+  position: absolute;
+  z-index: 30;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  width: max-content;
+  min-width: 250px;
+  max-width: calc(100% - 16px);
+  max-height: 280px;
+  padding: 4px;
+  overflow-y: auto;
+  border: 1px solid #aebdce;
+  border-radius: 3px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.2);
+}
+
+.hanri-candidate-menu[hidden] {
+  display: none;
+}
+
+.hanri-candidate-menu .ime-candidate {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  width: 100%;
+  min-height: 38px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 2px;
+  background: #ffffff;
+  color: var(--text, #102033);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 400;
+  text-align: left;
+}
+
+.hanri-candidate-menu .ime-candidate:hover,
+.hanri-candidate-menu .ime-candidate:focus-visible,
+.hanri-candidate-menu .ime-candidate.selected {
+  background: #3875d6;
+  color: #ffffff;
+  outline: none;
+}
+
+.hanri-candidate-menu .ime-candidate.selected .candidate-number,
+.hanri-candidate-menu .ime-candidate.selected .candidate-reading {
+  color: #ffffff;
+}
+
+.hanri-candidate-menu .candidate-number {
+  flex: 0 0 auto;
+  color: var(--blue, #1d70d7);
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-weight: 800;
+}
+
+.hanri-candidate-menu .candidate-hanri {
+  flex: 0 0 auto;
+  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-size: 1.2rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.hanri-candidate-menu .candidate-hangul,
+.hanri-candidate-menu .candidate-reading {
+  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.hanri-candidate-menu .candidate-reading {
+  color: #667386;
+}
+
+.hanri-candidate-menu .hangul-tone {
+  margin-top: 0;
+}
+
+@media (max-width: 640px) {
+  .hanri-candidate-menu {
+    min-width: min(250px, calc(100% - 16px));
+  }
+}

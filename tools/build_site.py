@@ -61,7 +61,7 @@ def main() -> int:
         "entries": len(data["entries"]),
         "shared": {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()
-            for path in sorted((OUTPUT / "shared").glob("*.js"))
+            for path in sorted((OUTPUT / "shared").glob("*.*"))
         },
     }
     (OUTPUT / "build-info.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
