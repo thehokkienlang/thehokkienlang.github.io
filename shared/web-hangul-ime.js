@@ -86,6 +86,14 @@ const TangliengimHangulIme = (() => {
     return char;
   }
 
+  function keyboardGuideOutput(char) {
+    const normalized = normalizeKeyboardChar(char);
+    if ("1245".includes(normalized)) {
+      return TONE_MARKS[normalized] || "";
+    }
+    return KEY_TO_JAMO[normalized] || "";
+  }
+
   function composeSyllable(initial, medial, final = "") {
     if (initial in L_INDEX && medial in V_INDEX && final in T_INDEX) {
       return String.fromCodePoint(0xac00 + (L_INDEX[initial] * 21 + V_INDEX[medial]) * 28 + T_INDEX[final]);
@@ -392,6 +400,7 @@ const TangliengimHangulIme = (() => {
 
   return {
     Composer,
+    keyboardGuideOutput,
     normalizeReadingBase,
   };
 })();

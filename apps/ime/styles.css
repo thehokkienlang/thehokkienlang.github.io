@@ -184,22 +184,32 @@ h1 {
 }
 
 .candidate-bar {
+  position: absolute;
+  z-index: 30;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding: 10px 12px;
-  border-bottom: 1px solid #e4ebf3;
-  background: #f8fbfe;
+  flex-direction: column;
+  gap: 1px;
+  width: max-content;
+  min-width: 250px;
+  max-width: calc(100% - 16px);
+  max-height: 280px;
+  padding: 4px;
+  overflow-y: auto;
+  border: 1px solid #aebdce;
+  border-radius: 3px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.2);
 }
 
 .ime-candidate {
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  width: 100%;
   min-height: 38px;
-  padding: 0 10px;
-  border: 1px solid #c9d7e7;
-  border-radius: 7px;
+  padding: 3px 10px;
+  border: 0;
+  border-radius: 2px;
   background: #ffffff;
   color: var(--text);
   cursor: pointer;
@@ -207,9 +217,16 @@ h1 {
 }
 
 .ime-candidate:hover,
-.ime-candidate:focus-visible {
-  border-color: rgba(15, 118, 110, 0.55);
-  background: var(--accent-soft);
+.ime-candidate:focus-visible,
+.ime-candidate.selected {
+  background: #3875d6;
+  color: #ffffff;
+  outline: none;
+}
+
+.ime-candidate.selected .candidate-number,
+.ime-candidate.selected .candidate-reading {
+  color: #ffffff;
 }
 
 .candidate-number {
@@ -334,6 +351,129 @@ h1 {
   text-align: right;
 }
 
+.keyboard-guide-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid #c2d0e0;
+  border-radius: 7px;
+  background: #ffffff;
+  color: #31516f;
+  cursor: pointer;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+
+.keyboard-guide-button:hover,
+.keyboard-guide-button:focus-visible,
+.keyboard-guide-button[aria-expanded="true"] {
+  border-color: rgba(29, 112, 215, 0.45);
+  background: #eaf2ff;
+  color: var(--blue);
+  outline: none;
+}
+
+.guide-chevron {
+  color: #718096;
+  font-size: 0.72rem;
+}
+
+.keyboard-guide {
+  padding: 13px 10px 15px;
+  overflow-x: auto;
+  border-top: 1px solid #e4ebf3;
+  background: #fbfcfe;
+}
+
+.keyboard-layout {
+  display: grid;
+  justify-content: center;
+  gap: 6px;
+  min-width: 410px;
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+}
+
+.keyboard-key {
+  position: relative;
+  display: grid;
+  width: 48px;
+  height: 48px;
+  flex: 0 0 48px;
+  place-items: center;
+  padding: 3px;
+  border: 1px solid #d2d9e2;
+  border-radius: 3px;
+  background: #ffffff;
+  color: #202124;
+  cursor: pointer;
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  touch-action: manipulation;
+}
+
+.keyboard-key:hover,
+.keyboard-key:focus-visible {
+  border-color: #9db9de;
+  background: #f8fbff;
+  outline: none;
+}
+
+.keyboard-key.pressed,
+.keyboard-key.modifier-active {
+  border-color: var(--blue);
+  background: #dbeafe;
+}
+
+.key-input {
+  align-self: start;
+  color: #737d8a;
+  font-size: 0.78rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.key-output {
+  align-self: start;
+  margin-top: -1px;
+  font-family: "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif;
+  font-size: 1.12rem;
+  line-height: 1;
+}
+
+.control-key {
+  height: 28px;
+  flex-basis: auto;
+  color: #46566a;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.key-shift {
+  width: 78px;
+}
+
+.key-space {
+  width: 190px;
+}
+
+.key-apostrophe {
+  width: 44px;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 1rem;
+}
+
+.key-backspace {
+  width: 92px;
+}
+
 .hangul-tone {
   position: relative;
   display: inline-block;
@@ -399,5 +539,47 @@ h1 {
 
   .status-line {
     text-align: left;
+  }
+
+  .keyboard-guide-button {
+    align-self: stretch;
+  }
+
+  .keyboard-guide {
+    padding-inline: 5px;
+  }
+
+  .keyboard-layout {
+    min-width: 0;
+  }
+
+  .keyboard-row {
+    gap: 3px;
+  }
+
+  .keyboard-key:not(.control-key) {
+    width: calc((100vw - 58px) / 10);
+    height: 44px;
+    flex-basis: calc((100vw - 58px) / 10);
+  }
+
+  .key-input {
+    font-size: 0.68rem;
+  }
+
+  .key-output {
+    font-size: 0.98rem;
+  }
+
+  .key-shift {
+    width: 60px;
+  }
+
+  .key-space {
+    width: min(42vw, 160px);
+  }
+
+  .key-backspace {
+    width: 76px;
   }
 }

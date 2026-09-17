@@ -10,6 +10,10 @@ const candidateBar = document.querySelector("#candidateBar");
 const lomariPreview = document.querySelector("#lomariPreview");
 const statusLine = document.querySelector("#statusLine");
 const toast = document.querySelector("#toast");
+const textWrap = document.querySelector(".text-wrap");
+const keyboardGuideButton = document.querySelector("#keyboardGuideButton");
+const keyboardGuide = document.querySelector("#keyboardGuide");
+const keyboardLayout = document.querySelector("#keyboardLayout");
 
 const imeCore = window.TangliengimImeCore;
 const lomariCore = window.TangliengimLomariPreview;
@@ -37,6 +41,167 @@ let audioRunId = 0;
 let currentAudio = null;
 let sharedAudioContext = null;
 const decodedAudioCache = new Map();
+const guideButtons = new Map();
+let guideShifted = false;
+
+const GUIDE_ROWS = [
+  ["1", "2", "4", "5"],
+  [..."qwertyuiop"],
+  [..."asdfghjkl"],
+  [..."zxcvbnm"],
+  ["Shift", "Space", "’", "Backspace"],
+];
+
+function guideInputForKey(key) {
+  if (key === "Space") return " ";
+  if (key === "’") return "’";
+  if (key.length === 1 && /[a-z]/i.test(key)) {
+    return guideShifted ? key.toUpperCase() : key.toLowerCase();
+  }
+  return key;
+}
+
+function guideOutputForKey(key) {
+  if (["Shift", "Space", "’", "Backspace"].includes(key)) return "";
+  return TangliengimHangulIme.keyboardGuideOutput(guideInputForKey(key));
+}
+
+function refreshGuideKey(key) {
+  const button = guideButtons.get(key);
+  if (!button) return;
+  button.classList.toggle("modifier-active", key === "Shift" && guideShifted);
+  const input = button.querySelector?.(".key-input");
+  const output = button.querySelector?.(".key-output");
+  if (input && key.length === 1 && /[a-z]/i.test(key)) {
+    input.textContent = guideInputForKey(key);
+  }
+  if (output) output.textContent = guideOutputForKey(key);
+}
+
+function refreshGuideShiftState() {
+  for (const row of GUIDE_ROWS) {
+    for (const key of row) refreshGuideKey(key);
+  }
+}
+
+function setGuidePressed(key, pressed) {
+  guideButtons.get(key)?.classList.toggle("pressed", pressed);
+}
+
+function activateGuideKey(key) {
+  if (key === "Shift") {
+    guideShifted = !guideShifted;
+    refreshGuideShiftState();
+    return;
+  }
+  if (key === "Backspace") {
+    imeController.backspace();
+  } else {
+    imeController.insertText(guideInputForKey(key));
+  }
+  if (guideShifted) {
+    guideShifted = false;
+    refreshGuideShiftState();
+  }
+}
+
+function makeGuideKey(key) {
+  const button = document.createElement("button");
+  button.type = "button";
+  button.className = "keyboard-key";
+  button.setAttribute("data-key", key);
+  if ("1245".includes(key)) button.classList.add("tone-key");
+  if (["Shift", "Space", "Backspace"].includes(key)) {
+    button.classList.add("control-key", `key-${key.toLowerCase()}`);
+    button.textContent = key;
+  } else if (key === "’") {
+    button.classList.add("control-key", "key-apostrophe");
+    button.textContent = key;
+  } else {
+    const input = document.createElement("span");
+    input.className = "key-input";
+    input.textContent = key;
+    const output = document.createElement("span");
+    output.className = "key-output";
+    output.textContent = guideOutputForKey(key);
+    button.append(input, output);
+  }
+  button.addEventListener("mousedown", (event) => event.preventDefault());
+  button.addEventListener("pointerdown", () => setGuidePressed(key, true));
+  button.addEventListener("pointerleave", () => setGuidePressed(key, false));
+  button.addEventListener("pointerup", () => setGuidePressed(key, false));
+  button.addEventListener("click", () => activateGuideKey(key));
+  guideButtons.set(key, button);
+  return button;
+}
+
+function renderKeyboardGuide() {
+  keyboardLayout.replaceChildren();
+  for (const keys of GUIDE_ROWS) {
+    const row = document.createElement("div");
+    row.className = "keyboard-row";
+    for (const key of keys) row.append(makeGuideKey(key));
+    keyboardLayout.append(row);
+  }
+}
+
+function physicalGuideKey(event) {
+  if (event.key === "Shift") return "Shift";
+  if (event.key === "Backspace") return "Backspace";
+  if (event.key === " " || event.code === "Space") return "Space";
+  if (["'", "’"].includes(event.key)) return "’";
+  const key = String(event.key || "").toLowerCase();
+  return guideButtons.has(key) ? key : null;
+}
+
+function textAreaCaretPosition(control) {
+  if (!document.body || typeof getComputedStyle !== "function") return null;
+  const style = getComputedStyle(control);
+  const mirror = document.createElement("div");
+  const properties = [
+    "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
+    "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+    "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+  ];
+  mirror.style.position = "fixed";
+  mirror.style.visibility = "hidden";
+  mirror.style.pointerEvents = "none";
+  mirror.style.whiteSpace = "pre-wrap";
+  mirror.style.overflowWrap = "break-word";
+  mirror.style.width = `${control.offsetWidth}px`;
+  for (const property of properties) mirror.style[property] = style[property];
+  const cursor = control.selectionStart ?? 0;
+  mirror.textContent = control.value.slice(0, cursor);
+  const marker = document.createElement("span");
+  marker.textContent = control.value.slice(cursor, cursor + 1) || "\u200b";
+  mirror.append(marker);
+  document.body.append(mirror);
+  const position = {
+    left: marker.offsetLeft - control.scrollLeft,
+    top: marker.offsetTop - control.scrollTop,
+    height: Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.4,
+  };
+  mirror.remove();
+  return position;
+}
+
+function positionCandidatePopup() {
+  if (candidateBar.hidden || !candidateBar.children.length || !textWrap) return;
+  const caret = textAreaCaretPosition(imeText);
+  if (!caret) return;
+  const maximumLeft = Math.max(8, textWrap.clientWidth - candidateBar.offsetWidth - 8);
+  candidateBar.style.left = `${Math.max(8, Math.min(caret.left, maximumLeft))}px`;
+  let top = caret.top + caret.height + 4;
+  if (top + candidateBar.offsetHeight > imeText.clientHeight && caret.top > candidateBar.offsetHeight + 8) {
+    top = caret.top - candidateBar.offsetHeight - 4;
+  }
+  candidateBar.style.top = `${Math.max(4, top)}px`;
+}
+
+function scheduleCandidatePopupPosition() {
+  const schedule = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
+  schedule(positionCandidatePopup);
+}
 
 function copyText(text) {
   if (navigator.clipboard?.writeText) {
@@ -169,6 +334,7 @@ function findHangulOverride(reading) {
 function updateLomariPreview() {
   lomariPreview.textContent = lomariRenderer.render(imeText.value, state.sandhiMode);
   lomariPreview.scrollTop = lomariPreview.scrollHeight;
+  scheduleCandidatePopupPosition();
 }
 
 function appendEntryAudio(entry, segments, missing) {
@@ -595,5 +761,45 @@ copyButton.addEventListener("click", async () => {
 audioButton.addEventListener("click", playPadAudio);
 taipeiButton.addEventListener("click", () => setSandhiMode("taipei"));
 singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
+
+keyboardGuideButton.addEventListener("click", () => {
+  const opening = keyboardGuide.hidden;
+  keyboardGuide.hidden = !opening;
+  keyboardGuideButton.setAttribute("aria-expanded", String(opening));
+  keyboardGuideButton.querySelector(".guide-chevron").textContent = opening ? "▲" : "▼";
+  if (opening) imeText.focus();
+});
+
+imeText.addEventListener("keydown", (event) => {
+  const key = physicalGuideKey(event);
+  if (key) setGuidePressed(key, true);
+  if (event.key === "Shift" && !guideShifted) {
+    guideShifted = true;
+    refreshGuideShiftState();
+  }
+});
+
+imeText.addEventListener("keyup", (event) => {
+  const key = physicalGuideKey(event);
+  if (key) setGuidePressed(key, false);
+  if (event.key === "Shift" && guideShifted) {
+    guideShifted = false;
+    refreshGuideShiftState();
+  }
+  scheduleCandidatePopupPosition();
+});
+
+imeText.addEventListener("scroll", scheduleCandidatePopupPosition);
+imeText.addEventListener("click", scheduleCandidatePopupPosition);
+if (typeof window.addEventListener === "function") {
+  window.addEventListener("resize", scheduleCandidatePopupPosition);
+  window.addEventListener("blur", () => {
+    guideShifted = false;
+    for (const key of guideButtons.keys()) setGuidePressed(key, false);
+    refreshGuideShiftState();
+  });
+}
+
+renderKeyboardGuide();
 
 loadDictionary();

@@ -393,6 +393,7 @@ const TangliengimImeCore = (() => {
       this.composer = new TangliengimHangulIme.Composer();
       this.candidatesByReading = buildReadingCandidateMap(entries);
       this.activeCandidates = [];
+      this.activeCandidateIndex = 0;
       this.internalUpdate = false;
 
       this.handleKeydown = this.handleKeydown.bind(this);
@@ -424,6 +425,24 @@ const TangliengimImeCore = (() => {
 
     clear() {
       this.composer.setText("", 0);
+      this.updateControlFromComposer();
+      this.control.focus();
+    }
+
+    insertText(text) {
+      this.syncComposerFromControl();
+      this.replaceSelectionBeforeImeKey();
+      for (const char of [...String(text || "")]) {
+        this.composer.processChar(char);
+      }
+      this.updateControlFromComposer();
+      this.control.focus();
+    }
+
+    backspace() {
+      this.syncComposerFromControl();
+      this.replaceSelectionBeforeImeKey();
+      this.composer.backspace();
       this.updateControlFromComposer();
       this.control.focus();
     }
@@ -468,16 +487,24 @@ const TangliengimImeCore = (() => {
       if (!this.isEnabled()) return false;
       if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return false;
       if (event.key.length === 1) return true;
+      if (this.activeCandidates.length && ["ArrowUp", "ArrowDown"].includes(event.key)) return true;
       return ["Backspace", "ArrowLeft", "ArrowRight", "Home", "End", "Enter", "Tab"].includes(event.key);
     }
 
     handleKeydown(event) {
       if (!this.shouldHandleKey(event)) return;
 
-      if (event.key === "Tab" && this.activeCandidates.length) {
-        event.preventDefault();
-        this.applyCandidate(this.activeCandidates[0]);
-        return;
+      if (this.activeCandidates.length) {
+        if (event.key === "ArrowUp" || event.key === "ArrowDown") {
+          event.preventDefault();
+          this.setCandidateIndex(this.activeCandidateIndex + (event.key === "ArrowDown" ? 1 : -1));
+          return;
+        }
+        if (event.key === "Tab" || event.key === "Enter") {
+          event.preventDefault();
+          this.applyCandidate(this.activeCandidates[this.activeCandidateIndex]);
+          return;
+        }
       }
 
       if (event.key === "Enter" && this.enterBehavior !== "newline") {
@@ -548,7 +575,14 @@ const TangliengimImeCore = (() => {
       this.renderCandidates();
     }
 
-    handleCursorChange() {
+    handleCursorChange(event) {
+      if (
+        event?.type === "keyup" &&
+        this.activeCandidates.length &&
+        ["ArrowUp", "ArrowDown"].includes(event.key)
+      ) {
+        return;
+      }
       if (this.isEnabled()) {
         this.syncComposerFromControl();
       }
@@ -618,6 +652,7 @@ const TangliengimImeCore = (() => {
       }
 
       this.activeCandidates = this.findCandidates();
+      this.activeCandidateIndex = 0;
       this.candidateContainer.hidden = !this.activeCandidates.length;
       if (!this.activeCandidates.length) return;
 
@@ -625,6 +660,9 @@ const TangliengimImeCore = (() => {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "ime-candidate";
+        button.setAttribute("role", "option");
+        button.setAttribute("aria-selected", String(index === this.activeCandidateIndex));
+        button.classList.toggle("selected", index === this.activeCandidateIndex);
 
         const number = document.createElement("span");
         number.className = "candidate-number";
@@ -650,8 +688,22 @@ const TangliengimImeCore = (() => {
           button.append(reading);
         }
         button.addEventListener("mousedown", (event) => event.preventDefault());
+        button.addEventListener("mouseenter", () => this.setCandidateIndex(index));
         button.addEventListener("click", () => this.applyCandidate(candidate));
         this.candidateContainer.append(button);
+      }
+    }
+
+    setCandidateIndex(index) {
+      if (!this.activeCandidates.length) return;
+      this.activeCandidateIndex = (index + this.activeCandidates.length) % this.activeCandidates.length;
+      for (const [candidateIndex, button] of [...this.candidateContainer.children].entries()) {
+        const selected = candidateIndex === this.activeCandidateIndex;
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-selected", String(selected));
+        if (selected && typeof button.scrollIntoView === "function") {
+          button.scrollIntoView({ block: "nearest" });
+        }
       }
     }
 

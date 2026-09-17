@@ -37,6 +37,7 @@
             autofocus
           ></textarea>
           <button id="clearButton" class="clear-button" type="button" aria-label="Clear text">×</button>
+          <div id="candidateBar" class="candidate-bar" role="listbox" aria-label="Hanri candidates" hidden></div>
         </div>
 
         <div
@@ -45,8 +46,6 @@
           aria-label="Lomari romanisation"
           aria-live="polite"
         ></div>
-
-        <div id="candidateBar" class="candidate-bar" aria-label="Hanri candidates" hidden></div>
 
         <div class="toolbar">
           <div class="toolbar-actions">
@@ -72,8 +71,22 @@
             <button id="taipeiButton" class="sandhi-button active" type="button" aria-pressed="true">Taipei</button>
             <button id="singaporeButton" class="sandhi-button" type="button" aria-pressed="false">Singapore</button>
           </div>
+          <button
+            id="keyboardGuideButton"
+            class="keyboard-guide-button"
+            type="button"
+            aria-expanded="false"
+            aria-controls="keyboardGuide"
+          >
+            <span>Keyboard guide</span>
+            <span class="guide-chevron" aria-hidden="true">▼</span>
+          </button>
           <span id="statusLine" class="status-line" hidden></span>
         </div>
+
+        <section id="keyboardGuide" class="keyboard-guide" aria-label="Hangul keyboard guide" hidden>
+          <div id="keyboardLayout" class="keyboard-layout"></div>
+        </section>
       </section>
     </main>
 

@@ -65,6 +65,20 @@ async function loadApp(route, script) {
   const dictionary = await loadApp('dictionary', 'app.js');
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
+  assert.ok(
+    vm.runInContext(`(() => {
+      setInputMode('hanri-hangul');
+      const entry = state.entries.find(item => item.hanri && item.kind !== 'hangul_override');
+      searchInput.value = entry.readingBase;
+      searchInput.selectionStart = entry.readingBase.length;
+      searchInput.selectionEnd = entry.readingBase.length;
+      searchImeController.composer.setText(entry.readingBase, entry.readingBase.length);
+      searchImeController.renderCandidates();
+      return searchImeController.activeCandidates.length > 0 && imeCandidates.children.length > 0 && !imeCandidates.hidden;
+    })()`, dictionary.context),
+    'Dictionary Hanri candidates must render as a visible popup list'
+  );
+  vm.runInContext(`searchInput.value = ''; searchImeController.composer.setText('', 0); setInputMode('lomari')`, dictionary.context);
   assert.deepEqual(
     vm.runInContext('state.categories.map(category => category.id).join(",")', dictionary.context),
     'food,place-names'
@@ -121,6 +135,34 @@ async function loadApp(route, script) {
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.equal(elements.get('#statusLine').textContent, '');
   assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
+  assert.equal(elements.get('#keyboardLayout').children.length, 5, 'IME keyboard guide must render five key rows');
+  assert.equal(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.insertText('rk');
+      return imeText.value;
+    })()`, context),
+    '가',
+    'Clickable keyboard input must use the shared Hangul composer'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const entry = state.entries.find(item => item.hanri && item.kind !== 'hangul_override');
+      imeController.composer.setText(entry.readingBase, entry.readingBase.length);
+      imeController.updateControlFromComposer();
+      return imeController.activeCandidates.length > 0 && candidateBar.children.length > 0 && !candidateBar.hidden;
+    })()`, context),
+    'IME Hanri candidates must render as a visible popup list'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      if (imeController.activeCandidates.length < 2) return true;
+      imeController.setCandidateIndex(1);
+      imeController.handleCursorChange({ type: 'keyup', key: 'ArrowDown' });
+      return imeController.activeCandidateIndex === 1;
+    })()`, context),
+    'Candidate keyboard navigation must retain its selected row on keyup'
+  );
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],

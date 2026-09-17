@@ -353,10 +353,23 @@ h1 {
 }
 
 .ime-candidates {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  z-index: 30;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  flex-direction: column;
+  gap: 1px;
+  width: max-content;
+  min-width: min(330px, 100%);
+  max-width: 100%;
+  max-height: 280px;
+  padding: 4px;
+  overflow-y: auto;
+  border: 1px solid #aebdce;
+  border-radius: 3px;
+  background: #ffffff;
+  box-shadow: 0 8px 22px rgba(15, 23, 42, 0.2);
 }
 
 .ime-candidates[hidden] {
@@ -408,10 +421,11 @@ h1 {
   align-items: center;
   gap: 7px;
   min-height: 34px;
+  width: 100%;
   max-width: 100%;
   padding: 4px 10px 4px 6px;
-  border: 1px solid #cbd6e2;
-  border-radius: 7px;
+  border: 0;
+  border-radius: 2px;
   background: #ffffff;
   color: var(--text);
   cursor: pointer;
@@ -420,11 +434,16 @@ h1 {
 }
 
 .ime-candidate:hover,
-.ime-candidate:focus-visible {
-  border-color: rgba(15, 118, 110, 0.48);
-  background: #f7fbfa;
-  color: var(--accent-strong);
+.ime-candidate:focus-visible,
+.ime-candidate.selected {
+  background: #3875d6;
+  color: #ffffff;
   outline: none;
+}
+
+.ime-candidate.selected .candidate-number,
+.ime-candidate.selected .candidate-reading {
+  color: #ffffff;
 }
 
 .candidate-number {
