@@ -24,9 +24,9 @@ tools/                 Data builders, validation, and maintenance tools
 ```
 
 Both web interfaces use `/shared/`, `/public/data/`, and `/public/audio/`.
-Desktop Python and browser JavaScript remain separate implementations; the web
-dictionary exporter uses the desktop pronunciation engine for Lomari and audio
-metadata, including Taipei and Singapore sandhi.
+The browser composer mirrors the desktop IME's input rules, while the web data
+builder uses the desktop pronunciation engine as the source of truth for Lomari,
+raw Hangul audio, and Taipei/Singapore audio metadata.
 
 ## Edit dictionary entries
 

@@ -10,6 +10,25 @@
   --blue: #1d70d7;
 }
 
+/* Mirror the Local IME's per-script font tags inside the plain textarea. */
+@font-face {
+  font-family: "Tangliengim Tone";
+  src: local("Calibri");
+  unicode-range: U+02C6, U+02C9-02CF, U+A788;
+}
+
+@font-face {
+  font-family: "Tangliengim Hanri SC";
+  src: local("Noto Sans SC"), local("Noto Sans CJK SC"), local("Microsoft YaHei");
+  unicode-range: U+3A7C;
+}
+
+@font-face {
+  font-family: "Tangliengim Hanri";
+  src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei");
+  unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -133,7 +152,7 @@ h1 {
   outline: 0;
   resize: vertical;
   color: var(--text);
-  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
+  font-family: "Tangliengim Tone", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
   font-size: clamp(1.35rem, 3.2vw, 1.85rem);
   line-height: 1.42;
   caret-color: rgba(29, 78, 216, 0.75);
@@ -180,7 +199,7 @@ h1 {
   border-bottom: 1px solid #e4ebf3;
   background: #fbfcfe;
   color: #667386;
-  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-family: "Google Sans", "Product Sans", "Noto Sans", "Segoe UI", Arial, sans-serif;
   font-size: 1.08rem;
   line-height: 1.45;
   white-space: pre-wrap;
@@ -433,8 +452,7 @@ h1 {
 }
 
 .key-apostrophe {
-  font-family: Calibri, Arial, sans-serif;
-  font-variant-east-asian: proportional-width;
+  font-family: "Google Sans", "Product Sans", "Noto Sans", "Segoe UI", Arial, sans-serif;
 }
 
 .hangul-tone {

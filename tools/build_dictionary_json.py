@@ -23,7 +23,7 @@ DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
 
-SCHEMA_VERSION = 2
+SCHEMA_VERSION = 3
 
 
 def load_tone_marker_module():
@@ -243,6 +243,7 @@ def build_dictionary(
     skipped_rows: list[dict[str, Any]] = []
     duplicate_keys: list[dict[str, Any]] = []
     seen_effective_pairs: dict[tuple[str, str], str] = {}
+    runtime_units: set[str] = set()
     counts: Counter[str] = Counter()
 
     with tsv_path.open("r", encoding="utf-8-sig", newline="") as handle:
@@ -276,6 +277,14 @@ def build_dictionary(
             reading = normalized_reading(tone_marker, raw_reading)
             corrected = normalized_reading(tone_marker, corrected_raw) if corrected_raw else ""
             effective_reading = corrected or reading
+            try:
+                runtime_units.update(
+                    unit
+                    for unit, _tone in ime.split_audio_reading_units(effective_reading)
+                    if unit
+                )
+            except Exception:
+                pass
             priority = safe_priority(priority_text)
             kind = row_kind(tone_marker, hanri)
             active = bool(hanri and effective_reading)
@@ -369,6 +378,25 @@ def build_dictionary(
         if entry["hanri"]:
             append_index(indexes["byFirstHanriChar"], entry["hanri"][0], entry_id)
 
+    runtime_unit_roman = {
+        unit: reading_to_lomari(tone_marker, unit)
+        for unit in sorted(runtime_units)
+    }
+    runtime_raw_hangul_audio = {
+        f"{unit}{tone}": with_singapore_audio_when_needed(ime, audio_root, f"{unit}{tone}")
+        for unit in sorted(runtime_units)
+        for tone in "12345"
+    }
+    jamo_pronunciations = dict(getattr(ime, "JAMO_PRONUNCIATION_READINGS", {}))
+    runtime_jamo_lomari = {
+        unit: reading_to_lomari(tone_marker, pronunciation)
+        for unit, pronunciation in sorted(jamo_pronunciations.items())
+    }
+    runtime_jamo_audio = {
+        unit: with_singapore_audio_when_needed(ime, audio_root, unit)
+        for unit in sorted(jamo_pronunciations)
+    }
+
     return {
         "schemaVersion": SCHEMA_VERSION,
         "source": str(tsv_path.relative_to(REPO_ROOT)).replace("\\", "/"),
@@ -391,6 +419,12 @@ def build_dictionary(
         ],
         "entries": entries,
         "indexes": indexes,
+        "runtime": {
+            "unitRoman": runtime_unit_roman,
+            "rawHangulAudio": runtime_raw_hangul_audio,
+            "jamoLomari": runtime_jamo_lomari,
+            "jamoAudio": runtime_jamo_audio,
+        },
     }
 
 

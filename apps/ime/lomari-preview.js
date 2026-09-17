@@ -248,7 +248,13 @@ const TangliengimLomariPreview = (() => {
     return end;
   }
 
-  function createRenderer({ imeCore, findHanriEntry, findHangulOverride }) {
+  function createRenderer({
+    imeCore,
+    findHanriEntry,
+    findHangulOverride,
+    findUnitRoman = () => "",
+    findJamoLomari = () => "",
+  }) {
     function syllablesForEntry(entry, mode, protectFinal) {
       const segments = entrySegments(entry, mode, imeCore);
       return segments.map((segment, index) => ({
@@ -293,6 +299,13 @@ const TangliengimLomariPreview = (() => {
           continue;
         }
 
+        const jamoLomari = findJamoLomari(char);
+        if (jamoLomari) {
+          tokens.push({ type: "word", text: jamoLomari });
+          index += char.length;
+          continue;
+        }
+
         if (/[A-Za-z0-9]/.test(char)) {
           const end = latinEnd(text, index);
           tokens.push({ type: "word", text: text.slice(index, end) });
@@ -326,7 +339,7 @@ const TangliengimLomariPreview = (() => {
       for (const token of tokens) {
         if (token.type === "syllable") {
           if (previousWasWord) output.push("-");
-          output.push(applyTone(token.roman || romanizeUnit(token.unit), token.tone));
+          output.push(applyTone(token.roman || findUnitRoman(token.unit) || romanizeUnit(token.unit), token.tone));
           previousWasWord = true;
         } else if (token.type === "word") {
           if (previousWasWord) output.push("-");

@@ -63,6 +63,23 @@ async function loadApp(route, script) {
     composer.processChar("'");
     return composer.text();
   })()`, context), '’');
+  assert.ok(vm.runInContext(`(() => {
+    const composer = new TangliengimHangulIme.Composer({ shouldAutocorrectEToYe: () => true });
+    for (const key of 'dpd') composer.processChar(key);
+    const corrected = composer.text() === '옝';
+    composer.processChar('k');
+    return corrected && composer.text() === '에아';
+  })()`, context), 'Local TSV-guarded ㅔ/ㅖ correction and onset undo must be shared');
+  assert.ok(vm.runInContext(`(() => {
+    const composer = new TangliengimHangulIme.Composer();
+    for (const key of 'dkn') composer.processChar(key);
+    composer.processChar('1');
+    const toned = composer.text() === 'ᄋᅷˆ';
+    composer.setText('ᄋᅷ', 1);
+    const snapped = composer.displayCursorPos() === 2;
+    composer.backspace();
+    return toned && snapped && composer.text() === '';
+  })()`, context), 'Decomposed Hokkien syllables must edit atomically like the Local IME');
   return { context, elements };
 }
 
@@ -193,6 +210,15 @@ async function loadApp(route, script) {
     })()`, context),
     'IME Hanri candidates must render as a visible popup list'
   );
+  assert.equal(
+    vm.runInContext(`findHanriEntry('用心肝', 0)?.hanri || ''`, context),
+    '用',
+    'Web Hanri segmentation must honour the Local IME priority path'
+  );
+  assert.ok(
+    vm.runInContext(`state.unitRoman.size > 0 && state.rawHangulAudio.size > 0 && state.jamoLomari.size > 0 && state.jamoAudio.size > 0`, context),
+    'Web IME must load Local-IME-derived runtime pronunciation metadata'
+  );
   assert.ok(
     vm.runInContext(`(() => {
       imeController.composer.setText('랑', 1);
@@ -240,6 +266,8 @@ async function loadApp(route, script) {
     ['賣票', 'boe-phio'],
     ['廈門', 'e-mńg'],
     ['十殿閻君', 'jap-tien-giam-kûn'],
+    ['ㅏ', 'â'],
+    ['ㄱ', 'kī-yôrk'],
   ]) {
     vm.runInContext(`imeText.value = ${JSON.stringify(input)}; updateLomariPreview()`, context);
     assert.equal(elements.get('#lomariPreview').textContent, expected, `Lomari preview: ${input}`);
@@ -248,6 +276,11 @@ async function loadApp(route, script) {
   assert.equal(elements.get('#lomariPreview').textContent, 'bī-hún-kuè', 'Singapore Lomari preview');
   vm.runInContext('imeController.clear()', context);
   assert.equal(elements.get('#lomariPreview').textContent, '', 'Clear must empty the Lomari preview');
+  for (const [input, tones] of [['ㅏ', '1'], ['ㄱ', '5,1'], ['시', '5'], ['시4', '4']]) {
+    const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
+    assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: Local audio reading`);
+    assert.equal(plan.missing.join(','), '', `${input}: no false missing-audio warning`);
+  }
   for (const [word, taipei, singapore] of [
     ['\u7e3d\u7d71', '1,2', '4,2'],
     ['\u7e3d\u7763', '1,3', '4,3'],

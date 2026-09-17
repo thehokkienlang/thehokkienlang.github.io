@@ -58,6 +58,11 @@ const TangliengimHangulIme = (() => {
   const T_COMBINE = { "ᆯᇂ": "ᆶ" };
   const T_SPLIT = { "ᆶ": ["ᆯ", "ᇂ"] };
   const SPECIAL_MEDIALS = new Set(["ᅷ", "ᆤ", "ힻ"]);
+  const SPECIAL_MEDIAL_BACKSPACE_BASE = {
+    "ᅷ": "ᅡ",
+    "ᆤ": "ᅣ",
+    "ힻ": "ᅳ",
+  };
   const HANGUL_CHOSEONG_FILLER = "\u115f";
   const TONE_MARKS = { 1: "ˆ", 2: "ˋ", 4: "ˊ", 5: "ˉ" };
   const TONE_INPUT = { "ˆ": "1", "ꞈ": "1", "ˋ": "2", "`": "2", "ˎ": "2", "ˊ": "4", "ˏ": "4", "ˉ": "5", "ˍ": "5" };
@@ -134,14 +139,74 @@ const TangliengimHangulIme = (() => {
       .join("");
   }
 
+  function normalizeReadingToneKey(value) {
+    return [...normalizeApostrophes(value)]
+      .map((char) => TONE_INPUT[char] || char)
+      .join("")
+      .normalize("NFC");
+  }
+
+  function atomicHangulClusterEndAt(text, start) {
+    if (start < 0 || start >= text.length) return null;
+    const char = text[start];
+    if (!(isInitialJamo(char) || char === HANGUL_CHOSEONG_FILLER)) return null;
+    if (!isVowelJamo(text[start + 1])) return null;
+    let end = start + 2;
+    while (end < text.length && text[end] in T_INDEX && text[end] !== "") end += 1;
+    return end;
+  }
+
+  function atomicHangulClusterBoundsAt(text, position) {
+    const pos = Math.max(0, Math.min(position, text.length));
+    for (let start = Math.max(0, pos - 4); start <= Math.min(pos, text.length - 1); start += 1) {
+      const end = atomicHangulClusterEndAt(text, start);
+      if (end !== null && start < pos && pos < end) return [start, end];
+    }
+    return null;
+  }
+
+  function atomicHangulClusterBoundsEndingAt(text, position) {
+    const pos = Math.max(0, Math.min(position, text.length));
+    for (let start = Math.max(0, pos - 4); start < pos; start += 1) {
+      const end = atomicHangulClusterEndAt(text, start);
+      if (end === pos) return [start, end];
+    }
+    return null;
+  }
+
+  function snapAtomicCursor(text, position) {
+    const bounds = atomicHangulClusterBoundsAt(text, position);
+    return bounds ? bounds[1] : Math.max(0, Math.min(position, text.length));
+  }
+
+  function normalizeAtomicSelection(text, start, end) {
+    let selectionStart = Math.max(0, Math.min(start, text.length));
+    let selectionEnd = Math.max(selectionStart, Math.min(end, text.length));
+    if (selectionStart === selectionEnd) {
+      const cursor = snapAtomicCursor(text, selectionStart);
+      return [cursor, cursor];
+    }
+    const startBounds = atomicHangulClusterBoundsAt(text, selectionStart);
+    const endBounds = atomicHangulClusterBoundsAt(text, selectionEnd);
+    if (startBounds) selectionStart = startBounds[0];
+    if (endBounds) selectionEnd = endBounds[1];
+    return [selectionStart, selectionEnd];
+  }
+
   class Composer {
-    constructor() {
+    constructor({ shouldAutocorrectEToYe = () => false } = {}) {
       this.output = "";
       this.cursorPos = 0;
       this.initial = "";
       this.medial = "";
       this.final = "";
+      this.eToYeAutocorrected = false;
+      this.shouldAutocorrectEToYe = shouldAutocorrectEToYe;
       this.keyHistory = [];
+    }
+
+    clampCursor() {
+      this.cursorPos = snapAtomicCursor(this.output, this.cursorPos);
     }
 
     hasBuffer() {
@@ -157,20 +222,22 @@ const TangliengimHangulIme = (() => {
     }
 
     text() {
+      this.clampCursor();
       return `${this.output.slice(0, this.cursorPos)}${this.bufferText()}${this.output.slice(this.cursorPos)}`;
     }
 
     displayCursorPos() {
+      this.clampCursor();
       return this.cursorPos + this.bufferText().length;
     }
 
     snapshot() {
-      return [this.output, this.cursorPos, this.initial, this.medial, this.final];
+      return [this.output, this.cursorPos, this.initial, this.medial, this.final, this.eToYeAutocorrected];
     }
 
     restore(snapshot) {
-      [this.output, this.cursorPos, this.initial, this.medial, this.final] = snapshot;
-      this.cursorPos = Math.max(0, Math.min(this.cursorPos, this.output.length));
+      [this.output, this.cursorPos, this.initial, this.medial, this.final, this.eToYeAutocorrected] = snapshot;
+      this.clampCursor();
     }
 
     setText(text, cursor = text.length) {
@@ -179,6 +246,7 @@ const TangliengimHangulIme = (() => {
       this.initial = "";
       this.medial = "";
       this.final = "";
+      this.eToYeAutocorrected = false;
       this.keyHistory = [];
     }
 
@@ -190,6 +258,7 @@ const TangliengimHangulIme = (() => {
       this.initial = "";
       this.medial = "";
       this.final = "";
+      this.eToYeAutocorrected = false;
     }
 
     insertLiteral(text) {
@@ -202,24 +271,36 @@ const TangliengimHangulIme = (() => {
 
     moveLeft() {
       this.commit();
-      if (this.cursorPos > 0) this.cursorPos -= 1;
+      this.clampCursor();
+      if (this.cursorPos > 0) {
+        this.cursorPos -= 1;
+        const bounds = atomicHangulClusterBoundsAt(this.output, this.cursorPos);
+        if (bounds) this.cursorPos = bounds[0];
+      }
       this.keyHistory = [];
     }
 
     moveRight() {
       this.commit();
-      if (this.cursorPos < this.output.length) this.cursorPos += 1;
+      this.clampCursor();
+      if (this.cursorPos < this.output.length) {
+        const end = atomicHangulClusterEndAt(this.output, this.cursorPos);
+        const bounds = atomicHangulClusterBoundsAt(this.output, this.cursorPos);
+        this.cursorPos = end ?? bounds?.[1] ?? this.cursorPos + 1;
+      }
       this.keyHistory = [];
     }
 
     addInitial(initial, sourceCompat = "") {
       if (!this.hasBuffer()) {
         this.initial = initial;
+        this.eToYeAutocorrected = false;
         return;
       }
       if (!this.initial && this.medial === "ᅳ" && !this.final && sourceCompat === "ㅇ") {
         this.medial = "";
         this.initial = "ᅙ";
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial && !this.medial) {
@@ -229,51 +310,71 @@ const TangliengimHangulIme = (() => {
           if (candidate) {
             this.initial = "";
             this.final = candidate;
+            this.eToYeAutocorrected = false;
             return;
           }
         }
         this.commit();
         this.initial = initial;
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial && this.medial && !this.final && sourceCompat && canBeFinal(sourceCompat)) {
         this.final = COMPAT_TO_T[sourceCompat];
+        const corrected = composeSyllable(this.initial, "ᅨ", this.final);
+        if (
+          this.medial === "ᅦ" &&
+          ["ᆨ", "ᆼ"].includes(this.final) &&
+          this.shouldAutocorrectEToYe(corrected)
+        ) {
+          this.medial = "ᅨ";
+          this.eToYeAutocorrected = true;
+        } else {
+          this.eToYeAutocorrected = false;
+        }
         return;
       }
       if (this.initial && this.medial && this.final && sourceCompat && canBeFinal(sourceCompat)) {
         const candidate = T_COMBINE[`${this.final}${COMPAT_TO_T[sourceCompat]}`];
         if (candidate) {
           this.final = candidate;
+          this.eToYeAutocorrected = false;
           return;
         }
       }
       this.commit();
       this.initial = initial;
+      this.eToYeAutocorrected = false;
     }
 
     addVowel(medial) {
       if (!this.hasBuffer()) {
         this.medial = medial;
+        this.eToYeAutocorrected = false;
         return;
       }
       if (!this.initial && this.medial && !this.final) {
         const candidate = V_COMBINE[`${this.medial}${medial}`];
         if (candidate) {
           this.medial = candidate;
+          this.eToYeAutocorrected = false;
           return;
         }
         this.commit();
         this.medial = medial;
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial && !this.medial) {
         this.medial = medial;
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial && this.medial && !this.final) {
         const candidate = V_COMBINE[`${this.medial}${medial}`];
         if (candidate) {
           this.medial = candidate;
+          this.eToYeAutocorrected = false;
           return;
         }
         this.commit();
@@ -282,15 +383,21 @@ const TangliengimHangulIme = (() => {
         } else {
           this.medial = medial;
         }
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial && this.medial && this.final) {
+        if (this.eToYeAutocorrected && this.medial === "ᅨ" && ["ᆨ", "ᆼ"].includes(this.final)) {
+          this.medial = "ᅦ";
+          this.eToYeAutocorrected = false;
+        }
         if (this.final in T_SPLIT) {
           const [keepFinal, moveFinal] = T_SPLIT[this.final];
           this.final = keepFinal;
           this.commit();
           this.initial = T_TO_L[moveFinal] || "";
           this.medial = medial;
+          this.eToYeAutocorrected = false;
         } else {
           const moveInitial = T_TO_L[this.final] || "";
           if (!moveInitial) {
@@ -303,31 +410,106 @@ const TangliengimHangulIme = (() => {
             this.initial = moveInitial;
             this.medial = medial;
           }
+          this.eToYeAutocorrected = false;
         }
         return;
       }
       this.commit();
       this.initial = "ᄋ";
       this.medial = medial;
+      this.eToYeAutocorrected = false;
     }
 
     backspace() {
       if (this.final) {
+        if (this.eToYeAutocorrected) {
+          this.final = "";
+          this.medial = "ᅦ";
+          this.eToYeAutocorrected = false;
+          return;
+        }
         if (this.final in T_SPLIT) this.final = T_SPLIT[this.final][0];
         else this.final = "";
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.medial) {
         const reverse = Object.fromEntries(Object.entries(V_COMBINE).map(([key, value]) => [value, key[0]]));
         if (this.medial in reverse) this.medial = reverse[this.medial];
-        else this.medial = "";
+        else if (["ᅷ", "ᆤ"].includes(this.medial)) this.medial = "";
+        else if (this.medial in SPECIAL_MEDIAL_BACKSPACE_BASE) {
+          this.medial = SPECIAL_MEDIAL_BACKSPACE_BASE[this.medial];
+        } else this.medial = "";
+        this.eToYeAutocorrected = false;
         return;
       }
       if (this.initial) {
         this.initial = "";
+        this.eToYeAutocorrected = false;
         return;
       }
+      this.clampCursor();
       if (this.cursorPos > 0) {
+        const cluster = atomicHangulClusterBoundsEndingAt(this.output, this.cursorPos);
+        if (cluster) {
+          const [start, end] = cluster;
+          this.output = `${this.output.slice(0, start)}${this.output.slice(end)}`;
+          this.cursorPos = start;
+          this.keyHistory = [];
+          return;
+        }
+
+        if (
+          this.cursorPos >= 2 &&
+          this.output[this.cursorPos - 2] === HANGUL_CHOSEONG_FILLER &&
+          ["ᅷ", "ᆤ"].includes(this.output[this.cursorPos - 1])
+        ) {
+          this.output = `${this.output.slice(0, this.cursorPos - 2)}${this.output.slice(this.cursorPos)}`;
+          this.cursorPos -= 2;
+          this.keyHistory = [];
+          return;
+        }
+
+        if (
+          this.cursorPos >= 2 &&
+          this.output[this.cursorPos - 2] === HANGUL_CHOSEONG_FILLER &&
+          this.output[this.cursorPos - 1] === "ힻ"
+        ) {
+          this.output = `${this.output.slice(0, this.cursorPos - 2)}${this.output.slice(this.cursorPos)}`;
+          this.cursorPos -= 2;
+          this.medial = "ᅳ";
+          this.keyHistory = [];
+          return;
+        }
+
+        if (
+          this.cursorPos >= 2 &&
+          ["ᅷ", "ᆤ"].includes(this.output[this.cursorPos - 1]) &&
+          isInitialJamo(this.output[this.cursorPos - 2])
+        ) {
+          const initial = this.output[this.cursorPos - 2];
+          this.output = `${this.output.slice(0, this.cursorPos - 2)}${this.output.slice(this.cursorPos)}`;
+          this.cursorPos -= 2;
+          this.initial = initial;
+          this.keyHistory = [];
+          return;
+        }
+
+        if (
+          this.cursorPos >= 2 &&
+          this.output[this.cursorPos - 1] in SPECIAL_MEDIAL_BACKSPACE_BASE &&
+          isInitialJamo(this.output[this.cursorPos - 2])
+        ) {
+          const initial = this.output[this.cursorPos - 2];
+          const special = this.output[this.cursorPos - 1];
+          this.output = `${this.output.slice(0, this.cursorPos - 2)}${this.output.slice(this.cursorPos)}`;
+          this.cursorPos -= 2;
+          this.initial = initial;
+          this.medial = SPECIAL_MEDIAL_BACKSPACE_BASE[special];
+          this.keyHistory = [];
+          return;
+        }
+
         this.output = `${this.output.slice(0, this.cursorPos - 1)}${this.output.slice(this.cursorPos)}`;
         this.cursorPos -= 1;
       }
@@ -406,7 +588,9 @@ const TangliengimHangulIme = (() => {
   return {
     Composer,
     keyboardGuideOutput,
+    normalizeAtomicSelection,
     normalizeReadingBase,
+    normalizeReadingToneKey,
   };
 })();
 

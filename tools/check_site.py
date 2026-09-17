@@ -77,7 +77,11 @@ def main():
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
-    assert data["schemaVersion"] == 2
+    assert data["schemaVersion"] == 3
+    assert data["runtime"]["unitRoman"], "Missing Local-IME-derived unit romanisation"
+    assert data["runtime"]["rawHangulAudio"], "Missing Local-IME-derived raw Hangul audio"
+    assert data["runtime"]["jamoLomari"], "Missing Local-IME-derived jamo romanisation"
+    assert data["runtime"]["jamoAudio"], "Missing Local-IME-derived jamo audio"
     categories = {item["id"]: item for item in data["categories"]}
     assert set(categories) == {"food", "place-names"}
     assert all(item["entryCount"] > 0 for item in categories.values())

@@ -394,8 +394,13 @@ const TangliengimImeCore = (() => {
       this.onUpdate = onUpdate;
       this.enterBehavior = enterBehavior;
       this.candidateLimit = candidateLimit;
-      this.composer = new TangliengimHangulIme.Composer();
       this.candidatesByReading = buildReadingCandidateMap(entries);
+      this.composer = new TangliengimHangulIme.Composer({
+        shouldAutocorrectEToYe: (reading) => {
+          const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
+          return Boolean(this.candidatesByReading.get(key)?.length);
+        },
+      });
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
       this.dismissedCandidateContext = null;
@@ -468,14 +473,31 @@ const TangliengimImeCore = (() => {
 
       if (cursor !== this.composer.displayCursorPos()) {
         this.composer.commit();
-        this.composer.cursorPos = Math.max(0, Math.min(cursor, this.composer.output.length));
+        this.composer.cursorPos = TangliengimHangulIme.normalizeAtomicSelection(
+          this.composer.output,
+          cursor,
+          cursor
+        )[0];
         this.composer.keyHistory = [];
       }
     }
 
-    replaceSelectionBeforeImeKey() {
+    normalizeControlSelection() {
       const start = this.control.selectionStart ?? this.control.value.length;
       const end = this.control.selectionEnd ?? start;
+      const [normalizedStart, normalizedEnd] = TangliengimHangulIme.normalizeAtomicSelection(
+        this.control.value,
+        start,
+        end
+      );
+      if (normalizedStart !== start || normalizedEnd !== end) {
+        this.control.setSelectionRange(normalizedStart, normalizedEnd);
+      }
+      return [normalizedStart, normalizedEnd];
+    }
+
+    replaceSelectionBeforeImeKey() {
+      const [start, end] = this.normalizeControlSelection();
       if (start === end) return start;
       const next = `${this.control.value.slice(0, start)}${this.control.value.slice(end)}`;
       this.composer.setText(next, start);
@@ -606,6 +628,7 @@ const TangliengimImeCore = (() => {
         return;
       }
       if (this.isEnabled()) {
+        this.normalizeControlSelection();
         this.syncComposerFromControl();
       }
       this.renderCandidates();

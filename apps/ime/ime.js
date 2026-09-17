@@ -29,14 +29,25 @@ const imeController = imeCore.createTextImeController({
 const state = {
   entries: [],
   hanriEntries: [],
+  plainHanriEntries: [],
+  plainHanriByFirst: new Map(),
+  mixedHanriEntries: [],
   hangulOverrides: new Map(),
   readingEntries: new Map(),
+  exactReadingEntries: new Map(),
+  unitRoman: new Map(),
+  rawHangulAudio: new Map(),
+  jamoLomari: new Map(),
+  jamoAudio: new Map(),
   sandhiMode: "taipei",
 };
+const hanriMatchCache = new Map();
 const lomariRenderer = lomariCore.createRenderer({
   imeCore,
   findHanriEntry,
   findHangulOverride,
+  findUnitRoman: (unit) => state.unitRoman.get(unit) || "",
+  findJamoLomari: (unit) => state.jamoLomari.get(unit) || "",
 });
 let audioRunId = 0;
 let currentAudio = null;
@@ -284,6 +295,15 @@ function addReadingEntry(key, entry) {
   state.readingEntries.get(normalized).push(entry);
 }
 
+function addExactReadingEntry(key, entry) {
+  if (!key || !/[1245ˆˋ`ˊˉꞈˎˏˍ]/u.test(key)) return;
+  const normalized = TangliengimHangulIme.normalizeReadingToneKey(key);
+  if (!state.exactReadingEntries.has(normalized)) {
+    state.exactReadingEntries.set(normalized, []);
+  }
+  state.exactReadingEntries.get(normalized).push(entry);
+}
+
 function searchableEntry(entry) {
   return entry.active && entry.kind !== "numeric_override";
 }
@@ -297,13 +317,25 @@ function setEntries(entries) {
       a.priority - b.priority ||
       a.row - b.row
     );
+  state.plainHanriEntries = state.hanriEntries.filter((entry) => entry.kind === "plain_hanri");
+  state.mixedHanriEntries = state.hanriEntries.filter((entry) => entry.kind === "mixed_hanri");
+  state.plainHanriByFirst = new Map();
+  for (const entry of state.plainHanriEntries) {
+    const first = String.fromCodePoint(entry.hanri.codePointAt(0));
+    if (!state.plainHanriByFirst.has(first)) state.plainHanriByFirst.set(first, []);
+    state.plainHanriByFirst.get(first).push(entry);
+  }
   state.readingEntries = new Map();
+  state.exactReadingEntries = new Map();
   state.hangulOverrides = new Map();
+  hanriMatchCache.clear();
 
   for (const entry of state.entries) {
     addReadingEntry(entry.readingBase, entry);
     addReadingEntry(entry.reading, entry);
     addReadingEntry(entry.raw?.reading, entry);
+    addExactReadingEntry(entry.reading, entry);
+    addExactReadingEntry(entry.raw?.reading, entry);
     if (entry.kind === "hangul_override") {
       const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(entry.readingBase));
       if (key && !state.hangulOverrides.has(key)) state.hangulOverrides.set(key, entry);
@@ -317,24 +349,91 @@ function setEntries(entries) {
       String(a.hanri || "").localeCompare(String(b.hanri || ""))
     );
   }
+  for (const candidates of state.exactReadingEntries.values()) {
+    candidates.sort((a, b) => a.priority - b.priority || a.row - b.row);
+  }
 }
 
 function isPunctuationOrSpace(char) {
   return /\s|\p{Punctuation}/u.test(char);
 }
 
+function isHanriCharacter(char) {
+  return Boolean(char && /\p{Script=Han}/u.test(char));
+}
+
+function compareScore(left, right) {
+  for (let index = 0; index < left.length; index += 1) {
+    if (left[index] !== right[index]) return left[index] - right[index];
+  }
+  return 0;
+}
+
+function priorityHanriMatch(text, index) {
+  const cacheKey = `${text}\u0000${index}`;
+  if (hanriMatchCache.has(cacheKey)) return hanriMatchCache.get(cacheKey);
+
+  let runEnd = index;
+  while (runEnd < text.length) {
+    const char = String.fromCodePoint(text.codePointAt(runEnd));
+    if (!isHanriCharacter(char)) break;
+    runEnd += char.length;
+  }
+
+  const memo = new Map();
+  function bestAt(position) {
+    if (position >= runEnd) return { score: [0, 0, 0], first: null };
+    if (memo.has(position)) return memo.get(position);
+
+    let best = { score: [1_000_000, 1_000_000, 1_000_000], first: null };
+    const currentChar = String.fromCodePoint(text.codePointAt(position));
+    for (const entry of state.plainHanriByFirst.get(currentChar) || []) {
+      const key = String(entry.hanri || "");
+      if (!key || !text.startsWith(key, position) || position + key.length > runEnd) continue;
+      const rest = bestAt(position + key.length);
+      const candidate = {
+        score: [rest.score[0], Number(entry.priority) + rest.score[1], 1 + rest.score[2]],
+        first: entry,
+      };
+      if (compareScore(candidate.score, best.score) < 0) best = candidate;
+    }
+
+    const char = String.fromCodePoint(text.codePointAt(position));
+    const rest = bestAt(position + char.length);
+    const unmatched = {
+      score: [1 + rest.score[0], 9999 + rest.score[1], 1 + rest.score[2]],
+      first: null,
+    };
+    if (compareScore(unmatched.score, best.score) < 0) best = unmatched;
+    memo.set(position, best);
+    return best;
+  }
+
+  const match = bestAt(index).first;
+  if (hanriMatchCache.size > 3000) hanriMatchCache.clear();
+  hanriMatchCache.set(cacheKey, match);
+  return match;
+}
+
 function findHanriEntry(text, index) {
-  for (const entry of state.hanriEntries) {
+  for (const entry of state.mixedHanriEntries) {
     if (text.startsWith(entry.hanri, index)) {
       return entry;
     }
   }
-  return null;
+  const code = text.codePointAt(index);
+  const char = code === undefined ? "" : String.fromCodePoint(code);
+  return isHanriCharacter(char) ? priorityHanriMatch(text, index) : null;
 }
 
 function findReadingEntry(reading) {
+  const exactKey = TangliengimHangulIme.normalizeReadingToneKey(reading);
+  if (/[1245]/u.test(exactKey)) {
+    const exact = state.exactReadingEntries.get(exactKey)?.[0];
+    if (exact) return exact;
+  }
   const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
-  return state.readingEntries.get(key)?.[0] || null;
+  return state.hangulOverrides.get(key) || null;
 }
 
 function findHangulOverride(reading) {
@@ -359,6 +458,18 @@ function appendEntryAudio(entry, segments, missing) {
   }
 }
 
+function appendAudioMetadata(audioMetadata, segments, missing) {
+  const audio = audioForCurrentSandhiMode(audioMetadata);
+  const audioSegments = normalizeAudioSegments(audio).map((segment) => ({
+    ...segment,
+    file: dictionaryAudioPath(segment.file),
+  }));
+  if (audioSegments.length) segments.push(...audioSegments);
+  for (const item of audio?.missing || []) {
+    if (!missing.includes(item)) missing.push(item);
+  }
+}
+
 function audioPlanFromText(text) {
   const segments = [];
   const missing = [];
@@ -370,6 +481,13 @@ function audioPlanFromText(text) {
     const char = String.fromCodePoint(code);
 
     if (isPunctuationOrSpace(char)) {
+      index += char.length;
+      continue;
+    }
+
+    const jamoAudio = state.jamoAudio.get(char);
+    if (jamoAudio) {
+      appendAudioMetadata(jamoAudio, segments, missing);
       index += char.length;
       continue;
     }
@@ -388,8 +506,12 @@ function audioPlanFromText(text) {
       const entry = findReadingEntry(raw) || findReadingEntry(unit.text);
       if (entry) {
         appendEntryAudio(entry, segments, missing);
-      } else if (!missing.includes(raw)) {
-        missing.push(raw);
+      } else {
+        const normalizedRaw = TangliengimHangulIme.normalizeReadingToneKey(raw);
+        const audioKey = /[12345]$/u.test(normalizedRaw) ? normalizedRaw : `${unit.text}3`;
+        const rawAudio = state.rawHangulAudio.get(audioKey);
+        if (rawAudio) appendAudioMetadata(rawAudio, segments, missing);
+        else if (!missing.includes(raw)) missing.push(raw);
       }
       index = end;
       continue;
@@ -745,6 +867,10 @@ async function loadDictionary() {
     }
     const data = await response.json();
     setEntries(data.entries || []);
+    state.unitRoman = new Map(Object.entries(data.runtime?.unitRoman || {}));
+    state.rawHangulAudio = new Map(Object.entries(data.runtime?.rawHangulAudio || {}));
+    state.jamoLomari = new Map(Object.entries(data.runtime?.jamoLomari || {}));
+    state.jamoAudio = new Map(Object.entries(data.runtime?.jamoAudio || {}));
     imeController.setEntries(state.entries);
     updateLomariPreview();
     // A successful load is the normal state, so keep the toolbar quiet.
