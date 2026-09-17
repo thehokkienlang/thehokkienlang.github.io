@@ -53,6 +53,11 @@ const GUIDE_ROWS = [
   ["Space"],
 ];
 
+const GUIDE_CONTROL_LABELS = Object.freeze({
+  Shift: "⇧",
+  Backspace: "⌫",
+});
+
 function guideInputForKey(key) {
   if (key === "Space") return " ";
   if (key === "’") return "’";
@@ -114,10 +119,14 @@ function makeGuideKey(key) {
   if ("1245".includes(key)) button.classList.add("tone-key");
   if (["Shift", "Space", "Backspace"].includes(key)) {
     button.classList.add("control-key", `key-${key.toLowerCase()}`);
-    button.textContent = key;
+    button.textContent = GUIDE_CONTROL_LABELS[key] || key;
+    button.setAttribute("aria-label", key);
+    button.title = key;
   } else if (key === "’") {
     button.classList.add("control-key", "key-apostrophe");
     button.textContent = key;
+    button.setAttribute("aria-label", "Apostrophe");
+    button.title = "Apostrophe";
   } else {
     const input = document.createElement("span");
     input.className = "key-input";

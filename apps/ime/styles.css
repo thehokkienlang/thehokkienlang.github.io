@@ -400,29 +400,41 @@ h1 {
 }
 
 .control-key {
-  height: 28px;
-  flex-basis: auto;
   color: #46566a;
-  font-size: 0.8rem;
+  font-size: 1.1rem;
   font-weight: 800;
+}
+
+.key-shift,
+.key-apostrophe,
+.key-backspace {
+  height: 48px;
 }
 
 .key-shift {
   width: 78px;
-}
-
-.key-space {
-  width: 190px;
+  flex-basis: 78px;
 }
 
 .key-apostrophe {
   width: 44px;
-  font-family: Calibri, Arial, sans-serif;
-  font-size: 1rem;
+  flex-basis: 44px;
 }
 
 .key-backspace {
   width: 92px;
+  flex-basis: 92px;
+}
+
+.key-space {
+  width: 190px;
+  height: 28px;
+  flex: 0 0 190px;
+}
+
+.key-apostrophe {
+  font-family: "Google Sans", "Product Sans", "Noto Sans", "Segoe UI", Arial, sans-serif;
+  font-variant-east-asian: proportional-width;
 }
 
 .hangul-tone {
@@ -526,15 +538,26 @@ h1 {
     font-size: 0.98rem;
   }
 
-  .key-shift {
-    width: 60px;
-  }
-
   .key-space {
     width: min(42vw, 160px);
+    flex-basis: min(42vw, 160px);
+  }
+
+  .key-shift {
+    width: 60px;
+    height: 44px;
+    flex-basis: 60px;
+  }
+
+  .key-apostrophe {
+    width: 44px;
+    height: 44px;
+    flex-basis: 44px;
   }
 
   .key-backspace {
     width: 76px;
+    height: 44px;
+    flex-basis: 76px;
   }
 }

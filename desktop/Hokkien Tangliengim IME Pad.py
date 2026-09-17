@@ -8137,7 +8137,7 @@ class HokkienIMEPad:
         return {'Ctrl': 82, 'Shift': 82, 'Space': 188, 'Backspace': 96, '-': 54}.get(key, max(44, 34 + (len(key) * 9)))
 
     def keyboard_guide_keycap_height(self, key: str) -> int:
-        return 26 if key in {'Ctrl', 'Shift', '’', 'Space', 'Backspace'} else 52
+        return 26 if key in {'Ctrl', 'Space'} else 52
 
     def keyboard_guide_row_width(self, row: list[str]) -> int:
         return sum(self.keyboard_guide_keycap_width(key) + 6 for key in row)
@@ -8253,7 +8253,7 @@ class HokkienIMEPad:
     def keyboard_guide_key_label(self, key: str) -> str:
         if self.input_mode.get() in {'lomari', 'bopomofo'} and key == '-':
             return '-詞'
-        return key
+        return {'Shift': '⇧', 'Backspace': '⌫'}.get(key, key)
 
     def keyboard_guide_lomari_output(self, key: str) -> tuple[str, bool]:
         """Return (label, bold) for one Lomari keycap output.
