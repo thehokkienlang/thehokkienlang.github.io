@@ -33,6 +33,7 @@ const state = {
   plainHanriByFirst: new Map(),
   mixedHanriEntries: [],
   hangulOverrides: new Map(),
+  hangulOverrideKeys: [],
   readingEntries: new Map(),
   exactReadingEntries: new Map(),
   unitRoman: new Map(),
@@ -46,6 +47,7 @@ const lomariRenderer = lomariCore.createRenderer({
   imeCore,
   findHanriEntry,
   findHangulOverride,
+  findHangulOverrideAt,
   findUnitRoman: (unit) => state.unitRoman.get(unit) || "",
   findJamoLomari: (unit) => state.jamoLomari.get(unit) || "",
 });
@@ -329,6 +331,7 @@ function setEntries(entries) {
   state.readingEntries = new Map();
   state.exactReadingEntries = new Map();
   state.hangulOverrides = new Map();
+  state.hangulOverrideKeys = [];
   hanriMatchCache.clear();
 
   for (const entry of state.entries) {
@@ -338,10 +341,17 @@ function setEntries(entries) {
     addExactReadingEntry(entry.reading, entry);
     addExactReadingEntry(entry.raw?.reading, entry);
     if (entry.kind === "hangul_override") {
-      const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(entry.readingBase));
-      if (key && !state.hangulOverrides.has(key)) state.hangulOverrides.set(key, entry);
+      const visibleKey = TangliengimHangulIme.normalizeReadingBase(entry.readingBase).normalize("NFC");
+      const key = imeCore.normalizeText(visibleKey);
+      if (key && !state.hangulOverrides.has(key)) {
+        state.hangulOverrides.set(key, entry);
+        state.hangulOverrideKeys.push(visibleKey);
+      }
     }
   }
+  state.hangulOverrideKeys.sort((a, b) =>
+    [...b].length - [...a].length || b.length - a.length
+  );
 
   for (const candidates of state.readingEntries.values()) {
     candidates.sort((a, b) =>
@@ -442,6 +452,17 @@ function findHangulOverride(reading) {
   return state.hangulOverrides.get(key) || null;
 }
 
+function findHangulOverrideAt(text, index) {
+  for (const key of state.hangulOverrideKeys) {
+    if (!text.startsWith(key, index)) continue;
+    const normalized = imeCore.normalizeText(key);
+    let end = index + key.length;
+    while (end < text.length && imeCore.isToneMark(text[end])) end += 1;
+    return { entry: state.hangulOverrides.get(normalized), end };
+  }
+  return null;
+}
+
 function updateLomariPreview() {
   // Lomari always follows the Taipei display convention. Sandhi selection affects audio only.
   lomariPreview.textContent = lomariRenderer.render(imeText.value);
@@ -505,6 +526,15 @@ function audioPlanFromText(text) {
     if (unit?.canCarryTone) {
       const end = imeCore.readingUnitToneEnd(text, unit);
       const raw = text.slice(index, end);
+      const hasExplicitTone = end > unit.end;
+      if (!hasExplicitTone) {
+        const overrideMatch = findHangulOverrideAt(text, index);
+        if (overrideMatch?.entry) {
+          appendEntryAudio(overrideMatch.entry, segments, missing);
+          index = overrideMatch.end;
+          continue;
+        }
+      }
       const entry = findReadingEntry(raw) || findReadingEntry(unit.text);
       if (entry) {
         appendEntryAudio(entry, segments, missing);

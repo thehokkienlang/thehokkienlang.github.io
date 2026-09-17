@@ -248,6 +248,7 @@ const TangliengimLomariPreview = (() => {
     imeCore,
     findHanriEntry,
     findHangulOverride,
+    findHangulOverrideAt = () => null,
     findUnitRoman = () => "",
     findJamoLomari = () => "",
   }) {
@@ -285,6 +286,13 @@ const TangliengimLomariPreview = (() => {
           if (explicitTone) {
             tokens.push({ type: "syllable", unit: unit.text, tone: explicitTone, externalSandhi: false, fromTsv: false });
             index = unit.end + 1;
+            continue;
+          }
+
+          const overrideMatch = findHangulOverrideAt(text, index);
+          if (overrideMatch?.entry) {
+            tokens.push(...syllablesForEntry(overrideMatch.entry, true));
+            index = overrideMatch.end;
             continue;
           }
 

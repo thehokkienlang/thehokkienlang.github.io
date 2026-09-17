@@ -262,6 +262,7 @@ async function loadApp(route, script) {
   );
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
+    ['릐호', 'lî-hò'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
     ['賣票', 'boe-phio'],
     ['廈門', 'e-mńg'],
@@ -282,6 +283,12 @@ async function loadApp(route, script) {
     const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
     assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: Local audio reading`);
     assert.equal(plan.missing.join(','), '', `${input}: no false missing-audio warning`);
+  }
+  vm.runInContext(`setSandhiMode('taipei')`, context);
+  for (const [input, tones] of [['릐', '2'], ['릐호', '1,2']]) {
+    const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
+    assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: longest Hangul override audio`);
+    assert.equal(plan.missing.join(','), '', `${input}: Hangul override audio is available`);
   }
   for (const [word, taipei, singapore] of [
     ['\u7e3d\u7d71', '1,2', '4,2'],
