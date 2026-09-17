@@ -139,6 +139,11 @@ h1 {
   caret-color: rgba(29, 78, 216, 0.75);
 }
 
+/* Keep the guide on screen by giving it space from the input while it is open. */
+.pad.keyboard-guide-open .ime-text {
+  min-height: clamp(192px, calc(100dvh - 630px), 300px);
+}
+
 .ime-text::placeholder {
   color: #a5b0be;
   font-family: Calibri, "Segoe UI", Arial, sans-serif;

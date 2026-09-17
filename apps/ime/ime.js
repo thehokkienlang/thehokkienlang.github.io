@@ -14,6 +14,7 @@ const textWrap = document.querySelector(".text-wrap");
 const keyboardGuideButton = document.querySelector("#keyboardGuideButton");
 const keyboardGuide = document.querySelector("#keyboardGuide");
 const keyboardLayout = document.querySelector("#keyboardLayout");
+const pad = document.querySelector(".pad");
 
 const imeCore = window.TangliengimImeCore;
 const lomariCore = window.TangliengimLomariPreview;
@@ -765,6 +766,7 @@ singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
 keyboardGuideButton.addEventListener("click", () => {
   const opening = keyboardGuide.hidden;
   keyboardGuide.hidden = !opening;
+  pad?.classList.toggle("keyboard-guide-open", opening);
   keyboardGuideButton.setAttribute("aria-expanded", String(opening));
   keyboardGuideButton.querySelector(".guide-chevron").textContent = opening ? "▲" : "▼";
   if (opening) imeText.focus();

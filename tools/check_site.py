@@ -61,6 +61,11 @@ def main():
     assert dictionary_view.index('class="search-row"') < dictionary_view.index('id="imeCandidates"')
     assert 'id="keyboardGuideButton"' in ime_html and 'id="keyboardLayout"' in ime_html
     assert ime_html.index('class="text-wrap"') < ime_html.index('id="candidateBar"')
+    ime_styles = local_file("/ime/styles.css").read_text(encoding="utf-8")
+    ime_script = local_file("/ime/ime.js").read_text(encoding="utf-8")
+    assert ".pad.keyboard-guide-open .ime-text" in ime_styles
+    assert "calc(100dvh - 630px)" in ime_styles
+    assert 'classList.toggle("keyboard-guide-open", opening)' in ime_script
     assert '/shared/web-ime-menu.css?v=' in ime_html
     assert '/shared/web-ime-menu.css?v=' in dictionary_html
     assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view
