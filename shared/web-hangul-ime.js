@@ -62,6 +62,10 @@ const TangliengimHangulIme = (() => {
   const TONE_MARKS = { 1: "ˆ", 2: "ˋ", 4: "ˊ", 5: "ˉ" };
   const TONE_INPUT = { "ˆ": "1", "ꞈ": "1", "ˋ": "2", "`": "2", "ˎ": "2", "ˊ": "4", "ˏ": "4", "ˉ": "5", "ˍ": "5" };
 
+  function normalizeApostrophes(value) {
+    return String(value ?? "").replaceAll("'", "’");
+  }
+
   const INITIAL_KEY_TO_L = Object.fromEntries(
     Object.entries(KEY_TO_JAMO)
       .filter(([, jamo]) => jamo in COMPAT_TO_L)
@@ -170,7 +174,7 @@ const TangliengimHangulIme = (() => {
     }
 
     setText(text, cursor = text.length) {
-      this.output = String(text || "");
+      this.output = normalizeApostrophes(text);
       this.cursorPos = Math.max(0, Math.min(cursor, this.output.length));
       this.initial = "";
       this.medial = "";
@@ -189,9 +193,10 @@ const TangliengimHangulIme = (() => {
     }
 
     insertLiteral(text) {
+      const normalized = normalizeApostrophes(text);
       this.commit();
-      this.output = `${this.output.slice(0, this.cursorPos)}${text}${this.output.slice(this.cursorPos)}`;
-      this.cursorPos += text.length;
+      this.output = `${this.output.slice(0, this.cursorPos)}${normalized}${this.output.slice(this.cursorPos)}`;
+      this.cursorPos += normalized.length;
       this.keyHistory = [];
     }
 
@@ -365,7 +370,7 @@ const TangliengimHangulIme = (() => {
     }
 
     processChar(char) {
-      const normalized = normalizeKeyboardChar(char);
+      const normalized = normalizeKeyboardChar(normalizeApostrophes(char));
       if (normalized in TONE_INPUT) {
         this.addTone(TONE_INPUT[normalized]);
         return;
@@ -375,7 +380,7 @@ const TangliengimHangulIme = (() => {
         return;
       }
       if (!(normalized in KEY_TO_JAMO)) {
-        this.insertLiteral(char);
+        this.insertLiteral(normalized);
         return;
       }
 

@@ -793,6 +793,11 @@ def remove_apostrophes_for_lookup(text: str) -> str:
     return str(text).replace("'", '').replace('’', '')
 
 
+def normalize_typographic_apostrophes(text: str) -> str:
+    """Use the typographic apostrophe for every user-facing text path."""
+    return str(text or '').replace("'", '’')
+
+
 def has_relaxable_apostrophe(text: str) -> bool:
     """True when apostrophe can be ignored for lookup.
 
@@ -5903,6 +5908,7 @@ class Composer:
     e_to_ye_autocorrect_enabled: object = None
 
     def __post_init__(self) -> None:
+        self.output = normalize_typographic_apostrophes(self.output)
         self.clamp_cursor()
 
     def should_use_e_to_ye_autocorrect(self) -> bool:
@@ -5935,6 +5941,7 @@ class Composer:
         return ''
 
     def text(self) -> str:
+        self.output = normalize_typographic_apostrophes(self.output)
         self.clamp_cursor()
         return self.output[:self.cursor_pos] + self.buffer_text() + self.output[self.cursor_pos:]
 
@@ -5952,6 +5959,7 @@ class Composer:
             self.e_to_ye_autocorrected = False
 
     def insert_literal(self, s: str) -> None:
+        s = normalize_typographic_apostrophes(s)
         self.commit()
         self.clamp_cursor()
         self.output = self.output[:self.cursor_pos] + s + self.output[self.cursor_pos:]
@@ -9135,7 +9143,7 @@ class HokkienIMEPad:
     def clipboard_plain_text(self, content: str) -> str:
         """Return clean clipboard text with no IME-only invisible markers."""
         return format_text_tones_for_output(
-            str(content).replace(LITERAL_DIGIT_MARK, ''),
+            normalize_typographic_apostrophes(content).replace(LITERAL_DIGIT_MARK, ''),
             self.output_tones_on.get(),
         ).replace(LITERAL_DIGIT_MARK, '')
 
@@ -9806,25 +9814,8 @@ class HokkienIMEPad:
         self.composer.cursor_pos = pos - 1 + len(replacement)
 
     def normalize_apostrophe_input(self, char: str) -> str:
-        """Change straight apostrophe to curly connector apostrophe live.
-
-        The conversion is visible immediately in the IME typing box.
-
-        Examples:
-            랑'       -> 랑’
-            人'       -> 人’
-            랑ˊ'      -> 랑ˊ’
-            [全좐]'   -> [全좐]’
-        """
-        if char != "'":
-            return char
-
-        current = self.composer.text()
-        pos = self.composer.display_cursor_pos()
-        prev = previous_non_tone_char(current, pos)
-        if is_hangul_or_hanri_char(prev) or prev == ']':
-            return '’'
-        return char
+        """Normalize every typed straight apostrophe immediately."""
+        return normalize_typographic_apostrophes(char)
 
     def format_hangul_output(self, reading: str) -> str:
         """Format pure Hangul output according to the Hangul tones toggle."""
@@ -12131,9 +12122,7 @@ class HokkienIMEPad:
 
         if content:
             content = str(content).replace('\r\n', '\n').replace('\r', '\n')
-            # Keep pasted text consistent with live typing: a straight
-            # apostrophe immediately after ] is a curly connector apostrophe.
-            content = content.replace("]'", "]’")
+            content = normalize_typographic_apostrophes(content)
             self.push_undo_state()
             self.close_candidate_popup()
             self.flush_sequence_buffer()

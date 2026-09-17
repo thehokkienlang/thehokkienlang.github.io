@@ -165,39 +165,8 @@ def normalize_yyae(seg: str) -> str:
     return "".join(out)
 
 def normalize_apostrophes(seg: str) -> str:
-    """
-    Apostrophe rules:
-
-      若'是   -> 若’是
-      '에     -> ’에
-
-      '若是'  -> ‘若是’
-      '나시'  -> ‘나시’
-    """
-
-    # 1) Quotation-style apostrophes
-    #    '若是' -> ‘若是’
-    #    '나시' -> ‘나시’
-    seg = re.sub(r"'([^']+)'", r"‘\1’", seg)
-
-    # 2) Straight apostrophe immediately after a closing square bracket
-    #    is a connector apostrophe.
-    #    [若是]'人 -> [若是]’人
-    seg = seg.replace("]'", "]’")
-
-    # 3) Internal connector apostrophe
-    #    若'是 -> 若’是
-    seg = re.sub(r"(?<=\w)'(?=\w)", "’", seg)
-
-    # 4) Leading apostrophe before Hangul
-    #    '에 -> ’에
-    seg = re.sub(
-        r"(?:(?<=\s)|(?<=^)|(?<=\]))'(?=[\uAC00-\uD7A3\u1100-\u11FF])",
-        "’",
-        seg
-    )
-
-    return seg
+    """Normalize every straight apostrophe to the typographic apostrophe."""
+    return str(seg or '').replace("'", "’")
 
 # ==== 3b. PRE-NORMALIZE ㅜ COMPATIBILITY JAVO SEQUENCES ====
 def normalize_compat_jamo(seg: str) -> str:

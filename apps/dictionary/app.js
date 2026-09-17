@@ -6,6 +6,7 @@ const {
   displayTextNode,
   headwordUnitAt,
   normalizeEnglishSearch,
+  normalizeApostrophes,
   normalizeLomariSearchAliases,
   normalizeText,
   queryVariants,
@@ -670,7 +671,7 @@ function renderReading(entry) {
   lomariLabel.textContent = "Lomari";
   const lomari = document.createElement("span");
   lomari.className = "lomari";
-  lomari.textContent = entry.lomari || " ";
+  lomari.textContent = normalizeApostrophes(entry.lomari || " ");
   lomariField.append(lomariLabel, lomari);
 
   const englishField = document.createElement("div");
@@ -692,7 +693,7 @@ function renderReading(entry) {
   playButton.className = "audio-reading";
   playButton.type = "button";
   playButton.textContent = "Listen";
-  playButton.setAttribute("aria-label", `Listen to ${entry.reading}`);
+  playButton.setAttribute("aria-label", `Listen to ${normalizeApostrophes(entry.reading)}`);
   if (!audioSegments.length) {
     playButton.disabled = true;
     playButton.title = missingAudio.length ? `No audio for ${missingAudio.join(", ")}` : "No audio for this reading";
@@ -718,9 +719,11 @@ function renderReading(entry) {
   copyButton.className = "copy-reading";
   copyButton.type = "button";
   copyButton.textContent = "Copy";
-  copyButton.setAttribute("aria-label", `Copy ${entry.reading} ${entry.lomari || ""}`.trim());
+  copyButton.setAttribute("aria-label", `Copy ${normalizeApostrophes(entry.reading)} ${normalizeApostrophes(entry.lomari || "")}`.trim());
   copyButton.addEventListener("click", async () => {
-    const value = entry.lomari ? `${entry.reading}\t${entry.lomari}` : entry.reading;
+    const value = entry.lomari
+      ? `${normalizeApostrophes(entry.reading)}\t${normalizeApostrophes(entry.lomari)}`
+      : normalizeApostrophes(entry.reading);
     try {
       await copyText(value);
       showToast("Reading copied");

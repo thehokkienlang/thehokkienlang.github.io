@@ -58,6 +58,11 @@ async function loadApp(route, script) {
     for (const key of 'rksk') composer.processChar(key);
     return composer.text();
   })()`, context), '\uac00\ub098');
+  assert.equal(vm.runInContext(`(() => {
+    const composer = new TangliengimHangulIme.Composer();
+    composer.processChar("'");
+    return composer.text();
+  })()`, context), '’');
   return { context, elements };
 }
 
@@ -79,6 +84,17 @@ async function loadApp(route, script) {
     'Dictionary Hanri candidates must render as a visible popup list'
   );
   vm.runInContext(`searchInput.value = ''; searchImeController.composer.setText('', 0); setInputMode('lomari')`, dictionary.context);
+  assert.equal(
+    vm.runInContext(`(() => {
+      searchInput.value = "lang'";
+      searchInput.selectionStart = 5;
+      searchInput.selectionEnd = 5;
+      searchImeController.handleInput();
+      return searchInput.value;
+    })()`, dictionary.context),
+    'lang’',
+    'Dictionary input must normalize a pasted straight apostrophe in Lomari mode'
+  );
   assert.deepEqual(
     vm.runInContext('state.categories.map(category => category.id).join(",")', dictionary.context),
     'food,place-names'
@@ -144,6 +160,15 @@ async function loadApp(route, script) {
     })()`, context),
     '가',
     'Clickable keyboard input must use the shared Hangul composer'
+  );
+  assert.equal(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.insertText("랑'");
+      return imeText.value;
+    })()`, context),
+    '랑’',
+    'Web IME input must normalize straight apostrophes'
   );
   assert.ok(
     vm.runInContext(`(() => {

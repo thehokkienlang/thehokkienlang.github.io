@@ -319,7 +319,8 @@ const TangliengimLomariPreview = (() => {
     }
 
     function render(text, mode = "taipei") {
-      const tokens = applyExternalSandhi(tokenize(String(text || ""), mode), mode);
+      const normalizedText = imeCore.normalizeApostrophes(text);
+      const tokens = applyExternalSandhi(tokenize(normalizedText, mode), mode);
       const output = [];
       let previousWasWord = false;
       for (const token of tokens) {

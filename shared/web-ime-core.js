@@ -33,7 +33,7 @@ const TangliengimImeCore = (() => {
   };
 
   const HANGUL_TONE_CHARS = new Set([...Object.keys(HANGUL_TONE_MARKS), "3"]);
-  const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘", "'"]);
+  const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘"]);
   const AMERICAN_TO_BRITISH_ENGLISH = Object.freeze({
     airplane: "aeroplane",
     airplanes: "aeroplanes",
@@ -96,8 +96,12 @@ const TangliengimImeCore = (() => {
     traveling: "travelling",
   });
 
+  function normalizeApostrophes(value) {
+    return String(value ?? "").replaceAll("'", "’");
+  }
+
   function normalizeText(value) {
-    return String(value || "")
+    return normalizeApostrophes(value)
       .normalize("NFKD")
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^\p{Letter}\p{Number}\u1100-\u11FF\u3130-\u318F\u3400-\u4DBF\u4E00-\u9FFF\u{20000}-\u{2EBEF}]+/gu, "")
@@ -165,7 +169,7 @@ const TangliengimImeCore = (() => {
 
   function displayTextNode(text) {
     const fragment = document.createDocumentFragment();
-    for (const char of [...String(text || "")]) {
+    for (const char of [...normalizeApostrophes(text)]) {
       if (LATIN_WIDTH_APOSTROPHES.has(char)) {
         const span = document.createElement("span");
         span.className = "latin-apostrophe";
@@ -291,7 +295,7 @@ const TangliengimImeCore = (() => {
 
   function renderToneMarkedReading(reading) {
     const fragment = document.createDocumentFragment();
-    const text = String(reading || "");
+    const text = normalizeApostrophes(reading);
     let index = 0;
 
     while (index < text.length) {
@@ -313,7 +317,7 @@ const TangliengimImeCore = (() => {
 
   function renderInlineUpperToneReading(reading) {
     const fragment = document.createDocumentFragment();
-    const text = String(reading || "");
+    const text = normalizeApostrophes(reading);
     let index = 0;
 
     while (index < text.length) {
@@ -433,7 +437,7 @@ const TangliengimImeCore = (() => {
     insertText(text) {
       this.syncComposerFromControl();
       this.replaceSelectionBeforeImeKey();
-      for (const char of [...String(text || "")]) {
+      for (const char of [...normalizeApostrophes(text)]) {
         this.composer.processChar(char);
       }
       this.updateControlFromComposer();
@@ -450,11 +454,15 @@ const TangliengimImeCore = (() => {
 
     syncComposerFromControl() {
       const text = this.composer.text();
+      const normalizedValue = normalizeApostrophes(this.control.value);
+      if (normalizedValue !== this.control.value) {
+        this.control.value = normalizedValue;
+      }
       const cursor = this.control.selectionStart ?? this.control.value.length;
       const selectionEnd = this.control.selectionEnd ?? cursor;
 
-      if (this.control.value !== text || cursor !== selectionEnd) {
-        this.composer.setText(this.control.value, cursor);
+      if (normalizedValue !== text || cursor !== selectionEnd) {
+        this.composer.setText(normalizedValue, cursor);
         return;
       }
 
@@ -575,8 +583,15 @@ const TangliengimImeCore = (() => {
 
     handleInput() {
       if (this.internalUpdate) return;
+      const normalizedValue = normalizeApostrophes(this.control.value);
+      if (normalizedValue !== this.control.value) {
+        const start = this.control.selectionStart ?? normalizedValue.length;
+        const end = this.control.selectionEnd ?? start;
+        this.control.value = normalizedValue;
+        this.control.setSelectionRange?.(start, end);
+      }
       if (this.isEnabled()) {
-        this.composer.setText(this.control.value, this.control.selectionStart ?? this.control.value.length);
+        this.composer.setText(normalizedValue, this.control.selectionStart ?? normalizedValue.length);
       }
       this.onUpdate();
       this.renderCandidates();
@@ -756,6 +771,7 @@ const TangliengimImeCore = (() => {
     headwordUnitAt,
     isToneMark,
     normalizeEnglishSearch,
+    normalizeApostrophes,
     normalizeLomariSearchAliases,
     normalizeText,
     queryVariants,
