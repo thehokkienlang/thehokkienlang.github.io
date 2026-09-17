@@ -3,6 +3,7 @@ const RESULTS_PER_PAGE = 10;
 const ImeCore = window.TangliengimImeCore;
 const {
   createTextImeController,
+  createDictionaryIndex,
   displayTextNode,
   headwordUnitAt,
   normalizeEnglishSearch,
@@ -19,6 +20,7 @@ const {
 
 const state = {
   entries: [],
+  dictionaryIndex: createDictionaryIndex([]),
   groups: [],
   categories: [],
   activeCategory: "",
@@ -868,9 +870,10 @@ async function loadDictionary() {
     }
     const data = await response.json();
     state.entries = data.entries || [];
+    state.dictionaryIndex = createDictionaryIndex(state.entries);
     state.categories = data.categories || [];
     state.groups = groupEntries(state.entries);
-    searchImeController?.setEntries(state.entries);
+    searchImeController?.setEntries(state.entries, state.dictionaryIndex);
     state.loaded = true;
     dataStatus.textContent = `${data.counts?.active_entries || state.entries.length} active TSV entries`;
     renderCategoryFilters();
@@ -892,6 +895,7 @@ async function loadDictionary() {
 searchImeController = createTextImeController({
   control: searchInput,
   candidateContainer: imeCandidates,
+  dictionaryIndex: state.dictionaryIndex,
   enabled: () => state.inputMode === "hanri-hangul",
   onUpdate: () => {
     state.currentPage = 1;

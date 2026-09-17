@@ -412,6 +412,150 @@ const TangliengimImeCore = (() => {
     return byReading;
   }
 
+  function createDictionaryIndex(entries) {
+    const activeEntries = (entries || []).filter(searchableEntry);
+    const hanriEntries = activeEntries
+      .filter((entry) => entry.hanri && entry.kind !== "hangul_override")
+      .sort((a, b) =>
+        [...b.hanri].length - [...a.hanri].length ||
+        a.priority - b.priority ||
+        a.row - b.row
+      );
+    const mixedHanriEntries = hanriEntries.filter((entry) => entry.kind === "mixed_hanri");
+    const plainHanriByFirst = new Map();
+    const exactReadingEntries = new Map();
+    const hangulOverrides = new Map();
+    const hangulOverrideKeys = [];
+    const hanriMatchCache = new Map();
+
+    for (const entry of hanriEntries) {
+      if (entry.kind !== "plain_hanri") continue;
+      const first = String.fromCodePoint(entry.hanri.codePointAt(0));
+      if (!plainHanriByFirst.has(first)) plainHanriByFirst.set(first, []);
+      plainHanriByFirst.get(first).push(entry);
+    }
+
+    function addExactReading(key, entry) {
+      if (!key || !/[1245ˆˋ`ˊˉꞈˎˏˍ]/u.test(key)) return;
+      const normalized = TangliengimHangulIme.normalizeReadingToneKey(key);
+      if (!exactReadingEntries.has(normalized)) exactReadingEntries.set(normalized, []);
+      exactReadingEntries.get(normalized).push(entry);
+    }
+
+    for (const entry of activeEntries) {
+      addExactReading(entry.reading, entry);
+      addExactReading(entry.raw?.reading, entry);
+      if (entry.kind !== "hangul_override") continue;
+      const visibleKey = TangliengimHangulIme.normalizeReadingBase(entry.readingBase).normalize("NFC");
+      const key = normalizeText(visibleKey);
+      if (key && !hangulOverrides.has(key)) {
+        hangulOverrides.set(key, entry);
+        hangulOverrideKeys.push(visibleKey);
+      }
+    }
+
+    hangulOverrideKeys.sort((a, b) => [...b].length - [...a].length || b.length - a.length);
+    for (const candidates of exactReadingEntries.values()) {
+      candidates.sort((a, b) => a.priority - b.priority || a.row - b.row);
+    }
+
+    function compareScore(left, right) {
+      for (let index = 0; index < left.length; index += 1) {
+        if (left[index] !== right[index]) return left[index] - right[index];
+      }
+      return 0;
+    }
+
+    function priorityHanriMatch(text, index) {
+      const cacheKey = `${text}\u0000${index}`;
+      if (hanriMatchCache.has(cacheKey)) return hanriMatchCache.get(cacheKey);
+
+      let runEnd = index;
+      while (runEnd < text.length) {
+        const char = String.fromCodePoint(text.codePointAt(runEnd));
+        if (!isHanriChar(char)) break;
+        runEnd += char.length;
+      }
+
+      const memo = new Map();
+      function bestAt(position) {
+        if (position >= runEnd) return { score: [0, 0, 0], first: null };
+        if (memo.has(position)) return memo.get(position);
+
+        let best = { score: [1_000_000, 1_000_000, 1_000_000], first: null };
+        const currentChar = String.fromCodePoint(text.codePointAt(position));
+        for (const entry of plainHanriByFirst.get(currentChar) || []) {
+          const key = String(entry.hanri || "");
+          if (!key || !text.startsWith(key, position) || position + key.length > runEnd) continue;
+          const rest = bestAt(position + key.length);
+          const candidate = {
+            score: [rest.score[0], Number(entry.priority) + rest.score[1], 1 + rest.score[2]],
+            first: entry,
+          };
+          if (compareScore(candidate.score, best.score) < 0) best = candidate;
+        }
+
+        const char = String.fromCodePoint(text.codePointAt(position));
+        const rest = bestAt(position + char.length);
+        const unmatched = {
+          score: [1 + rest.score[0], 9999 + rest.score[1], 1 + rest.score[2]],
+          first: null,
+        };
+        if (compareScore(unmatched.score, best.score) < 0) best = unmatched;
+        memo.set(position, best);
+        return best;
+      }
+
+      const match = bestAt(index).first;
+      if (hanriMatchCache.size > 3000) hanriMatchCache.clear();
+      hanriMatchCache.set(cacheKey, match);
+      return match;
+    }
+
+    function findHanriEntry(text, index = 0) {
+      for (const entry of mixedHanriEntries) {
+        if (text.startsWith(entry.hanri, index)) return entry;
+      }
+      const code = text.codePointAt(index);
+      const char = code === undefined ? "" : String.fromCodePoint(code);
+      return isHanriChar(char) ? priorityHanriMatch(text, index) : null;
+    }
+
+    function findHangulOverride(reading) {
+      const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
+      return hangulOverrides.get(key) || null;
+    }
+
+    function findReadingEntry(reading) {
+      const exactKey = TangliengimHangulIme.normalizeReadingToneKey(reading);
+      if (/[1245]/u.test(exactKey)) {
+        const exact = exactReadingEntries.get(exactKey)?.[0];
+        if (exact) return exact;
+      }
+      return findHangulOverride(reading);
+    }
+
+    function findHangulOverrideAt(text, index = 0) {
+      for (const key of hangulOverrideKeys) {
+        if (!text.startsWith(key, index)) continue;
+        const normalized = normalizeText(key);
+        let end = index + key.length;
+        while (end < text.length && isToneMark(text[end])) end += 1;
+        return { entry: hangulOverrides.get(normalized), end };
+      }
+      return null;
+    }
+
+    return {
+      entries: activeEntries,
+      candidatesByReading: buildReadingCandidateMap(activeEntries),
+      findHanriEntry,
+      findHangulOverride,
+      findHangulOverrideAt,
+      findReadingEntry,
+    };
+  }
+
   function isImeCandidateChar(char) {
     if (!char) return false;
     return /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ12345]/u.test(char);
@@ -422,6 +566,7 @@ const TangliengimImeCore = (() => {
       control,
       candidateContainer,
       entries = [],
+      dictionaryIndex = null,
       enabled = () => true,
       onUpdate = () => {},
       enterBehavior = "none",
@@ -433,7 +578,8 @@ const TangliengimImeCore = (() => {
       this.onUpdate = onUpdate;
       this.enterBehavior = enterBehavior;
       this.candidateLimit = candidateLimit;
-      this.candidatesByReading = buildReadingCandidateMap(entries);
+      this.dictionaryIndex = dictionaryIndex;
+      this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries);
       this.composer = new TangliengimHangulIme.Composer({
         shouldAutocorrectEToYe: (reading) => {
           const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
@@ -462,8 +608,9 @@ const TangliengimImeCore = (() => {
       return Boolean(this.enabled());
     }
 
-    setEntries(entries) {
-      this.candidatesByReading = buildReadingCandidateMap(entries || []);
+    setEntries(entries, dictionaryIndex = null) {
+      this.dictionaryIndex = dictionaryIndex;
+      this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries || []);
       this.renderCandidates();
     }
 
@@ -829,6 +976,7 @@ const TangliengimImeCore = (() => {
   return {
     buildReadingCandidateMap,
     citationToTaipeiSandhiTone,
+    createDictionaryIndex,
     createTextImeController,
     displayTextNode,
     headwordUnitAt,

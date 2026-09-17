@@ -18,6 +18,7 @@ const pad = document.querySelector(".pad");
 
 const imeCore = window.TangliengimImeCore;
 const lomariCore = window.TangliengimLomariPreview;
+let dictionaryIndex = imeCore.createDictionaryIndex([]);
 const imeController = imeCore.createTextImeController({
   control: imeText,
   candidateContainer: candidateBar,
@@ -28,21 +29,12 @@ const imeController = imeCore.createTextImeController({
 
 const state = {
   entries: [],
-  hanriEntries: [],
-  plainHanriEntries: [],
-  plainHanriByFirst: new Map(),
-  mixedHanriEntries: [],
-  hangulOverrides: new Map(),
-  hangulOverrideKeys: [],
-  readingEntries: new Map(),
-  exactReadingEntries: new Map(),
   unitRoman: new Map(),
   rawHangulAudio: new Map(),
   jamoLomari: new Map(),
   jamoAudio: new Map(),
   sandhiMode: "taipei",
 };
-const hanriMatchCache = new Map();
 const lomariRenderer = lomariCore.createRenderer({
   imeCore,
   findHanriEntry,
@@ -288,179 +280,29 @@ function entrySegments(entry) {
   }));
 }
 
-function addReadingEntry(key, entry) {
-  if (!key) return;
-  const normalized = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(key));
-  if (!normalized) return;
-  if (!state.readingEntries.has(normalized)) {
-    state.readingEntries.set(normalized, []);
-  }
-  state.readingEntries.get(normalized).push(entry);
-}
-
-function addExactReadingEntry(key, entry) {
-  if (!key || !/[1245ˆˋ`ˊˉꞈˎˏˍ]/u.test(key)) return;
-  const normalized = TangliengimHangulIme.normalizeReadingToneKey(key);
-  if (!state.exactReadingEntries.has(normalized)) {
-    state.exactReadingEntries.set(normalized, []);
-  }
-  state.exactReadingEntries.get(normalized).push(entry);
-}
-
-function searchableEntry(entry) {
-  return entry.active && entry.kind !== "numeric_override";
-}
-
 function setEntries(entries) {
-  state.entries = (entries || []).filter(searchableEntry);
-  state.hanriEntries = state.entries
-    .filter((entry) => entry.hanri && entry.kind !== "hangul_override")
-    .sort((a, b) =>
-      [...b.hanri].length - [...a.hanri].length ||
-      a.priority - b.priority ||
-      a.row - b.row
-    );
-  state.plainHanriEntries = state.hanriEntries.filter((entry) => entry.kind === "plain_hanri");
-  state.mixedHanriEntries = state.hanriEntries.filter((entry) => entry.kind === "mixed_hanri");
-  state.plainHanriByFirst = new Map();
-  for (const entry of state.plainHanriEntries) {
-    const first = String.fromCodePoint(entry.hanri.codePointAt(0));
-    if (!state.plainHanriByFirst.has(first)) state.plainHanriByFirst.set(first, []);
-    state.plainHanriByFirst.get(first).push(entry);
-  }
-  state.readingEntries = new Map();
-  state.exactReadingEntries = new Map();
-  state.hangulOverrides = new Map();
-  state.hangulOverrideKeys = [];
-  hanriMatchCache.clear();
-
-  for (const entry of state.entries) {
-    addReadingEntry(entry.readingBase, entry);
-    addReadingEntry(entry.reading, entry);
-    addReadingEntry(entry.raw?.reading, entry);
-    addExactReadingEntry(entry.reading, entry);
-    addExactReadingEntry(entry.raw?.reading, entry);
-    if (entry.kind === "hangul_override") {
-      const visibleKey = TangliengimHangulIme.normalizeReadingBase(entry.readingBase).normalize("NFC");
-      const key = imeCore.normalizeText(visibleKey);
-      if (key && !state.hangulOverrides.has(key)) {
-        state.hangulOverrides.set(key, entry);
-        state.hangulOverrideKeys.push(visibleKey);
-      }
-    }
-  }
-  state.hangulOverrideKeys.sort((a, b) =>
-    [...b].length - [...a].length || b.length - a.length
-  );
-
-  for (const candidates of state.readingEntries.values()) {
-    candidates.sort((a, b) =>
-      a.priority - b.priority ||
-      a.row - b.row ||
-      String(a.hanri || "").localeCompare(String(b.hanri || ""))
-    );
-  }
-  for (const candidates of state.exactReadingEntries.values()) {
-    candidates.sort((a, b) => a.priority - b.priority || a.row - b.row);
-  }
+  dictionaryIndex = imeCore.createDictionaryIndex(entries);
+  state.entries = dictionaryIndex.entries;
 }
 
 function isPunctuationOrSpace(char) {
   return /\s|\p{Punctuation}/u.test(char);
 }
 
-function isHanriCharacter(char) {
-  return Boolean(char && /\p{Script=Han}/u.test(char));
-}
-
-function compareScore(left, right) {
-  for (let index = 0; index < left.length; index += 1) {
-    if (left[index] !== right[index]) return left[index] - right[index];
-  }
-  return 0;
-}
-
-function priorityHanriMatch(text, index) {
-  const cacheKey = `${text}\u0000${index}`;
-  if (hanriMatchCache.has(cacheKey)) return hanriMatchCache.get(cacheKey);
-
-  let runEnd = index;
-  while (runEnd < text.length) {
-    const char = String.fromCodePoint(text.codePointAt(runEnd));
-    if (!isHanriCharacter(char)) break;
-    runEnd += char.length;
-  }
-
-  const memo = new Map();
-  function bestAt(position) {
-    if (position >= runEnd) return { score: [0, 0, 0], first: null };
-    if (memo.has(position)) return memo.get(position);
-
-    let best = { score: [1_000_000, 1_000_000, 1_000_000], first: null };
-    const currentChar = String.fromCodePoint(text.codePointAt(position));
-    for (const entry of state.plainHanriByFirst.get(currentChar) || []) {
-      const key = String(entry.hanri || "");
-      if (!key || !text.startsWith(key, position) || position + key.length > runEnd) continue;
-      const rest = bestAt(position + key.length);
-      const candidate = {
-        score: [rest.score[0], Number(entry.priority) + rest.score[1], 1 + rest.score[2]],
-        first: entry,
-      };
-      if (compareScore(candidate.score, best.score) < 0) best = candidate;
-    }
-
-    const char = String.fromCodePoint(text.codePointAt(position));
-    const rest = bestAt(position + char.length);
-    const unmatched = {
-      score: [1 + rest.score[0], 9999 + rest.score[1], 1 + rest.score[2]],
-      first: null,
-    };
-    if (compareScore(unmatched.score, best.score) < 0) best = unmatched;
-    memo.set(position, best);
-    return best;
-  }
-
-  const match = bestAt(index).first;
-  if (hanriMatchCache.size > 3000) hanriMatchCache.clear();
-  hanriMatchCache.set(cacheKey, match);
-  return match;
-}
-
 function findHanriEntry(text, index) {
-  for (const entry of state.mixedHanriEntries) {
-    if (text.startsWith(entry.hanri, index)) {
-      return entry;
-    }
-  }
-  const code = text.codePointAt(index);
-  const char = code === undefined ? "" : String.fromCodePoint(code);
-  return isHanriCharacter(char) ? priorityHanriMatch(text, index) : null;
+  return dictionaryIndex.findHanriEntry(text, index);
 }
 
 function findReadingEntry(reading) {
-  const exactKey = TangliengimHangulIme.normalizeReadingToneKey(reading);
-  if (/[1245]/u.test(exactKey)) {
-    const exact = state.exactReadingEntries.get(exactKey)?.[0];
-    if (exact) return exact;
-  }
-  const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
-  return state.hangulOverrides.get(key) || null;
+  return dictionaryIndex.findReadingEntry(reading);
 }
 
 function findHangulOverride(reading) {
-  const key = imeCore.normalizeText(TangliengimHangulIme.normalizeReadingBase(reading));
-  return state.hangulOverrides.get(key) || null;
+  return dictionaryIndex.findHangulOverride(reading);
 }
 
 function findHangulOverrideAt(text, index) {
-  for (const key of state.hangulOverrideKeys) {
-    if (!text.startsWith(key, index)) continue;
-    const normalized = imeCore.normalizeText(key);
-    let end = index + key.length;
-    while (end < text.length && imeCore.isToneMark(text[end])) end += 1;
-    return { entry: state.hangulOverrides.get(normalized), end };
-  }
-  return null;
+  return dictionaryIndex.findHangulOverrideAt(text, index);
 }
 
 function updateLomariPreview() {
@@ -970,7 +812,7 @@ async function loadDictionary() {
     state.rawHangulAudio = new Map(Object.entries(data.runtime?.rawHangulAudio || {}));
     state.jamoLomari = new Map(Object.entries(data.runtime?.jamoLomari || {}));
     state.jamoAudio = new Map(Object.entries(data.runtime?.jamoAudio || {}));
-    imeController.setEntries(state.entries);
+    imeController.setEntries(state.entries, dictionaryIndex);
     updateLomariPreview();
     // A successful load is the normal state, so keep the toolbar quiet.
     statusLine.textContent = "";

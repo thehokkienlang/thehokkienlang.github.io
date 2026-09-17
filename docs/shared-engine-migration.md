@@ -32,12 +32,17 @@ The first fixture group covers shared text, Lomari, and audio behaviour. Jamo
 composition needs controller-level fixtures because converter functions alone
 do not model the IME rule that a digit after a standalone jamo remains literal.
 
-## Implementation Order
+## Progress
 
-1. Capture legacy fixtures.
-2. Move TSV indexing and longest-match lookup into the shared engine.
-3. Move Hangul composition and candidates.
-4. Move tone, Lomari, Taipei/Singapore sandhi, and audio plans.
-5. Make Web IME and Dictionary consume the engine.
-6. Bundle that same Web interface and engine into the active desktop shell.
-7. Keep desktop HTML modes and TSV sync as local extensions that consume shared engine analysis.
+Completed:
+
+1. Capture desktop parity fixtures.
+2. Move TSV indexing, priority Hanri segmentation, exact readings, and longest Hangul-override lookup into `shared/web-ime-core.js`.
+3. Make both the Web IME and Dictionary consume that one dictionary index for their Hangul candidate menus.
+4. Move the first common audio rules: citation-to-Taipei sandhi and Singapore tone-1 replacement.
+
+Next:
+
+1. Extend parity coverage for controller-level Hangul composition and candidate selection.
+2. Move the remaining Lomari and audio-plan decisions behind shared engine APIs.
+3. Bundle the Web interface and shared engine in the active desktop shell while retaining local HTML modes and TSV sync as extensions.

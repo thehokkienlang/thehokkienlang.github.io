@@ -92,6 +92,15 @@ async function loadApp(route, script) {
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
   assert.ok(
     vm.runInContext(`(() => {
+      const index = TangliengimImeCore.createDictionaryIndex(state.entries);
+      return searchImeController.dictionaryIndex === state.dictionaryIndex
+        && index.findHanriEntry('用心肝', 0)?.hanri === '用'
+        && index.findHangulOverrideAt('릐호', 0)?.entry?.reading === '릐1호2';
+    })()`, dictionary.context),
+    'Dictionary candidates and shared priority/override lookup must use one shared index'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
       setInputMode('hanri-hangul');
       const entry = state.entries.find(item => item.hanri && item.kind !== 'hangul_override');
       searchInput.value = entry.readingBase;
@@ -174,6 +183,13 @@ async function loadApp(route, script) {
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.equal(elements.get('#statusLine').textContent, '');
   assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
+  assert.ok(
+    vm.runInContext(
+      `imeController.dictionaryIndex === dictionaryIndex && dictionaryIndex.findHanriEntry('用心肝', 0)?.hanri === '用'`,
+      context
+    ),
+    'Web IME must consume the shared dictionary index for priority Hanri matching'
+  );
   assert.equal(elements.get('#keyboardLayout').children.length, 5, 'IME keyboard guide must render five key rows');
   assert.equal(
     vm.runInContext('JSON.stringify(GUIDE_ROWS)', context),
