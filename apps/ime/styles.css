@@ -342,6 +342,17 @@ h1 {
   gap: 6px;
 }
 
+.keyboard-row-top-controls {
+  position: relative;
+  width: 534px;
+}
+
+.keyboard-row-top-controls .key-backspace {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
 .keyboard-key {
   position: relative;
   display: grid;
@@ -495,6 +506,10 @@ h1 {
 
   .keyboard-row {
     gap: 3px;
+  }
+
+  .keyboard-row-top-controls {
+    width: calc(100vw - 31px);
   }
 
   .keyboard-key:not(.control-key) {

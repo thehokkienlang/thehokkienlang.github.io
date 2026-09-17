@@ -86,6 +86,8 @@ async function loadApp(route, script) {
   vm.runInContext(`searchInput.value = ''; searchImeController.composer.setText('', 0); setInputMode('lomari')`, dictionary.context);
   assert.equal(
     vm.runInContext(`(() => {
+      searchImeController.onUpdate = () => {};
+      searchImeController.renderCandidates = () => {};
       searchInput.value = "lang'";
       searchInput.selectionStart = 5;
       searchInput.selectionEnd = 5;
@@ -95,6 +97,7 @@ async function loadApp(route, script) {
     'lang’',
     'Dictionary input must normalize a pasted straight apostrophe in Lomari mode'
   );
+  vm.runInContext(`searchInput.value = ''; searchInput.selectionStart = 0; searchInput.selectionEnd = 0`, dictionary.context);
   assert.deepEqual(
     vm.runInContext('state.categories.map(category => category.id).join(",")', dictionary.context),
     'food,place-names'
@@ -152,6 +155,17 @@ async function loadApp(route, script) {
   assert.equal(elements.get('#statusLine').textContent, '');
   assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
   assert.equal(elements.get('#keyboardLayout').children.length, 5, 'IME keyboard guide must render five key rows');
+  assert.equal(
+    vm.runInContext('JSON.stringify(GUIDE_ROWS)', context),
+    JSON.stringify([
+      ['1', '2', '4', '5', 'Backspace'],
+      [...'qwertyuiop'],
+      [...'asdfghjkl'],
+      ['Shift', ...'zxcvbnm', '’'],
+      ['Space'],
+    ]),
+    'IME keyboard guide must keep special keys in the shared layout'
+  );
   assert.equal(
     vm.runInContext(`(() => {
       imeController.clear();

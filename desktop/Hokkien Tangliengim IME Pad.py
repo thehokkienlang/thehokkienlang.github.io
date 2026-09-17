@@ -8167,7 +8167,24 @@ class HokkienIMEPad:
         rows = self.keyboard_guide_rows()
         full_row_width = self.keyboard_guide_row_width(list('qwertyuiop'))
         for row_index, row in enumerate(rows):
-            if self.input_mode.get() == 'lomari' and row_index == 0:
+            top_backspace = (
+                row_index == 0
+                and self.input_mode.get() != 'bopomofo'
+                and 'Backspace' in row
+            )
+            if top_backspace:
+                row_container = tk.Frame(keyboard, bg=bg, width=full_row_width, height=52)
+                row_container.pack(anchor='center', pady=(0, 6))
+                row_container.pack_propagate(False)
+                row_frame = tk.Frame(row_container, bg=bg)
+                row_frame.place(relx=0.5, rely=0.5, anchor='center')
+                backspace_frame = tk.Frame(row_container, bg=bg)
+                backspace_frame.place(relx=1.0, rely=0.0, anchor='ne')
+                if self.input_mode.get() == 'lomari':
+                    displayed_keys = [key for key in row if key != 'Backspace']
+                    hint_width = max(120, (full_row_width - self.keyboard_guide_row_width(displayed_keys)) // 2 - 10)
+                    self.add_lomari_keyboard_inline_hint(row_container, bg, muted, hint_width)
+            elif self.input_mode.get() == 'lomari' and row_index == 0:
                 row_container = tk.Frame(keyboard, bg=bg, width=full_row_width, height=52)
                 row_container.pack(anchor='center', pady=(0, 6))
                 row_container.pack_propagate(False)
@@ -8179,6 +8196,9 @@ class HokkienIMEPad:
                 row_frame = tk.Frame(keyboard, bg=bg)
                 row_frame.pack(anchor='center', pady=(0, 6) if row_index < len(rows) - 1 else (4, 0))
             for key in row:
+                if top_backspace and key == 'Backspace':
+                    self.add_keyboard_guide_keycap(backspace_frame, key, key_font, value_font, show_hangul_output)
+                    continue
                 self.add_keyboard_guide_keycap(row_frame, key, key_font, value_font, show_hangul_output)
 
     def keyboard_guide_rows(self) -> list[list[str]]:
@@ -8194,11 +8214,11 @@ class HokkienIMEPad:
         if self.input_mode.get() == 'lomari':
             top_row.append('-')
         return [
-            top_row,
+            top_row + ['Backspace'],
             list('qwertyuiop'),
             list('asdfghjkl'),
-            list('zxcvbnm'),
-            ['Shift', 'Space', '’', 'Backspace'],
+            ['Shift'] + list('zxcvbnm') + ['’'],
+            ['Space'],
         ]
 
     def keyboard_guide_key_sequence(self, key: str) -> str:

@@ -46,11 +46,11 @@ const guideButtons = new Map();
 let guideShifted = false;
 
 const GUIDE_ROWS = [
-  ["1", "2", "4", "5"],
+  ["1", "2", "4", "5", "Backspace"],
   [..."qwertyuiop"],
   [..."asdfghjkl"],
-  [..."zxcvbnm"],
-  ["Shift", "Space", "’", "Backspace"],
+  ["Shift", ..."zxcvbnm", "’"],
+  ["Space"],
 ];
 
 function guideInputForKey(key) {
@@ -141,6 +141,7 @@ function renderKeyboardGuide() {
   for (const keys of GUIDE_ROWS) {
     const row = document.createElement("div");
     row.className = "keyboard-row";
+    if (keys.includes("Backspace")) row.classList.add("keyboard-row-top-controls");
     for (const key of keys) row.append(makeGuideKey(key));
     keyboardLayout.append(row);
   }
