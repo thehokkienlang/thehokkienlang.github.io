@@ -1,0 +1,27 @@
+{
+  "schemaVersion": 1,
+  "audio": [
+    { "input": "릐", "modes": ["taipei", "singapore"] },
+    { "input": "릐호", "modes": ["taipei", "singapore"] },
+    { "input": "總統", "modes": ["taipei", "singapore"] },
+    { "input": "總督", "modes": ["taipei", "singapore"] },
+    { "input": "米粉粿", "modes": ["taipei", "singapore"] },
+    { "input": "愛릐", "modes": ["taipei", "singapore"] },
+    { "input": "叫-", "modes": ["taipei", "singapore"] }
+  ],
+  "lomari": [
+    { "reading": "릐1호2" },
+    { "reading": "뽀4" }
+  ],
+  "citationSandhi": [
+    { "reading": "가1" },
+    { "reading": "가2" },
+    { "reading": "뽀3" },
+    { "reading": "호2" },
+    { "reading": "짖3" }
+  ],
+  "overrides": [
+    { "text": "릐호" },
+    { "text": "릐" }
+  ]
+}

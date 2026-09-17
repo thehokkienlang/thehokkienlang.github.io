@@ -1,0 +1,334 @@
+{
+  "schemaVersion": 1,
+  "audio": [
+    {
+      "input": "릐",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "릐",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "릐",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "릐호",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "릐",
+              "tone": "1",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "호",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "릐",
+              "tone": "4",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "호",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "總統",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "정",
+              "tone": "1",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "텅",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "정",
+              "tone": "4",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "텅",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "總督",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "정",
+              "tone": "1",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "덕",
+              "tone": "3",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "정",
+              "tone": "4",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "덕",
+              "tone": "3",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "米粉粿",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "삐",
+              "tone": "1",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "훈",
+              "tone": "1",
+              "trimStart": true,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "궤",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "삐",
+              "tone": "5",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "훈",
+              "tone": "4",
+              "trimStart": true,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "궤",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "愛릐",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "애",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "릐",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "애",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": true,
+              "englishClusterHelper": false
+            },
+            {
+              "unit": "릐",
+              "tone": "2",
+              "trimStart": true,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    },
+    {
+      "input": "叫-",
+      "expected": {
+        "taipei": {
+          "segments": [
+            {
+              "unit": "교",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        },
+        "singapore": {
+          "segments": [
+            {
+              "unit": "교",
+              "tone": "2",
+              "trimStart": false,
+              "trimEnd": false,
+              "englishClusterHelper": false
+            }
+          ],
+          "unknown": []
+        }
+      }
+    }
+  ],
+  "lomari": [
+    {
+      "reading": "릐1호2",
+      "expected": "lî-hò"
+    },
+    {
+      "reading": "뽀4",
+      "expected": "bó"
+    }
+  ],
+  "citationSandhi": [
+    {
+      "reading": "가1",
+      "expected": "가5"
+    },
+    {
+      "reading": "가2",
+      "expected": "가1"
+    },
+    {
+      "reading": "뽀3",
+      "expected": "뽀2"
+    },
+    {
+      "reading": "호2",
+      "expected": "호1"
+    },
+    {
+      "reading": "짖3",
+      "expected": "짖1"
+    }
+  ],
+  "overrides": [
+    {
+      "text": "릐호",
+      "expected": "릐1호2"
+    },
+    {
+      "text": "릐",
+      "expected": "릐2"
+    }
+  ]
+}

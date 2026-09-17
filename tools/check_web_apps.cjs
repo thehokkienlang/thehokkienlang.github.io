@@ -5,6 +5,9 @@ const path = require('node:path');
 const vm = require('node:vm');
 const root = path.resolve(__dirname, '..', '_site');
 const data = JSON.parse(fs.readFileSync(path.join(root, 'public/data/hokkien-hanri-dict.json'), 'utf8'));
+const legacyParity = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, '..', 'tests/fixtures/legacy-ime-parity-reference.json'), 'utf8')
+);
 
 function element() {
   return {
@@ -289,6 +292,77 @@ async function loadApp(route, script) {
     const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
     assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: longest Hangul override audio`);
     assert.equal(plan.missing.join(','), '', `${input}: Hangul override audio is available`);
+  }
+  for (const fixture of legacyParity.lomari) {
+    vm.runInContext(`imeText.value = ${JSON.stringify(fixture.reading)}; updateLomariPreview()`, context);
+    assert.equal(
+      elements.get('#lomariPreview').textContent,
+      fixture.expected,
+      `Legacy Lomari parity: ${fixture.reading}`
+    );
+  }
+  for (const fixture of legacyParity.citationSandhi) {
+    const actual = vm.runInContext(`(() => {
+      const text = ${JSON.stringify(fixture.reading)};
+      let output = "";
+      for (let index = 0; index < text.length;) {
+        const unit = TangliengimImeCore.readingUnitAt(text, index);
+        if (!unit?.canCarryTone) {
+          output += text[index];
+          index += 1;
+          continue;
+        }
+        const end = TangliengimImeCore.readingUnitToneEnd(text, unit);
+        const tone = TangliengimHangulIme.normalizeReadingToneKey(text.slice(index, end)).at(-1);
+        output += unit.text + TangliengimImeCore.citationToTaipeiSandhiTone(unit.text, tone);
+        index = end;
+      }
+      return output;
+    })()`, context);
+    assert.equal(actual, fixture.expected, `Legacy citation-to-sandhi parity: ${fixture.reading}`);
+  }
+  for (const fixture of legacyParity.overrides) {
+    const actual = vm.runInContext(`(() => {
+      const text = ${JSON.stringify(fixture.text)};
+      let output = "";
+      for (let index = 0; index < text.length;) {
+        const override = findHangulOverrideAt(text, index);
+        if (override?.entry) {
+          output += override.entry.reading;
+          index = override.end;
+          continue;
+        }
+        const unit = TangliengimImeCore.readingUnitAt(text, index);
+        if (unit?.canCarryTone) {
+          output += text.slice(index, TangliengimImeCore.readingUnitToneEnd(text, unit));
+          index = TangliengimImeCore.readingUnitToneEnd(text, unit);
+          continue;
+        }
+        output += text[index];
+        index += 1;
+      }
+      return output;
+    })()`, context);
+    assert.equal(actual, fixture.expected, `Legacy Hangul-override parity: ${fixture.text}`);
+  }
+  for (const fixture of legacyParity.audio) {
+    for (const [mode, expected] of Object.entries(fixture.expected)) {
+      const plan = vm.runInContext(
+        `setSandhiMode(${JSON.stringify(mode)}); audioPlanFromText(${JSON.stringify(fixture.input)})`,
+        context
+      );
+      const actual = JSON.parse(JSON.stringify({
+        segments: plan.segments.map((segment) => ({
+          unit: segment.unit,
+          tone: String(segment.tone),
+          trimStart: Boolean(segment.trimStart),
+          trimEnd: Boolean(segment.trimEnd),
+          englishClusterHelper: Boolean(segment.englishClusterHelper),
+        })),
+        unknown: plan.missing,
+      }));
+      assert.deepEqual(actual, expected, `Legacy audio parity: ${fixture.input} (${mode})`);
+    }
   }
   for (const [word, taipei, singapore] of [
     ['\u7e3d\u7d71', '1,2', '4,2'],

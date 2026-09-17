@@ -12,3 +12,7 @@ It versions browser assets by their contents so updates do not reuse stale code.
 `check_site.py` checks built routes, shared paths, TSV consistency, and audio files.
 
 `check_web_apps.cjs` checks shared composition, dictionary loading, and sandhi audio selection.
+
+`capture_legacy_parity.py` imports the active desktop reference IME read-only
+and captures selected output into a committed parity fixture. See
+`docs/shared-engine-migration.md` for the migration boundary and refresh command.

@@ -33,6 +33,9 @@ const TangliengimImeCore = (() => {
   };
 
   const HANGUL_TONE_CHARS = new Set([...Object.keys(HANGUL_TONE_MARKS), "3"]);
+  const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ", "ᆽ", "ᆾ"]);
+  const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
+  const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
   const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘"]);
   const AMERICAN_TO_BRITISH_ENGLISH = Object.freeze({
     airplane: "aeroplane",
@@ -204,6 +207,42 @@ const TangliengimImeCore = (() => {
     if (!char || isVowelJamo(char)) return false;
     const code = char.codePointAt(0);
     return code >= 0x11a8 && code <= 0x11ff;
+  }
+
+  function hangulFinalJamo(unit) {
+    const text = String(unit || "");
+    const code = text.codePointAt(0);
+    if (text.length === 1 && code >= 0xac00 && code <= 0xd7a3) {
+      const finalIndex = (code - 0xac00) % 28;
+      return finalIndex ? String.fromCodePoint(0x11a7 + finalIndex) : "";
+    }
+    const final = text.at(-1);
+    return isFinalJamo(final) ? final : "";
+  }
+
+  function citationToTaipeiSandhiTone(unit, tone) {
+    const value = String(tone || "3");
+    const table = isCheckedFinalUnit(unit)
+      ? CHECKED_TAIPEI_SANDHI
+      : OPEN_TAIPEI_SANDHI;
+    return table[value] || value;
+  }
+
+  function isCheckedFinalUnit(unit) {
+    return CHECKED_FINAL_JAMO.has(hangulFinalJamo(unit));
+  }
+
+  function singaporeTone1AudioReplacement(nextUnit, nextTone, nextIsCitationFinal = false) {
+    if (nextIsCitationFinal) return "4";
+    const tone = String(nextTone || "3");
+    if (isCheckedFinalUnit(nextUnit)) {
+      if (tone === "1") return "4";
+      if (tone === "3") return "5";
+      return "1";
+    }
+    if (["3", "5"].includes(tone)) return "4";
+    if (["1", "2", "4"].includes(tone)) return "5";
+    return "1";
   }
 
   function codePointAtInfo(text, index) {
@@ -789,10 +828,12 @@ const TangliengimImeCore = (() => {
 
   return {
     buildReadingCandidateMap,
+    citationToTaipeiSandhiTone,
     createTextImeController,
     displayTextNode,
     headwordUnitAt,
     isToneMark,
+    isCheckedFinalUnit,
     normalizeEnglishSearch,
     normalizeApostrophes,
     normalizeLomariSearchAliases,
@@ -803,6 +844,7 @@ const TangliengimImeCore = (() => {
     renderInlineUpperToneReading,
     renderToneMarkedReading,
     searchableEntry,
+    singaporeTone1AudioReplacement,
   };
 })();
 

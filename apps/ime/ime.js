@@ -470,26 +470,69 @@ function updateLomariPreview() {
   scheduleCandidatePopupPosition();
 }
 
-function appendEntryAudio(entry, segments, missing) {
-  const audio = audioForCurrentSandhiMode(entry.audio);
-  const audioSegments = entrySegments(entry);
-  if (audioSegments.length) {
-    segments.push(...audioSegments);
-  }
-  for (const item of audio?.missing || []) {
-    if (!missing.includes(item)) missing.push(item);
-  }
-}
-
 function appendAudioMetadata(audioMetadata, segments, missing) {
   const audio = audioForCurrentSandhiMode(audioMetadata);
   const audioSegments = normalizeAudioSegments(audio).map((segment) => ({
     ...segment,
     file: dictionaryAudioPath(segment.file),
   }));
+  const start = segments.length;
   if (audioSegments.length) segments.push(...audioSegments);
   for (const item of audio?.missing || []) {
     if (!missing.includes(item)) missing.push(item);
+  }
+  return { start, end: segments.length };
+}
+
+function appendEntryAudio(entry, segments, missing) {
+  return appendAudioMetadata(entry.audio, segments, missing);
+}
+
+function withAudioTone(segment, tone) {
+  const audio = audioForCurrentSandhiMode(state.rawHangulAudio.get(`${segment.unit}${tone}`));
+  const replacement = normalizeAudioSegments(audio)[0];
+  if (!replacement) return { ...segment, tone: String(tone) };
+  return {
+    ...segment,
+    ...replacement,
+    unit: segment.unit,
+    tone: String(tone),
+    file: dictionaryAudioPath(replacement.file),
+  };
+}
+
+function applyPendingSandhi(chunk, segments, trimWithNext = false) {
+  if (!chunk || chunk.end <= chunk.start) return;
+  const finalIndex = chunk.end - 1;
+  const finalSegment = segments[finalIndex];
+  if (!finalSegment?.unit || !finalSegment?.tone) return;
+  const sandhiTone = imeCore.citationToTaipeiSandhiTone(finalSegment.unit, finalSegment.tone);
+  segments[finalIndex] = withAudioTone(finalSegment, sandhiTone);
+  if (trimWithNext) segments[finalIndex].trimEnd = true;
+}
+
+function connectAudioChunk(previous, next, segments, connections) {
+  if (!previous?.canSandhi || next.end <= next.start) return;
+  applyPendingSandhi(previous, segments, true);
+  segments[next.start] = { ...segments[next.start], trimStart: true };
+  connections.push({ previous, next });
+}
+
+function applySingaporeCrossChunkTones(connections, segments) {
+  const linkedChunks = new Set(connections.map(({ previous }) => previous));
+  for (let index = connections.length - 1; index >= 0; index -= 1) {
+    const { previous, next } = connections[index];
+    const finalIndex = previous.end - 1;
+    const nextIndex = next.start;
+    const segment = segments[finalIndex];
+    const following = segments[nextIndex];
+    if (!segment || !following || segment.tone !== "1" || imeCore.isCheckedFinalUnit(segment.unit)) continue;
+    const tone = imeCore.singaporeTone1AudioReplacement(
+      following.unit,
+      following.tone,
+      !linkedChunks.has(next)
+    );
+    segments[finalIndex] = withAudioTone(segment, tone);
   }
 }
 
@@ -497,27 +540,43 @@ function audioPlanFromText(text) {
   const segments = [];
   const missing = [];
   let index = 0;
+  let pendingChunk = null;
+  const connections = [];
+
+  function appendChunk(chunk, canSandhi) {
+    if (chunk.end <= chunk.start) return;
+    connectAudioChunk(pendingChunk, chunk, segments, connections);
+    pendingChunk = canSandhi ? { ...chunk, canSandhi: true } : null;
+  }
 
   while (index < text.length) {
     const code = text.codePointAt(index);
     if (code === undefined) break;
     const char = String.fromCodePoint(code);
 
+    if (char === "-") {
+      applyPendingSandhi(pendingChunk, segments);
+      pendingChunk = null;
+      index += char.length;
+      continue;
+    }
+
     if (isPunctuationOrSpace(char)) {
+      pendingChunk = null;
       index += char.length;
       continue;
     }
 
     const jamoAudio = state.jamoAudio.get(char);
     if (jamoAudio) {
-      appendAudioMetadata(jamoAudio, segments, missing);
+      appendChunk(appendAudioMetadata(jamoAudio, segments, missing), false);
       index += char.length;
       continue;
     }
 
     const hanriEntry = findHanriEntry(text, index);
     if (hanriEntry) {
-      appendEntryAudio(hanriEntry, segments, missing);
+      appendChunk(appendEntryAudio(hanriEntry, segments, missing), true);
       index += hanriEntry.hanri.length;
       continue;
     }
@@ -530,20 +589,23 @@ function audioPlanFromText(text) {
       if (!hasExplicitTone) {
         const overrideMatch = findHangulOverrideAt(text, index);
         if (overrideMatch?.entry) {
-          appendEntryAudio(overrideMatch.entry, segments, missing);
+          appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), true);
           index = overrideMatch.end;
           continue;
         }
       }
       const entry = findReadingEntry(raw) || findReadingEntry(unit.text);
       if (entry) {
-        appendEntryAudio(entry, segments, missing);
+        appendChunk(appendEntryAudio(entry, segments, missing), !hasExplicitTone);
       } else {
         const normalizedRaw = TangliengimHangulIme.normalizeReadingToneKey(raw);
         const audioKey = /[12345]$/u.test(normalizedRaw) ? normalizedRaw : `${unit.text}3`;
         const rawAudio = state.rawHangulAudio.get(audioKey);
-        if (rawAudio) appendAudioMetadata(rawAudio, segments, missing);
-        else if (!missing.includes(raw)) missing.push(raw);
+        if (rawAudio) appendChunk(appendAudioMetadata(rawAudio, segments, missing), false);
+        else {
+          if (!missing.includes(raw)) missing.push(raw);
+          pendingChunk = null;
+        }
       }
       index = end;
       continue;
@@ -558,14 +620,19 @@ function audioPlanFromText(text) {
       }
       const word = text.slice(index, end);
       if (!missing.includes(word)) missing.push(word);
+      pendingChunk = null;
       index = end;
       continue;
     }
 
     if (!missing.includes(char)) missing.push(char);
+    pendingChunk = null;
     index += char.length;
   }
 
+  if (state.sandhiMode === "singapore") {
+    applySingaporeCrossChunkTones(connections, segments);
+  }
   return { segments, missing };
 }
 
