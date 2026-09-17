@@ -272,8 +272,10 @@ async function loadApp(route, script) {
     vm.runInContext(`imeText.value = ${JSON.stringify(input)}; updateLomariPreview()`, context);
     assert.equal(elements.get('#lomariPreview').textContent, expected, `Lomari preview: ${input}`);
   }
-  vm.runInContext(`imeText.value = '米粉粿'; setSandhiMode('singapore')`, context);
-  assert.equal(elements.get('#lomariPreview').textContent, 'bī-hún-kuè', 'Singapore Lomari preview');
+  vm.runInContext(`imeText.value = '米粉粿'; setSandhiMode('taipei')`, context);
+  const taipeiLomari = elements.get('#lomariPreview').textContent;
+  vm.runInContext(`setSandhiMode('singapore')`, context);
+  assert.equal(elements.get('#lomariPreview').textContent, taipeiLomari, 'Singapore must not alter the Lomari preview');
   vm.runInContext('imeController.clear()', context);
   assert.equal(elements.get('#lomariPreview').textContent, '', 'Clear must empty the Lomari preview');
   for (const [input, tones] of [['ㅏ', '1'], ['ㄱ', '5,1'], ['시', '5'], ['시4', '4']]) {

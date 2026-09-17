@@ -349,16 +349,25 @@ h1 {
 }
 
 .keyboard-layout {
+  --guide-key-width: 48px;
+  --guide-key-gap: 6px;
+  --guide-shift-width: 48px;
+  --guide-apostrophe-width: 44px;
   display: grid;
   justify-content: center;
-  gap: 6px;
+  gap: var(--guide-key-gap);
   min-width: 410px;
 }
 
 .keyboard-row {
   display: flex;
   justify-content: center;
-  gap: 6px;
+  gap: var(--guide-key-gap);
+}
+
+.keyboard-row-bottom {
+  /* Keep X centered between S and D, like a staggered QWERTY keyboard. */
+  transform: translateX(calc((var(--guide-apostrophe-width) - var(--guide-shift-width) - var(--guide-key-width) - var(--guide-key-gap)) / 2));
 }
 
 .keyboard-row-top-controls {
@@ -375,9 +384,9 @@ h1 {
 .keyboard-key {
   position: relative;
   display: grid;
-  width: 48px;
-  height: 48px;
-  flex: 0 0 48px;
+  width: var(--guide-key-width);
+  height: var(--guide-key-width);
+  flex: 0 0 var(--guide-key-width);
   place-items: center;
   padding: 3px;
   border: 1px solid #d2d9e2;
@@ -431,18 +440,19 @@ h1 {
 }
 
 .key-shift {
-  width: 78px;
-  flex-basis: 78px;
+  width: var(--guide-shift-width);
+  flex-basis: var(--guide-shift-width);
 }
 
 .key-apostrophe {
-  width: 44px;
-  flex-basis: 44px;
+  width: var(--guide-apostrophe-width);
+  flex-basis: var(--guide-apostrophe-width);
 }
 
 .key-backspace {
   width: 92px;
   flex-basis: 92px;
+  font-size: 0.92rem;
 }
 
 .key-space {
@@ -498,6 +508,12 @@ h1 {
 }
 
 @media (max-width: 640px) {
+  .keyboard-layout {
+    --guide-key-width: calc((100vw - 58px) / 10);
+    --guide-key-gap: 3px;
+    --guide-shift-width: 48px;
+  }
+
   .ime-shell {
     width: min(100% - 18px, 980px);
     padding-top: 14px;
@@ -535,7 +551,7 @@ h1 {
   }
 
   .keyboard-row {
-    gap: 3px;
+    gap: var(--guide-key-gap);
   }
 
   .keyboard-row-top-controls {
@@ -543,9 +559,9 @@ h1 {
   }
 
   .keyboard-key:not(.control-key) {
-    width: calc((100vw - 58px) / 10);
+    width: var(--guide-key-width);
     height: 44px;
-    flex-basis: calc((100vw - 58px) / 10);
+    flex-basis: var(--guide-key-width);
   }
 
   .key-input {
@@ -562,9 +578,9 @@ h1 {
   }
 
   .key-shift {
-    width: 60px;
+    width: var(--guide-shift-width);
     height: 44px;
-    flex-basis: 60px;
+    flex-basis: var(--guide-shift-width);
   }
 
   .key-apostrophe {

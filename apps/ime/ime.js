@@ -162,6 +162,7 @@ function renderKeyboardGuide() {
     const row = document.createElement("div");
     row.className = "keyboard-row";
     if (keys.includes("Backspace")) row.classList.add("keyboard-row-top-controls");
+    if (keys.includes("Shift")) row.classList.add("keyboard-row-bottom");
     for (const key of keys) row.append(makeGuideKey(key));
     keyboardLayout.append(row);
   }
@@ -442,7 +443,8 @@ function findHangulOverride(reading) {
 }
 
 function updateLomariPreview() {
-  lomariPreview.textContent = lomariRenderer.render(imeText.value, state.sandhiMode);
+  // Lomari always follows the Taipei display convention. Sandhi selection affects audio only.
+  lomariPreview.textContent = lomariRenderer.render(imeText.value);
   lomariPreview.scrollTop = lomariPreview.scrollHeight;
   scheduleCandidatePopupPosition();
 }

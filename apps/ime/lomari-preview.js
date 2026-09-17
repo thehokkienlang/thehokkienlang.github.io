@@ -196,9 +196,9 @@ const TangliengimLomariPreview = (() => {
     return segments;
   }
 
-  function entrySegments(entry, mode, imeCore) {
+  function entrySegments(entry, imeCore) {
     const written = readingSegments(entry?.reading || entry?.raw?.reading || "", imeCore);
-    const audio = mode === "singapore" && entry?.audio?.singapore ? entry.audio.singapore : entry?.audio;
+    const audio = entry?.audio;
     const lomariParts = String(entry?.lomari || "").split("-");
     if (written.length && lomariParts.length === written.length) {
       const selectedTones = audio?.segments?.length === written.length
@@ -232,13 +232,9 @@ const TangliengimLomariPreview = (() => {
     return Boolean(parts && CHECKED_FINALS.has(parts[2]));
   }
 
-  function sandhiTone(unit, tone, mode, fromTsv) {
+  function sandhiTone(unit, tone) {
     const value = String(tone || "3");
     if (checkedUnit(unit)) return CHECKED_SANDHI[value] || value;
-    if (mode === "singapore" && value === "1") {
-      if (fromTsv && unit === "\uac00") return "1";
-      return "4";
-    }
     return OPEN_SANDHI[value] || value;
   }
 
@@ -255,8 +251,8 @@ const TangliengimLomariPreview = (() => {
     findUnitRoman = () => "",
     findJamoLomari = () => "",
   }) {
-    function syllablesForEntry(entry, mode, protectFinal) {
-      const segments = entrySegments(entry, mode, imeCore);
+    function syllablesForEntry(entry, protectFinal) {
+      const segments = entrySegments(entry, imeCore);
       return segments.map((segment, index) => ({
         type: "syllable",
         unit: segment.unit,
@@ -267,7 +263,7 @@ const TangliengimLomariPreview = (() => {
       }));
     }
 
-    function tokenize(text, mode) {
+    function tokenize(text) {
       const tokens = [];
       let index = 0;
       while (index < text.length) {
@@ -277,7 +273,7 @@ const TangliengimLomariPreview = (() => {
 
         const hanriEntry = findHanriEntry(text, index);
         if (hanriEntry) {
-          tokens.push(...syllablesForEntry(hanriEntry, mode, false));
+          tokens.push(...syllablesForEntry(hanriEntry, false));
           index += hanriEntry.hanri.length;
           continue;
         }
@@ -293,7 +289,7 @@ const TangliengimLomariPreview = (() => {
           }
 
           const override = findHangulOverride(unit.text);
-          if (override) tokens.push(...syllablesForEntry(override, mode, true));
+          if (override) tokens.push(...syllablesForEntry(override, true));
           else tokens.push({ type: "syllable", unit: unit.text, tone: "3", externalSandhi: false, fromTsv: false });
           index = unit.end;
           continue;
@@ -322,18 +318,18 @@ const TangliengimLomariPreview = (() => {
       return tokens;
     }
 
-    function applyExternalSandhi(tokens, mode) {
+    function applyExternalSandhi(tokens) {
       return tokens.map((token, index) => {
         if (!token.externalSandhi) return token;
         const next = tokens[index + 1];
         if (!next || !["syllable", "word", "hyphen"].includes(next.type)) return token;
-        return { ...token, tone: sandhiTone(token.unit, token.tone, mode, token.fromTsv) };
+        return { ...token, tone: sandhiTone(token.unit, token.tone) };
       });
     }
 
-    function render(text, mode = "taipei") {
+    function render(text) {
       const normalizedText = imeCore.normalizeApostrophes(text);
-      const tokens = applyExternalSandhi(tokenize(normalizedText, mode), mode);
+      const tokens = applyExternalSandhi(tokenize(normalizedText));
       const output = [];
       let previousWasWord = false;
       for (const token of tokens) {
