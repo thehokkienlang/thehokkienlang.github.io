@@ -412,6 +412,56 @@ const TangliengimImeCore = (() => {
     return byReading;
   }
 
+  function tonesByBasePosition(reading) {
+    const base = [];
+    const tones = new Map();
+    const normalized = TangliengimHangulIme.normalizeReadingToneKey(String(reading || ""));
+
+    for (const char of normalized) {
+      if ("12345".includes(char)) {
+        if (base.length) tones.set(base.length - 1, char);
+        continue;
+      }
+      if (char === "*") continue;
+      base.push(char);
+    }
+
+    return { base: base.join(""), tones };
+  }
+
+  function typedTonesAreCompatibleWithEntry(typedForm, entryReading) {
+    const typed = tonesByBasePosition(typedForm);
+    const entry = tonesByBasePosition(entryReading);
+    if (normalizeText(typed.base) !== normalizeText(entry.base)) return false;
+    if (!typed.tones.size) return true;
+
+    for (const [position, tone] of typed.tones) {
+      if (entry.tones.get(position) !== tone) return false;
+    }
+    return true;
+  }
+
+  function filterCandidateEntries(typedForm, entries) {
+    const candidates = entries || [];
+    const typed = tonesByBasePosition(typedForm);
+    if (!typed.tones.size) {
+      return candidates.filter((entry) => !entry.autoSandhi);
+    }
+
+    const compatible = candidates.filter((entry) =>
+      typedTonesAreCompatibleWithEntry(typedForm, entry.reading || entry.readingBase)
+    );
+    if (compatible.length) return compatible;
+
+    // A TSV row may deliberately omit tone digits. Keep that desktop fallback
+    // available when typed tones do not distinguish a stored reading.
+    return candidates.filter((entry) =>
+      !entry.autoSandhi &&
+      normalizeText(TangliengimHangulIme.normalizeReadingBase(entry.reading || entry.readingBase)) ===
+        normalizeText(typed.base)
+    );
+  }
+
   function createDictionaryIndex(entries) {
     const activeEntries = (entries || []).filter(searchableEntry);
     const hanriEntries = activeEntries
@@ -850,7 +900,7 @@ const TangliengimImeCore = (() => {
         const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(suffix));
         const entries = this.candidatesByReading.get(key);
         if (!entries?.length) continue;
-        for (const entry of entries) {
+        for (const entry of filterCandidateEntries(suffix, entries)) {
           found.push({
             entry,
             start: starts[index],
@@ -993,6 +1043,8 @@ const TangliengimImeCore = (() => {
     renderToneMarkedReading,
     searchableEntry,
     singaporeTone1AudioReplacement,
+    tonesByBasePosition,
+    typedTonesAreCompatibleWithEntry,
   };
 })();
 

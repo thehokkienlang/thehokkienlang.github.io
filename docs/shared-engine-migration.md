@@ -28,9 +28,10 @@ that output before committing it; a changed fixture means either the current
 desktop TSV changed or a case was deliberately revised. The legacy backup is
 available only to investigate a regression, not as the default fixture source.
 
-The first fixture group covers shared text, Lomari, and audio behaviour. Jamo
-composition needs controller-level fixtures because converter functions alone
-do not model the IME rule that a digit after a standalone jamo remains literal.
+The fixtures cover shared text, Lomari, audio, Hangul composition, and Hanri
+candidate selection. Composition cases exercise special Hokkien vowels,
+backspacing, and tone attachment. Candidate cases make explicitly typed tones
+strict while allowing omitted earlier tones, just as the desktop menu does.
 
 ## Progress
 
@@ -40,9 +41,10 @@ Completed:
 2. Move TSV indexing, priority Hanri segmentation, exact readings, and longest Hangul-override lookup into `shared/web-ime-core.js`.
 3. Make both the Web IME and Dictionary consume that one dictionary index for their Hangul candidate menus.
 4. Move the first common audio rules: citation-to-Taipei sandhi and Singapore tone-1 replacement.
+5. Match desktop Hangul composition and tone-aware candidate filtering in the shared Web engine, including generated runtime sandhi candidates that stay hidden from dictionary cards.
 
 Next:
 
-1. Extend parity coverage for controller-level Hangul composition and candidate selection.
-2. Move the remaining Lomari and audio-plan decisions behind shared engine APIs.
+1. Move the remaining Lomari and audio-plan decisions behind shared engine APIs.
+2. Bring the Web IME's rendering and interaction edge cases to the same reference fixture discipline.
 3. Bundle the Web interface and shared engine in the active desktop shell while retaining local HTML modes and TSV sync as extensions.

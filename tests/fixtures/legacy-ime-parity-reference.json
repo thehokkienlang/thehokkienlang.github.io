@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "audio": [
     {
       "input": "릐",
@@ -329,6 +329,181 @@
     {
       "text": "릐",
       "expected": "릐2"
+    }
+  ],
+  "composition": [
+    {
+      "steps": [
+        {
+          "keys": "rksk"
+        }
+      ],
+      "expected": "가나"
+    },
+    {
+      "steps": [
+        {
+          "keys": "dkn"
+        }
+      ],
+      "expected": "ᄋᅷ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "din"
+        }
+      ],
+      "expected": "ᄋᆤ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "dmp"
+        }
+      ],
+      "expected": "ᄋힻ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "rkn"
+        }
+      ],
+      "expected": "ᄀᅷ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "rmp"
+        }
+      ],
+      "expected": "ᄀힻ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "rin"
+        }
+      ],
+      "expected": "ᄀᆤ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "dkn1"
+        }
+      ],
+      "expected": "ᄋᅷˆ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "dkn"
+        },
+        {
+          "backspace": 1
+        }
+      ],
+      "expected": "ㅇ"
+    },
+    {
+      "steps": [
+        {
+          "keys": "dpdk"
+        }
+      ],
+      "expected": "에아"
+    }
+  ],
+  "candidates": [
+    {
+      "reading": "랑",
+      "expected": [
+        {
+          "hanri": "人",
+          "reading": "랑4"
+        },
+        {
+          "hanri": "聾",
+          "reading": "랑4"
+        },
+        {
+          "hanri": "弄",
+          "reading": "랑5"
+        }
+      ]
+    },
+    {
+      "reading": "랑4",
+      "expected": [
+        {
+          "hanri": "人",
+          "reading": "랑4"
+        },
+        {
+          "hanri": "聾",
+          "reading": "랑4"
+        }
+      ]
+    },
+    {
+      "reading": "랑5",
+      "expected": [
+        {
+          "hanri": "弄",
+          "reading": "랑5"
+        }
+      ]
+    },
+    {
+      "reading": "세개",
+      "expected": [
+        {
+          "hanri": "世界",
+          "reading": "세2개"
+        }
+      ]
+    },
+    {
+      "reading": "세2개",
+      "expected": [
+        {
+          "hanri": "世界",
+          "reading": "세2개"
+        },
+        {
+          "hanri": "世界",
+          "reading": "세2개2"
+        }
+      ]
+    },
+    {
+      "reading": "옝완2",
+      "expected": [
+        {
+          "hanri": "永遠",
+          "reading": "옝1완2"
+        }
+      ]
+    },
+    {
+      "reading": "옝완1",
+      "expected": [
+        {
+          "hanri": "永遠",
+          "reading": "옝1완1"
+        }
+      ]
+    },
+    {
+      "reading": "활5히2",
+      "expected": [
+        {
+          "hanri": "歡喜",
+          "reading": "활5히2"
+        }
+      ]
     }
   ]
 }

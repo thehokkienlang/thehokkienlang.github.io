@@ -313,6 +313,7 @@ def build_dictionary(
                 "categories": list(category_memberships.get(hanri, [])),
                 "audio": audio,
                 "priority": priority,
+                "form": ime.infer_default_form(effective_reading),
                 "raw": {
                     "reading": raw_reading,
                     "hanri": hanri,
@@ -343,6 +344,34 @@ def build_dictionary(
             if corrected:
                 counts["corrected_entries"] += 1
 
+    # The desktop IME exposes a generated sandhi candidate beside every
+    # citation reading. These rows are runtime-only: they participate in IME
+    # candidate selection but never appear as separate dictionary entries.
+    auto_sandhi_entries: list[dict[str, Any]] = []
+    for entry in entries:
+        if not entry["active"] or entry["form"] != "本":
+            continue
+        sandhi_reading = ime.citation_to_sandhi_reading(entry["reading"])
+        if not sandhi_reading or sandhi_reading == entry["reading"]:
+            continue
+        auto_sandhi_entries.append({
+            **entry,
+            "id": f'{entry["id"]}-sandhi',
+            "row": entry["row"] + 0.01,
+            "reading": sandhi_reading,
+            "readingBase": tone_marker.strip_reading_tones(sandhi_reading),
+            "lomari": reading_to_lomari(tone_marker, sandhi_reading),
+            "lomariKey": normalize_for_search(reading_to_lomari(tone_marker, sandhi_reading)),
+            "form": "變",
+            "autoSandhi": True,
+            "citationReading": entry["reading"],
+            # Dictionary cards deliberately never see this metadata row.
+            "categories": [],
+            "audio": {"segments": [], "files": [], "missing": []},
+        })
+    entries.extend(auto_sandhi_entries)
+    counts["auto_sandhi_entries"] = len(auto_sandhi_entries)
+
     entries.sort(key=lambda item: (item["priority"], item["row"], item["reading"], item["hanri"]))
 
     known_headwords = {entry["hanri"] for entry in entries if entry["hanri"]}
@@ -352,7 +381,7 @@ def build_dictionary(
 
     category_groups: dict[str, set[tuple[str, str]]] = defaultdict(set)
     for entry in entries:
-        if not entry["active"] or entry.get("correctedFrom"):
+        if not entry["active"] or entry.get("correctedFrom") or entry.get("autoSandhi"):
             continue
         for category in entry["categories"]:
             category_groups[category].add((entry["hanri"], entry["reading"]))

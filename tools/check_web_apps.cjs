@@ -361,6 +361,41 @@ async function loadApp(route, script) {
     })()`, context);
     assert.equal(actual, fixture.expected, `Legacy Hangul-override parity: ${fixture.text}`);
   }
+  for (const fixture of legacyParity.composition || []) {
+    const actual = vm.runInContext(`(() => {
+      const composer = new TangliengimHangulIme.Composer({
+        shouldAutocorrectEToYe: (reading) => {
+          const key = TangliengimImeCore.normalizeText(
+            TangliengimHangulIme.normalizeReadingBase(reading)
+          );
+          return Boolean(dictionaryIndex.candidatesByReading.get(key)?.length);
+        },
+      });
+      for (const step of ${JSON.stringify(fixture.steps)}) {
+        for (const key of step.keys || '') composer.processChar(key);
+        for (let count = 0; count < (step.backspace || 0); count += 1) composer.backspace();
+        for (let count = 0; count < (step.left || 0); count += 1) composer.moveLeft();
+        for (let count = 0; count < (step.right || 0); count += 1) composer.moveRight();
+      }
+      return composer.text();
+    })()`, context);
+    assert.equal(actual, fixture.expected, `Legacy composition parity: ${JSON.stringify(fixture.steps)}`);
+  }
+  for (const fixture of legacyParity.candidates || []) {
+    const actual = JSON.parse(vm.runInContext(`(() => {
+      const reading = ${JSON.stringify(fixture.reading)};
+      imeText.value = reading;
+      imeText.selectionStart = reading.length;
+      imeText.selectionEnd = reading.length;
+      imeController.composer.setText(reading, reading.length);
+      imeController.renderCandidates();
+      return JSON.stringify(imeController.activeCandidates.map(({ entry }) => ({
+        hanri: entry.hanri,
+        reading: entry.reading,
+      })));
+    })()`, context));
+    assert.deepEqual(actual, fixture.expected, `Legacy candidate parity: ${fixture.reading}`);
+  }
   for (const fixture of legacyParity.audio) {
     for (const [mode, expected] of Object.entries(fixture.expected)) {
       const plan = vm.runInContext(
@@ -393,5 +428,5 @@ async function loadApp(route, script) {
       assert.ok(plan.segments.every(segment => segment.file.startsWith('/public/audio/')));
     }
   }
-  console.log('OK: both app bootstraps load shared data, shared Hangul composition works, Taipei/Singapore audio paths and tones match.');
+  console.log('OK: both app bootstraps load shared data; composition, candidates, and Taipei/Singapore audio match the desktop reference.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

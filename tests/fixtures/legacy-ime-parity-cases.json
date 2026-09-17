@@ -1,5 +1,5 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "audio": [
     { "input": "릐", "modes": ["taipei", "singapore"] },
     { "input": "릐호", "modes": ["taipei", "singapore"] },
@@ -23,5 +23,27 @@
   "overrides": [
     { "text": "릐호" },
     { "text": "릐" }
+  ],
+  "composition": [
+    { "steps": [{ "keys": "rksk" }] },
+    { "steps": [{ "keys": "dkn" }] },
+    { "steps": [{ "keys": "din" }] },
+    { "steps": [{ "keys": "dmp" }] },
+    { "steps": [{ "keys": "rkn" }] },
+    { "steps": [{ "keys": "rmp" }] },
+    { "steps": [{ "keys": "rin" }] },
+    { "steps": [{ "keys": "dkn1" }] },
+    { "steps": [{ "keys": "dkn" }, { "backspace": 1 }] },
+    { "steps": [{ "keys": "dpdk" }] }
+  ],
+  "candidates": [
+    { "reading": "랑" },
+    { "reading": "랑4" },
+    { "reading": "랑5" },
+    { "reading": "세개" },
+    { "reading": "세2개" },
+    { "reading": "옝완2" },
+    { "reading": "옝완1" },
+    { "reading": "활5히2" }
   ]
 }

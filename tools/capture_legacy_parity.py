@@ -43,6 +43,154 @@ def normalized_audio_segments(segments: list[tuple[Any, ...]]) -> list[dict[str,
     ]
 
 
+class DesktopComposerRunner:
+    """Drive the desktop composer without constructing its Tk interface."""
+
+    def __init__(self, ime: Any) -> None:
+        self.ime = ime
+        self.composer = ime.Composer()
+        self.key_history: list[tuple[str, tuple[Any, ...]]] = []
+
+    def snapshot(self) -> tuple[Any, ...]:
+        return (
+            self.composer.output,
+            self.composer.cursor_pos,
+            self.composer.initial,
+            self.composer.medial,
+            self.composer.final,
+            self.composer.e_to_ye_autocorrected,
+        )
+
+    def restore(self, snapshot: tuple[Any, ...]) -> None:
+        (
+            self.composer.output,
+            self.composer.cursor_pos,
+            self.composer.initial,
+            self.composer.medial,
+            self.composer.final,
+            self.composer.e_to_ye_autocorrected,
+        ) = snapshot
+        self.composer.clamp_cursor()
+
+    def process_standard(self, char: str) -> None:
+        compat = self.ime.KEY_TO_JAMO.get(char)
+        if compat is None:
+            self.composer.insert_literal(char)
+        elif compat in self.ime.COMPAT_TO_V:
+            self.composer.add_vowel(self.ime.COMPAT_TO_V[compat])
+        elif compat in self.ime.SPECIAL_MEDIALS:
+            if not self.composer.has_buffer():
+                self.composer.insert_literal(self.ime.HANGUL_CHOSEONG_FILLER + compat)
+            else:
+                self.composer.add_vowel(compat)
+        elif compat in self.ime.COMPAT_TO_L:
+            self.composer.add_initial(self.ime.COMPAT_TO_L[compat], source_compat=compat)
+        else:
+            self.composer.insert_literal(compat)
+
+    def start_mapped_cluster(self, mapped: str) -> None:
+        self.composer.commit()
+        if len(mapped) >= 2 and self.ime.is_initial_jamo(mapped[0]) and self.ime.is_vowel_jamo(mapped[1]):
+            self.composer.initial = mapped[0]
+            self.composer.medial = mapped[1]
+            self.composer.final = mapped[2] if len(mapped) >= 3 and mapped[2] in self.ime.T_INDEX else ""
+            if len(mapped) > 3:
+                self.composer.commit()
+                self.composer.insert_literal(mapped[3:])
+            return
+        self.composer.insert_literal(mapped)
+
+    def apply_tone_digit(self, digit: str) -> None:
+        self.composer.commit()
+        self.composer.clamp_cursor()
+        pos = self.composer.cursor_pos
+        if pos < 2 or self.composer.output[pos - 1] != digit:
+            return
+        if not self.ime.can_attach_tone_to_text(self.composer.output, pos - 2):
+            return
+        replacement = (
+            self.ime.INTERNAL_TONE_MARKS[digit]
+            if digit == "3"
+            else self.ime.display_reading_tones(digit)
+        )
+        self.composer.output = self.composer.output[:pos - 1] + replacement + self.composer.output[pos:]
+        self.composer.cursor_pos = pos - 1 + len(replacement)
+
+    def process_char(self, raw_char: str) -> None:
+        char = self.ime.normalize_keyboard_char(self.ime.normalize_typographic_apostrophes(raw_char))
+        if char not in self.ime.KEY_TO_JAMO:
+            self.process_standard(char)
+            self.key_history = []
+        else:
+            before = self.snapshot()
+            self.process_standard(char)
+            self.key_history.append((char, before))
+            max_length = max(len(sequence) for sequence in self.ime.HOKKIEN_SEQUENCE_MAP)
+            if len(self.key_history) > max_length:
+                self.key_history = self.key_history[-max_length:]
+            raw_tail = "".join(key for key, _snapshot in self.key_history)
+            for sequence, mapped in sorted(self.ime.HOKKIEN_SEQUENCE_MAP.items(), key=lambda item: -len(item[0])):
+                if raw_tail.endswith(sequence):
+                    self.restore(self.key_history[len(self.key_history) - len(sequence)][1])
+                    self.start_mapped_cluster(mapped)
+                    self.key_history = []
+                    break
+
+        if char in self.ime.TONE_DIGITS:
+            self.apply_tone_digit(char)
+
+    def visible_text(self) -> str:
+        return self.composer.text().translate({ord(mark): "" for mark in self.ime.INTERNAL_TONE_MARK_CHARS})
+
+
+def capture_composition_case(ime: Any, case: dict[str, Any]) -> dict[str, Any]:
+    runner = DesktopComposerRunner(ime)
+    for step in case.get("steps", []):
+        for char in str(step.get("keys", "")):
+            runner.process_char(char)
+        for _ in range(int(step.get("backspace", 0))):
+            runner.composer.backspace()
+            runner.key_history = []
+        for _ in range(int(step.get("left", 0))):
+            runner.composer.move_left()
+            runner.key_history = []
+        for _ in range(int(step.get("right", 0))):
+            runner.composer.move_right()
+            runner.key_history = []
+    return {"steps": case.get("steps", []), "expected": runner.visible_text()}
+
+
+def capture_candidate_case(ime: Any, case: dict[str, Any]) -> dict[str, Any]:
+    typed = ime.normalize_tone_symbols_to_digits(str(case["reading"]))
+    base_reading = ime.strip_reading_tones(typed)
+    entries = list(ime.HANRI_DICT.get(base_reading, []))
+
+    if ime.reading_has_tones(typed):
+        filtered = [
+            entry for entry in entries
+            if ime.typed_tones_are_compatible_with_entry(typed, entry.get("reading", base_reading))
+        ]
+        if not filtered:
+            filtered = [
+                entry for entry in entries
+                if (
+                    ime.strip_reading_tones(entry.get("reading", base_reading)) == base_reading
+                    and not entry.get("auto_sandhi")
+                )
+            ]
+    else:
+        filtered = [entry for entry in entries if not entry.get("auto_sandhi")]
+
+    return {
+        "reading": str(case["reading"]),
+        "expected": [
+            {"hanri": str(entry.get("hanri", "")), "reading": str(entry.get("reading", base_reading))}
+            for entry in filtered
+            if ime.should_display_hanri_entry(entry, base_reading)
+        ],
+    }
+
+
 def capture(reference_root: Path, cases: dict[str, Any]) -> dict[str, Any]:
     tone_path = reference_root / "hokkien_tone_marker_gui.py"
     ime_path = reference_root / "Hokkien Tangliengim IME Pad.py"
@@ -73,7 +221,7 @@ def capture(reference_root: Path, cases: dict[str, Any]) -> dict[str, Any]:
         audio.append({"input": input_text, "expected": expected})
 
     return {
-        "schemaVersion": 1,
+        "schemaVersion": 2,
         "audio": audio,
         "lomari": [
             {
@@ -96,6 +244,8 @@ def capture(reference_root: Path, cases: dict[str, Any]) -> dict[str, Any]:
             }
             for case in cases.get("overrides", [])
         ],
+        "composition": [capture_composition_case(ime, case) for case in cases.get("composition", [])],
+        "candidates": [capture_candidate_case(ime, case) for case in cases.get("candidates", [])],
     }
 
 

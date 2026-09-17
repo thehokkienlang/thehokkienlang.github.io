@@ -65,7 +65,7 @@ function groupKeyForEntry(entry) {
 }
 
 function visibleDictionaryEntry(entry) {
-  return searchableEntry(entry) && !entry.correctedFrom;
+  return searchableEntry(entry) && !entry.correctedFrom && !entry.autoSandhi;
 }
 
 function groupEntries(entries) {

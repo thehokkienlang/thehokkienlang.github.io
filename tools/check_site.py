@@ -92,6 +92,12 @@ def main():
     category_digest = hashlib.sha256((ROOT / "data/dictionary_categories.tsv").read_bytes()).hexdigest()
     assert data["categorySourceSha256"] == category_digest, "Published JSON is out of sync with category data"
     assert data["entries"], "Empty dictionary"
+    assert any(entry.get("autoSandhi") for entry in data["entries"]), "Missing runtime sandhi candidates"
+    assert all(
+        not entry.get("categories")
+        for entry in data["entries"]
+        if entry.get("autoSandhi")
+    ), "Runtime sandhi candidates must not become public dictionary entries"
     audio_paths = set()
     for entry in data["entries"]:
         audio = entry["audio"]
@@ -110,7 +116,7 @@ def main():
     assert not (SITE / "desktop").exists()
     assert not (SITE / "data").exists()
     assert not (SITE / ".git").exists()
-    print(f"OK: gated dictionary, public IME, {len(data['entries'])} TSV entries, {len(audio_paths)} referenced recordings, preserved assets.")
+    print(f"OK: gated dictionary, public IME, {len(data['entries'])} runtime entries, {len(audio_paths)} referenced recordings, preserved assets.")
 
 
 if __name__ == "__main__":
