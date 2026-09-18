@@ -47,7 +47,8 @@ Completed:
 8. Share candidate-popup positioning and the complete browser audio decode, trim, overlap, crossfade, and playback engine between the Dictionary and Web IME.
 9. Add a desktop shell that serves the canonical Web IME directly from the GitHub checkout.
 10. Bridge the mature HTML modes and guarded TSV sync into that shared shell as local-only controls, while retaining `--classic-ui` as a fallback.
+11. Add one portable release gate, run its source checks on Windows and Linux, and record the shared-engine release baseline.
 
-Next:
+Migration status:
 
-1. Run the cross-platform regression suite and prepare a release baseline.
+The planned shared-engine migration is complete. Future behaviour changes must follow the migration rule above and pass `python tools/check_release.py` before release.

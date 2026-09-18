@@ -15,29 +15,40 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  regression:
+    name: Shared-engine regression (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Install Tk runtime on Linux
+        if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y python3-tk
+      - name: Run portable source release gate
+        run: python -X utf8 tools/check_release.py --source-only
+
   build:
+    needs: regression
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
       - name: Install Python and Tkinter for the pronunciation engine
         run: sudo apt-get update && sudo apt-get install -y python3-tk
-      - name: Check JavaScript syntax
-        run: |
-          node --check apps/dictionary/gate.js
-          node --check apps/dictionary/app.js
-          node --check apps/ime/ime.js
-          node --check shared/web-ime-core.js
-          node --check shared/web-hangul-ime.js
-          node --check shared/web-phonetic-output.js
-          node --check shared/web-audio-player.js
       - name: Build both interfaces from the canonical TSV
         run: python3 tools/build_site.py
       - name: Validate routes, shared resources, and audio
         run: python3 tools/check_site.py
-      - name: Check shared keyboard and sandhi integration
+      - name: Check built keyboard and sandhi integration
         run: node tools/check_web_apps.cjs
-      - name: Check desktop shared-engine shell
-        run: python3 tools/check_desktop_shell.py
       - uses: actions/upload-pages-artifact@v4
         with:
           path: _site

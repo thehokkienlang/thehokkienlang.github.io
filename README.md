@@ -44,6 +44,7 @@ On Ubuntu, install `python3-tk` alongside Python.
 python tools/build_site.py
 python tools/check_site.py
 node tools/check_web_apps.cjs
+python tools/check_release.py
 python -m http.server 8000 --directory _site
 ```
 
