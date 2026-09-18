@@ -835,6 +835,17 @@ const TangliengimImeCore = (() => {
       return this.rememberedHanriReadings.find((span) => span.start > index)?.start ?? text.length;
     }
 
+    getRememberedHanriReadings(text = this.control.value) {
+      this.syncRememberedHanriReadings(text);
+      return this.rememberedHanriReadings.map(({ start, end, hanri, reading, entry }) => ({
+        start,
+        end,
+        hanri,
+        reading,
+        autoSandhi: Boolean(entry?.autoSandhi),
+      }));
+    }
+
     insertText(text) {
       this.syncComposerFromControl();
       this.replaceSelectionBeforeImeKey();

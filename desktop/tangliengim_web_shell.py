@@ -1,8 +1,9 @@
-"""Run the shared Web IME as a local desktop app window.
+"""Run the shared Web IME with local-only desktop extensions.
 
-The browser UI and IME engine are served directly from the GitHub checkout.
-Desktop-only HTML and TSV tools remain available through the classic Tkinter
-window while their bridge is migrated.
+The visible interface and IME engine come directly from the GitHub checkout.
+HTML export and TSV syncing call the mature Tkinter implementation through a
+small localhost bridge, so those desktop-only capabilities do not fork the
+shared browser engine.
 """
 
 from __future__ import annotations
@@ -23,33 +24,125 @@ from urllib.parse import unquote, urlsplit
 
 DESKTOP_SCRIPT = r"""
 (() => {
-  if (document.querySelector("#desktopToolsButton")) return;
-  const header = document.querySelector(".ime-header");
-  const dictionaryLink = header?.querySelector(".dictionary-link");
-  if (!header || !dictionaryLink) return;
+  if (document.querySelector("#desktopHtmlButton")) return;
+  const actions = document.querySelector(".toolbar-actions");
+  if (!actions) return;
 
-  const actions = document.createElement("div");
-  actions.style.display = "flex";
-  actions.style.alignItems = "center";
-  actions.style.gap = "8px";
-  dictionaryLink.replaceWith(actions);
-  actions.append(dictionaryLink);
+  const style = document.createElement("style");
+  style.textContent = `
+    .desktop-html-style,
+    .desktop-action-button {
+      height: 38px;
+      border: 1px solid #bfd0e4;
+      border-radius: 6px;
+      background: #fff;
+      color: #31516f;
+      font: 700 0.88rem Calibri, "Segoe UI", sans-serif;
+    }
+    .desktop-html-style { max-width: 174px; padding: 0 28px 0 9px; }
+    .desktop-action-button { padding: 0 11px; cursor: pointer; }
+    .desktop-action-button:hover:not(:disabled) { border-color: rgba(15,118,110,.5); color: #0b5f58; }
+    .desktop-action-button:disabled { cursor: default; opacity: .48; }
+    @media (max-width: 650px) {
+      .desktop-html-style { max-width: 142px; }
+      .desktop-action-button { padding-inline: 8px; }
+    }
+  `;
+  document.head.append(style);
 
-  const button = document.createElement("button");
-  button.id = "desktopToolsButton";
-  button.className = "dictionary-link";
-  button.type = "button";
-  button.textContent = "Desktop tools";
-  button.addEventListener("click", async () => {
-    button.disabled = true;
+  const htmlStyle = document.createElement("select");
+  htmlStyle.id = "desktopHtmlStyle";
+  htmlStyle.className = "desktop-html-style";
+  htmlStyle.setAttribute("aria-label", "HTML mode");
+  const modes = [
+    ["plain", "Plain inline"],
+    ["lomari_ruby_below", "Lomari ruby below"],
+    ["lomari_next_line", "Mandarin + Lomari"],
+    ["song", "Lyrics"],
+    ["novel", "Novel paragraph"],
+    ["novel_first", "Novel first line"],
+    ["title", "Title"],
+  ];
+  for (const [value, label] of modes) htmlStyle.add(new Option(label, value));
+  htmlStyle.value = localStorage.getItem("tangliengim-html-style") || "plain";
+  htmlStyle.addEventListener("change", () => localStorage.setItem("tangliengim-html-style", htmlStyle.value));
+
+  const htmlButton = document.createElement("button");
+  htmlButton.id = "desktopHtmlButton";
+  htmlButton.className = "desktop-action-button";
+  htmlButton.type = "button";
+  htmlButton.textContent = "HTML";
+  htmlButton.title = "Copy current text as HTML";
+
+  const syncButton = document.createElement("button");
+  syncButton.id = "desktopSyncButton";
+  syncButton.className = "desktop-action-button";
+  syncButton.type = "button";
+  syncButton.textContent = "Sync TSV";
+  syncButton.disabled = true;
+
+  actions.append(htmlStyle, htmlButton, syncButton);
+
+  async function request(path, payload = {}) {
+    const response = await fetch(path, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const result = await response.json();
+    if (!response.ok || !result.ok) throw new Error(result.error || `HTTP ${response.status}`);
+    return result;
+  }
+
+  async function refreshStatus() {
     try {
-      const response = await fetch("/desktop-api/open-classic", { method: "POST" });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      const response = await fetch("/desktop-api/status", { cache: "no-store" });
+      const result = await response.json();
+      syncButton.disabled = !result.tsvPending;
+    } catch {
+      syncButton.disabled = true;
+    }
+  }
+
+  htmlButton.addEventListener("click", async () => {
+    if (!imeText.value.trim()) {
+      showToast("No text to copy");
+      return;
+    }
+    htmlButton.disabled = true;
+    showToast("Preparing HTML...");
+    try {
+      const result = await request("/desktop-api/copy-html", {
+        text: imeText.value,
+        style: htmlStyle.value,
+        rememberedReadings: imeController.getRememberedHanriReadings(imeText.value),
+      });
+      syncButton.disabled = !result.tsvPending;
+      showToast(result.message || "Copied HTML");
+    } catch (error) {
+      showToast(`Could not copy HTML: ${error.message}`);
     } finally {
-      window.setTimeout(() => { button.disabled = false; }, 500);
+      htmlButton.disabled = false;
+      imeText.focus();
     }
   });
-  actions.append(button);
+
+  syncButton.addEventListener("click", async () => {
+    syncButton.disabled = true;
+    showToast("Syncing TSV...");
+    try {
+      const result = await request("/desktop-api/sync-tsv");
+      showToast(result.message || "TSV synced");
+    } catch (error) {
+      showToast(`Could not sync TSV: ${error.message}`);
+    } finally {
+      await refreshStatus();
+      imeText.focus();
+    }
+  });
+
+  window.TangliengimDesktopExtensions = { refreshStatus };
+  refreshStatus();
 })();
 """.strip()
 
@@ -116,6 +209,26 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
         self.send_header("Location", location)
         self.end_headers()
 
+    def _send_json(self, payload: dict, status: int = 200) -> None:
+        self._send_bytes(
+            json.dumps(payload, ensure_ascii=False).encode("utf-8"),
+            "application/json; charset=utf-8",
+            status=status,
+        )
+
+    def _read_json(self) -> dict:
+        try:
+            length = int(self.headers.get("Content-Length", "0"))
+        except ValueError as exc:
+            raise ValueError("Invalid request length") from exc
+        if length < 0 or length > 4 * 1024 * 1024:
+            raise ValueError("Request is too large")
+        raw = self.rfile.read(length) if length else b"{}"
+        payload = json.loads(raw.decode("utf-8"))
+        if not isinstance(payload, dict):
+            raise ValueError("Expected a JSON object")
+        return payload
+
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlsplit(self.path).path
         if path in {"", "/"}:
@@ -129,6 +242,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/desktop/desktop-shell.js":
             self._send_bytes(DESKTOP_SCRIPT.encode("utf-8"), "text/javascript; charset=utf-8")
+            return
+        if path == "/desktop-api/status":
+            self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending()})
             return
 
         target = _safe_repo_file(self.server.repo_root, self.path)
@@ -149,16 +265,22 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
         self._send_bytes(data, content_type)
 
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
-        if urlsplit(self.path).path != "/desktop-api/open-classic":
-            self.send_error(404)
-            return
+        path = urlsplit(self.path).path
         try:
-            self.server.open_classic_tools()
-            payload = json.dumps({"ok": True}).encode("utf-8")
-            self._send_bytes(payload, "application/json; charset=utf-8")
+            payload = self._read_json()
+            if path == "/desktop-api/copy-html":
+                result = self.server.copy_html(payload)
+            elif path == "/desktop-api/sync-tsv":
+                result = self.server.sync_tsv()
+            elif path == "/desktop-api/open-classic":
+                self.server.open_classic_tools()
+                result = {"ok": True}
+            else:
+                self.send_error(404)
+                return
+            self._send_json(result)
         except Exception as exc:
-            payload = json.dumps({"ok": False, "error": str(exc)}).encode("utf-8")
-            self._send_bytes(payload, "application/json; charset=utf-8", status=500)
+            self._send_json({"ok": False, "error": str(exc)}, status=500)
 
 
 class DesktopHttpServer(ThreadingHTTPServer):
@@ -169,6 +291,80 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.repo_root = repo_root.resolve()
         self.classic_script = classic_script.resolve()
         self.classic_process: subprocess.Popen | None = None
+        self.bridge_lock = threading.Lock()
+
+    def local_tsv_path(self) -> Path:
+        beside_classic = self.classic_script.with_name("hokkien_hanri_dict.tsv")
+        if beside_classic.is_file():
+            return beside_classic
+        return self.repo_root / "data" / "hokkien_hanri_dict.tsv"
+
+    def tsv_sync_pending(self) -> bool:
+        source = self.local_tsv_path()
+        destination = self.repo_root / "data" / "hokkien_hanri_dict.tsv"
+        if not source.is_file() or not destination.is_file():
+            return False
+        return source.resolve() != destination.resolve() and source.read_bytes() != destination.read_bytes()
+
+    def bridge_interpreter(self) -> Path:
+        interpreter = Path(sys.executable)
+        if interpreter.name.lower() == "pythonw.exe":
+            console_python = interpreter.with_name("python.exe")
+            if console_python.is_file():
+                return console_python
+        return interpreter
+
+    def run_bridge(self, flag: str, payload: dict | None = None) -> dict:
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
+        env = os.environ.copy()
+        env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
+        with self.bridge_lock:
+            result = subprocess.run(
+                [str(self.bridge_interpreter()), str(self.classic_script), flag],
+                input=json.dumps(payload or {}, ensure_ascii=False),
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                cwd=str(self.classic_script.parent),
+                env=env,
+                timeout=3600,
+                creationflags=creationflags,
+                check=False,
+            )
+        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+        response = None
+        for line in reversed(lines):
+            try:
+                candidate = json.loads(line)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(candidate, dict):
+                response = candidate
+                break
+        if result.returncode != 0 or not response:
+            detail = result.stderr.strip() or result.stdout.strip() or f"Bridge exited with {result.returncode}"
+            raise RuntimeError(detail)
+        if not response.get("ok"):
+            raise RuntimeError(str(response.get("error") or "Desktop bridge failed"))
+        return response
+
+    def copy_html(self, payload: dict) -> dict:
+        text = str(payload.get("text") or "")
+        style = str(payload.get("style") or "plain")
+        valid_styles = {"plain", "lomari_ruby_below", "lomari_next_line", "song", "novel", "novel_first", "title"}
+        if not text.strip():
+            raise ValueError("No text to copy")
+        if style not in valid_styles:
+            raise ValueError("Unknown HTML mode")
+        response = self.run_bridge("--desktop-html-bridge", payload)
+        response["tsvPending"] = self.tsv_sync_pending()
+        return response
+
+    def sync_tsv(self) -> dict:
+        response = self.run_bridge("--desktop-sync-bridge")
+        response["tsvPending"] = self.tsv_sync_pending()
+        return response
 
     def open_classic_tools(self) -> None:
         if self.classic_process is not None and self.classic_process.poll() is None:

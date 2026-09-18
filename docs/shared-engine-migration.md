@@ -3,9 +3,9 @@
 ## Ownership
 
 - GitHub owns the shared Tangliengim engine, TSV, audio data, Web IME, Dictionary, shared styling, and parity tests.
-- The active desktop application owns HTML modes, TSV editing and GitHub sync, native clipboard/filesystem access, and packaging.
+- The active desktop application owns HTML modes, TSV editing and GitHub sync, native clipboard/filesystem access, and packaging. These appear inside the shared desktop web shell through localhost-only bridge endpoints.
 - `C:\Users\Asus\Documents\Hokkien Programs\Hokkien Hangul IME\Hokkien Tangliengim IME Pad.py` is an untouched legacy backup and is never modified.
-- `C:\Users\Asus\Documents\Hokkien Programs\Hokkien Hangul IME\Hokkien Tangliengim IME Pad GitHub Synced Ver\Hokkien Tangliengim IME Pad.py` is the current desktop reference for parity checks. It remains the home of local-only HTML modes and TSV sync until those extensions are explicitly migrated.
+- `C:\Users\Asus\Documents\Hokkien Programs\Hokkien Hangul IME\Hokkien Tangliengim IME Pad GitHub Synced Ver\Hokkien Tangliengim IME Pad.py` is the current desktop reference for parity checks. It remains the implementation home of local-only HTML modes and TSV sync, now invoked from the shared shell through the bridge.
 
 ## Migration Rule
 
@@ -45,9 +45,9 @@ Completed:
 6. Move the shared Lomari renderer and audio-plan decisions into `shared/web-phonetic-output.js`.
 7. Preserve a selected Hanri reading for that occurrence across surrounding edits, and use it consistently for segmentation, Lomari, and audio until the Hanri itself is deleted.
 8. Share candidate-popup positioning and the complete browser audio decode, trim, overlap, crossfade, and playback engine between the Dictionary and Web IME.
-9. Add a desktop shell that serves the canonical Web IME directly from the GitHub checkout, with the classic HTML and TSV tools retained behind a desktop-only launcher.
+9. Add a desktop shell that serves the canonical Web IME directly from the GitHub checkout.
+10. Bridge the mature HTML modes and guarded TSV sync into that shared shell as local-only controls, while retaining `--classic-ui` as a fallback.
 
 Next:
 
-1. Bridge HTML modes and TSV sync into the desktop web shell as local-only extensions.
-2. Run the cross-platform regression suite and prepare a release baseline.
+1. Run the cross-platform regression suite and prepare a release baseline.

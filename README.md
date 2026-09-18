@@ -58,9 +58,10 @@ python "desktop/Hokkien Tangliengim IME Pad.py"
 ```
 
 It opens the same Web IME code from `apps/ime/` and `shared/` in a desktop app
-window. The **Desktop tools** button opens the classic local-only HTML and TSV
-tools during their bridge migration. Use `--classic-ui` to open those tools
-directly.
+window. HTML export modes and guarded TSV syncing are added to that interface
+only while it is running as the desktop shell; they are not published on the
+website. Use `--classic-ui` to open the complete legacy-style interface as a
+fallback.
 
 ## Branches and releases
 

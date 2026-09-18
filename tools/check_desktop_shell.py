@@ -39,8 +39,14 @@ def main() -> None:
         assert "/desktop/desktop-shell.js" in html
         with urlopen(base + "/desktop/desktop-shell.js", timeout=5) as response:
             desktop_script = response.read().decode("utf-8")
-        assert "Desktop tools" in desktop_script
-        assert "/desktop-api/open-classic" in desktop_script
+        assert "desktopHtmlButton" in desktop_script
+        assert "desktopSyncButton" in desktop_script
+        assert "/desktop-api/copy-html" in desktop_script
+        assert "/desktop-api/sync-tsv" in desktop_script
+        with urlopen(base + "/desktop-api/status", timeout=5) as response:
+            status = response.read().decode("utf-8")
+        assert '"ok": true' in status
+        assert '"tsvPending": false' in status
     finally:
         server.shutdown()
         server.server_close()
@@ -49,7 +55,11 @@ def main() -> None:
     pad_source = PAD_PATH.read_text(encoding="utf-8")
     assert "run_shared_web_shell" in pad_source
     assert "--classic-ui" in pad_source
-    print("OK: desktop shell serves the shared Web IME and preserves classic local tools.")
+    assert "--desktop-html-bridge" in pad_source
+    assert "--desktop-sync-bridge" in pad_source
+    assert "run_desktop_html_bridge" in pad_source
+    assert "run_desktop_sync_bridge" in pad_source
+    print("OK: desktop shell serves the shared Web IME with local HTML and TSV extensions.")
 
 
 if __name__ == "__main__":

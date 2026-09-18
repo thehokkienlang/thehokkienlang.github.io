@@ -48,6 +48,7 @@ from __future__ import annotations
 import csv
 import difflib
 import importlib.util
+import json
 import os
 import re
 import shutil
@@ -12567,7 +12568,121 @@ def run_shared_web_shell() -> bool:
     return True
 
 
+def read_desktop_bridge_payload() -> dict:
+    try:
+        payload = json.loads(sys.stdin.read() or '{}')
+    except Exception as exc:
+        raise ValueError(f'Invalid desktop bridge request: {exc}') from exc
+    if not isinstance(payload, dict):
+        raise ValueError('Desktop bridge request must be a JSON object.')
+    return payload
+
+
+def write_desktop_bridge_result(payload: dict) -> None:
+    print(json.dumps(payload, ensure_ascii=False), flush=True)
+
+
+def run_desktop_html_bridge() -> None:
+    """Use the mature local HTML workflow for the shared desktop web shell."""
+    root = None
+    try:
+        payload = read_desktop_bridge_payload()
+        content = normalize_typographic_apostrophes(str(payload.get('text') or ''))
+        style = str(payload.get('style') or 'plain')
+        valid_styles = {
+            'plain', 'lomari_ruby_below', 'lomari_next_line', 'song',
+            'novel', 'novel_first', 'title',
+        }
+        if not content.strip():
+            raise ValueError('No text to copy.')
+        if style not in valid_styles:
+            raise ValueError(f'Unknown HTML mode: {style}')
+
+        root = tk.Tk()
+        root.geometry('820x500')
+        try:
+            root.attributes('-alpha', 0.0)
+        except tk.TclError:
+            pass
+        app = HokkienIMEPad(root)
+        app.composer = Composer(output=content, cursor_pos=len(content))
+        app.composer.e_to_ye_autocorrect_enabled = app.e_to_ye_autocorrect_on.get
+        app.hanri_instance_readings = []
+        for raw in payload.get('rememberedReadings') or []:
+            if not isinstance(raw, dict):
+                continue
+            try:
+                start = int(raw.get('start', -1))
+                end = int(raw.get('end', -1))
+            except (TypeError, ValueError):
+                continue
+            hanri = str(raw.get('hanri') or '')
+            reading = str(raw.get('reading') or '')
+            if start < 0 or end <= start or content[start:end] != hanri or not reading:
+                continue
+            app.hanri_instance_readings.append({
+                'start': start,
+                'end': end,
+                'hanri': hanri,
+                'reading': reading,
+                'auto_sandhi': bool(raw.get('autoSandhi')),
+            })
+        app.hanri_instance_text_snapshot = content
+        app.html_style.set(style)
+
+        captured: dict[str, str] = {}
+        original_clipboard = app.set_system_clipboard_text
+
+        def capture_clipboard(value: str) -> None:
+            captured['html'] = str(value)
+            original_clipboard(value)
+
+        app.set_system_clipboard_text = capture_clipboard
+        app.copy_as_html()
+        if 'html' not in captured:
+            raise RuntimeError('The HTML converter did not produce output.')
+        try:
+            message = str(app.status.cget('text') or 'Copied HTML')
+        except Exception:
+            message = 'Copied HTML'
+        write_desktop_bridge_result({'ok': True, 'message': message})
+    except Exception as exc:
+        write_desktop_bridge_result({'ok': False, 'error': str(exc)})
+        raise SystemExit(1)
+    finally:
+        if root is not None:
+            try:
+                root.destroy()
+            except Exception:
+                pass
+
+
+def run_desktop_sync_bridge() -> None:
+    """Push the local TSV through the existing guarded Git workflow."""
+    try:
+        read_desktop_bridge_payload()
+        repo = github_repo_for_tsv_sync()
+        if repo is None:
+            raise FileNotFoundError('GitHub repository checkout was not found.')
+        source = next((path for path in hanri_tsv_path_candidates() if path.is_file()), None)
+        if source is None:
+            raise FileNotFoundError('Local TSV was not found.')
+        outcome = HokkienIMEPad.push_tsv_to_github_repository(source, repo)
+        if outcome == 'conflict':
+            raise RuntimeError('The GitHub TSV has uncommitted changes. Resolve them before syncing.')
+        write_desktop_bridge_result({'ok': True, 'message': 'TSV synced to GitHub.'})
+    except Exception as exc:
+        write_desktop_bridge_result({'ok': False, 'error': str(exc)})
+        raise SystemExit(1)
+
+
 def main() -> None:
+    if '--desktop-html-bridge' in sys.argv:
+        run_desktop_html_bridge()
+        return
+    if '--desktop-sync-bridge' in sys.argv:
+        run_desktop_sync_bridge()
+        return
     relaunch_with_pythonw_if_needed()
     if '--classic-ui' not in sys.argv:
         try:
