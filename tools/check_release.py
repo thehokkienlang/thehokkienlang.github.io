@@ -72,12 +72,15 @@ def main() -> int:
     check_python_syntax()
     for relative in JAVASCRIPT_FILES:
         run(f"JavaScript syntax: {relative}", "node", "--check", relative)
+    if args.source_only:
+        run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
+    else:
+        run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
     run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
     check_legacy_parity()
 
     if not args.source_only:
-        run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
         run("Validate published site", sys.executable, "-X", "utf8", "tools/check_site.py")
         run("Validate built Web applications", "node", "tools/check_web_apps.cjs")
 
