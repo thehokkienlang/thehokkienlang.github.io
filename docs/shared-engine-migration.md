@@ -45,8 +45,9 @@ Completed:
 6. Move the shared Lomari renderer and audio-plan decisions into `shared/web-phonetic-output.js`.
 7. Preserve a selected Hanri reading for that occurrence across surrounding edits, and use it consistently for segmentation, Lomari, and audio until the Hanri itself is deleted.
 8. Share candidate-popup positioning and the complete browser audio decode, trim, overlap, crossfade, and playback engine between the Dictionary and Web IME.
+9. Add a desktop shell that serves the canonical Web IME directly from the GitHub checkout, with the classic HTML and TSV tools retained behind a desktop-only launcher.
 
 Next:
 
-1. Bundle the Web interface and shared engine in the active desktop shell while retaining local HTML modes and TSV sync as extensions.
+1. Bridge HTML modes and TSV sync into the desktop web shell as local-only extensions.
 2. Run the cross-platform regression suite and prepare a release baseline.

@@ -57,6 +57,11 @@ The desktop application can be launched from this checkout with:
 python "desktop/Hokkien Tangliengim IME Pad.py"
 ```
 
+It opens the same Web IME code from `apps/ime/` and `shared/` in a desktop app
+window. The **Desktop tools** button opens the classic local-only HTML and TSV
+tools during their bridge migration. Use `--classic-ui` to open those tools
+directly.
+
 ## Branches and releases
 
 `main` is the production branch. Use short-lived task branches such as

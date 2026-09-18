@@ -1,4 +1,4 @@
-﻿"""
+"""
 Hokkien Tangliengim IME Pad
 
 A lightweight typing pad for 泉漳諺文 / Hokkien Hangul.
@@ -57,6 +57,7 @@ import tempfile
 import threading
 import unicodedata
 import wave
+import webbrowser
 from array import array
 import tkinter as tk
 import tkinter.font as tkfont
@@ -144,6 +145,7 @@ TONE_MARKER_MODULE_PATH = Path(
 
 APP_TITLE_EN = 'Hokkien Tangliengim IME Pad'
 APP_TITLE_ZH = '東寧音輸入法'
+WEB_DICTIONARY_URL = 'https://thehokkienlang.github.io/dictionary/'
 ROMAN_PREVIEW_DEBOUNCE_MS = 120
 ROMAN_PREVIEW_MIN_LINES = 1
 ROMAN_PREVIEW_MAX_LINES = 3
@@ -178,7 +180,10 @@ def is_html_joinable_suffix_boundary(text: str, suffix_index: int) -> bool:
 UI_TEXT = {
     'en': {
         'app_title': APP_TITLE_EN,
+        'app_heading': 'IME Pad',
+        'app_brand': 'Hokkien Tangliengim',
         'language_toggle': '中文',
+        'dictionary': 'Dictionary',
         'settings': 'Settings',
         'keep_top': 'Keep window on top',
         'hanri': 'Hanri',
@@ -188,7 +193,7 @@ UI_TEXT = {
         'lomari': 'Lomari (QWERTY)',
         'bopomofo': 'Bopomofo-style',
         'navigation_hint': 'Use Tab or arrow keys to navigate selections.',
-        'hokkien_tab': 'Hokkien',
+        'hokkien_tab': 'Hanri + Hangul',
         'keyboard_guide_closed': 'Keyboard guide ▼',
         'keyboard_guide_open': 'Keyboard guide ▲',
         'keyboard_guide_title': 'Keyboard guide',
@@ -259,7 +264,10 @@ UI_TEXT = {
     },
     'zh': {
         'app_title': APP_TITLE_ZH,
+        'app_heading': '輸入法',
+        'app_brand': '東寧音',
         'language_toggle': 'English',
+        'dictionary': '字典',
         'settings': '設定',
         'keep_top': '置頂',
         'hanri': '漢字',
@@ -269,7 +277,7 @@ UI_TEXT = {
         'lomari': '羅馬字（QWERTY）',
         'bopomofo': '注音式',
         'navigation_hint': '可用 Tab 或方向鍵切換選項。',
-        'hokkien_tab': '福建話–台灣話',
+        'hokkien_tab': '漢字＋諺文',
         'keyboard_guide_closed': '鍵盤初學 ▼',
         'keyboard_guide_open': '鍵盤初學 ▲',
         'keyboard_guide_title': '鍵盤初學',
@@ -6821,8 +6829,8 @@ class HokkienIMEPad:
         self.root = root
         self.ui_language = tk.StringVar(value='en')
         self.root.title(APP_TITLE_EN)
-        self.root.geometry('660x360')
-        self.root.minsize(600, 360)
+        self.root.geometry('820x500')
+        self.root.minsize(700, 440)
 
         self.composer = Composer()
         self.undo_stack = []
@@ -6892,6 +6900,8 @@ class HokkienIMEPad:
         self.keyboard_help_content = None
         self.keyboard_help_button = None
         self.language_button = None
+        self.dictionary_button = None
+        self.brand_eyebrow_label = None
         self.header_title_label = None
         self.hanri_button = None
         self.ime_button = None
@@ -7076,6 +7086,13 @@ class HokkienIMEPad:
         self.text.focus_set()
         return 'break'
 
+    def open_dictionary(self) -> None:
+        """Open the shared web dictionary from the desktop IME header."""
+        try:
+            webbrowser.open_new_tab(WEB_DICTIONARY_URL)
+        except Exception:
+            self.show_status_message(WEB_DICTIONARY_URL)
+
     def set_tsv_sync_button_enabled(self, enabled: bool) -> None:
         if self.tsv_sync_button is None:
             return
@@ -7238,7 +7255,9 @@ class HokkienIMEPad:
         except Exception:
             pass
         updates = [
-            (self.header_title_label, 'app_title'),
+            (self.brand_eyebrow_label, 'app_brand'),
+            (self.header_title_label, 'app_heading'),
+            (self.dictionary_button, 'dictionary'),
             (self.language_button, 'language_toggle'),
             (self.tsv_sync_button, 'sync_tsv'),
             (self.settings_button, 'settings'),
@@ -7264,7 +7283,9 @@ class HokkienIMEPad:
                     pass
 
         font_updates = [
-            (self.header_title_label, ui_title_font),
+            (self.brand_eyebrow_label, self.ui_font_tuple(9, 'bold')),
+            (self.header_title_label, self.ui_font_tuple(15, 'bold')),
+            (self.dictionary_button, ui_bold_font),
             (self.language_button, language_button_font),
             (self.tsv_sync_button, ui_bold_font),
             (self.settings_button, ui_bold_font),
@@ -7554,11 +7575,11 @@ class HokkienIMEPad:
         # Tkinter cannot truly round Text widget corners without a canvas wrapper,
         # but the white cards, subtle borders, and accent focus line avoid the
         # older Windows-XP-style sunken boxes.
-        surface_bg = '#f8fafd'
+        surface_bg = '#f4f7fb'
         card_bg = '#ffffff'
-        border_color = '#dadce0'
-        accent_color = '#1a73e8'
-        muted_text = '#5f6368'
+        border_color = '#ccd7e5'
+        accent_color = '#1d70d7'
+        muted_text = '#6b7788'
         self.surface_bg = surface_bg
         self.card_bg = card_bg
         self.border_color = border_color
@@ -7573,18 +7594,74 @@ class HokkienIMEPad:
         self.shell = ttk.Frame(self.root, style='App.TFrame')
         self.shell.pack(fill='both', expand=True)
 
-        outer = ttk.Frame(self.shell, padding=6, style='App.TFrame')
+        outer = ttk.Frame(self.shell, padding=14, style='App.TFrame')
         outer.pack(side='left', fill='both', expand=True)
         self.build_keyboard_help_panel()
 
-        # --- Header / compact global toggles ---
-        top = ttk.Frame(outer, style='App.TFrame')
-        top.pack(fill='x')
-        self.header_title_label = ttk.Label(top, text=self.tr('app_title'), font=('Segoe UI', 13, 'bold'), style='App.TLabel')
-        self.header_title_label.pack(side='left')
+        # --- Web-primary header ---
+        top = tk.Frame(outer, bg=surface_bg, bd=0)
+        top.pack(fill='x', pady=(0, 12))
+        brand = tk.Frame(top, bg=surface_bg, bd=0)
+        brand.pack(side='left')
+        brand_mark = tk.Frame(
+            brand,
+            width=48,
+            height=48,
+            bg=card_bg,
+            highlightbackground='#bfd0e4',
+            highlightcolor='#bfd0e4',
+            highlightthickness=1,
+            bd=0,
+        )
+        brand_mark.pack(side='left')
+        brand_mark.pack_propagate(False)
+        tk.Label(
+            brand_mark,
+            text='東',
+            font=(self.hanri_font_family, 13, 'bold'),
+            bg=card_bg,
+            fg='#0c1d30',
+        ).pack(pady=(4, 0))
+        tk.Label(
+            brand_mark,
+            text='롕',
+            font=(self.hangul_font_family, 12, 'bold'),
+            bg=card_bg,
+            fg='#0c1d30',
+        ).pack(pady=(0, 0))
+        brand_copy = tk.Frame(brand, bg=surface_bg, bd=0)
+        brand_copy.pack(side='left', padx=(11, 0))
+        self.brand_eyebrow_label = tk.Label(
+            brand_copy,
+            text=self.tr('app_brand'),
+            font=('Segoe UI', 9, 'bold'),
+            bg=surface_bg,
+            fg=accent_color,
+            anchor='w',
+        )
+        self.brand_eyebrow_label.pack(fill='x')
+        self.header_title_label = tk.Label(
+            brand_copy,
+            text=self.tr('app_heading'),
+            font=('Segoe UI', 15, 'bold'),
+            bg=surface_bg,
+            fg='#102033',
+            anchor='w',
+        )
+        self.header_title_label.pack(fill='x')
 
-        header_toggles = ttk.Frame(top, style='App.TFrame')
+        header_toggles = tk.Frame(top, bg=surface_bg, bd=0)
         header_toggles.pack(side='right')
+        self.dictionary_button = self.make_modern_button(
+            header_toggles,
+            text=self.tr('dictionary'),
+            command=self.open_dictionary,
+            min_width=86,
+            fill=card_bg,
+            border='#bfd0e4',
+            hover_fill='#e8f0fe',
+        )
+        self.dictionary_button.pack(side='left', padx=(0, 6))
         self.language_button = self.make_modern_button(
             header_toggles,
             text=self.tr('language_toggle'),
@@ -7614,32 +7691,19 @@ class HokkienIMEPad:
         )
         self.ime_button.pack(side='left')
 
-        # --- Main typing card with attached tab ---
+        # --- Web-style typing card ---
         typing_header = tk.Frame(outer, bg=surface_bg, bd=0)
         typing_header.pack(fill='x', pady=(2, 0))
-
-        # Make the section title feel like a selected tab growing out of the
-        # typing pad, similar to modern translation/input interfaces.
-        hokkien_tab = tk.Frame(
-            typing_header,
-            bg=card_bg,
-            highlightbackground=border_color,
-            highlightcolor=border_color,
-            highlightthickness=1,
-            bd=0,
-        )
-        hokkien_tab.pack(side='left', anchor='s')
         self.hokkien_tab_label = tk.Label(
-            hokkien_tab,
+            typing_header,
             text=self.tr('hokkien_tab'),
-            font=('Segoe UI', 10, 'bold'),
-            bg=card_bg,
-            fg=accent_color,
-            padx=12,
-            pady=4,
+            font=('Segoe UI', 9, 'italic'),
+            bg=surface_bg,
+            fg='#506176',
+            padx=2,
+            pady=5,
         )
-        self.hokkien_tab_label.pack(side='top', fill='x')
-        tk.Frame(hokkien_tab, bg=accent_color, height=2, bd=0).pack(side='bottom', fill='x')
+        self.hokkien_tab_label.pack(side='left', anchor='s')
 
         self.copyright_label = tk.Label(
             typing_header,
@@ -7650,9 +7714,6 @@ class HokkienIMEPad:
         )
         self.copyright_label.pack(side='right', anchor='s', padx=(8, 0), pady=(0, 4))
 
-        header_rule = tk.Frame(typing_header, bg=border_color, height=1, bd=0)
-        header_rule.pack(side='left', fill='x', expand=True, anchor='s', pady=(0, 0))
-
         typing_card = tk.Frame(
             outer,
             bg=card_bg,
@@ -7661,7 +7722,7 @@ class HokkienIMEPad:
             highlightthickness=1,
             bd=0,
         )
-        typing_card.pack(fill='both', expand=True, pady=(0, 5))
+        typing_card.pack(fill='both', expand=True, pady=(0, 8))
 
         input_row = tk.Frame(typing_card, bg=card_bg, bd=0)
         input_row.pack(fill='both', expand=True)
@@ -7758,8 +7819,8 @@ class HokkienIMEPad:
         self.roman_preview.bind('<KeyPress>', self.on_roman_preview_keypress)
 
         # --- Main actions + audio controls ---
-        action_row = ttk.Frame(outer, style='App.TFrame')
-        action_row.pack(fill='x', pady=(0, 4))
+        action_row = tk.Frame(typing_card, bg=card_bg, bd=0)
+        action_row.pack(fill='x', pady=(8, 10), padx=10)
         copy_icon = self.icon_images.get('copy')
         audio_icon = self.icon_images.get('audio')
         self.copy_button = self.make_modern_button(
@@ -7770,8 +7831,8 @@ class HokkienIMEPad:
             min_width=42 if copy_icon else 96,
             width=42 if copy_icon else None,
             padx=8,
-            fill=surface_bg if copy_icon else '#ffffff',
-            border=surface_bg if copy_icon else '#d2e3fc',
+            fill=card_bg if copy_icon else '#ffffff',
+            border=card_bg if copy_icon else '#d2e3fc',
             hover_fill='#e8f0fe' if copy_icon else '#f8fbff',
         )
         self.copy_button.pack(side='left')
@@ -7783,8 +7844,8 @@ class HokkienIMEPad:
             command=self.copy_as_html,
             min_width=74 if copy_icon else 96,
             padx=8,
-            fill=surface_bg if copy_icon else '#ffffff',
-            border=surface_bg if copy_icon else '#d2e3fc',
+            fill=card_bg if copy_icon else '#ffffff',
+            border=card_bg if copy_icon else '#d2e3fc',
             hover_fill='#e8f0fe' if copy_icon else '#f8fbff',
         )
         self.copy_html_button.pack(side='left', padx=(6, 0))
@@ -7798,7 +7859,7 @@ class HokkienIMEPad:
         )
         self.tsv_sync_button.pack(side='left', padx=(6, 0))
 
-        audio_inline = ttk.Frame(action_row, style='App.TFrame')
+        audio_inline = tk.Frame(action_row, bg=card_bg, bd=0)
         audio_inline.pack(side='right', anchor='e')
         self.audio_button = self.make_modern_button(
             audio_inline,
@@ -7808,13 +7869,19 @@ class HokkienIMEPad:
             min_width=42,
             width=42,
             padx=8,
-            fill=surface_bg if audio_icon else '#ffffff',
-            border=surface_bg if audio_icon else '#d2e3fc',
+            fill=card_bg if audio_icon else '#ffffff',
+            border=card_bg if audio_icon else '#d2e3fc',
             hover_fill='#e8f0fe' if audio_icon else '#f8fbff',
         )
         self.audio_button.pack(side='left', padx=(0, 10))
         self.audio_tooltip = self.add_tooltip(self.audio_button, self.tr('listen'))
-        self.sandhi_label = ttk.Label(audio_inline, text=self.tr('sandhi'), style='App.TLabel')
+        self.sandhi_label = tk.Label(
+            audio_inline,
+            text=self.tr('sandhi'),
+            font=self.ui_font_tuple(9, 'bold'),
+            bg=card_bg,
+            fg='#435469',
+        )
         self.sandhi_label.pack(side='left')
         self.taipei_button = self.make_modern_radio_toggle(
             audio_inline,
@@ -12462,13 +12529,12 @@ def relaunch_with_pythonw_if_needed() -> None:
         except Exception:
             pass
 
-def main() -> None:
-    relaunch_with_pythonw_if_needed()
+def run_classic_ui() -> None:
     root = tk.Tk()
     try:
         style = ttk.Style(root)
         style.theme_use('clam')
-        surface_bg = '#f8fafd'
+        surface_bg = '#f4f7fb'
         style.configure('.', font=('Segoe UI', 9), background=surface_bg)
         style.configure('App.TFrame', background=surface_bg)
         style.configure('App.TLabel', background=surface_bg, foreground='#202124')
@@ -12482,6 +12548,36 @@ def main() -> None:
         pass
     app = HokkienIMEPad(root)
     root.mainloop()
+
+
+def run_shared_web_shell() -> bool:
+    """Run the GitHub-owned Web IME in a desktop app window when available."""
+    repo = github_repo_for_tsv_sync()
+    if repo is None:
+        return False
+    shell_path = repo / 'desktop' / 'tangliengim_web_shell.py'
+    if not shell_path.is_file():
+        return False
+    spec = importlib.util.spec_from_file_location('tangliengim_web_shell', shell_path)
+    if spec is None or spec.loader is None:
+        return False
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    module.run_desktop_shell(repo, Path(__file__).resolve())
+    return True
+
+
+def main() -> None:
+    relaunch_with_pythonw_if_needed()
+    if '--classic-ui' not in sys.argv:
+        try:
+            if run_shared_web_shell():
+                return
+        except Exception:
+            # The classic UI remains a complete fallback while the local-only
+            # HTML and TSV tools are being bridged into the web shell.
+            pass
+    run_classic_ui()
 
 
 if __name__ == '__main__':
