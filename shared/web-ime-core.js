@@ -516,8 +516,8 @@ const TangliengimImeCore = (() => {
       return 0;
     }
 
-    function priorityHanriMatch(text, index) {
-      const cacheKey = `${text}\u0000${index}`;
+    function priorityHanriMatch(text, index, maximumEnd = text.length) {
+      const cacheKey = `${text}\u0000${index}\u0000${maximumEnd}`;
       if (hanriMatchCache.has(cacheKey)) return hanriMatchCache.get(cacheKey);
 
       let runEnd = index;
@@ -527,6 +527,7 @@ const TangliengimImeCore = (() => {
         runEnd += char.length;
       }
 
+      runEnd = Math.min(runEnd, maximumEnd);
       const memo = new Map();
       function bestAt(position) {
         if (position >= runEnd) return { score: [0, 0, 0], first: null };
@@ -562,13 +563,13 @@ const TangliengimImeCore = (() => {
       return match;
     }
 
-    function findHanriEntry(text, index = 0) {
+    function findHanriEntry(text, index = 0, maximumEnd = text.length) {
       for (const entry of mixedHanriEntries) {
-        if (text.startsWith(entry.hanri, index)) return entry;
+        if (text.startsWith(entry.hanri, index) && index + entry.hanri.length <= maximumEnd) return entry;
       }
       const code = text.codePointAt(index);
       const char = code === undefined ? "" : String.fromCodePoint(code);
-      return isHanriChar(char) ? priorityHanriMatch(text, index) : null;
+      return isHanriChar(char) ? priorityHanriMatch(text, index, maximumEnd) : null;
     }
 
     function findHangulOverride(reading) {
@@ -640,6 +641,8 @@ const TangliengimImeCore = (() => {
       this.activeCandidateIndex = 0;
       this.dismissedCandidateContext = null;
       this.internalUpdate = false;
+      this.rememberedHanriReadings = [];
+      this.rememberedTextSnapshot = normalizeApostrophes(control.value || "");
 
       this.handleKeydown = this.handleKeydown.bind(this);
       this.handleBeforeInput = this.handleBeforeInput.bind(this);
@@ -673,6 +676,78 @@ const TangliengimImeCore = (() => {
       this.composer.setText("", 0);
       this.updateControlFromComposer();
       this.control.focus();
+    }
+
+    syncRememberedHanriReadings(nextText = this.control.value) {
+      const current = normalizeApostrophes(nextText || "");
+      const previous = this.rememberedTextSnapshot;
+      if (current === previous) return;
+      if (!this.rememberedHanriReadings.length) {
+        this.rememberedTextSnapshot = current;
+        return;
+      }
+
+      let prefix = 0;
+      while (prefix < previous.length && prefix < current.length && previous[prefix] === current[prefix]) {
+        prefix += 1;
+      }
+      let suffix = 0;
+      while (
+        suffix < previous.length - prefix &&
+        suffix < current.length - prefix &&
+        previous[previous.length - 1 - suffix] === current[current.length - 1 - suffix]
+      ) {
+        suffix += 1;
+      }
+
+      const previousChangeEnd = previous.length - suffix;
+      const currentChangeEnd = current.length - suffix;
+      const offset = currentChangeEnd - previousChangeEnd;
+      const updated = [];
+      for (const span of this.rememberedHanriReadings) {
+        let start = span.start;
+        let end = span.end;
+        if (end <= prefix) {
+          // The edit follows this Hanri span.
+        } else if (start >= previousChangeEnd) {
+          start += offset;
+          end += offset;
+        } else {
+          continue;
+        }
+        if (current.slice(start, end) !== span.hanri) continue;
+        updated.push({ ...span, start, end });
+      }
+      this.rememberedHanriReadings = updated;
+      this.rememberedTextSnapshot = current;
+    }
+
+    rememberHanriReading(start, entry, text = this.composer.text()) {
+      const hanri = String(entry?.hanri || "");
+      const reading = String(entry?.reading || "");
+      if (!hanri || !reading) return;
+      this.syncRememberedHanriReadings(text);
+      const end = start + hanri.length;
+      if (text.slice(start, end) !== hanri) return;
+      this.rememberedHanriReadings = this.rememberedHanriReadings.filter(
+        (span) => span.end <= start || span.start >= end
+      );
+      this.rememberedHanriReadings.push({ start, end, hanri, reading, entry });
+      this.rememberedHanriReadings.sort((left, right) => left.start - right.start || left.end - right.end);
+      this.rememberedTextSnapshot = text;
+    }
+
+    findRememberedHanriEntry(text, index) {
+      this.syncRememberedHanriReadings(text);
+      const span = this.rememberedHanriReadings.find(
+        (item) => item.start === index && text.slice(item.start, item.end) === item.hanri
+      );
+      return span?.entry || null;
+    }
+
+    nextRememberedHanriStart(text, index) {
+      this.syncRememberedHanriReadings(text);
+      return this.rememberedHanriReadings.find((span) => span.start > index)?.start ?? text.length;
     }
 
     insertText(text) {
@@ -741,8 +816,10 @@ const TangliengimImeCore = (() => {
     }
 
     updateControlFromComposer() {
+      const nextText = this.composer.text();
+      this.syncRememberedHanriReadings(nextText);
       this.internalUpdate = true;
-      this.control.value = this.composer.text();
+      this.control.value = nextText;
       const cursor = this.composer.displayCursorPos();
       this.control.setSelectionRange(cursor, cursor);
       this.internalUpdate = false;
@@ -848,6 +925,7 @@ const TangliengimImeCore = (() => {
         this.control.value = normalizedValue;
         this.control.setSelectionRange?.(start, end);
       }
+      this.syncRememberedHanriReadings(normalizedValue);
       if (this.isEnabled()) {
         this.composer.setText(normalizedValue, this.control.selectionStart ?? normalizedValue.length);
       }
@@ -1014,7 +1092,9 @@ const TangliengimImeCore = (() => {
     applyCandidate(candidate) {
       const text = this.control.value;
       const next = `${text.slice(0, candidate.start)}${candidate.entry.hanri}${text.slice(candidate.end)}`;
+      this.syncRememberedHanriReadings(next);
       this.composer.setText(next, candidate.start + candidate.entry.hanri.length);
+      this.rememberHanriReading(candidate.start, candidate.entry, next);
       this.updateControlFromComposer();
     }
   }

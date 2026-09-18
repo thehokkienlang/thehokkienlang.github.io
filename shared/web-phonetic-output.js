@@ -259,7 +259,7 @@ const TangliengimPhoneticOutput = (() => {
         unit: segment.unit,
         tone: segment.tone,
         roman: segment.roman || "",
-        externalSandhi: !protectFinal && index === segments.length - 1,
+        externalSandhi: !protectFinal && !entry.autoSandhi && index === segments.length - 1,
         fromTsv: true,
       }));
     }
@@ -411,6 +411,31 @@ const TangliengimPhoneticOutput = (() => {
       return { start, end: segments.length };
     }
 
+    function appendEntryAudio(entry, segments, missing) {
+      const directAudio = audioForCurrentSandhiMode(entry?.audio);
+      if (normalizeAudioSegments(directAudio).length || directAudio?.missing?.length) {
+        return appendAudioMetadata(entry.audio, segments, missing);
+      }
+
+      const start = segments.length;
+      const reading = String(entry?.reading || "");
+      for (let index = 0; index < reading.length;) {
+        const unit = imeCore.readingUnitAt(reading, index);
+        if (!unit?.canCarryTone) {
+          index += String.fromCodePoint(reading.codePointAt(index)).length;
+          continue;
+        }
+        const end = imeCore.readingUnitToneEnd(reading, unit);
+        const normalized = normalizeReadingToneKey(reading.slice(index, end));
+        const tone = /[12345]$/u.test(normalized) ? normalized.at(-1) : "3";
+        const audio = findRawHangulAudio(`${unit.text}${tone}`);
+        if (audio) appendAudioMetadata(audio, segments, missing);
+        else if (!missing.includes(reading.slice(index, end))) missing.push(reading.slice(index, end));
+        index = end;
+      }
+      return { start, end: segments.length };
+    }
+
     function withAudioTone(segment, tone) {
       const audio = audioForCurrentSandhiMode(findRawHangulAudio(`${segment.unit}${tone}`));
       const replacement = normalizeAudioSegments(audio)[0];
@@ -496,7 +521,7 @@ const TangliengimPhoneticOutput = (() => {
 
         const hanriEntry = findHanriEntry(text, index);
         if (hanriEntry) {
-          appendChunk(appendAudioMetadata(hanriEntry.audio, segments, missing), true);
+          appendChunk(appendEntryAudio(hanriEntry, segments, missing), !hanriEntry.autoSandhi);
           index += hanriEntry.hanri.length;
           continue;
         }

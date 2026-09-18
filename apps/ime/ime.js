@@ -260,7 +260,11 @@ function setEntries(entries) {
 }
 
 function findHanriEntry(text, index) {
-  return dictionaryIndex.findHanriEntry(text, index);
+  return imeController.findRememberedHanriEntry(text, index) || dictionaryIndex.findHanriEntry(
+    text,
+    index,
+    imeController.nextRememberedHanriStart(text, index)
+  );
 }
 
 function findReadingEntry(reading) {

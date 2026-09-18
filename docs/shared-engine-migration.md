@@ -43,9 +43,10 @@ Completed:
 4. Move the first common audio rules: citation-to-Taipei sandhi and Singapore tone-1 replacement.
 5. Match desktop Hangul composition and tone-aware candidate filtering in the shared Web engine, including generated runtime sandhi candidates that stay hidden from dictionary cards.
 6. Move the shared Lomari renderer and audio-plan decisions into `shared/web-phonetic-output.js`. The Web IME retains only browser-specific audio decoding, trimming, crossfading, and playback controls.
+7. Preserve a selected Hanri reading for that occurrence across surrounding edits, and use it consistently for segmentation, Lomari, and audio until the Hanri itself is deleted.
 
 Next:
 
-1. Bring the Web IME's rendering and interaction edge cases to the same reference fixture discipline.
+1. Consolidate the remaining browser playback and candidate-presentation code shared by the Dictionary and Web IME.
 2. Bundle the Web interface and shared engine in the active desktop shell while retaining local HTML modes and TSV sync as extensions.
 3. Run the cross-platform regression suite and prepare a release baseline.

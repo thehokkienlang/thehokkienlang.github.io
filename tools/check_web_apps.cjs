@@ -246,6 +246,63 @@ async function loadApp(route, script) {
     'Web Hanri segmentation must honour the Local IME priority path'
   );
   assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('쟐4', 2);
+      imeController.updateControlFromComposer();
+      const chosen = imeController.activeCandidates.find(
+        ({ entry }) => entry.hanri === '情' && entry.reading === '쟐4'
+      );
+      if (!chosen) return false;
+      imeController.applyCandidate(chosen);
+      const selectedAtStart = findHanriEntry('情', 0)?.reading === '쟐4';
+      const selectedLomari = lomariRenderer.render('情') === 'jiá̰';
+      const selectedAudio = audioPlanFromText('情').segments[0]?.unit === '쟐';
+
+      imeController.composer.setText('人情', 2);
+      imeController.updateControlFromComposer();
+      const followsEdit = findHanriEntry('人情', 1)?.reading === '쟐4';
+      const followsEditOutput = lomariRenderer.render('人情').endsWith('-jiá̰');
+
+      imeController.composer.setText('情', 1);
+      imeController.updateControlFromComposer();
+      const followsUndo = findHanriEntry('情', 0)?.reading === '쟐4';
+
+      imeController.clear();
+      imeController.composer.setText('情', 1);
+      imeController.updateControlFromComposer();
+      const forgottenAfterDelete = findHanriEntry('情', 0)?.reading !== '쟐4';
+      return selectedAtStart && selectedLomari && selectedAudio && followsEdit && followsEditOutput && followsUndo && forgottenAfterDelete;
+    })()`, context),
+    'A selected Hanri reading must drive Lomari and audio until that Hanri is deleted'
+  );
+  const rememberedSandhi = JSON.parse(vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('쟐3', 2);
+      imeController.updateControlFromComposer();
+      const chosen = imeController.activeCandidates.find(
+        ({ entry }) => entry.hanri === '情' && entry.reading === '쟐3' && entry.autoSandhi
+      );
+      if (!chosen) return JSON.stringify({ chosen: false });
+      imeController.applyCandidate(chosen);
+      imeController.composer.setText('情人', 2);
+      imeController.updateControlFromComposer();
+      const lomari = lomariRenderer.render('情人');
+      const audio = audioPlanFromText('情人');
+      return JSON.stringify({
+        chosen: true,
+        remembered: findHanriEntry('情人', 0)?.reading || '',
+        lomari,
+        audioUnit: audio.segments[0]?.unit || '',
+        audioTone: audio.segments[0]?.tone || '',
+      });
+    })()`, context));
+  assert.deepEqual(
+    rememberedSandhi,
+    { chosen: true, remembered: '쟐3', lomari: 'jia̰-láng', audioUnit: '쟐', audioTone: '3' },
+    'A remembered auto-sandhi reading must not be sandhied a second time'
+  );
+  assert.ok(
     vm.runInContext(`state.unitRoman.size > 0 && state.rawHangulAudio.size > 0 && state.jamoLomari.size > 0 && state.jamoAudio.size > 0`, context),
     'Web IME must load Local-IME-derived runtime pronunciation metadata'
   );
