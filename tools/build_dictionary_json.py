@@ -474,9 +474,11 @@ def main() -> int:
         return 0
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    args.output.write_text(encoded, encoding="utf-8", newline="\n")
-    relative_output = args.output.relative_to(REPO_ROOT)
-    print(f"wrote {relative_output} ({len(encoded.encode('utf-8'))} bytes)")
+    if args.output.is_file() and args.output.read_text(encoding="utf-8") == encoded:
+        print(f"unchanged {args.output.relative_to(REPO_ROOT)}")
+    else:
+        args.output.write_text(encoded, encoding="utf-8", newline="\n")
+        print(f"wrote {args.output.relative_to(REPO_ROOT)} ({len(encoded.encode('utf-8'))} bytes)")
     print(f"entries: {len(data['entries'])}; active: {data['counts'].get('active_entries', 0)}")
     return 0
 

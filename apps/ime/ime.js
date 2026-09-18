@@ -17,7 +17,7 @@ const keyboardLayout = document.querySelector("#keyboardLayout");
 const pad = document.querySelector(".pad");
 
 const imeCore = window.TangliengimImeCore;
-const lomariCore = window.TangliengimLomariPreview;
+const phoneticCore = window.TangliengimPhoneticOutput;
 let dictionaryIndex = imeCore.createDictionaryIndex([]);
 const imeController = imeCore.createTextImeController({
   control: imeText,
@@ -35,13 +35,23 @@ const state = {
   jamoAudio: new Map(),
   sandhiMode: "taipei",
 };
-const lomariRenderer = lomariCore.createRenderer({
+const lomariRenderer = phoneticCore.createRenderer({
   imeCore,
   findHanriEntry,
   findHangulOverride,
   findHangulOverrideAt,
   findUnitRoman: (unit) => state.unitRoman.get(unit) || "",
   findJamoLomari: (unit) => state.jamoLomari.get(unit) || "",
+});
+const audioPlanner = phoneticCore.createAudioPlanner({
+  imeCore,
+  getSandhiMode: () => state.sandhiMode,
+  findHanriEntry,
+  findReadingEntry,
+  findHangulOverrideAt,
+  findJamoAudio: (unit) => state.jamoAudio.get(unit),
+  findRawHangulAudio: (key) => state.rawHangulAudio.get(key),
+  normalizeReadingToneKey: TangliengimHangulIme.normalizeReadingToneKey,
 });
 let audioRunId = 0;
 let currentAudio = null;
@@ -244,49 +254,9 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
 }
 
-function normalizeAudioSegments(audio) {
-  if (audio?.segments?.length) {
-    return audio.segments;
-  }
-  return (audio?.files || []).map((file) => ({
-    file,
-    trimStart: false,
-    trimEnd: false,
-    speed: 1,
-    lFinal: false,
-    shortOverlapFinal: false,
-    englishClusterHelper: false,
-  }));
-}
-
-function audioForCurrentSandhiMode(audio) {
-  if (state.sandhiMode === "singapore" && audio?.singapore) {
-    return audio.singapore;
-  }
-  return audio;
-}
-
-function dictionaryAudioPath(file) {
-  const value = String(file || "");
-  if (!value) return "";
-  if (/^https?:\/\//i.test(value) || value.startsWith("/")) return value;
-  return `/${value}`;
-}
-
-function entrySegments(entry) {
-  return normalizeAudioSegments(audioForCurrentSandhiMode(entry.audio)).map((segment) => ({
-    ...segment,
-    file: dictionaryAudioPath(segment.file),
-  }));
-}
-
 function setEntries(entries) {
   dictionaryIndex = imeCore.createDictionaryIndex(entries);
   state.entries = dictionaryIndex.entries;
-}
-
-function isPunctuationOrSpace(char) {
-  return /\s|\p{Punctuation}/u.test(char);
 }
 
 function findHanriEntry(text, index) {
@@ -312,170 +282,8 @@ function updateLomariPreview() {
   scheduleCandidatePopupPosition();
 }
 
-function appendAudioMetadata(audioMetadata, segments, missing) {
-  const audio = audioForCurrentSandhiMode(audioMetadata);
-  const audioSegments = normalizeAudioSegments(audio).map((segment) => ({
-    ...segment,
-    file: dictionaryAudioPath(segment.file),
-  }));
-  const start = segments.length;
-  if (audioSegments.length) segments.push(...audioSegments);
-  for (const item of audio?.missing || []) {
-    if (!missing.includes(item)) missing.push(item);
-  }
-  return { start, end: segments.length };
-}
-
-function appendEntryAudio(entry, segments, missing) {
-  return appendAudioMetadata(entry.audio, segments, missing);
-}
-
-function withAudioTone(segment, tone) {
-  const audio = audioForCurrentSandhiMode(state.rawHangulAudio.get(`${segment.unit}${tone}`));
-  const replacement = normalizeAudioSegments(audio)[0];
-  if (!replacement) return { ...segment, tone: String(tone) };
-  return {
-    ...segment,
-    ...replacement,
-    unit: segment.unit,
-    tone: String(tone),
-    file: dictionaryAudioPath(replacement.file),
-  };
-}
-
-function applyPendingSandhi(chunk, segments, trimWithNext = false) {
-  if (!chunk || chunk.end <= chunk.start) return;
-  const finalIndex = chunk.end - 1;
-  const finalSegment = segments[finalIndex];
-  if (!finalSegment?.unit || !finalSegment?.tone) return;
-  const sandhiTone = imeCore.citationToTaipeiSandhiTone(finalSegment.unit, finalSegment.tone);
-  segments[finalIndex] = withAudioTone(finalSegment, sandhiTone);
-  if (trimWithNext) segments[finalIndex].trimEnd = true;
-}
-
-function connectAudioChunk(previous, next, segments, connections) {
-  if (!previous?.canSandhi || next.end <= next.start) return;
-  applyPendingSandhi(previous, segments, true);
-  segments[next.start] = { ...segments[next.start], trimStart: true };
-  connections.push({ previous, next });
-}
-
-function applySingaporeCrossChunkTones(connections, segments) {
-  const linkedChunks = new Set(connections.map(({ previous }) => previous));
-  for (let index = connections.length - 1; index >= 0; index -= 1) {
-    const { previous, next } = connections[index];
-    const finalIndex = previous.end - 1;
-    const nextIndex = next.start;
-    const segment = segments[finalIndex];
-    const following = segments[nextIndex];
-    if (!segment || !following || segment.tone !== "1" || imeCore.isCheckedFinalUnit(segment.unit)) continue;
-    const tone = imeCore.singaporeTone1AudioReplacement(
-      following.unit,
-      following.tone,
-      !linkedChunks.has(next)
-    );
-    segments[finalIndex] = withAudioTone(segment, tone);
-  }
-}
-
 function audioPlanFromText(text) {
-  const segments = [];
-  const missing = [];
-  let index = 0;
-  let pendingChunk = null;
-  const connections = [];
-
-  function appendChunk(chunk, canSandhi) {
-    if (chunk.end <= chunk.start) return;
-    connectAudioChunk(pendingChunk, chunk, segments, connections);
-    pendingChunk = canSandhi ? { ...chunk, canSandhi: true } : null;
-  }
-
-  while (index < text.length) {
-    const code = text.codePointAt(index);
-    if (code === undefined) break;
-    const char = String.fromCodePoint(code);
-
-    if (char === "-") {
-      applyPendingSandhi(pendingChunk, segments);
-      pendingChunk = null;
-      index += char.length;
-      continue;
-    }
-
-    if (isPunctuationOrSpace(char)) {
-      pendingChunk = null;
-      index += char.length;
-      continue;
-    }
-
-    const jamoAudio = state.jamoAudio.get(char);
-    if (jamoAudio) {
-      appendChunk(appendAudioMetadata(jamoAudio, segments, missing), false);
-      index += char.length;
-      continue;
-    }
-
-    const hanriEntry = findHanriEntry(text, index);
-    if (hanriEntry) {
-      appendChunk(appendEntryAudio(hanriEntry, segments, missing), true);
-      index += hanriEntry.hanri.length;
-      continue;
-    }
-
-    const unit = imeCore.readingUnitAt(text, index);
-    if (unit?.canCarryTone) {
-      const end = imeCore.readingUnitToneEnd(text, unit);
-      const raw = text.slice(index, end);
-      const hasExplicitTone = end > unit.end;
-      if (!hasExplicitTone) {
-        const overrideMatch = findHangulOverrideAt(text, index);
-        if (overrideMatch?.entry) {
-          appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), true);
-          index = overrideMatch.end;
-          continue;
-        }
-      }
-      const entry = findReadingEntry(raw) || findReadingEntry(unit.text);
-      if (entry) {
-        appendChunk(appendEntryAudio(entry, segments, missing), !hasExplicitTone);
-      } else {
-        const normalizedRaw = TangliengimHangulIme.normalizeReadingToneKey(raw);
-        const audioKey = /[12345]$/u.test(normalizedRaw) ? normalizedRaw : `${unit.text}3`;
-        const rawAudio = state.rawHangulAudio.get(audioKey);
-        if (rawAudio) appendChunk(appendAudioMetadata(rawAudio, segments, missing), false);
-        else {
-          if (!missing.includes(raw)) missing.push(raw);
-          pendingChunk = null;
-        }
-      }
-      index = end;
-      continue;
-    }
-
-    if (/[A-Za-z0-9]/.test(char)) {
-      let end = index + char.length;
-      while (end < text.length) {
-        const next = String.fromCodePoint(text.codePointAt(end));
-        if (!/[A-Za-z0-9]/.test(next)) break;
-        end += next.length;
-      }
-      const word = text.slice(index, end);
-      if (!missing.includes(word)) missing.push(word);
-      pendingChunk = null;
-      index = end;
-      continue;
-    }
-
-    if (!missing.includes(char)) missing.push(char);
-    pendingChunk = null;
-    index += char.length;
-  }
-
-  if (state.sandhiMode === "singapore") {
-    applySingaporeCrossChunkTones(connections, segments);
-  }
-  return { segments, missing };
+  return audioPlanner.plan(text);
 }
 
 function stopAudio() {

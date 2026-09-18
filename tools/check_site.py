@@ -72,7 +72,8 @@ def main():
     assert "client-side courtesy lock" in dictionary_gate
     assert "localStorage.setItem" in dictionary_gate and "localStorage.removeItem" in dictionary_gate
     ime_shared = [src for src in route_scripts["/ime/"] if src.startswith("/shared/")]
-    assert len(ime_shared) == 2, "Shared composer/controller missing in /ime/"
+    assert len(ime_shared) == 3, "Shared composer/controller/phonetic engine missing in /ime/"
+    assert "/shared/web-phonetic-output.js" in ime_shared
     for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js"):
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 

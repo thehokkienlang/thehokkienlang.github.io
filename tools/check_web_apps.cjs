@@ -3,7 +3,11 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
-const root = path.resolve(__dirname, '..', '_site');
+const sourceMode = process.argv.includes('--source');
+const root = sourceMode
+  ? path.resolve(__dirname, '..')
+  : path.resolve(__dirname, '..', '_site');
+const appRoot = sourceMode ? 'apps' : '';
 const data = JSON.parse(fs.readFileSync(path.join(root, 'public/data/hokkien-hanri-dict.json'), 'utf8'));
 const legacyParity = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '..', 'tests/fixtures/legacy-ime-parity-reference.json'), 'utf8')
@@ -45,8 +49,8 @@ async function loadApp(route, script) {
   });
   context.window = context;
   const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js'];
-  if (route === 'ime') files.push('ime/lomari-preview.js');
-  files.push(`${route}/${script}`);
+  if (route === 'ime') files.push('shared/web-phonetic-output.js');
+  files.push(path.posix.join(appRoot, route, script));
   for (const file of files) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
   }
@@ -183,6 +187,13 @@ async function loadApp(route, script) {
   const { context, elements } = await loadApp('ime', 'ime.js');
   assert.equal(elements.get('#statusLine').textContent, '');
   assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
+  assert.ok(
+    vm.runInContext(
+      'typeof TangliengimPhoneticOutput?.createRenderer === "function" && typeof TangliengimPhoneticOutput?.createAudioPlanner === "function"',
+      context
+    ),
+    'Lomari rendering and audio planning must come from the shared phonetic engine'
+  );
   assert.ok(
     vm.runInContext(
       `imeController.dictionaryIndex === dictionaryIndex && dictionaryIndex.findHanriEntry('用心肝', 0)?.hanri === '用'`,
