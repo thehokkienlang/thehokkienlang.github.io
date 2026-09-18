@@ -18,12 +18,20 @@ const pad = document.querySelector(".pad");
 
 const imeCore = window.TangliengimImeCore;
 const phoneticCore = window.TangliengimPhoneticOutput;
+const webAudio = window.TangliengimWebAudio;
 let dictionaryIndex = imeCore.createDictionaryIndex([]);
+const candidatePopup = imeCore.createCandidatePopupPositioner({
+  control: imeText,
+  container: candidateBar,
+  boundary: textWrap,
+  placement: "caret",
+});
 const imeController = imeCore.createTextImeController({
   control: imeText,
   candidateContainer: candidateBar,
   enabled: () => true,
   onUpdate: updateLomariPreview,
+  onCandidatesChanged: candidatePopup.schedule,
   enterBehavior: "newline",
 });
 
@@ -53,10 +61,7 @@ const audioPlanner = phoneticCore.createAudioPlanner({
   findRawHangulAudio: (key) => state.rawHangulAudio.get(key),
   normalizeReadingToneKey: TangliengimHangulIme.normalizeReadingToneKey,
 });
-let audioRunId = 0;
-let currentAudio = null;
-let sharedAudioContext = null;
-const decodedAudioCache = new Map();
+const audioPlayer = webAudio.createPlayer();
 const guideButtons = new Map();
 let guideShifted = false;
 
@@ -181,55 +186,6 @@ function physicalGuideKey(event) {
   return guideButtons.has(key) ? key : null;
 }
 
-function textAreaCaretPosition(control) {
-  if (!document.body || typeof getComputedStyle !== "function") return null;
-  const style = getComputedStyle(control);
-  const mirror = document.createElement("div");
-  const properties = [
-    "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
-    "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
-    "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
-  ];
-  mirror.style.position = "fixed";
-  mirror.style.visibility = "hidden";
-  mirror.style.pointerEvents = "none";
-  mirror.style.whiteSpace = "pre-wrap";
-  mirror.style.overflowWrap = "break-word";
-  mirror.style.width = `${control.offsetWidth}px`;
-  for (const property of properties) mirror.style[property] = style[property];
-  const cursor = control.selectionStart ?? 0;
-  mirror.textContent = control.value.slice(0, cursor);
-  const marker = document.createElement("span");
-  marker.textContent = control.value.slice(cursor, cursor + 1) || "\u200b";
-  mirror.append(marker);
-  document.body.append(mirror);
-  const position = {
-    left: marker.offsetLeft - control.scrollLeft,
-    top: marker.offsetTop - control.scrollTop,
-    height: Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.4,
-  };
-  mirror.remove();
-  return position;
-}
-
-function positionCandidatePopup() {
-  if (candidateBar.hidden || !candidateBar.children.length || !textWrap) return;
-  const caret = textAreaCaretPosition(imeText);
-  if (!caret) return;
-  const maximumLeft = Math.max(8, textWrap.clientWidth - candidateBar.offsetWidth - 8);
-  candidateBar.style.left = `${Math.max(8, Math.min(caret.left, maximumLeft))}px`;
-  let top = caret.top + caret.height + 4;
-  if (top + candidateBar.offsetHeight > imeText.clientHeight && caret.top > candidateBar.offsetHeight + 8) {
-    top = caret.top - candidateBar.offsetHeight - 4;
-  }
-  candidateBar.style.top = `${Math.max(4, top)}px`;
-}
-
-function scheduleCandidatePopupPosition() {
-  const schedule = typeof requestAnimationFrame === "function" ? requestAnimationFrame : setTimeout;
-  schedule(positionCandidatePopup);
-}
-
 function copyText(text) {
   if (navigator.clipboard?.writeText) {
     return navigator.clipboard.writeText(text);
@@ -283,262 +239,10 @@ function updateLomariPreview() {
   // Lomari always follows the Taipei display convention. Sandhi selection affects audio only.
   lomariPreview.textContent = lomariRenderer.render(imeText.value);
   lomariPreview.scrollTop = lomariPreview.scrollHeight;
-  scheduleCandidatePopupPosition();
 }
 
 function audioPlanFromText(text) {
   return audioPlanner.plan(text);
-}
-
-function stopAudio() {
-  audioRunId += 1;
-  if (currentAudio) {
-    try {
-      currentAudio.stop();
-    } catch {
-      // The source may already have ended.
-    }
-    currentAudio = null;
-  }
-}
-
-function audioContext() {
-  if (!sharedAudioContext) {
-    const Context = window.AudioContext || window.webkitAudioContext;
-    if (!Context) {
-      throw new Error("Web Audio is not available");
-    }
-    sharedAudioContext = new Context();
-  }
-  return sharedAudioContext;
-}
-
-async function decodedAudioBuffer(file) {
-  const url = encodeURI(file);
-  if (decodedAudioCache.has(url)) {
-    return decodedAudioCache.get(url);
-  }
-
-  const bufferPromise = fetch(url)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}`);
-      }
-      return response.arrayBuffer();
-    })
-    .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer));
-  decodedAudioCache.set(url, bufferPromise);
-  return bufferPromise;
-}
-
-function copyBufferChannels(buffer, startFrame, endFrame) {
-  const length = Math.max(1, endFrame - startFrame);
-  const channels = [];
-  for (let channel = 0; channel < buffer.numberOfChannels; channel += 1) {
-    channels.push(buffer.getChannelData(channel).slice(startFrame, startFrame + length));
-  }
-  return channels;
-}
-
-function crossfadeSamples(previous, next) {
-  const length = Math.min(previous.length, next.length);
-  const output = new Float32Array(length);
-  if (length <= 1) {
-    output.set(next.subarray(0, length));
-    return output;
-  }
-  for (let index = 0; index < length; index += 1) {
-    const alpha = index / (length - 1);
-    output[index] = previous[index] * (1 - alpha) + next[index] * alpha;
-  }
-  return output;
-}
-
-function speedUpChannels(channels, sampleRate, speedFactor) {
-  if (speedFactor <= 1 || !channels.length || !sampleRate) {
-    return channels;
-  }
-
-  const totalFrames = channels[0].length;
-  if (totalFrames <= sampleRate / 20) {
-    return channels;
-  }
-
-  const keepFrames = Math.max(1, Math.round(sampleRate * 0.1));
-  const removeFrames = Math.max(1, Math.round(keepFrames * (speedFactor - 1)));
-  const fadeFrames = Math.max(1, Math.round(sampleRate * 0.01));
-  const output = channels.map(() => []);
-  let position = 0;
-
-  while (position < totalFrames) {
-    const keepEnd = Math.min(position + keepFrames, totalFrames);
-    for (let channel = 0; channel < channels.length; channel += 1) {
-      const source = channels[channel];
-      const target = output[channel];
-      for (let sample = position; sample < keepEnd; sample += 1) {
-        target.push(source[sample]);
-      }
-    }
-    position = keepEnd;
-
-    if (position >= totalFrames) break;
-    const skipEnd = Math.min(position + removeFrames, totalFrames);
-    const canCrossfade = output[0].length >= fadeFrames && skipEnd + fadeFrames < totalFrames;
-
-    if (canCrossfade) {
-      for (let channel = 0; channel < channels.length; channel += 1) {
-        const target = output[channel];
-        const source = channels[channel];
-        const targetStart = target.length - fadeFrames;
-        for (let sample = 0; sample < fadeFrames; sample += 1) {
-          const alpha = sample / Math.max(1, fadeFrames - 1);
-          target[targetStart + sample] =
-            target[targetStart + sample] * (1 - alpha) + source[skipEnd + sample] * alpha;
-        }
-      }
-      position = skipEnd + fadeFrames;
-    } else {
-      position = skipEnd;
-    }
-  }
-
-  return output.map((channel) => Float32Array.from(channel));
-}
-
-function fadeOutChannels(channels, sampleRate, fadeSeconds) {
-  const fadeFrames = Math.min(
-    channels[0]?.length || 0,
-    Math.max(1, Math.round(sampleRate * fadeSeconds))
-  );
-  if (fadeFrames <= 1) return channels;
-
-  for (const channel of channels) {
-    const start = channel.length - fadeFrames;
-    for (let index = 0; index < fadeFrames; index += 1) {
-      channel[start + index] *= (fadeFrames - index - 1) / (fadeFrames - 1);
-    }
-  }
-  return channels;
-}
-
-function audioTrimFrames(buffer, segment) {
-  let startSeconds = 0;
-  if (segment.englishClusterHelper) {
-    startSeconds = 0.24;
-  } else if (segment.trimStart) {
-    startSeconds = 0.2;
-  }
-  const endSeconds = segment.trimEnd ? 0.15 : 0;
-  let startFrame = Math.round(buffer.sampleRate * startSeconds);
-  let endFrame = buffer.length - Math.round(buffer.sampleRate * endSeconds);
-
-  if (startFrame >= endFrame) {
-    const overflow = startFrame - endFrame + 1;
-    const endTrimFrames = buffer.length - endFrame;
-    if (endTrimFrames >= overflow) {
-      endFrame += overflow;
-    } else {
-      startFrame = Math.max(0, startFrame - (overflow - endTrimFrames));
-      endFrame = buffer.length;
-    }
-  }
-
-  return {
-    startFrame: Math.max(0, Math.min(startFrame, buffer.length - 1)),
-    endFrame: Math.max(1, Math.min(endFrame, buffer.length)),
-  };
-}
-
-async function processedAudioSegment(segment) {
-  const buffer = await decodedAudioBuffer(segment.file);
-  const { startFrame, endFrame } = audioTrimFrames(buffer, segment);
-  let channels = copyBufferChannels(buffer, startFrame, endFrame);
-  channels = speedUpChannels(channels, buffer.sampleRate, Number(segment.speed) || 1);
-
-  if (segment.englishClusterHelper && channels[0]?.length) {
-    const maxFrames = Math.max(1, Math.round(buffer.sampleRate * 0.24));
-    channels = channels.map((channel) => channel.slice(0, Math.min(channel.length, maxFrames)));
-    fadeOutChannels(channels, buffer.sampleRate, 0.015);
-  }
-
-  return {
-    channels,
-    sampleRate: buffer.sampleRate,
-    channelCount: buffer.numberOfChannels,
-    canOverlapPrevious: Boolean(segment.trimStart),
-    lFinal: Boolean(segment.lFinal),
-    shortOverlapFinal: Boolean(segment.shortOverlapFinal),
-    englishClusterHelper: Boolean(segment.englishClusterHelper),
-  };
-}
-
-function overlapSeconds(previous, current) {
-  if (current.englishClusterHelper) return 0.04;
-  if (previous.englishClusterHelper) return 0.04;
-  if (previous.shortOverlapFinal) return 0.05;
-  if (previous.lFinal) return 0.15;
-  return 0.1;
-}
-
-function appendChannels(previousChannels, nextChannels, overlapFrames) {
-  const channelCount = previousChannels.length;
-  const previousLength = previousChannels[0].length;
-  const nextLength = nextChannels[0].length;
-  const overlap = Math.max(0, Math.min(overlapFrames, previousLength, nextLength));
-  const outputLength = previousLength + nextLength - overlap;
-  const outputChannels = [];
-
-  for (let channel = 0; channel < channelCount; channel += 1) {
-    const previous = previousChannels[channel];
-    const next = nextChannels[Math.min(channel, nextChannels.length - 1)];
-    const output = new Float32Array(outputLength);
-    output.set(previous.subarray(0, previousLength - overlap), 0);
-    if (overlap > 0) {
-      output.set(
-        crossfadeSamples(previous.subarray(previousLength - overlap), next.subarray(0, overlap)),
-        previousLength - overlap
-      );
-    }
-    output.set(next.subarray(overlap), previousLength);
-    outputChannels.push(output);
-  }
-
-  return outputChannels;
-}
-
-async function buildImeAudioBuffer(segments) {
-  const context = audioContext();
-  const processed = [];
-  for (const segment of segments) {
-    processed.push(await processedAudioSegment(segment));
-  }
-  if (!processed.length) {
-    throw new Error("No playable audio");
-  }
-
-  const sampleRate = processed[0].sampleRate;
-  const channelCount = processed[0].channelCount;
-  const leadFrames = Math.max(0, Math.round(sampleRate * 0.25));
-  let combined = Array.from({ length: channelCount }, () => new Float32Array(leadFrames));
-  let previousSegment = null;
-
-  for (const segment of processed) {
-    if (segment.sampleRate !== sampleRate || segment.channelCount !== channelCount) {
-      throw new Error("Audio files use different formats");
-    }
-
-    const overlap = previousSegment && segment.canOverlapPrevious
-      ? Math.round(sampleRate * overlapSeconds(previousSegment, segment))
-      : 0;
-    combined = appendChannels(combined, segment.channels, overlap);
-    previousSegment = segment;
-  }
-
-  const output = context.createBuffer(channelCount, combined[0].length, sampleRate);
-  for (let channel = 0; channel < channelCount; channel += 1) {
-    output.copyToChannel(combined[channel], channel);
-  }
-  return output;
 }
 
 function updateAudioButton(playing) {
@@ -548,8 +252,8 @@ function updateAudioButton(playing) {
 }
 
 async function playPadAudio() {
-  if (currentAudio) {
-    stopAudio();
+  if (audioPlayer.isPlaying()) {
+    audioPlayer.stop();
     updateAudioButton(false);
     return;
   }
@@ -569,24 +273,10 @@ async function playPadAudio() {
     return;
   }
 
-  stopAudio();
-  const runId = audioRunId;
   updateAudioButton(true);
   try {
-    const context = audioContext();
-    await context.resume();
-    const buffer = await buildImeAudioBuffer(segments);
-    if (runId !== audioRunId) return;
-
-    await new Promise((resolve) => {
-      const source = context.createBufferSource();
-      source.buffer = buffer;
-      source.connect(context.destination);
-      source.addEventListener("ended", resolve, { once: true });
-      currentAudio = source;
-      source.start();
-    });
-
+    const completed = await audioPlayer.play(segments);
+    if (!completed) return;
     if (missing.length) {
       const message = `Missing audio: ${missing.join(", ")}`;
       statusLine.textContent = message;
@@ -596,10 +286,7 @@ async function playPadAudio() {
   } catch {
     showToast("Could not play audio");
   } finally {
-    if (runId === audioRunId) {
-      currentAudio = null;
-      updateAudioButton(false);
-    }
+    if (!audioPlayer.isPlaying()) updateAudioButton(false);
   }
 }
 
@@ -677,13 +364,9 @@ imeText.addEventListener("keyup", (event) => {
     guideShifted = false;
     refreshGuideShiftState();
   }
-  scheduleCandidatePopupPosition();
 });
 
-imeText.addEventListener("scroll", scheduleCandidatePopupPosition);
-imeText.addEventListener("click", scheduleCandidatePopupPosition);
 if (typeof window.addEventListener === "function") {
-  window.addEventListener("resize", scheduleCandidatePopupPosition);
   window.addEventListener("blur", () => {
     guideShifted = false;
     for (const key of guideButtons.keys()) setGuidePressed(key, false);

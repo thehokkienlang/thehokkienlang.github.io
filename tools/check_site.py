@@ -76,9 +76,10 @@ def main():
         for src in route_scripts["/ime/"]
         if urlsplit(src).path.startswith("/shared/")
     ]
-    assert len(ime_shared) == 3, "Shared composer/controller/phonetic engine missing in /ime/"
+    assert len(ime_shared) == 4, "Shared composer/controller/phonetic/audio engine missing in /ime/"
     assert "/shared/web-phonetic-output.js" in ime_shared
-    for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js"):
+    assert "/shared/web-audio-player.js" in ime_shared
+    for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js", "/shared/web-audio-player.js"):
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))

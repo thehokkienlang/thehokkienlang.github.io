@@ -4,6 +4,7 @@ const ACCESS_DIGEST = "05331485ce6bb8b1f8f233be48788c8bb5355cfa1e79362754cd82cbd
 const APP_SCRIPTS = [
   "/shared/web-hangul-ime.js",
   "/shared/web-ime-core.js",
+  "/shared/web-audio-player.js",
   "app.js",
 ];
 

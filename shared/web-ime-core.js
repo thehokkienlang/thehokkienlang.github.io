@@ -612,6 +612,89 @@ const TangliengimImeCore = (() => {
     return /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ12345]/u.test(char);
   }
 
+  function textControlCaretPosition(control) {
+    if (!document.body || typeof getComputedStyle !== "function") return null;
+    const style = getComputedStyle(control);
+    const mirror = document.createElement("div");
+    const properties = [
+      "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
+      "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+      "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth",
+    ];
+    mirror.style.position = "fixed";
+    mirror.style.visibility = "hidden";
+    mirror.style.pointerEvents = "none";
+    mirror.style.whiteSpace = "pre-wrap";
+    mirror.style.overflowWrap = "break-word";
+    mirror.style.width = `${control.offsetWidth}px`;
+    for (const property of properties) mirror.style[property] = style[property];
+    const cursor = control.selectionStart ?? 0;
+    mirror.textContent = control.value.slice(0, cursor);
+    const marker = document.createElement("span");
+    marker.textContent = control.value.slice(cursor, cursor + 1) || "\u200b";
+    mirror.append(marker);
+    document.body.append(mirror);
+    const position = {
+      left: marker.offsetLeft - control.scrollLeft,
+      top: marker.offsetTop - control.scrollTop,
+      height: Number.parseFloat(style.lineHeight) || Number.parseFloat(style.fontSize) * 1.4,
+    };
+    mirror.remove();
+    return position;
+  }
+
+  function createCandidatePopupPositioner({
+    control,
+    container,
+    boundary = control.parentElement || control,
+    placement = "below",
+    gap = 4,
+    padding = 8,
+  }) {
+    let scheduled = false;
+
+    function position() {
+      scheduled = false;
+      if (!container || container.hidden || !container.children.length) return;
+      const boundaryWidth = Number(boundary?.clientWidth) || Number(control.offsetWidth) || 0;
+      const maximumLeft = Math.max(padding, boundaryWidth - (Number(container.offsetWidth) || 0) - padding);
+
+      if (placement !== "caret") {
+        const left = Number(control.offsetLeft) || 0;
+        const top = (Number(control.offsetTop) || 0) + (Number(control.offsetHeight) || 0) + gap;
+        container.style.left = `${Math.max(0, Math.min(left, maximumLeft))}px`;
+        container.style.top = `${top}px`;
+        return;
+      }
+
+      const caret = textControlCaretPosition(control);
+      if (!caret) return;
+      container.style.left = `${Math.max(padding, Math.min(caret.left, maximumLeft))}px`;
+      let top = caret.top + caret.height + gap;
+      if (
+        top + (Number(container.offsetHeight) || 0) > (Number(control.clientHeight) || 0) &&
+        caret.top > (Number(container.offsetHeight) || 0) + padding
+      ) {
+        top = caret.top - (Number(container.offsetHeight) || 0) - gap;
+      }
+      container.style.top = `${Math.max(gap, top)}px`;
+    }
+
+    function schedule() {
+      if (scheduled) return;
+      scheduled = true;
+      const enqueue = typeof window.requestAnimationFrame === "function"
+        ? window.requestAnimationFrame.bind(window)
+        : (callback) => window.setTimeout(callback, 0);
+      enqueue(position);
+    }
+
+    control.addEventListener("scroll", schedule);
+    control.addEventListener("click", schedule);
+    if (typeof window.addEventListener === "function") window.addEventListener("resize", schedule);
+    return { position, schedule };
+  }
+
   class TextImeController {
     constructor({
       control,
@@ -620,6 +703,7 @@ const TangliengimImeCore = (() => {
       dictionaryIndex = null,
       enabled = () => true,
       onUpdate = () => {},
+      onCandidatesChanged = () => {},
       enterBehavior = "none",
       candidateLimit = 9,
     }) {
@@ -627,6 +711,7 @@ const TangliengimImeCore = (() => {
       this.candidateContainer = candidateContainer;
       this.enabled = enabled;
       this.onUpdate = onUpdate;
+      this.onCandidatesChanged = onCandidatesChanged;
       this.enterBehavior = enterBehavior;
       this.candidateLimit = candidateLimit;
       this.dictionaryIndex = dictionaryIndex;
@@ -1007,6 +1092,7 @@ const TangliengimImeCore = (() => {
       if (!this.isEnabled()) {
         this.activeCandidates = [];
         this.candidateContainer.hidden = true;
+        this.onCandidatesChanged(this);
         return;
       }
 
@@ -1015,6 +1101,7 @@ const TangliengimImeCore = (() => {
         this.activeCandidates = [];
         this.activeCandidateIndex = 0;
         this.candidateContainer.hidden = true;
+        this.onCandidatesChanged(this);
         return;
       }
       this.dismissedCandidateContext = null;
@@ -1022,7 +1109,10 @@ const TangliengimImeCore = (() => {
       this.activeCandidates = this.findCandidates();
       this.activeCandidateIndex = 0;
       this.candidateContainer.hidden = !this.activeCandidates.length;
-      if (!this.activeCandidates.length) return;
+      if (!this.activeCandidates.length) {
+        this.onCandidatesChanged(this);
+        return;
+      }
 
       for (const [index, candidate] of this.activeCandidates.entries()) {
         const button = document.createElement("button");
@@ -1061,6 +1151,7 @@ const TangliengimImeCore = (() => {
         button.addEventListener("click", () => this.applyCandidate(candidate));
         this.candidateContainer.append(button);
       }
+      this.onCandidatesChanged(this);
     }
 
     candidateContextKey() {
@@ -1073,6 +1164,7 @@ const TangliengimImeCore = (() => {
       this.activeCandidateIndex = 0;
       this.candidateContainer.replaceChildren();
       this.candidateContainer.hidden = true;
+      this.onCandidatesChanged(this);
       this.control.focus();
     }
 
@@ -1106,6 +1198,7 @@ const TangliengimImeCore = (() => {
   return {
     buildReadingCandidateMap,
     citationToTaipeiSandhiTone,
+    createCandidatePopupPositioner,
     createDictionaryIndex,
     createTextImeController,
     displayTextNode,

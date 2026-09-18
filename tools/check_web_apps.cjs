@@ -12,6 +12,12 @@ const data = JSON.parse(fs.readFileSync(path.join(root, 'public/data/hokkien-han
 const legacyParity = JSON.parse(
   fs.readFileSync(path.resolve(__dirname, '..', 'tests/fixtures/legacy-ime-parity-reference.json'), 'utf8')
 );
+for (const [route, script] of [['dictionary', 'app.js'], ['ime', 'ime.js']]) {
+  const source = fs.readFileSync(path.join(root, appRoot, route, script), 'utf8');
+  assert.match(source, /TangliengimWebAudio/, `${route} must use the shared browser audio player`);
+  assert.doesNotMatch(source, /function audioTrimFrames\(/, `${route} must not fork browser audio processing`);
+  assert.match(source, /createCandidatePopupPositioner/, `${route} must use shared candidate placement`);
+}
 
 function element() {
   return {
@@ -48,7 +54,7 @@ async function loadApp(route, script) {
     },
   });
   context.window = context;
-  const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js'];
+  const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js', 'shared/web-audio-player.js'];
   if (route === 'ime') files.push('shared/web-phonetic-output.js');
   files.push(path.posix.join(appRoot, route, script));
   for (const file of files) {
@@ -60,6 +66,8 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext('state.entries.length > 2000', context));
   const controllerName = route === 'ime' ? 'imeController' : 'searchImeController';
   assert.ok(vm.runInContext(`${controllerName}.candidatesByReading.size > 0`, context));
+  assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
+  assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
   assert.equal(vm.runInContext(`(() => {
     const composer = new TangliengimHangulIme.Composer();
     for (const key of 'rksk') composer.processChar(key);

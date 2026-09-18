@@ -29,6 +29,7 @@ jobs:
           node --check shared/web-ime-core.js
           node --check shared/web-hangul-ime.js
           node --check shared/web-phonetic-output.js
+          node --check shared/web-audio-player.js
       - name: Build both interfaces from the canonical TSV
         run: python3 tools/build_site.py
       - name: Validate routes, shared resources, and audio
