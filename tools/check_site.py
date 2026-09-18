@@ -71,7 +71,11 @@ def main():
     assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view
     assert "client-side courtesy lock" in dictionary_gate
     assert "localStorage.setItem" in dictionary_gate and "localStorage.removeItem" in dictionary_gate
-    ime_shared = [src for src in route_scripts["/ime/"] if src.startswith("/shared/")]
+    ime_shared = [
+        urlsplit(src).path
+        for src in route_scripts["/ime/"]
+        if urlsplit(src).path.startswith("/shared/")
+    ]
     assert len(ime_shared) == 3, "Shared composer/controller/phonetic engine missing in /ime/"
     assert "/shared/web-phonetic-output.js" in ime_shared
     for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js"):
