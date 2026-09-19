@@ -86,9 +86,9 @@ const TangliengimWebAudio = (() => {
     const totalFrames = channels[0].length;
     if (totalFrames <= sampleRate / 20) return channels;
 
-    const keepFrames = Math.max(1, Math.round(sampleRate * 0.1));
-    const removeFrames = Math.max(1, Math.round(keepFrames * (speedFactor - 1)));
-    const fadeFrames = Math.max(1, Math.round(sampleRate * 0.01));
+    const keepFrames = Math.max(1, Math.floor(sampleRate * 0.1));
+    const removeFrames = Math.max(1, Math.floor(keepFrames * (speedFactor - 1)));
+    const fadeFrames = Math.max(1, Math.floor(sampleRate * 0.01));
     const output = channels.map(() => []);
     let position = 0;
 
@@ -126,7 +126,7 @@ const TangliengimWebAudio = (() => {
   function fadeOutChannels(channels, sampleRate, fadeSeconds) {
     const fadeFrames = Math.min(
       channels[0]?.length || 0,
-      Math.max(1, Math.round(sampleRate * fadeSeconds))
+      Math.max(1, Math.floor(sampleRate * fadeSeconds))
     );
     if (fadeFrames <= 1) return channels;
     for (const channel of channels) {
@@ -143,8 +143,8 @@ const TangliengimWebAudio = (() => {
     if (segment.englishClusterHelper) startSeconds = 0.24;
     else if (segment.trimStart) startSeconds = 0.2;
     const endSeconds = segment.trimEnd ? 0.15 : 0;
-    let startFrame = Math.round(buffer.sampleRate * startSeconds);
-    let endFrame = buffer.length - Math.round(buffer.sampleRate * endSeconds);
+    let startFrame = Math.floor(buffer.sampleRate * startSeconds);
+    let endFrame = buffer.length - Math.floor(buffer.sampleRate * endSeconds);
 
     if (startFrame >= endFrame) {
       const overflow = startFrame - endFrame + 1;
@@ -167,7 +167,7 @@ const TangliengimWebAudio = (() => {
     let channels = copyBufferChannels(buffer, startFrame, endFrame);
     channels = speedUpChannels(channels, buffer.sampleRate, Number(segment.speed) || 1);
     if (segment.englishClusterHelper && channels[0]?.length) {
-      const maxFrames = Math.max(1, Math.round(buffer.sampleRate * 0.24));
+      const maxFrames = Math.max(1, Math.floor(buffer.sampleRate * 0.24));
       channels = channels.map((channel) => channel.slice(0, Math.min(channel.length, maxFrames)));
       fadeOutChannels(channels, buffer.sampleRate, 0.015);
     }
@@ -223,7 +223,7 @@ const TangliengimWebAudio = (() => {
 
     const sampleRate = processed[0].sampleRate;
     const channelCount = processed[0].channelCount;
-    const leadFrames = Math.max(0, Math.round(sampleRate * 0.25));
+    const leadFrames = Math.max(0, Math.floor(sampleRate * 0.25));
     let combined = Array.from({ length: channelCount }, () => new Float32Array(leadFrames));
     let previousSegment = null;
     for (const segment of processed) {
@@ -231,7 +231,7 @@ const TangliengimWebAudio = (() => {
         throw new Error("Audio files use different formats");
       }
       const overlap = previousSegment && segment.canOverlapPrevious
-        ? Math.round(sampleRate * overlapSeconds(previousSegment, segment))
+        ? Math.floor(sampleRate * overlapSeconds(previousSegment, segment))
         : 0;
       combined = appendChannels(combined, segment.channels, overlap);
       previousSegment = segment;

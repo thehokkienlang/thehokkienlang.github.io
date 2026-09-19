@@ -445,8 +445,9 @@ const TangliengimPhoneticOutput = (() => {
       const replacement = normalizeAudioSegments(audio)[0];
       if (!replacement) return { ...segment, tone: String(tone) };
       return {
-        ...segment,
         ...replacement,
+        // Tone recordings are standalone; keep this occurrence's phrase timing.
+        ...segment,
         unit: segment.unit,
         tone: String(tone),
         file: dictionaryAudioPath(replacement.file),

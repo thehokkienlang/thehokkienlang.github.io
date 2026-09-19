@@ -78,6 +78,7 @@ def main() -> int:
         run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
     run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
+    run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()
 
     if not args.source_only:

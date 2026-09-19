@@ -590,6 +590,20 @@ async function loadApp(route, script) {
     })()`, context));
     assert.deepEqual(actual, fixture.expected, `Legacy candidate parity: ${fixture.reading}`);
   }
+  for (const mode of ['taipei', 'singapore']) {
+    for (const phrase of ['시뎋哭', '릐 시뎋哭', '死死人', '릐호人']) {
+      const plan = vm.runInContext(
+        `imeController.clear(); setSandhiMode(${JSON.stringify(mode)}); audioPlanFromText(${JSON.stringify(phrase)})`,
+        context
+      );
+      assert.equal(plan.missing.length, 0, `${phrase}: all audio must resolve`);
+      assert.ok(plan.segments.length >= 3, `${phrase}: exercise repeated tone replacement`);
+      for (const [index, segment] of plan.segments.entries()) {
+        assert.equal(segment.trimStart, index > 0, `${phrase} (${mode}): preserve leading trim after sandhi`);
+        assert.equal(segment.trimEnd, index < plan.segments.length - 1, `${phrase} (${mode}): preserve trailing trim after sandhi`);
+      }
+    }
+  }
   for (const fixture of legacyParity.audio) {
     for (const [mode, expected] of Object.entries(fixture.expected)) {
       const plan = vm.runInContext(
