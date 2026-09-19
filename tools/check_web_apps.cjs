@@ -315,6 +315,18 @@ async function loadApp(route, script) {
     'Web IME must load Local-IME-derived runtime pronunciation metadata'
   );
   assert.ok(
+    vm.runInContext(`[
+      ['긍', 'kng'], ['능', 'nng'], ['등', 'tng'], ['믕', 'mng'],
+      ['븡', 'png'], ['응', 'ng'], ['증', 'jng'], ['층', 'chng'],
+      ['킁', 'khng'], ['틍', 'thng'], ['흥', 'hng'],
+    ].every(([unit, stem]) => ['1', '2', '3', '4', '5'].every(tone => {
+      const audio = state.rawHangulAudio.get(unit + tone);
+      return audio?.missing?.length === 0
+        && audio?.segments?.some(segment => segment.file.endsWith('/' + stem + tone + '.wav'));
+    }))`, context),
+    'Null-vowel -ng syllables must resolve their legacy ASCII audio filenames'
+  );
+  assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();
       imeController.composer.setText('랑', 1);

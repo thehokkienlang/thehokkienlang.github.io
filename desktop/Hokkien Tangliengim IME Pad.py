@@ -3842,11 +3842,14 @@ def audio_lomari_filename_stem(unit: str, tone: str) -> str:
 
 
 def audio_lomari_filename_stem_aliases(unit: str) -> list[str]:
-    """Return legacy ASCII audio stems for syllabic nasal recordings."""
+    """Return legacy ASCII audio stems for null-vowel nasal recordings."""
     text = str(unit or '')
     parsed = audio_unit_initial_medial_final(text)
-    if parsed == ('ᄋ', 'ᅳ', 'ᆼ'):
-        return ['ng']
+    if parsed is not None:
+        initial, medial, final = parsed
+        if medial == 'ᅳ' and final == 'ᆼ':
+            initial_stem = LOMARI_L_TO_INITIAL.get(initial, '')
+            return [f'{initial_stem}ng']
     if parsed == ('ᄋ', 'ᅳ', 'ᆷ'):
         return ['m']
     return []
