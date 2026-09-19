@@ -1226,6 +1226,14 @@ const TangliengimImeCore = (() => {
             TangliengimHangulIme.normalizeReadingToneKey(entry.reading) ===
               TangliengimHangulIme.normalizeReadingToneKey(typedForm)
         );
+        for (const entry of filteredEntries) {
+          found.push({
+            entry,
+            start,
+            end: range.end,
+            length: suffix.length,
+          });
+        }
         if (!exactHangulOverride) {
           found.push({
             entry: {
@@ -1233,15 +1241,8 @@ const TangliengimImeCore = (() => {
               reading: typedForm,
               readingBase: TangliengimHangulIme.normalizeReadingBase(suffix),
               kind: "hangul_plain",
+              generatedCandidate: true,
             },
-            start,
-            end: range.end,
-            length: suffix.length,
-          });
-        }
-        for (const entry of filteredEntries) {
-          found.push({
-            entry,
             start,
             end: range.end,
             length: suffix.length,
@@ -1251,13 +1252,17 @@ const TangliengimImeCore = (() => {
       }
 
       const seen = new Set();
-      return found
+      const uniqueCandidates = found
         .filter(({ entry }) => {
           const key = `${entry.hanri}\u0000${entry.reading}`;
           if (seen.has(key)) return false;
           seen.add(key);
           return true;
-        })
+        });
+      return uniqueCandidates
+        .sort((left, right) =>
+          Number(Boolean(left.entry.generatedCandidate)) - Number(Boolean(right.entry.generatedCandidate))
+        )
         .slice(0, this.candidateLimit);
     }
 

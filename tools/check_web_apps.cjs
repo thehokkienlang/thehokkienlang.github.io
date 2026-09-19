@@ -373,16 +373,20 @@ async function loadApp(route, script) {
       imeController.composer.setText('칟토', 2);
       imeController.updateControlFromComposer();
       const first = imeController.activeCandidates[0];
-      if (first?.entry?.kind !== 'hangul_plain' || first.entry.reading !== '칟토') return false;
+      const last = imeController.activeCandidates.at(-1);
+      if (first?.entry?.kind !== 'hangul_override' || first.entry.reading !== '칟1토4' ||
+        last?.entry?.kind !== 'hangul_plain' || last.entry.reading !== '칟토' ||
+        !last.entry.generatedCandidate ||
+        imeController.activeCandidates.slice(0, -1).some(({ entry }) => entry.generatedCandidate)) return false;
       let prevented = false;
       imeController.handleKeydown({
         key: 'Enter', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
         isComposing: false, preventDefault() { prevented = true; },
       });
       return prevented && imeText.value === '칟토' && imeController.activeCandidates.length === 0 &&
-        candidateBar.hidden && imeController.getRememberedHangulReadings()[0]?.reading === '칟토';
+        candidateBar.hidden && imeController.getRememberedHangulReadings()[0]?.reading === '칟1토4';
     })()`, context),
-    'Unmarked Hangul must be the default and Enter must close the candidate popup'
+    'TSV candidates must precede the unrecorded toneless fallback and Enter must close the popup'
   );
   assert.ok(
     vm.runInContext(`(() => {
