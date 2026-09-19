@@ -43,6 +43,7 @@ def main() -> None:
         assert "desktopSyncButton" in desktop_script
         assert "/desktop-api/copy-html" in desktop_script
         assert "/desktop-api/sync-tsv" in desktop_script
+        assert "window.resizeTo(800, 600)" in desktop_script
         with urlopen(base + "/desktop-api/status", timeout=5) as response:
             status = response.read().decode("utf-8")
         assert '"ok": true' in status
@@ -59,6 +60,8 @@ def main() -> None:
     assert "--desktop-sync-bridge" in pad_source
     assert "run_desktop_html_bridge" in pad_source
     assert "run_desktop_sync_bridge" in pad_source
+    shell_source = SHELL_PATH.read_text(encoding="utf-8")
+    assert '"--window-size=800,600"' in shell_source
     print("OK: desktop shell serves the shared Web IME with local HTML and TSV extensions.")
 
 

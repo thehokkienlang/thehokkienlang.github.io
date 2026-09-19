@@ -935,7 +935,7 @@ const TangliengimImeCore = (() => {
       if (!this.shouldHandleKey(event)) return;
 
       if (this.activeCandidates.length) {
-        if (event.key === "Escape") {
+        if (["Escape", "ArrowRight"].includes(event.key)) {
           event.preventDefault();
           this.dismissCandidates();
           return;

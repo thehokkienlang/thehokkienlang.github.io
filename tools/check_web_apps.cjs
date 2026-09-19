@@ -316,6 +316,7 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
+      imeController.clear();
       imeController.composer.setText('랑', 1);
       imeController.updateControlFromComposer();
       if (imeController.activeCandidates.length < 2) return false;
@@ -332,6 +333,29 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('랑', 1);
+      imeController.updateControlFromComposer();
+      if (!imeController.activeCandidates.length) return false;
+      const cursorBefore = imeText.selectionStart;
+      let prevented = false;
+      const event = {
+        key: 'ArrowRight', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() { prevented = true; },
+      };
+      imeController.handleKeydown(event);
+      imeController.handleCursorChange({ type: 'keyup', key: 'ArrowRight' });
+      return prevented && imeController.activeCandidates.length === 0 && candidateBar.hidden &&
+        imeText.selectionStart === cursorBefore;
+    })()`, context),
+    'Right Arrow must dismiss the popup without moving the caret'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('랑', 1);
+      imeController.updateControlFromComposer();
+      if (!imeController.activeCandidates.length) return false;
       let prevented = false;
       const event = {
         key: 'Escape', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,

@@ -10743,12 +10743,12 @@ class HokkienIMEPad:
         if not self.candidate:
             return None
 
-        if key in {'Escape'}:
+        if key in {'Escape', 'Right'}:
             self.cancel_candidate_keep_hangul()
             self.render()
             return 'break'
         # Only Up/Down/Tab navigate the Hanri candidate menu.
-        # Physical Left/Right are handled before this function is called.
+        # Right dismisses it; Left remains a direct text-cursor command.
         if key == 'Up':
             self.set_candidate_index(self.candidate_index - 1)
             return 'break'
@@ -11455,9 +11455,8 @@ class HokkienIMEPad:
         if ctrl_punctuation_result == 'break':
             return 'break'
 
-        # Left/Right always control the IME text cursor, even while the
-        # Hanri candidate popup is open.  Handle them before candidate-menu
-        # dispatch so no popup fallback can swallow the arrow event.
+        # Left always controls the text cursor. Right dismisses an open Hanri
+        # menu like Escape; with no menu open it resumes normal cursor movement.
         if key == 'Left':
             self.close_candidate_popup()
             self.key_history = []
@@ -11465,7 +11464,7 @@ class HokkienIMEPad:
             self.composer.move_left()
             self.render()
             return 'break'
-        if key == 'Right':
+        if key == 'Right' and not self.candidate:
             self.close_candidate_popup()
             self.key_history = []
             self.reset_lomari_buffer()
