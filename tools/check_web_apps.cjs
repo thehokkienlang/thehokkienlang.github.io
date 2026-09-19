@@ -68,6 +68,13 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext(`${controllerName}.candidatesByReading.size > 0`, context));
   assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
+  assert.equal(
+    vm.runInContext(`TangliengimWebAudio.legacyPlaybackSegments([
+      { tone: '3' }, { tone: '4' }, { tone: '3', lFinal: true }, { tone: '3', lFinal: true },
+    ]).map(segment => segment.speed).join(',')`, context),
+    '1.1,1.03,1.45,1.45',
+    'Web playback must use the legacy multi-syllable speed factors'
+  );
   assert.equal(vm.runInContext(`(() => {
     const composer = new TangliengimHangulIme.Composer();
     for (const key of 'rksk') composer.processChar(key);
@@ -480,6 +487,19 @@ async function loadApp(route, script) {
     const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
     assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: longest Hangul override audio`);
     assert.equal(plan.missing.join(','), '', `${input}: Hangul override audio is available`);
+  }
+  for (const [input, expected] of [
+    ['릐 호', '2:0:1,3:1:0'],
+    ['릐’호', '2:0:1,3:1:0'],
+    ['릐, 호', '2:0:0,3:0:0'],
+  ]) {
+    const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
+    const timing = plan.segments.map(segment => [
+      segment.tone,
+      Number(Boolean(segment.trimStart)),
+      Number(Boolean(segment.trimEnd)),
+    ].join(':')).join(',');
+    assert.equal(timing, expected, `${input}: legacy phrase trimming and overlap`);
   }
   for (const fixture of legacyParity.lomari) {
     vm.runInContext(`imeText.value = ${JSON.stringify(fixture.reading)}; updateLomariPreview()`, context);

@@ -64,6 +64,10 @@ const TangliengimPhoneticOutput = (() => {
   const OPEN_SANDHI = { 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" };
   const CHECKED_SANDHI = { 1: "3", 3: "1" };
   const PUNCTUATION = /[\p{Punctuation}\p{Symbol}]/u;
+  const AUDIO_PHRASE_BOUNDARIES = new Set([
+    ",", "，", ".", "。", "!", "?", "！", "？", ":", "：", ";", "；",
+    "-", "－", "—", "\n", "\r",
+  ]);
 
   function toneDigit(char) {
     return TONE_DIGITS[char] || "";
@@ -449,21 +453,26 @@ const TangliengimPhoneticOutput = (() => {
       };
     }
 
-    function applyPendingSandhi(chunk, segments, trimWithNext = false) {
+    function applyPendingSandhi(chunk, segments) {
       if (!chunk || chunk.end <= chunk.start) return;
       const finalIndex = chunk.end - 1;
       const finalSegment = segments[finalIndex];
       if (!finalSegment?.unit || !finalSegment?.tone) return;
       const sandhiTone = imeCore.citationToTaipeiSandhiTone(finalSegment.unit, finalSegment.tone);
       segments[finalIndex] = withAudioTone(finalSegment, sandhiTone);
-      if (trimWithNext) segments[finalIndex].trimEnd = true;
     }
 
     function connectAudioChunk(previous, next, segments, connections) {
       if (!previous?.canSandhi || next.end <= next.start) return;
-      applyPendingSandhi(previous, segments, true);
-      segments[next.start] = { ...segments[next.start], trimStart: true };
+      applyPendingSandhi(previous, segments);
       connections.push({ previous, next });
+    }
+
+    function connectAudioTiming(previous, next, segments) {
+      if (!previous || previous.end <= previous.start || next.end <= next.start) return;
+      const previousIndex = previous.end - 1;
+      segments[previousIndex] = { ...segments[previousIndex], trimEnd: true };
+      segments[next.start] = { ...segments[next.start], trimStart: true };
     }
 
     function applySingaporeCrossChunkTones(connections, segments) {
@@ -487,11 +496,14 @@ const TangliengimPhoneticOutput = (() => {
       const missing = [];
       let index = 0;
       let pendingChunk = null;
+      let phraseChunk = null;
       const connections = [];
 
       function appendChunk(chunk, canSandhi) {
         if (chunk.end <= chunk.start) return;
         connectAudioChunk(pendingChunk, chunk, segments, connections);
+        connectAudioTiming(phraseChunk, chunk, segments);
+        phraseChunk = chunk;
         pendingChunk = canSandhi ? { ...chunk, canSandhi: true } : null;
       }
 
@@ -503,6 +515,13 @@ const TangliengimPhoneticOutput = (() => {
         if (char === "-") {
           applyPendingSandhi(pendingChunk, segments);
           pendingChunk = null;
+          phraseChunk = null;
+          index += char.length;
+          continue;
+        }
+        if (AUDIO_PHRASE_BOUNDARIES.has(char)) {
+          pendingChunk = null;
+          phraseChunk = null;
           index += char.length;
           continue;
         }
@@ -566,6 +585,7 @@ const TangliengimPhoneticOutput = (() => {
           }
           const word = text.slice(index, end);
           if (!missing.includes(word)) missing.push(word);
+          applyPendingSandhi(pendingChunk, segments);
           pendingChunk = null;
           index = end;
           continue;

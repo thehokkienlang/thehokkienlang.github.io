@@ -1,4 +1,7 @@
 const TangliengimWebAudio = (() => {
+  const MULTI_SYLLABLE_SPEED = 1.10;
+  const TONE4_SPEED = 1.03;
+  const L_FINAL_SPEED = 1.45;
   let sharedAudioContext = null;
   const decodedAudioCache = new Map();
 
@@ -36,6 +39,23 @@ const TangliengimWebAudio = (() => {
       shortOverlapFinal: false,
       englishClusterHelper: false,
     }));
+  }
+
+  function legacyPlaybackSegments(audio) {
+    const segments = normalizeAudioSegments(audio).map((segment) => ({ ...segment }));
+    if (segments.length <= 1) {
+      if (segments[0]) segments[0].speed = 1;
+      return segments;
+    }
+    return segments.map((segment, index) => {
+      const previousLFinal = index > 0 && Boolean(segments[index - 1].lFinal);
+      const nextLFinal = index + 1 < segments.length && Boolean(segments[index + 1].lFinal);
+      let speed = MULTI_SYLLABLE_SPEED;
+      if (segment.englishClusterHelper) speed = 1;
+      else if (String(segment.tone || "") === "4") speed = TONE4_SPEED;
+      else if (segment.lFinal && (previousLFinal || nextLFinal)) speed = L_FINAL_SPEED;
+      return { ...segment, speed };
+    });
   }
 
   function copyBufferChannels(buffer, startFrame, endFrame) {
@@ -196,7 +216,9 @@ const TangliengimWebAudio = (() => {
   async function buildAudioBuffer(segments) {
     const context = audioContext();
     const processed = [];
-    for (const segment of segments) processed.push(await processedAudioSegment(segment));
+    for (const segment of legacyPlaybackSegments(segments)) {
+      processed.push(await processedAudioSegment(segment));
+    }
     if (!processed.length) throw new Error("No playable audio");
 
     const sampleRate = processed[0].sampleRate;
@@ -274,6 +296,7 @@ const TangliengimWebAudio = (() => {
 
   return {
     createPlayer,
+    legacyPlaybackSegments,
     normalizeAudioSegments,
   };
 })();
