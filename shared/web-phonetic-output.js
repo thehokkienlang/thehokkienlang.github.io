@@ -291,13 +291,13 @@ const TangliengimPhoneticOutput = (() => {
 
           const overrideMatch = findHangulOverrideAt(text, index);
           if (overrideMatch?.entry) {
-            tokens.push(...syllablesForEntry(overrideMatch.entry, true));
+            tokens.push(...syllablesForEntry(overrideMatch.entry, false));
             index = overrideMatch.end;
             continue;
           }
 
           const override = findHangulOverride(unit.text);
-          if (override) tokens.push(...syllablesForEntry(override, true));
+          if (override) tokens.push(...syllablesForEntry(override, false));
           else tokens.push({ type: "syllable", unit: unit.text, tone: "3", externalSandhi: false, fromTsv: false });
           index = unit.end;
           continue;

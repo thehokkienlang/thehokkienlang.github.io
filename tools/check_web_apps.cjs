@@ -453,6 +453,7 @@ async function loadApp(route, script) {
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
     ['릐호', 'lî-hò'],
+    ['릐 시뎋哭', 'lì si-têh-khau'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
     ['賣票', 'boe-phio'],
     ['廈門', 'e-mńg'],
