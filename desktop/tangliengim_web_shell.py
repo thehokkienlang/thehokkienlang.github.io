@@ -117,6 +117,7 @@ DESKTOP_SCRIPT = r"""
         text: imeText.value,
         style: htmlStyle.value,
         rememberedReadings: imeController.getRememberedHanriReadings(imeText.value),
+        rememberedHangulReadings: imeController.getRememberedHangulReadings(imeText.value),
       });
       syncButton.disabled = !result.tsvPending;
       showToast(result.message || "Copied HTML");

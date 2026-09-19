@@ -534,7 +534,7 @@ const TangliengimPhoneticOutput = (() => {
           if (!hasExplicitTone) {
             const overrideMatch = findHangulOverrideAt(text, index);
             if (overrideMatch?.entry) {
-              appendChunk(appendAudioMetadata(overrideMatch.entry.audio, segments, missing), true);
+              appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), true);
               index = overrideMatch.end;
               continue;
             }

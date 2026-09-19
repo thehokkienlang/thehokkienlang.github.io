@@ -232,7 +232,8 @@ function findHangulOverride(reading) {
 }
 
 function findHangulOverrideAt(text, index) {
-  return dictionaryIndex.findHangulOverrideAt(text, index);
+  return imeController.findRememberedHangulEntryAt(text, index) ||
+    dictionaryIndex.findHangulOverrideAt(text, index);
 }
 
 function updateLomariPreview() {

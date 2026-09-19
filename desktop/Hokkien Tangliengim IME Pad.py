@@ -6837,6 +6837,7 @@ class HokkienIMEPad:
         self.undo_stack = []
         self.redo_stack = []
         self.hanri_instance_readings = []
+        self.hangul_instance_readings = []
         self.hanri_instance_text_snapshot = ''
         # Stores recent raw keypresses plus the composer state before each key.
         # This lets Hokkien shortcuts rewrite instantly after the full sequence is typed,
@@ -9021,7 +9022,7 @@ class HokkienIMEPad:
         def overlaps_bracket(start: int, end: int) -> bool:
             return any(start < bracket_end and bracket_start < end for bracket_start, bracket_end in bracket_ranges)
 
-        spans = []
+        replacements = []
         for item in self.hanri_instance_readings:
             start = int(item.get('start', -1))
             end = int(item.get('end', -1))
@@ -9034,18 +9035,29 @@ class HokkienIMEPad:
                 continue
             if (not auto_sandhi) and is_reading_followed_by_connected_text(source, end - 1):
                 reading = citation_to_sandhi_reading(reading) or reading
-            spans.append((start, end, hanri, reading))
+            replacements.append((start, end, f'[{hanri}{reading}]'))
 
-        if not spans:
+        for item in getattr(self, 'hangul_instance_readings', []) or []:
+            start = int(item.get('start', -1))
+            end = int(item.get('end', -1))
+            hangul = str(item.get('hangul', '') or '')
+            reading = normalize_tone_symbols_to_digits(str(item.get('reading', '') or ''))
+            if start < 0 or end <= start or source[start:end] != hangul or not reading:
+                continue
+            if overlaps_bracket(start, end):
+                continue
+            replacements.append((start, end, reading))
+
+        if not replacements:
             return source
 
         out: list[str] = []
         pos = 0
-        for start, end, hanri, reading in sorted(spans):
+        for start, end, replacement in sorted(replacements):
             if start < pos:
                 continue
             out.append(source[pos:start])
-            out.append(f'[{hanri}{reading}]')
+            out.append(replacement)
             pos = end
         out.append(source[pos:])
         return ''.join(out)
@@ -12607,6 +12619,7 @@ def run_desktop_html_bridge() -> None:
         app.composer = Composer(output=content, cursor_pos=len(content))
         app.composer.e_to_ye_autocorrect_enabled = app.e_to_ye_autocorrect_on.get
         app.hanri_instance_readings = []
+        app.hangul_instance_readings = []
         for raw in payload.get('rememberedReadings') or []:
             if not isinstance(raw, dict):
                 continue
@@ -12627,6 +12640,24 @@ def run_desktop_html_bridge() -> None:
                 'auto_sandhi': bool(raw.get('autoSandhi')),
             })
         app.hanri_instance_text_snapshot = content
+        for raw in payload.get('rememberedHangulReadings') or []:
+            if not isinstance(raw, dict):
+                continue
+            try:
+                start = int(raw.get('start', -1))
+                end = int(raw.get('end', -1))
+            except (TypeError, ValueError):
+                continue
+            hangul = str(raw.get('hangul') or '')
+            reading = normalize_tone_symbols_to_digits(str(raw.get('reading') or ''))
+            if start < 0 or end <= start or content[start:end] != hangul or not reading:
+                continue
+            app.hangul_instance_readings.append({
+                'start': start,
+                'end': end,
+                'hangul': hangul,
+                'reading': reading,
+            })
         app.html_style.set(style)
 
         captured: dict[str, str] = {}

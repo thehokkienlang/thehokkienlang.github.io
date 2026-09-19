@@ -33,6 +33,13 @@ const TangliengimImeCore = (() => {
   };
 
   const HANGUL_TONE_CHARS = new Set([...Object.keys(HANGUL_TONE_MARKS), "3"]);
+  const INPUT_TONE_DIGITS = Object.freeze({
+    1: "1", "ˆ": "1", "ꞈ": "1",
+    2: "2", "ˋ": "2", "`": "2", "ˎ": "2",
+    3: "3",
+    4: "4", "ˊ": "4", "ˏ": "4",
+    5: "5", "ˉ": "5", "ˍ": "5",
+  });
   const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ", "ᆽ", "ᆾ"]);
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
@@ -168,6 +175,10 @@ const TangliengimImeCore = (() => {
 
   function isToneMark(char) {
     return HANGUL_TONE_CHARS.has(char);
+  }
+
+  function inputToneDigit(char) {
+    return INPUT_TONE_DIGITS[char] || "";
   }
 
   function displayTextNode(text) {
@@ -727,6 +738,7 @@ const TangliengimImeCore = (() => {
       this.dismissedCandidateContext = null;
       this.internalUpdate = false;
       this.rememberedHanriReadings = [];
+      this.rememberedHangulReadings = [];
       this.rememberedTextSnapshot = normalizeApostrophes(control.value || "");
 
       this.handleKeydown = this.handleKeydown.bind(this);
@@ -763,11 +775,11 @@ const TangliengimImeCore = (() => {
       this.control.focus();
     }
 
-    syncRememberedHanriReadings(nextText = this.control.value) {
+    syncRememberedReadings(nextText = this.control.value) {
       const current = normalizeApostrophes(nextText || "");
       const previous = this.rememberedTextSnapshot;
       if (current === previous) return;
-      if (!this.rememberedHanriReadings.length) {
+      if (!this.rememberedHanriReadings.length && !this.rememberedHangulReadings.length) {
         this.rememberedTextSnapshot = current;
         return;
       }
@@ -788,30 +800,38 @@ const TangliengimImeCore = (() => {
       const previousChangeEnd = previous.length - suffix;
       const currentChangeEnd = current.length - suffix;
       const offset = currentChangeEnd - previousChangeEnd;
-      const updated = [];
-      for (const span of this.rememberedHanriReadings) {
-        let start = span.start;
-        let end = span.end;
-        if (end <= prefix) {
-          // The edit follows this Hanri span.
-        } else if (start >= previousChangeEnd) {
-          start += offset;
-          end += offset;
-        } else {
-          continue;
+      const updateSpans = (spans, textKey) => {
+        const updated = [];
+        for (const span of spans) {
+          let start = span.start;
+          let end = span.end;
+          if (end <= prefix) {
+            // The edit follows this remembered span.
+          } else if (start >= previousChangeEnd) {
+            start += offset;
+            end += offset;
+          } else {
+            continue;
+          }
+          if (current.slice(start, end) !== span[textKey]) continue;
+          updated.push({ ...span, start, end });
         }
-        if (current.slice(start, end) !== span.hanri) continue;
-        updated.push({ ...span, start, end });
-      }
-      this.rememberedHanriReadings = updated;
+        return updated;
+      };
+      this.rememberedHanriReadings = updateSpans(this.rememberedHanriReadings, "hanri");
+      this.rememberedHangulReadings = updateSpans(this.rememberedHangulReadings, "hangul");
       this.rememberedTextSnapshot = current;
+    }
+
+    syncRememberedHanriReadings(nextText = this.control.value) {
+      this.syncRememberedReadings(nextText);
     }
 
     rememberHanriReading(start, entry, text = this.composer.text()) {
       const hanri = String(entry?.hanri || "");
       const reading = String(entry?.reading || "");
       if (!hanri || !reading) return;
-      this.syncRememberedHanriReadings(text);
+      this.syncRememberedReadings(text);
       const end = start + hanri.length;
       if (text.slice(start, end) !== hanri) return;
       this.rememberedHanriReadings = this.rememberedHanriReadings.filter(
@@ -822,8 +842,33 @@ const TangliengimImeCore = (() => {
       this.rememberedTextSnapshot = text;
     }
 
+    rememberHangulReading(start, end, reading, entry, text = this.composer.text(), explicit = false) {
+      const hangul = text.slice(start, end);
+      const normalizedReading = TangliengimHangulIme.normalizeReadingToneKey(String(reading || ""));
+      if (!hangul || !normalizedReading || TangliengimHangulIme.normalizeReadingBase(normalizedReading) !== hangul) return;
+      this.syncRememberedReadings(text);
+      this.rememberedHangulReadings = this.rememberedHangulReadings.filter(
+        (span) => span.end <= start || span.start >= end
+      );
+      this.rememberedHangulReadings.push({
+        start,
+        end,
+        hangul,
+        reading: normalizedReading,
+        entry: entry || {
+          hanri: hangul,
+          reading: normalizedReading,
+          readingBase: hangul,
+          kind: "hangul_override",
+        },
+        explicit: Boolean(explicit),
+      });
+      this.rememberedHangulReadings.sort((left, right) => left.start - right.start || left.end - right.end);
+      this.rememberedTextSnapshot = text;
+    }
+
     findRememberedHanriEntry(text, index) {
-      this.syncRememberedHanriReadings(text);
+      this.syncRememberedReadings(text);
       const span = this.rememberedHanriReadings.find(
         (item) => item.start === index && text.slice(item.start, item.end) === item.hanri
       );
@@ -831,12 +876,12 @@ const TangliengimImeCore = (() => {
     }
 
     nextRememberedHanriStart(text, index) {
-      this.syncRememberedHanriReadings(text);
+      this.syncRememberedReadings(text);
       return this.rememberedHanriReadings.find((span) => span.start > index)?.start ?? text.length;
     }
 
     getRememberedHanriReadings(text = this.control.value) {
-      this.syncRememberedHanriReadings(text);
+      this.syncRememberedReadings(text);
       return this.rememberedHanriReadings.map(({ start, end, hanri, reading, entry }) => ({
         start,
         end,
@@ -846,11 +891,78 @@ const TangliengimImeCore = (() => {
       }));
     }
 
+    findRememberedHangulEntryAt(text, index) {
+      this.syncRememberedReadings(text);
+      const span = this.rememberedHangulReadings.find(
+        (item) => item.start === index && text.slice(item.start, item.end) === item.hangul
+      );
+      return span ? { entry: span.entry, end: span.end } : null;
+    }
+
+    getRememberedHangulReadings(text = this.control.value) {
+      this.syncRememberedReadings(text);
+      return this.rememberedHangulReadings.map(({ start, end, hangul, reading, explicit }) => ({
+        start,
+        end,
+        hangul,
+        reading,
+        explicit: Boolean(explicit),
+      }));
+    }
+
+    previousHangulUnit(text, cursor) {
+      let index = 0;
+      let previous = null;
+      while (index < cursor) {
+        const unit = readingUnitAt(text, index);
+        if (!unit) break;
+        if (unit.end > cursor) break;
+        if (unit.canCarryTone) previous = { ...unit, start: index };
+        else previous = null;
+        index = unit.end;
+      }
+      return previous?.end === cursor ? previous : null;
+    }
+
+    applyHiddenTone(char) {
+      const digit = inputToneDigit(char);
+      if (!digit) return false;
+      this.composer.commit();
+      const text = this.composer.text();
+      const cursor = this.composer.displayCursorPos();
+      const unit = this.previousHangulUnit(text, cursor);
+      if (!unit) return false;
+      this.rememberHangulReading(
+        unit.start,
+        unit.end,
+        `${unit.text}${digit}`,
+        null,
+        text,
+        true
+      );
+      return true;
+    }
+
+    removePreviousHiddenTone() {
+      this.composer.commit();
+      const text = this.composer.text();
+      const cursor = this.composer.displayCursorPos();
+      const unit = this.previousHangulUnit(text, cursor);
+      if (!unit) return false;
+      const index = this.rememberedHangulReadings.findIndex(
+        (span) => span.explicit && span.start === unit.start && span.end === unit.end
+      );
+      if (index < 0) return false;
+      this.rememberedHangulReadings.splice(index, 1);
+      this.rememberedTextSnapshot = text;
+      return true;
+    }
+
     insertText(text) {
       this.syncComposerFromControl();
       this.replaceSelectionBeforeImeKey();
       for (const char of [...normalizeApostrophes(text)]) {
-        this.composer.processChar(char);
+        if (!this.applyHiddenTone(char)) this.composer.processChar(char);
       }
       this.updateControlFromComposer();
       this.control.focus();
@@ -859,7 +971,7 @@ const TangliengimImeCore = (() => {
     backspace() {
       this.syncComposerFromControl();
       this.replaceSelectionBeforeImeKey();
-      this.composer.backspace();
+      if (!this.removePreviousHiddenTone()) this.composer.backspace();
       this.updateControlFromComposer();
       this.control.focus();
     }
@@ -913,7 +1025,7 @@ const TangliengimImeCore = (() => {
 
     updateControlFromComposer() {
       const nextText = this.composer.text();
-      this.syncRememberedHanriReadings(nextText);
+      this.syncRememberedReadings(nextText);
       this.internalUpdate = true;
       this.control.value = nextText;
       const cursor = this.composer.displayCursorPos();
@@ -963,7 +1075,7 @@ const TangliengimImeCore = (() => {
       this.replaceSelectionBeforeImeKey();
 
       if (event.key === "Backspace") {
-        this.composer.backspace();
+        if (!this.removePreviousHiddenTone()) this.composer.backspace();
       } else if (event.key === "ArrowLeft") {
         this.composer.moveLeft();
       } else if (event.key === "ArrowRight") {
@@ -979,7 +1091,7 @@ const TangliengimImeCore = (() => {
       } else if (event.key === "Enter") {
         this.composer.insertLiteral("\n");
       } else if (event.key.length === 1) {
-        this.composer.processChar(event.key);
+        if (!this.applyHiddenTone(event.key)) this.composer.processChar(event.key);
       }
 
       this.updateControlFromComposer();
@@ -993,14 +1105,14 @@ const TangliengimImeCore = (() => {
         this.syncComposerFromControl();
         this.replaceSelectionBeforeImeKey();
         for (const char of [...event.data]) {
-          this.composer.processChar(char);
+          if (!this.applyHiddenTone(char)) this.composer.processChar(char);
         }
         this.updateControlFromComposer();
       } else if (event.inputType === "deleteContentBackward") {
         event.preventDefault();
         this.syncComposerFromControl();
         this.replaceSelectionBeforeImeKey();
-        this.composer.backspace();
+        if (!this.removePreviousHiddenTone()) this.composer.backspace();
         this.updateControlFromComposer();
       } else if (event.inputType === "insertLineBreak" || event.inputType === "insertParagraph") {
         if (this.enterBehavior !== "newline") return;
@@ -1021,7 +1133,7 @@ const TangliengimImeCore = (() => {
         this.control.value = normalizedValue;
         this.control.setSelectionRange?.(start, end);
       }
-      this.syncRememberedHanriReadings(normalizedValue);
+      this.syncRememberedReadings(normalizedValue);
       if (this.isEnabled()) {
         this.composer.setText(normalizedValue, this.control.selectionStart ?? normalizedValue.length);
       }
@@ -1041,6 +1153,7 @@ const TangliengimImeCore = (() => {
         this.normalizeControlSelection();
         this.syncComposerFromControl();
       }
+      if (event?.type === "click") this.dismissedCandidateContext = null;
       this.renderCandidates();
     }
 
@@ -1048,12 +1161,43 @@ const TangliengimImeCore = (() => {
       if (!this.isEnabled()) return null;
       const text = this.control.value;
       const cursor = this.control.selectionStart ?? text.length;
-      if (cursor !== (this.control.selectionEnd ?? cursor)) return null;
+      const selectionEnd = this.control.selectionEnd ?? cursor;
+      if (cursor !== selectionEnd) {
+        const segment = text.slice(cursor, selectionEnd);
+        if (!segment || ![...segment].every(isImeCandidateChar)) return null;
+        return { text, start: cursor, end: selectionEnd, segment };
+      }
 
       let start = cursor;
       while (start > 0 && isImeCandidateChar(text[start - 1])) start -= 1;
       if (start === cursor) return null;
       return { text, start, end: cursor, segment: text.slice(start, cursor) };
+    }
+
+    typedCandidateForm(start, end) {
+      const text = this.control.value;
+      this.syncRememberedReadings(text);
+      let output = "";
+      let index = start;
+      while (index < end) {
+        const remembered = this.rememberedHangulReadings.find(
+          (span) => span.explicit && span.start === index && span.end <= end
+        );
+        if (remembered) {
+          output += remembered.reading;
+          index = remembered.end;
+          continue;
+        }
+        const unit = readingUnitAt(text, index);
+        if (!unit || unit.end > end) {
+          output += text[index];
+          index += 1;
+          continue;
+        }
+        output += unit.text;
+        index = unit.end;
+      }
+      return output;
     }
 
     findCandidates() {
@@ -1074,10 +1218,31 @@ const TangliengimImeCore = (() => {
         const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(suffix));
         const entries = this.candidatesByReading.get(key);
         if (!entries?.length) continue;
-        for (const entry of filterCandidateEntries(suffix, entries)) {
+        const start = starts[index];
+        const typedForm = this.typedCandidateForm(start, range.end);
+        const filteredEntries = filterCandidateEntries(typedForm, entries);
+        const exactHangulOverride = filteredEntries.some(
+          (entry) => entry.kind === "hangul_override" &&
+            TangliengimHangulIme.normalizeReadingToneKey(entry.reading) ===
+              TangliengimHangulIme.normalizeReadingToneKey(typedForm)
+        );
+        if (!exactHangulOverride) {
+          found.push({
+            entry: {
+              hanri: key ? TangliengimHangulIme.normalizeReadingBase(suffix) : suffix,
+              reading: typedForm,
+              readingBase: TangliengimHangulIme.normalizeReadingBase(suffix),
+              kind: "hangul_plain",
+            },
+            start,
+            end: range.end,
+            length: suffix.length,
+          });
+        }
+        for (const entry of filteredEntries) {
           found.push({
             entry,
-            start: starts[index],
+            start,
             end: range.end,
             length: suffix.length,
           });
@@ -1119,6 +1284,19 @@ const TangliengimImeCore = (() => {
 
       this.activeCandidates = this.findCandidates();
       this.activeCandidateIndex = 0;
+      const range = this.activeCandidates[0];
+      if (range) {
+        const remembered = this.rememberedHangulReadings.find(
+          (span) => span.start === range.start && span.end === range.end
+        );
+        if (remembered && !remembered.explicit) {
+          const selected = this.activeCandidates.findIndex(
+            ({ entry, start, end }) => start === range.start && end === range.end &&
+              entry.reading === remembered.reading
+          );
+          if (selected >= 0) this.activeCandidateIndex = selected;
+        }
+      }
       this.candidateContainer.hidden = !this.activeCandidates.length;
       if (!this.activeCandidates.length) {
         this.onCandidatesChanged(this);
@@ -1140,7 +1318,7 @@ const TangliengimImeCore = (() => {
 
         const hanri = document.createElement("span");
         hanri.className = "candidate-hanri";
-        if (candidate.entry.kind === "hangul_override") {
+        if (["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) {
           hanri.classList.add("candidate-hangul");
           hanri.append(renderToneMarkedReading(candidate.entry.reading));
         } else {
@@ -1149,12 +1327,12 @@ const TangliengimImeCore = (() => {
 
         const reading = document.createElement("span");
         reading.className = "candidate-reading";
-        if (candidate.entry.kind !== "hangul_override") {
+        if (!["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) {
           reading.append(renderToneMarkedReading(candidate.entry.reading));
         }
 
         button.append(number, hanri);
-        if (candidate.entry.kind !== "hangul_override") {
+        if (!["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) {
           button.append(reading);
         }
         button.addEventListener("mousedown", (event) => event.preventDefault());
@@ -1194,11 +1372,27 @@ const TangliengimImeCore = (() => {
 
     applyCandidate(candidate) {
       const text = this.control.value;
-      const next = `${text.slice(0, candidate.start)}${candidate.entry.hanri}${text.slice(candidate.end)}`;
-      this.syncRememberedHanriReadings(next);
-      this.composer.setText(next, candidate.start + candidate.entry.hanri.length);
-      this.rememberHanriReading(candidate.start, candidate.entry, next);
+      const isHangul = ["hangul_override", "hangul_plain"].includes(candidate.entry.kind);
+      const replacement = isHangul
+        ? TangliengimHangulIme.normalizeReadingBase(candidate.entry.reading || candidate.entry.hanri)
+        : candidate.entry.hanri;
+      const next = `${text.slice(0, candidate.start)}${replacement}${text.slice(candidate.end)}`;
+      this.syncRememberedReadings(next);
+      this.composer.setText(next, candidate.start + replacement.length);
+      if (isHangul) {
+        this.rememberHangulReading(
+          candidate.start,
+          candidate.start + replacement.length,
+          candidate.entry.reading || replacement,
+          candidate.entry.kind === "hangul_plain" ? null : candidate.entry,
+          next,
+          false
+        );
+      } else {
+        this.rememberHanriReading(candidate.start, candidate.entry, next);
+      }
       this.updateControlFromComposer();
+      this.dismissCandidates();
     }
   }
 

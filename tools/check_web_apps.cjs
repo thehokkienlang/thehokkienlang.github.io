@@ -370,6 +370,61 @@ async function loadApp(route, script) {
   assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();
+      imeController.composer.setText('칟토', 2);
+      imeController.updateControlFromComposer();
+      const first = imeController.activeCandidates[0];
+      if (first?.entry?.kind !== 'hangul_plain' || first.entry.reading !== '칟토') return false;
+      let prevented = false;
+      imeController.handleKeydown({
+        key: 'Enter', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() { prevented = true; },
+      });
+      return prevented && imeText.value === '칟토' && imeController.activeCandidates.length === 0 &&
+        candidateBar.hidden && imeController.getRememberedHangulReadings()[0]?.reading === '칟토';
+    })()`, context),
+    'Unmarked Hangul must be the default and Enter must close the candidate popup'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('칟', 1);
+      imeController.updateControlFromComposer();
+      imeController.handleKeydown({
+        key: '1', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() {},
+      });
+      imeController.insertText('토');
+      imeController.handleKeydown({
+        key: '4', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() {},
+      });
+      const cleanWhileChoosing = imeText.value === '칟토';
+      const filtered = imeController.activeCandidates.some(
+        ({ entry }) => entry.kind === 'hangul_override' && entry.reading === '칟1토4'
+      ) && !imeController.activeCandidates.some(
+        ({ entry }) => entry.kind === 'hangul_override' && entry.reading === '칟1토3'
+      );
+      imeController.backspace();
+      const hiddenToneUndo = imeText.value === '칟토' &&
+        imeController.getRememberedHangulReadings().every(span => span.reading !== '토4');
+      imeController.handleKeydown({
+        key: '4', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() {},
+      });
+      imeController.applyCandidate(imeController.activeCandidates[0]);
+      const remembered = imeController.findRememberedHangulEntryAt('칟토', 0)?.entry?.reading === '칟1토4';
+      const lomari = lomariRenderer.render('칟토') === 'chît-thó';
+      const tones = audioPlanFromText('칟토').segments.map(segment => segment.tone).join(',') === '1,4';
+      imeController.handleCursorChange({ type: 'click' });
+      const reopenedOnClick = !candidateBar.hidden &&
+        imeController.activeCandidates[imeController.activeCandidateIndex]?.entry?.reading === '칟1토4';
+      return cleanWhileChoosing && filtered && hiddenToneUndo && remembered && lomari && tones && reopenedOnClick;
+    })()`, context),
+    'Typed tones must stay hidden while filtering and driving the selected occurrence output'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
       let prevented = false;
       imeController.handleKeydown({
         key: 'Tab', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
@@ -489,7 +544,9 @@ async function loadApp(route, script) {
       imeText.selectionEnd = reading.length;
       imeController.composer.setText(reading, reading.length);
       imeController.renderCandidates();
-      return JSON.stringify(imeController.activeCandidates.map(({ entry }) => ({
+      return JSON.stringify(imeController.activeCandidates
+        .filter(({ entry }) => entry.kind !== 'hangul_plain')
+        .map(({ entry }) => ({
         hanri: entry.hanri,
         reading: entry.reading,
       })));
