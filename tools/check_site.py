@@ -88,6 +88,12 @@ def main():
     assert data["runtime"]["rawHangulAudio"], "Missing Local-IME-derived raw Hangul audio"
     assert data["runtime"]["jamoLomari"], "Missing Local-IME-derived jamo romanisation"
     assert data["runtime"]["jamoAudio"], "Missing Local-IME-derived jamo audio"
+    orh_audio = data["runtime"]["rawHangulAudio"].get("엏3", {})
+    assert not orh_audio.get("missing"), "Recorded keyboard unit 엏3 is absent from runtime audio"
+    assert any(
+        segment["file"].endswith("/orh3.wav")
+        for segment in orh_audio.get("segments", [])
+    ), "엏3 must resolve to orh3.wav"
     categories = {item["id"]: item for item in data["categories"]}
     assert set(categories) == {"food", "place-names"}
     assert all(item["entryCount"] > 0 for item in categories.values())

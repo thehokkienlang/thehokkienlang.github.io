@@ -335,6 +335,14 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
+      const audio = state.rawHangulAudio.get('엏3');
+      return audio?.missing?.length === 0
+        && audio?.segments?.some(segment => segment.file.endsWith('/orh3.wav'));
+    })()`, context),
+    'Recorded standalone 엏3 must resolve to orh3.wav'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
       imeController.clear();
       imeController.composer.setText('랑', 1);
       imeController.updateControlFromComposer();

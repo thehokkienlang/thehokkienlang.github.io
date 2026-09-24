@@ -191,6 +191,34 @@ def with_singapore_audio_when_needed(ime, audio_root: Path, reading: str) -> dic
     return audio
 
 
+def recorded_keyboard_units(ime, audio_root: Path) -> set[str]:
+    """Return keyboard-producible Hangul units backed by a real audio file."""
+    available_names = set(ime.audio_file_index(audio_root))
+    keyboard_units: set[str] = set()
+    for mapped_text in ime.LOMARI_SYLLABLE_MAP.values():
+        try:
+            keyboard_units.update(
+                unit
+                for unit, _tone in ime.split_audio_reading_units(mapped_text)
+                if unit
+            )
+        except Exception:
+            continue
+
+    recorded_units: set[str] = set()
+    for unit in keyboard_units:
+        for tone in "12345":
+            lookup_tone = ime.audio_lookup_tone_for_unit(unit, tone)
+            if any(
+                candidate in available_names
+                for lookup_unit in ime.audio_lookup_units(unit)
+                for candidate in ime.audio_filename_candidates(lookup_unit, lookup_tone)
+            ):
+                recorded_units.add(unit)
+                break
+    return recorded_units
+
+
 def append_index(index: dict[str, list[str]], key: str, entry_id: str) -> None:
     key = str(key or "")
     if key:
@@ -371,6 +399,11 @@ def build_dictionary(
         })
     entries.extend(auto_sandhi_entries)
     counts["auto_sandhi_entries"] = len(auto_sandhi_entries)
+
+    # Raw Hangul input is not limited to readings already present in the TSV.
+    # Include every keyboard syllable with a recording so Web and Local audio
+    # stay available for standalone input such as 엏3 -> orh3.wav.
+    runtime_units.update(recorded_keyboard_units(ime, audio_root))
 
     entries.sort(key=lambda item: (item["priority"], item["row"], item["reading"], item["hanri"]))
 
