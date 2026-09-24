@@ -3841,24 +3841,61 @@ def audio_lomari_filename_stem(unit: str, tone: str) -> str:
     return re.sub(r'[^A-Za-z0-9._-]+', '_', plain).strip('._-')
 
 
+def audio_collision_safe_filename_stem(unit: str) -> str:
+    """Return the preferred lowercase-safe recorder stem.
+
+    The normal Lomari keyboard uses U internally for ㅡ, but ㅡ is a null vowel
+    in filename Lomari and contributes no letters: 즈 -> j, 승 -> sng.
+    """
+    parsed = audio_unit_initial_medial_final(str(unit or ''))
+    if parsed is None:
+        return ''
+    initial, medial, final = parsed
+    vowel = {'ᅳ': '', 'ᅴ': 'eui'}.get(medial)
+    if vowel is None:
+        return ''
+    initial_stem = 'ng' if initial == 'ᅙ' else LOMARI_L_TO_INITIAL.get(initial, '')
+    final_stem = LOMARI_FINAL_TO_CODA.get(final, '')
+    if final == 'ᆯ':
+        final_stem = 'l'
+    elif final == 'ᆶ':
+        final_stem = 'lh'
+    return initial_stem + vowel + final_stem
+
+
 def audio_lomari_filename_stem_aliases(unit: str) -> list[str]:
-    """Return legacy ASCII audio stems for null-vowel nasal recordings."""
+    """Return preferred and legacy ASCII audio stems."""
     text = str(unit or '')
+    aliases: list[str] = []
+    safe_stem = audio_collision_safe_filename_stem(text)
+    if safe_stem:
+        aliases.append(safe_stem)
     parsed = audio_unit_initial_medial_final(text)
     if parsed is not None:
         initial, medial, final = parsed
-        if medial == 'ᅳ' and final == 'ᆼ':
+        if medial == 'ᅳ':
             initial_stem = LOMARI_L_TO_INITIAL.get(initial, '')
-            return [f'{initial_stem}ng']
-    if parsed == ('ᄋ', 'ᅳ', 'ᆷ'):
-        return ['m']
-    return []
+            final_stem = LOMARI_FINAL_TO_CODA.get(final, '')
+            if final == 'ᆯ':
+                final_stem = 'l'
+            elif final == 'ᆶ':
+                final_stem = 'lh'
+            aliases.append(f'{initial_stem}eu{final_stem}')
+    return list(dict.fromkeys(aliases))
 
 
 def audio_filename_candidates(unit: str, tone: str) -> list[str]:
     """Likely filenames for one recorded syllable/tone."""
     symbol = display_reading_tones(tone)
     stems: list[str] = []
+    collision_safe_stem = audio_collision_safe_filename_stem(unit)
+    if collision_safe_stem:
+        stems.extend([
+            f'{collision_safe_stem}{tone}',
+            f'{collision_safe_stem}_{tone}',
+            f'{collision_safe_stem}_t{tone}',
+            f'{collision_safe_stem}-{tone}',
+        ])
     lomari_stem = audio_lomari_filename_stem(unit, tone)
     if lomari_stem:
         stems.extend([

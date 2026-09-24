@@ -324,7 +324,7 @@ async function loadApp(route, script) {
   assert.ok(
     vm.runInContext(`[
       ['긍', 'kng'], ['능', 'nng'], ['등', 'tng'], ['믕', 'mng'],
-      ['븡', 'png'], ['응', 'ng'], ['증', 'jng'], ['층', 'chng'],
+      ['븡', 'png'], ['승', 'sng'], ['응', 'ng'], ['증', 'jng'], ['층', 'chng'],
       ['킁', 'khng'], ['틍', 'thng'], ['흥', 'hng'],
     ].every(([unit, stem]) => ['1', '2', '3', '4', '5'].every(tone => {
       const audio = state.rawHangulAudio.get(unit + tone);

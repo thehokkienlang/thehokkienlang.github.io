@@ -98,10 +98,14 @@ def build_stem_folder_index(ime) -> dict[str, str]:
                 try:
                     unit = ime.compose_syllable(initial, medial, final)
                     stem = ime.audio_lomari_filename_stem(unit, "1")
+                    safe_stem = ime.audio_collision_safe_filename_stem(unit)
                 except Exception:
                     stem = ""
+                    safe_stem = ""
                 if stem:
                     stem_to_folder.setdefault(stem.lower(), INITIAL_FOLDERS[initial])
+                if safe_stem:
+                    stem_to_folder.setdefault(safe_stem.lower(), INITIAL_FOLDERS[initial])
 
     # Legacy/current syllabic nasal recordings: ng1.wav is 응, not ㆆ.
     stem_to_folder["ng"] = "ㅇ"
