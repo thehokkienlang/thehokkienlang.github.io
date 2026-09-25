@@ -368,7 +368,7 @@ async function loadApp(route, script) {
         canonicalFiles: canonical.segments.map(segment => segment.file),
         canonicalMissing: canonical.missing,
       };
-    })()`),
+    })()`, context),
     {
       variantFiles: ['/public/audio/ㅇ/ong3.wav'],
       variantMissing: [],
