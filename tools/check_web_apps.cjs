@@ -371,6 +371,26 @@ async function loadApp(route, script) {
     })()`, context),
     'Raw Web IME audio lookup must canonicalize 옹 to 엉 before resolution'
   );
+  const explicitAnnotationResults = JSON.parse(vm.runInContext(`(() => {
+    imeController.clear();
+    return JSON.stringify(['[德뎩]', '[甲각]'].map(text => {
+      const audio = audioPlanFromText(text);
+      return {
+        lomari: lomariRenderer.render(text),
+        units: audio.segments.map(segment => segment.unit),
+        tones: audio.segments.map(segment => segment.tone),
+        missing: audio.missing,
+      };
+    }));
+  })()`, context));
+  assert.deepEqual(
+    explicitAnnotationResults,
+    [
+      { lomari: 'tiek', units: ['뎩'], tones: ['3'], missing: [] },
+      { lomari: 'kak', units: ['각'], tones: ['3'], missing: [] },
+    ],
+    'Explicit [Hanri+Hangul] annotations must use their supplied reading without a TSV mapping'
+  );
   assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();

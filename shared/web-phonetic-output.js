@@ -64,6 +64,9 @@ const TangliengimPhoneticOutput = (() => {
   const OPEN_SANDHI = { 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" };
   const CHECKED_SANDHI = { 1: "3", 3: "1" };
   const PUNCTUATION = /[\p{Punctuation}\p{Symbol}]/u;
+  const HANRI_CHAR = /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u{20000}-\u{3134F}]/u;
+  const HANGUL_READING_CHAR = /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]/u;
+  const ANNOTATION_TONE_CHAR = /[12345ˆˋ`ˊˉꞈˎˏˍ]/u;
   const AUDIO_PHRASE_BOUNDARIES = new Set([
     ",", "，", ".", "。", "!", "?", "！", "？", ":", "：", ";", "；",
     "-", "－", "—", "\n", "\r",
@@ -265,6 +268,35 @@ const TangliengimPhoneticOutput = (() => {
     return end;
   }
 
+  function parseHanriHangulAnnotationAt(text, index) {
+    if (text[index] !== "[") return null;
+    const close = text.indexOf("]", index + 1);
+    if (close < 0) return null;
+
+    const inner = text.slice(index + 1, close).trim();
+    let split = 0;
+    while (split < inner.length) {
+      const char = String.fromCodePoint(inner.codePointAt(split));
+      if (!HANRI_CHAR.test(char)) break;
+      split += char.length;
+    }
+    if (split === 0 || split >= inner.length) return null;
+
+    const hanri = inner.slice(0, split).trim();
+    const reading = inner.slice(split).trim();
+    let hasHangul = false;
+    for (const char of reading) {
+      if (HANGUL_READING_CHAR.test(char)) {
+        hasHangul = true;
+        continue;
+      }
+      if (ANNOTATION_TONE_CHAR.test(char) || /[\s’‘'\-–—]/u.test(char)) continue;
+      return null;
+    }
+    if (!hanri || !reading || !hasHangul) return null;
+    return { hanri, reading, end: close + 1 };
+  }
+
   function createRenderer({
     imeCore,
     findHanriEntry,
@@ -285,6 +317,36 @@ const TangliengimPhoneticOutput = (() => {
       }));
     }
 
+    function tokensForExplicitReading(reading) {
+      const tokens = [];
+      let index = 0;
+      while (index < reading.length) {
+        const unit = readingUnitAt(reading, index, imeCore);
+        if (unit?.canCarryTone) {
+          const marker = reading[unit.end];
+          const explicitTone = toneDigit(marker);
+          tokens.push({
+            type: "syllable",
+            unit: unit.text,
+            tone: explicitTone || "3",
+            externalSandhi: false,
+            fromTsv: true,
+          });
+          index = unit.end + (explicitTone ? 1 : 0);
+          continue;
+        }
+
+        const char = String.fromCodePoint(reading.codePointAt(index));
+        const jamoLomari = findJamoLomari(char);
+        if (jamoLomari) tokens.push({ type: "word", text: jamoLomari });
+        else if (char === "-") tokens.push({ type: "hyphen", text: char });
+        else if (/\s/u.test(char) || PUNCTUATION.test(char)) tokens.push({ type: "separator", text: char });
+        else tokens.push({ type: "literal", text: char });
+        index += char.length;
+      }
+      return tokens;
+    }
+
     function tokenize(text) {
       const tokens = [];
       let index = 0;
@@ -292,6 +354,25 @@ const TangliengimPhoneticOutput = (() => {
         const code = text.codePointAt(index);
         if (code === undefined) break;
         const char = String.fromCodePoint(code);
+
+        const annotation = parseHanriHangulAnnotationAt(text, index);
+        if (annotation) {
+          const annotationTokens = tokensForExplicitReading(annotation.reading);
+          if (
+            text[annotation.end] === "-"
+            && ![...annotation.reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
+          ) {
+            let finalSyllable = annotationTokens.length - 1;
+            while (finalSyllable >= 0 && annotationTokens[finalSyllable].type !== "syllable") finalSyllable -= 1;
+            if (finalSyllable >= 0) {
+              const token = annotationTokens[finalSyllable];
+              annotationTokens[finalSyllable] = { ...token, tone: sandhiTone(token.unit, token.tone) };
+            }
+          }
+          tokens.push(...annotationTokens);
+          index = annotation.end;
+          continue;
+        }
 
         const hanriEntry = findHanriEntry(text, index);
         if (hanriEntry) {
@@ -537,6 +618,20 @@ const TangliengimPhoneticOutput = (() => {
         const code = text.codePointAt(index);
         if (code === undefined) break;
         const char = String.fromCodePoint(code);
+
+        const annotation = parseHanriHangulAnnotationAt(text, index);
+        if (annotation) {
+          const chunk = appendEntryAudio({ reading: annotation.reading }, segments, missing);
+          if (
+            text[annotation.end] === "-"
+            && ![...annotation.reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
+          ) {
+            applyPendingSandhi(chunk, segments);
+          }
+          appendChunk(chunk, false);
+          index = annotation.end;
+          continue;
+        }
 
         if (char === "-") {
           applyPendingSandhi(pendingChunk, segments);
