@@ -391,6 +391,38 @@ async function loadApp(route, script) {
     ],
     'Explicit [Hanri+Hangul] annotations must use their supplied reading without a TSV mapping'
   );
+  const rememberedAnnotationTones = JSON.parse(vm.runInContext(`(() => {
+    const cases = [
+      ['[德뎩]', '뎩', '1', 'tiêk'],
+      ['[德뎩]', '뎩', '2', 'tièk'],
+      ['[德뎩]', '뎩', '4', 'tiék'],
+      ['[德뎩]', '뎩', '5', 'tiēk'],
+      ['[德國뎩걱]', '뎩', '1', 'tiêk-kork'],
+      ['[德國뎩걱]', '걱', '1', 'tiek-kôrk'],
+    ];
+    return JSON.stringify(cases.map(([text, unit, tone, expected]) => {
+      imeController.clear();
+      imeController.composer.setText(text, text.length);
+      imeController.updateControlFromComposer();
+      const start = text.lastIndexOf(unit);
+      imeController.rememberHangulReading(start, start + unit.length, unit + tone, null, text, true);
+      const audio = audioPlanFromText(text);
+      return {
+        expected, tone, unit, lomari: lomariRenderer.render(text),
+        audioTone: audio.segments.find(segment => segment.unit === unit)?.tone,
+        missing: audio.missing,
+        visible: imeText.value,
+      };
+    }));
+    })()`, context));
+  for (const result of rememberedAnnotationTones) {
+    assert.equal(result.lomari, result.expected, 'Bracketed Hangul must use its selected hidden tone in Lomari');
+    assert.ok(
+      result.audioTone === result.tone || result.missing.includes(result.unit + result.tone),
+      'Bracketed Hangul audio must use its selected hidden tone even if its WAV is absent'
+    );
+    assert.ok(!/[12345]/u.test(result.visible), 'Hidden tone must stay out of the input text');
+  }
   assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();

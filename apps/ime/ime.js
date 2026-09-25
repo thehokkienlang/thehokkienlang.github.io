@@ -48,6 +48,7 @@ const lomariRenderer = phoneticCore.createRenderer({
   findHanriEntry,
   findHangulOverride,
   findHangulOverrideAt,
+  findRememberedHangulEntryAt: (text, index) => imeController.findRememberedHangulEntryAt(text, index),
   findUnitRoman: (unit) => state.unitRoman.get(unit) || "",
   findJamoLomari: (unit) => state.jamoLomari.get(unit) || "",
 });
@@ -57,6 +58,7 @@ const audioPlanner = phoneticCore.createAudioPlanner({
   findHanriEntry,
   findReadingEntry,
   findHangulOverrideAt,
+  findRememberedHangulEntryAt: (text, index) => imeController.findRememberedHangulEntryAt(text, index),
   findJamoAudio: (unit) => state.jamoAudio.get(unit),
   findRawHangulAudio: (key) => state.rawHangulAudio.get(key),
   normalizeReadingToneKey: TangliengimHangulIme.normalizeReadingToneKey,

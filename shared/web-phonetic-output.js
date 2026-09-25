@@ -294,7 +294,29 @@ const TangliengimPhoneticOutput = (() => {
       return null;
     }
     if (!hanri || !reading || !hasHangul) return null;
-    return { hanri, reading, end: close + 1 };
+    const readingStart = text.indexOf(reading, index + 1 + split);
+    return { hanri, reading, readingStart, end: close + 1 };
+  }
+
+  function annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt) {
+    const { reading, readingStart } = annotation;
+    let result = "";
+    for (let index = 0; index < reading.length;) {
+      const unit = readingUnitAt(reading, index, imeCore);
+      if (unit?.canCarryTone) {
+        const visibleTone = toneDigit(reading[unit.end]);
+        const remembered = !visibleTone && findRememberedHangulEntryAt(text, readingStart + index);
+        const rememberedTone = remembered?.end === readingStart + unit.end
+          ? toneDigit(String(remembered.entry?.reading || "").at(-1)) : "";
+        result += unit.text + (visibleTone ? reading[unit.end] : rememberedTone);
+        index = unit.end + (visibleTone ? 1 : 0);
+      } else {
+        const char = String.fromCodePoint(reading.codePointAt(index));
+        result += char;
+        index += char.length;
+      }
+    }
+    return result;
   }
 
   function createRenderer({
@@ -302,6 +324,7 @@ const TangliengimPhoneticOutput = (() => {
     findHanriEntry,
     findHangulOverride,
     findHangulOverrideAt = () => null,
+    findRememberedHangulEntryAt = () => null,
     findUnitRoman = () => "",
     findJamoLomari = () => "",
   }) {
@@ -357,10 +380,11 @@ const TangliengimPhoneticOutput = (() => {
 
         const annotation = parseHanriHangulAnnotationAt(text, index);
         if (annotation) {
-          const annotationTokens = tokensForExplicitReading(annotation.reading);
+          const reading = annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt);
+          const annotationTokens = tokensForExplicitReading(reading);
           if (
             text[annotation.end] === "-"
-            && ![...annotation.reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
+            && ![...reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
           ) {
             let finalSyllable = annotationTokens.length - 1;
             while (finalSyllable >= 0 && annotationTokens[finalSyllable].type !== "syllable") finalSyllable -= 1;
@@ -471,6 +495,7 @@ const TangliengimPhoneticOutput = (() => {
     findHanriEntry = () => null,
     findReadingEntry = () => null,
     findHangulOverrideAt = () => null,
+    findRememberedHangulEntryAt = () => null,
     findJamoAudio = () => null,
     findRawHangulAudio = () => null,
     normalizeReadingToneKey = (value) => String(value || ""),
@@ -621,10 +646,11 @@ const TangliengimPhoneticOutput = (() => {
 
         const annotation = parseHanriHangulAnnotationAt(text, index);
         if (annotation) {
-          const chunk = appendEntryAudio({ reading: annotation.reading }, segments, missing);
+          const reading = annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt);
+          const chunk = appendEntryAudio({ reading }, segments, missing);
           if (
             text[annotation.end] === "-"
-            && ![...annotation.reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
+            && ![...reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
           ) {
             applyPendingSandhi(chunk, segments);
           }
