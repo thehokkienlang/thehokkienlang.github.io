@@ -357,24 +357,18 @@ async function loadApp(route, script) {
     }))`, context),
     'Every ㅗ+ㅇ syllable must share the canonical ㅓ+ㅇ / ong audio asset'
   );
-  assert.deepEqual(
+  assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();
       const variant = audioPlanFromText('옹');
       const canonical = audioPlanFromText('엉');
-      return {
-        variantFiles: variant.segments.map(segment => segment.file),
-        variantMissing: variant.missing,
-        canonicalFiles: canonical.segments.map(segment => segment.file),
-        canonicalMissing: canonical.missing,
-      };
+      return variant.segments.length === 1
+        && canonical.segments.length === 1
+        && variant.segments[0].file === '/public/audio/ㅇ/ong3.wav'
+        && canonical.segments[0].file === '/public/audio/ㅇ/ong3.wav'
+        && variant.missing.length === 0
+        && canonical.missing.length === 0;
     })()`, context),
-    {
-      variantFiles: ['/public/audio/ㅇ/ong3.wav'],
-      variantMissing: [],
-      canonicalFiles: ['/public/audio/ㅇ/ong3.wav'],
-      canonicalMissing: [],
-    },
     'Raw Web IME audio lookup must canonicalize 옹 to 엉 before resolution'
   );
   assert.ok(
