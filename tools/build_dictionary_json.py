@@ -216,6 +216,15 @@ def recorded_keyboard_units(ime, audio_root: Path) -> set[str]:
             ):
                 recorded_units.add(unit)
                 break
+
+    # Publish every ㅗ+ㅇ spelling as an input alias of the canonical ㅓ+ㅇ
+    # recording. This adds metadata keys only; it never duplicates WAV assets.
+    for unit in tuple(recorded_units):
+        components = ime.audio_unit_initial_medial_final(unit)
+        if components is None or components[1:] != ('ᅥ', 'ᆼ'):
+            continue
+        initial, _medial, final = components
+        recorded_units.add(ime.compose_syllable(initial, 'ᅩ', final))
     return recorded_units
 
 
@@ -449,6 +458,12 @@ def build_dictionary(
         for unit in sorted(runtime_units)
         for tone in "12345"
     }
+    for unit in sorted(runtime_units):
+        canonical_unit = ime.canonicalize_audio_unit(unit)
+        if canonical_unit == unit or canonical_unit not in runtime_units:
+            continue
+        for tone in "12345":
+            runtime_raw_hangul_audio[f"{unit}{tone}"] = runtime_raw_hangul_audio[f"{canonical_unit}{tone}"]
     jamo_pronunciations = dict(getattr(ime, "JAMO_PRONUNCIATION_READINGS", {}))
     runtime_jamo_lomari = {
         unit: reading_to_lomari(tone_marker, pronunciation)

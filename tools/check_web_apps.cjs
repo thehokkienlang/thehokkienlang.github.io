@@ -342,6 +342,42 @@ async function loadApp(route, script) {
     'Recorded standalone 엏3 must resolve to orh3.wav'
   );
   assert.ok(
+    vm.runInContext(`[
+      ['공', '겅'], ['꽁', '껑'], ['동', '덩'], ['똥', '떵'], ['롱', '렁'],
+      ['몽', '멍'], ['봉', '벙'], ['뽕', '뻥'], ['송', '성'], ['옹', '엉'],
+      ['종', '정'], ['쫑', '쩡'], ['총', '청'], ['콩', '컹'], ['통', '텅'],
+      ['퐁', '펑'], ['홍', '헝'],
+    ].every(([variant, canonical]) => ['1', '2', '3', '4', '5'].every(tone => {
+      const variantAudio = state.rawHangulAudio.get(variant + tone);
+      const canonicalAudio = state.rawHangulAudio.get(canonical + tone);
+      if (!variantAudio && !canonicalAudio) return true;
+      return Boolean(variantAudio && canonicalAudio)
+        && JSON.stringify(variantAudio.files || []) === JSON.stringify(canonicalAudio.files || [])
+        && JSON.stringify(variantAudio.missing || []) === JSON.stringify(canonicalAudio.missing || []);
+    }))`, context),
+    'Every ㅗ+ㅇ syllable must share the canonical ㅓ+ㅇ / ong audio asset'
+  );
+  assert.deepEqual(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      const variant = audioPlanFromText('옹');
+      const canonical = audioPlanFromText('엉');
+      return {
+        variantFiles: variant.segments.map(segment => segment.file),
+        variantMissing: variant.missing,
+        canonicalFiles: canonical.segments.map(segment => segment.file),
+        canonicalMissing: canonical.missing,
+      };
+    })()`),
+    {
+      variantFiles: ['/public/audio/ㅇ/ong3.wav'],
+      variantMissing: [],
+      canonicalFiles: ['/public/audio/ㅇ/ong3.wav'],
+      canonicalMissing: [],
+    },
+    'Raw Web IME audio lookup must canonicalize 옹 to 엉 before resolution'
+  );
+  assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();
       imeController.composer.setText('랑', 1);

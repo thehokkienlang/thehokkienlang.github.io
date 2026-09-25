@@ -165,6 +165,23 @@ const TangliengimPhoneticOutput = (() => {
     return null;
   }
 
+  function composeAudioUnit(initial, medial, final = "") {
+    const initialIndex = INITIALS.indexOf(initial);
+    const medialIndex = MEDIALS.indexOf(medial);
+    const finalIndex = FINALS.indexOf(final);
+    if (initialIndex >= 0 && medialIndex >= 0 && finalIndex >= 0) {
+      return String.fromCodePoint(0xac00 + (initialIndex * 21 + medialIndex) * 28 + finalIndex);
+    }
+    return `${initial}${medial}${final}`;
+  }
+
+  function canonicalizeAudioUnit(unit) {
+    const text = String(unit || "");
+    const parts = unitParts(text);
+    if (!parts || parts[1] !== "\u1169" || parts[2] !== "\u11bc") return text;
+    return composeAudioUnit(parts[0], "\u1165", parts[2]);
+  }
+
   function romanizeUnit(unit) {
     const text = String(unit || "");
     const parts = unitParts(text);
@@ -401,6 +418,14 @@ const TangliengimPhoneticOutput = (() => {
       return `/${value}`;
     }
 
+    function rawAudioForUnitTone(unit, tone) {
+      const originalUnit = String(unit || "");
+      const canonicalUnit = canonicalizeAudioUnit(originalUnit);
+      const toneDigit = String(tone || "3");
+      return findRawHangulAudio(`${canonicalUnit}${toneDigit}`)
+        || (canonicalUnit !== originalUnit ? findRawHangulAudio(`${originalUnit}${toneDigit}`) : null);
+    }
+
     function appendAudioMetadata(audioMetadata, segments, missing) {
       const audio = audioForCurrentSandhiMode(audioMetadata);
       const audioSegments = normalizeAudioSegments(audio).map((segment) => ({
@@ -432,7 +457,7 @@ const TangliengimPhoneticOutput = (() => {
         const end = imeCore.readingUnitToneEnd(reading, unit);
         const normalized = normalizeReadingToneKey(reading.slice(index, end));
         const tone = /[12345]$/u.test(normalized) ? normalized.at(-1) : "3";
-        const audio = findRawHangulAudio(`${unit.text}${tone}`);
+        const audio = rawAudioForUnitTone(unit.text, tone);
         if (audio) appendAudioMetadata(audio, segments, missing);
         else if (!missing.includes(reading.slice(index, end))) missing.push(reading.slice(index, end));
         index = end;
@@ -441,7 +466,7 @@ const TangliengimPhoneticOutput = (() => {
     }
 
     function withAudioTone(segment, tone) {
-      const audio = audioForCurrentSandhiMode(findRawHangulAudio(`${segment.unit}${tone}`));
+      const audio = audioForCurrentSandhiMode(rawAudioForUnitTone(segment.unit, tone));
       const replacement = normalizeAudioSegments(audio)[0];
       if (!replacement) return { ...segment, tone: String(tone) };
       return {
@@ -566,7 +591,9 @@ const TangliengimPhoneticOutput = (() => {
           } else {
             const normalizedRaw = normalizeReadingToneKey(raw);
             const audioKey = /[12345]$/u.test(normalizedRaw) ? normalizedRaw : `${unit.text}3`;
-            const rawAudio = findRawHangulAudio(audioKey);
+            const audioTone = /[12345]$/u.test(audioKey) ? audioKey.at(-1) : "3";
+            const audioUnit = /[12345]$/u.test(audioKey) ? audioKey.slice(0, -1) : audioKey;
+            const rawAudio = rawAudioForUnitTone(audioUnit, audioTone);
             if (rawAudio) appendChunk(appendAudioMetadata(rawAudio, segments, missing), false);
             else {
               if (!missing.includes(raw)) missing.push(raw);
@@ -606,7 +633,7 @@ const TangliengimPhoneticOutput = (() => {
     return { plan };
   }
 
-  return { applyTone, createAudioPlanner, createRenderer, romanizeUnit };
+  return { applyTone, canonicalizeAudioUnit, createAudioPlanner, createRenderer, romanizeUnit };
 })();
 
 window.TangliengimPhoneticOutput = TangliengimPhoneticOutput;

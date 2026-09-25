@@ -2723,6 +2723,7 @@ def audio_folder_path() -> Path:
 #     갗 -> 갛   ㅊ final is pronounced as ㅎ
 #     릐 -> 리   ㅢ is pronounced like ㅣ
 #     괴 -> 궤   ㅚ is pronounced like ㅞ
+#     옹 -> 엉   ㅗ+ㅇ shares the canonical ong recording with ㅓ+ㅇ
 AUDIO_EQUIVALENT_MEDIALS = {
     'ᅴ': 'ᅵ',
     'ᅬ': 'ᅰ',
@@ -2759,6 +2760,8 @@ def canonicalize_audio_unit(unit: str) -> str:
             initial, medial, final = decomposed
             medial = AUDIO_EQUIVALENT_MEDIALS.get(medial, medial)
             final = AUDIO_EQUIVALENT_FINALS.get(final, final)
+            if medial == 'ᅩ' and final == 'ᆼ':
+                medial = 'ᅥ'
             out.append(compose_syllable(initial, medial, final))
             i += 1
             continue
@@ -2772,6 +2775,8 @@ def canonicalize_audio_unit(unit: str) -> str:
             while j < len(text) and text[j] in T_INDEX and text[j] != '':
                 finals.append(AUDIO_EQUIVALENT_FINALS.get(text[j], text[j]))
                 j += 1
+            if medial == 'ᅩ' and finals == ['ᆼ']:
+                medial = 'ᅥ'
             out.append(initial + medial + ''.join(finals))
             i = j
             continue
@@ -3886,6 +3891,7 @@ def audio_lomari_filename_stem_aliases(unit: str) -> list[str]:
 
 def audio_filename_candidates(unit: str, tone: str) -> list[str]:
     """Likely filenames for one recorded syllable/tone."""
+    unit = canonicalize_audio_unit(unit)
     symbol = display_reading_tones(tone)
     stems: list[str] = []
     collision_safe_stem = audio_collision_safe_filename_stem(unit)
