@@ -101,26 +101,6 @@ h1 {
   line-height: 1;
 }
 
-.dictionary-link {
-  flex: 0 0 auto;
-  display: inline-flex;
-  align-items: center;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid #bfd0e4;
-  border-radius: 7px;
-  background: #ffffff;
-  color: #31516f;
-  font-size: 0.95rem;
-  font-weight: 800;
-  text-decoration: none;
-}
-
-.dictionary-link:hover {
-  border-color: rgba(15, 118, 110, 0.5);
-  color: var(--accent-strong);
-}
-
 .pad {
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -523,11 +503,6 @@ h1 {
   .toolbar {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .dictionary-link {
-    width: 100%;
-    justify-content: center;
   }
 
   .ime-text {

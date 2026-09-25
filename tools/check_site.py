@@ -51,6 +51,9 @@ def main():
     dictionary_view = local_file("/dictionary/dictionary-view.html").read_text(encoding="utf-8")
     ime_html = local_file("/ime/").read_text(encoding="utf-8")
     dictionary_gate = local_file("/dictionary/gate.js").read_text(encoding="utf-8")
+    assert '<link rel="icon" type="image/png" href="favicon.png">' in ime_html
+    assert local_file("/ime/favicon.png").read_bytes().startswith(b"\x89PNG\r\n\x1a\n")
+    assert 'class="dictionary-link"' not in ime_html
     assert "gate.js?v=" in dictionary_html, "Dictionary gate script is not versioned"
     assert 'name="robots" content="noindex, nofollow"' in dictionary_html
     assert "searchInput" not in dictionary_html, "Dictionary search is exposed before unlocking"

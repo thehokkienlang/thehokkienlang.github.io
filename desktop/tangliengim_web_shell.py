@@ -25,7 +25,7 @@ from urllib.parse import unquote, urlsplit
 DESKTOP_SCRIPT = r"""
 (() => {
   if (document.querySelector("#desktopHtmlButton")) return;
-  try { window.resizeTo(800, 600); } catch {}
+  try { window.resizeTo(920, 800); } catch {}
   const actions = document.querySelector(".toolbar-actions");
   if (!actions) return;
 
@@ -428,7 +428,7 @@ def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
                 str(edge),
                 f"--app={url}",
                 f"--user-data-dir={profile}",
-                "--window-size=800,600",
+                "--window-size=920,800",
                 "--no-first-run",
                 "--disable-features=msEdgeFirstRunExperience",
             ],
