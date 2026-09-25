@@ -9049,8 +9049,14 @@ class HokkienIMEPad:
         self.hanri_instance_readings.sort(key=lambda item: (item['start'], item['end']))
         self.hanri_instance_text_snapshot = current
 
-    def text_with_hanri_instance_readings(self, text: str | None = None) -> str:
-        """Inject hidden [HanriReading] annotations for remembered instances."""
+    def text_with_hanri_instance_readings(
+        self,
+        text: str | None = None,
+        *,
+        include_hanri: bool = True,
+        bracketed_hangul_only: bool = False,
+    ) -> str:
+        """Restore remembered readings for conversion or bracketed TSV input."""
         self.sync_hanri_instance_readings()
         source = self.composer.text() if text is None else str(text)
         bracket_ranges: list[tuple[int, int]] = []
@@ -9069,7 +9075,7 @@ class HokkienIMEPad:
             return any(start < bracket_end and bracket_start < end for bracket_start, bracket_end in bracket_ranges)
 
         replacements = []
-        for item in self.hanri_instance_readings:
+        for item in (self.hanri_instance_readings if include_hanri else []):
             start = int(item.get('start', -1))
             end = int(item.get('end', -1))
             hanri = str(item.get('hanri', '') or '')
@@ -9090,7 +9096,12 @@ class HokkienIMEPad:
             reading = normalize_tone_symbols_to_digits(str(item.get('reading', '') or ''))
             if start < 0 or end <= start or source[start:end] != hangul or not reading:
                 continue
-            if overlaps_bracket(start, end):
+            if bracketed_hangul_only and not overlaps_bracket(start, end):
+                continue
+            if overlaps_bracket(start, end) and not any(
+                bracket_start < start and end < bracket_end
+                for bracket_start, bracket_end in bracket_ranges
+            ):
                 continue
             replacements.append((start, end, reading))
 
@@ -12188,7 +12199,11 @@ class HokkienIMEPad:
         self.composer.commit()
 
         content = format_text_tones_for_output(
-            self.composer.text(),
+            self.text_with_hanri_instance_readings(
+                self.composer.text(),
+                include_hanri=False,
+                bracketed_hangul_only=True,
+            ),
             True,
             keep_literal_digit_markers=True,
         ).replace(LITERAL_DIGIT_MARK, '')

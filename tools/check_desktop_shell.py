@@ -2,8 +2,10 @@
 
 from __future__ import annotations
 
+import csv
 import importlib.util
 import os
+import sys
 import tempfile
 import threading
 from pathlib import Path
@@ -24,8 +26,68 @@ def load_shell():
     return module
 
 
+def check_hidden_tones_in_bracketed_tsv_input() -> None:
+    spec = importlib.util.spec_from_file_location("tangliengim_pad_check", PAD_PATH)
+    assert spec and spec.loader
+    pad_module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = pad_module
+    spec.loader.exec_module(pad_module)
+
+    source = "[德國뎩걱] 뎩"
+    pad = pad_module.HokkienIMEPad.__new__(pad_module.HokkienIMEPad)
+    pad.composer = pad_module.Composer(output=source, cursor_pos=len(source))
+    pad.hanri_instance_readings = []
+    pad.hanri_instance_text_snapshot = source
+    pad.hangul_instance_readings = [
+        {"start": 3, "end": 4, "hangul": "뎩", "reading": "뎩1"},
+        {"start": 7, "end": 8, "hangul": "뎩", "reading": "뎩2"},
+    ]
+    tsv_input = pad.text_with_hanri_instance_readings(
+        source, include_hanri=False, bracketed_hangul_only=True
+    )
+    assert tsv_input == "[德國뎩1걱] 뎩", tsv_input
+    html_input = pad.text_with_hanri_instance_readings(source)
+    assert html_input == "[德國뎩1걱] 뎩2", html_input
+
+    gui_spec = importlib.util.spec_from_file_location(
+        "tangliengim_converter_check", ROOT / "desktop" / "hokkien_tone_marker_gui.py"
+    )
+    assert gui_spec and gui_spec.loader
+    converter = importlib.util.module_from_spec(gui_spec)
+    sys.modules[gui_spec.name] = converter
+    gui_spec.loader.exec_module(converter)
+    formatted = pad_module.format_text_tones_for_output(tsv_input)
+    annotations = converter.hanri_hangul_bracket_annotations(formatted)
+    assert len(annotations) == 1, annotations
+    assert annotations[0]["hanri"] == "德國", annotations
+    assert annotations[0]["reading"] == "뎩1걱", annotations
+
+    pad.hangul_instance_readings = [
+        {"start": 3, "end": 5, "hangul": "뎩걱", "reading": "뎩1걱"},
+    ]
+    assert pad.text_with_hanri_instance_readings(
+        source, include_hanri=False, bracketed_hangul_only=True
+    ) == "[德國뎩1걱] 뎩"
+
+    with tempfile.TemporaryDirectory() as folder:
+        target = Path(folder) / "new_readings.tsv"
+        pad.ask_add_tsv_confirmation = lambda *args, **kwargs: True
+        pad.mark_tsv_sync_pending = lambda: None
+        with (
+            patch.dict(os.environ, {"HOKKIEN_HANRI_DICT_PATH": str(target)}),
+            patch.object(converter, "hanri_reading_entry_exists", return_value=False),
+            patch.object(converter, "existing_hanri_readings", return_value=[]),
+            patch.object(pad_module, "reload_hanri_resources"),
+        ):
+            assert pad.confirm_and_save_bracketed_hanri_annotations(converter, formatted)
+        with target.open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.reader(stream, delimiter="\t"))
+        assert rows == [["뎩1걱", "德國", "1", ""]], rows
+
+
 def main() -> None:
     shell = load_shell()
+    check_hidden_tones_in_bracketed_tsv_input()
     # Exercise the real pipe boundary under a non-UTF-8 Windows-style default.
     with tempfile.TemporaryDirectory() as folder:
         bridge_script = Path(folder) / "echo_bridge.py"
