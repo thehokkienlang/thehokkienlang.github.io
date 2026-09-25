@@ -218,10 +218,14 @@ function setEntries(entries) {
 }
 
 function findHanriEntry(text, index) {
+  if (imeController.findRememberedHangulEntryAt(text, index)) return null;
   return imeController.findRememberedHanriEntry(text, index) || dictionaryIndex.findHanriEntry(
     text,
     index,
-    imeController.nextRememberedHanriStart(text, index)
+    Math.min(
+      imeController.nextRememberedHanriStart(text, index),
+      imeController.nextRememberedHangulStart(text, index)
+    )
   );
 }
 
@@ -235,7 +239,7 @@ function findHangulOverride(reading) {
 
 function findHangulOverrideAt(text, index) {
   return imeController.findRememberedHangulEntryAt(text, index) ||
-    dictionaryIndex.findHangulOverrideAt(text, index);
+    dictionaryIndex.findHangulOverrideAt(text, index, imeController.nextRememberedHangulStart(text, index));
 }
 
 function updateLomariPreview() {

@@ -423,6 +423,86 @@ async function loadApp(route, script) {
     );
     assert.ok(!/[12345]/u.test(result.visible), 'Hidden tone must stay out of the input text');
   }
+  const selectedToneResults = JSON.parse(vm.runInContext(`(() => {
+    const results = [];
+    const press = key => {
+      imeController.handleKeydown({ key, shiftKey: false, ctrlKey: false, metaKey: false,
+        altKey: false, isComposing: false, preventDefault() {} });
+      imeController.handleCursorChange({ type: 'keyup', key });
+    };
+    for (const sandhiMode of ['taipei', 'singapore']) {
+      state.sandhiMode = sandhiMode;
+      for (const [unit, forms] of [
+        ['뎩', ['tiêk', 'tièk', 'tiek', 'tiék', 'tiēk']],
+        ['아', ['â', 'à', 'a', 'á', 'ā']],
+      ]) {
+        for (const [index, expected] of forms.entries()) {
+          const tone = String(index + 1);
+          imeController.clear();
+          imeController.composer.setText(unit + '호', unit.length);
+          imeController.updateControlFromComposer();
+          press(tone);
+          const before = lomariPreview.textContent;
+          const candidateIndex = imeController.activeCandidates.findIndex(({ entry }) =>
+            ['hangul_plain', 'hangul_override'].includes(entry.kind)
+            && TangliengimHangulIme.normalizeReadingToneKey(entry.reading) === unit + tone
+          );
+          if (candidateIndex < 0) throw new Error('No Hangul tone candidate for ' + unit + tone);
+          while (imeController.activeCandidateIndex !== candidateIndex) press('Tab');
+          press('Enter');
+          const audio = audioPlanFromText(imeText.value);
+          results.push({ unit, tone, sandhiMode, expected: expected + '-ho', before,
+            after: lomariPreview.textContent, visible: imeText.value,
+            menuClosed: candidateBar.hidden,
+            audioTone: audio.segments.find(segment => segment.unit === unit)?.tone,
+            expectedAudioTone: state.rawHangulAudio.get(unit + tone)?.segments[0]?.tone || tone,
+            missing: audio.missing });
+        }
+      }
+    }
+    state.sandhiMode = 'taipei';
+    return JSON.stringify(results);
+  })()`, context));
+  for (const result of selectedToneResults) {
+    const label = `${result.unit}${result.tone} in ${result.sandhiMode}`;
+    assert.equal(result.before, result.expected, `Typed tones must not be sandhied again: ${label}`);
+    assert.equal(result.after, result.expected, `Candidate selection must retain the displayed tone: ${label}`);
+    assert.equal(result.visible, result.unit + '호', 'Selected tones must remain hidden in the editor');
+    assert.ok(result.menuClosed, 'Selecting a tone candidate must dismiss the menu');
+    assert.ok(result.audioTone === result.expectedAudioTone || result.missing.includes(result.unit + result.tone),
+      `Selected audio must not receive a second sandhi conversion: ${label}`);
+  }
+  const selectedAnnotationResults = JSON.parse(vm.runInContext(`(() => {
+    return JSON.stringify([
+      ['[遊玩칟토]', 'chit-thô'],
+      ['[你好릐호]', 'li-hô'],
+    ].map(([text, expected]) => {
+      imeController.clear();
+      imeController.composer.setText(text, text.length - 1);
+      imeController.updateControlFromComposer();
+      imeController.insertText('1');
+      const before = lomariPreview.textContent;
+      const candidate = imeController.activeCandidates.find(({ entry }) => entry.kind === 'hangul_plain');
+      if (!candidate) throw new Error('No plain Hangul candidate for ' + text);
+      imeController.applyCandidate(candidate);
+      return { expected, before, after: lomariPreview.textContent };
+    }));
+  })()`, context));
+  for (const result of selectedAnnotationResults) {
+    assert.equal(result.before, result.expected);
+    assert.equal(result.after, result.expected, 'A multi-syllable selection must retain every bracketed tone');
+  }
+  assert.equal(vm.runInContext(`(() => {
+    imeController.clear();
+    imeController.insertText('gh1');
+    const selected = imeController.activeCandidates.find(({ entry }) =>
+      ['hangul_plain', 'hangul_override'].includes(entry.kind) && entry.reading === '호1');
+    if (!selected) throw new Error('Missing literal tone candidate');
+    imeController.applyCandidate(selected);
+    imeController.composer.setText('릐호', 2);
+    imeController.updateControlFromComposer();
+    return lomariPreview.textContent.endsWith('-hô');
+  })()`, context), true, 'A longer dictionary match must not swallow a selected Hangul tone after a prefix edit');
   assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();

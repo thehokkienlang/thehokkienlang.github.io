@@ -597,9 +597,9 @@ const TangliengimImeCore = (() => {
       return findHangulOverride(reading);
     }
 
-    function findHangulOverrideAt(text, index = 0) {
+    function findHangulOverrideAt(text, index = 0, maximumEnd = text.length) {
       for (const key of hangulOverrideKeys) {
-        if (!text.startsWith(key, index)) continue;
+        if (!text.startsWith(key, index) || index + key.length > maximumEnd) continue;
         const normalized = normalizeText(key);
         let end = index + key.length;
         while (end < text.length && isToneMark(text[end])) end += 1;
@@ -896,7 +896,13 @@ const TangliengimImeCore = (() => {
       const span = this.rememberedHangulReadings.find(
         (item) => item.start === index && text.slice(item.start, item.end) === item.hangul
       );
-      return span ? { entry: span.entry, end: span.end } : null;
+      // Remembered Hangul carries the user's displayed tones, not a fresh citation reading.
+      return span ? { entry: span.entry, end: span.end, preserveTones: true } : null;
+    }
+
+    nextRememberedHangulStart(text, index) {
+      this.syncRememberedReadings(text);
+      return this.rememberedHangulReadings.find((span) => span.start > index)?.start ?? text.length;
     }
 
     getRememberedHangulReadings(text = this.control.value) {

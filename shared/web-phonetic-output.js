@@ -300,15 +300,28 @@ const TangliengimPhoneticOutput = (() => {
 
   function annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt) {
     const { reading, readingStart } = annotation;
+    const rememberedTones = new Map();
     let result = "";
     for (let index = 0; index < reading.length;) {
       const unit = readingUnitAt(reading, index, imeCore);
       if (unit?.canCarryTone) {
         const visibleTone = toneDigit(reading[unit.end]);
-        const remembered = !visibleTone && findRememberedHangulEntryAt(text, readingStart + index);
-        const rememberedTone = remembered?.end === readingStart + unit.end
-          ? toneDigit(String(remembered.entry?.reading || "").at(-1)) : "";
-        result += unit.text + (visibleTone ? reading[unit.end] : rememberedTone);
+        const remembered = findRememberedHangulEntryAt(text, readingStart + index);
+        if (remembered && remembered.end <= readingStart + reading.length) {
+          // A candidate selection can remember several syllables as one span.
+          let offset = index;
+          const selectedTones = [];
+          for (const segment of readingSegments(remembered.entry?.reading, imeCore)) {
+            const selectedUnit = readingUnitAt(reading, offset, imeCore);
+            if (selectedUnit?.text !== segment.unit) break;
+            selectedTones.push([offset, segment.tone]);
+            offset = selectedUnit.end;
+          }
+          if (offset === remembered.end - readingStart) {
+            for (const [position, tone] of selectedTones) rememberedTones.set(position, tone);
+          }
+        }
+        result += unit.text + (visibleTone ? reading[unit.end] : rememberedTones.get(index) || "");
         index = unit.end + (visibleTone ? 1 : 0);
       } else {
         const char = String.fromCodePoint(reading.codePointAt(index));
@@ -417,7 +430,7 @@ const TangliengimPhoneticOutput = (() => {
 
           const overrideMatch = findHangulOverrideAt(text, index);
           if (overrideMatch?.entry) {
-            tokens.push(...syllablesForEntry(overrideMatch.entry, false));
+            tokens.push(...syllablesForEntry(overrideMatch.entry, overrideMatch.preserveTones));
             index = overrideMatch.end;
             continue;
           }
@@ -700,7 +713,7 @@ const TangliengimPhoneticOutput = (() => {
           if (!hasExplicitTone) {
             const overrideMatch = findHangulOverrideAt(text, index);
             if (overrideMatch?.entry) {
-              appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), true);
+              appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), !overrideMatch.preserveTones);
               index = overrideMatch.end;
               continue;
             }
