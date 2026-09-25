@@ -3,9 +3,12 @@
 from __future__ import annotations
 
 import importlib.util
+import os
+import tempfile
 import threading
 from pathlib import Path
 from urllib.request import urlopen
+from unittest.mock import patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -23,6 +26,27 @@ def load_shell():
 
 def main() -> None:
     shell = load_shell()
+    # Exercise the real pipe boundary under a non-UTF-8 Windows-style default.
+    with tempfile.TemporaryDirectory() as folder:
+        bridge_script = Path(folder) / "echo_bridge.py"
+        bridge_script.write_text(
+            'import json, sys\n'
+            'payload = json.load(sys.stdin)\n'
+            'print(json.dumps({"ok": True, "payload": payload, '
+            '"stdinEncoding": sys.stdin.encoding, "stdoutEncoding": sys.stdout.encoding}, '
+            'ensure_ascii=False))\n',
+            encoding="utf-8",
+        )
+        bridge_server = shell.DesktopHttpServer(ROOT, bridge_script)
+        try:
+            payload = {"text": "[德뎩] 𤆬ᄋᅷ’뽀ˊ", "style": "plain"}
+            with patch.dict(os.environ, {"PYTHONIOENCODING": "cp1252", "PYTHONUTF8": "0"}):
+                response = bridge_server.run_bridge("--desktop-html-bridge", payload)
+            assert response["payload"] == payload, response
+            assert response["stdinEncoding"] == "utf-8", response
+            assert response["stdoutEncoding"] == "utf-8", response
+        finally:
+            bridge_server.server_close()
     assert shell._safe_repo_file(ROOT, "/ime/") == ROOT / "apps" / "ime" / "index.html"
     assert shell._safe_repo_file(ROOT, "/shared/web-ime-core.js") == ROOT / "shared" / "web-ime-core.js"
     assert shell._safe_repo_file(ROOT, "/ime/../../README.md") is None

@@ -320,6 +320,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
         creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
         env = os.environ.copy()
         env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
+        # subprocess encoding controls only the parent; set the child's pipes too.
+        env["PYTHONIOENCODING"] = "utf-8"
         with self.bridge_lock:
             result = subprocess.run(
                 [str(self.bridge_interpreter()), str(self.classic_script), flag],
