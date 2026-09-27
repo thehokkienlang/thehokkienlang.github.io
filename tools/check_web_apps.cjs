@@ -323,6 +323,29 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`[
+      ['ᄆᅷ', '/public/audio/ㅁ/mau3.wav'],
+      ['ᄆᆤ', '/public/audio/ㅁ/miau3.wav'],
+      ['ᄆힻ', '/public/audio/ㅁ/mer3.wav'],
+    ].every(([text, file]) => {
+      const audio = audioPlanFromText(text);
+      return audio.missing.length === 0
+        && audio.segments.length === 1
+        && audio.segments[0].file === file;
+    })`, context),
+    'Initial plus special medial must resolve as one recorded syllable'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const initial = audioPlanFromText('ᄆ');
+      const vowel = audioPlanFromText('ᅷ');
+      return initial.segments.length === 2
+        && vowel.segments.length === 1
+        && vowel.segments[0].file === '/public/audio/ㅇ/au1.wav';
+    })()`, context),
+    'Standalone jamo must retain their letter-name audio'
+  );
+  assert.ok(
+    vm.runInContext(`[
       ['긍', 'kng'], ['능', 'nng'], ['등', 'tng'], ['믕', 'mng'],
       ['븡', 'png'], ['승', 'sng'], ['응', 'ng'], ['증', 'jng'], ['층', 'chng'],
       ['킁', 'khng'], ['틍', 'thng'], ['흥', 'hng'],

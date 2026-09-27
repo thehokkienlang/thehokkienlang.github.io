@@ -695,7 +695,8 @@ const TangliengimPhoneticOutput = (() => {
           continue;
         }
 
-        const jamoAudio = findJamoAudio(char);
+        const unit = imeCore.readingUnitAt(text, index);
+        const jamoAudio = unit?.canCarryTone ? null : findJamoAudio(char);
         if (jamoAudio) {
           appendChunk(appendAudioMetadata(jamoAudio, segments, missing), false);
           index += char.length;
@@ -709,7 +710,6 @@ const TangliengimPhoneticOutput = (() => {
           continue;
         }
 
-        const unit = imeCore.readingUnitAt(text, index);
         if (unit?.canCarryTone) {
           const end = imeCore.readingUnitToneEnd(text, unit);
           const raw = text.slice(index, end);
