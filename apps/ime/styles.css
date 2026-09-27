@@ -503,8 +503,8 @@ h1 {
 .tone-overlay-mark {
   position: absolute;
   top: calc(-0.84em - 4px);
-  left: calc(50% - 1px);
-  width: 0;
+  left: 50%;
+  width: max-content;
   transform: translateX(-50%);
   color: #1f2937;
   font-family: Calibri, Arial, sans-serif;
