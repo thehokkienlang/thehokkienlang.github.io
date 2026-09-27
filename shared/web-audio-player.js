@@ -3,6 +3,7 @@ const TangliengimWebAudio = (() => {
   const TONE4_SPEED = 1.03;
   let sharedAudioContext = null;
   const decodedAudioCache = new Map();
+  const processedAudioCache = new Map();
 
   function audioContext() {
     if (!sharedAudioContext) {
@@ -16,12 +17,17 @@ const TangliengimWebAudio = (() => {
   async function decodedAudioBuffer(file) {
     const url = encodeURI(file);
     if (decodedAudioCache.has(url)) return decodedAudioCache.get(url);
-    const bufferPromise = fetch(url)
+    let bufferPromise;
+    bufferPromise = fetch(url)
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.arrayBuffer();
       })
-      .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer));
+      .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer))
+      .catch((error) => {
+        if (decodedAudioCache.get(url) === bufferPromise) decodedAudioCache.delete(url);
+        throw error;
+      });
     decodedAudioCache.set(url, bufferPromise);
     return bufferPromise;
   }
@@ -156,24 +162,46 @@ const TangliengimWebAudio = (() => {
     };
   }
 
+  function processedAudioKey(segment) {
+    return JSON.stringify([
+      encodeURI(segment.file),
+      Boolean(segment.trimStart),
+      Boolean(segment.trimEnd),
+      Number(segment.speed) || 1,
+      Boolean(segment.shortOverlapFinal),
+      Boolean(segment.englishClusterHelper),
+    ]);
+  }
+
   async function processedAudioSegment(segment) {
-    const buffer = await decodedAudioBuffer(segment.file);
-    const { startFrame, endFrame } = audioTrimFrames(buffer, segment);
-    let channels = copyBufferChannels(buffer, startFrame, endFrame);
-    channels = speedUpChannels(channels, buffer.sampleRate, Number(segment.speed) || 1);
-    if (segment.englishClusterHelper && channels[0]?.length) {
-      const maxFrames = Math.max(1, Math.floor(buffer.sampleRate * 0.24));
-      channels = channels.map((channel) => channel.slice(0, Math.min(channel.length, maxFrames)));
-      fadeOutChannels(channels, buffer.sampleRate, 0.015);
-    }
-    return {
-      channels,
-      sampleRate: buffer.sampleRate,
-      channelCount: buffer.numberOfChannels,
-      canOverlapPrevious: Boolean(segment.trimStart),
-      shortOverlapFinal: Boolean(segment.shortOverlapFinal),
-      englishClusterHelper: Boolean(segment.englishClusterHelper),
-    };
+    const key = processedAudioKey(segment);
+    if (processedAudioCache.has(key)) return processedAudioCache.get(key);
+
+    let processedPromise;
+    processedPromise = (async () => {
+      const buffer = await decodedAudioBuffer(segment.file);
+      const { startFrame, endFrame } = audioTrimFrames(buffer, segment);
+      let channels = copyBufferChannels(buffer, startFrame, endFrame);
+      channels = speedUpChannels(channels, buffer.sampleRate, Number(segment.speed) || 1);
+      if (segment.englishClusterHelper && channels[0]?.length) {
+        const maxFrames = Math.max(1, Math.floor(buffer.sampleRate * 0.24));
+        channels = channels.map((channel) => channel.slice(0, Math.min(channel.length, maxFrames)));
+        fadeOutChannels(channels, buffer.sampleRate, 0.015);
+      }
+      return {
+        channels,
+        sampleRate: buffer.sampleRate,
+        channelCount: buffer.numberOfChannels,
+        canOverlapPrevious: Boolean(segment.trimStart),
+        shortOverlapFinal: Boolean(segment.shortOverlapFinal),
+        englishClusterHelper: Boolean(segment.englishClusterHelper),
+      };
+    })().catch((error) => {
+      if (processedAudioCache.get(key) === processedPromise) processedAudioCache.delete(key);
+      throw error;
+    });
+    processedAudioCache.set(key, processedPromise);
+    return processedPromise;
   }
 
   function overlapSeconds(previous, current) {
@@ -208,10 +236,9 @@ const TangliengimWebAudio = (() => {
 
   async function buildAudioBuffer(segments) {
     const context = audioContext();
-    const processed = [];
-    for (const segment of legacyPlaybackSegments(segments)) {
-      processed.push(await processedAudioSegment(segment));
-    }
+    const processed = await Promise.all(
+      legacyPlaybackSegments(segments).map(processedAudioSegment)
+    );
     if (!processed.length) throw new Error("No playable audio");
 
     const sampleRate = processed[0].sampleRate;

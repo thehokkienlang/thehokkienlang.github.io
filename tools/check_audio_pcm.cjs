@@ -38,6 +38,8 @@ function decode(wav) {
 
 (async () => {
   let played;
+  let activeFetches = 0;
+  let maximumConcurrentFetches = 0;
   class AudioContext {
     async resume() {}
     async decodeAudioData(bytes) { return decode(bytes); }
@@ -53,7 +55,13 @@ function decode(wav) {
   }
   const context = vm.createContext({
     AudioContext,
-    fetch: async file => ({ok: true, arrayBuffer: async () => Buffer.from(fixtures.sources[file], 'base64')}),
+    fetch: async file => {
+      activeFetches += 1;
+      maximumConcurrentFetches = Math.max(maximumConcurrentFetches, activeFetches);
+      await new Promise(resolve => setTimeout(resolve, 5));
+      activeFetches -= 1;
+      return {ok: true, arrayBuffer: async () => Buffer.from(fixtures.sources[file], 'base64')};
+    },
   });
   context.window = context;
   vm.runInContext(fs.readFileSync(path.join(__dirname, '../shared/web-audio-player.js'), 'utf8'), context);
@@ -74,5 +82,6 @@ function decode(wav) {
     // Python rounds to PCM16 after each mix; Web Audio keeps floating-point samples.
     assert.ok(maximumError <= 4 / 32768, `${fixture.name}: sample error ${maximumError}`);
   }
+  assert.ok(maximumConcurrentFetches >= 4, 'Independent syllable audio must load concurrently');
   console.log(`OK: ${fixtures.cases.length} shared playback waveforms match desktop timing and samples.`);
 })().catch(error => { console.error(error); process.exitCode = 1; });
