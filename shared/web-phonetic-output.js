@@ -520,7 +520,6 @@ const TangliengimPhoneticOutput = (() => {
         trimStart: false,
         trimEnd: false,
         speed: 1,
-        lFinal: false,
         shortOverlapFinal: false,
         englishClusterHelper: false,
       }));

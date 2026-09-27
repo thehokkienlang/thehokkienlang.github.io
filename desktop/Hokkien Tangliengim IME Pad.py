@@ -2207,24 +2207,19 @@ AUDIO_FILE_EXTENSIONS = ('.wav', '.wave')
 # pronounceable syllable/audio unit, every segment is shortened using the
 # pitch-preserving routine.  Normal segments use 1.10x.  Tone 4 segments
 # use a gentler 1.03x so the 214 contour is not clipped into 21.
-# ㄹ-final segments use the stronger 1.45x only when adjacent to another
-# ㄹ-final segment; otherwise they stay at the normal multi-syllable speed.
 # Adjacent audio units inside the same phrase are also overlapped/crossfaded
 # slightly to reduce the stitched-together feeling.  The overlap is determined
 # by the boundary type:
 #   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.05s
-#   previous ㄹ-final unit -> 0.15s
 #   otherwise -> 0.10s
 AUDIO_CONNECTED_TRIM_SECONDS = 0.20
 AUDIO_END_TRIM_SECONDS = 0.15
 AUDIO_UNIT_OVERLAP_SECONDS = 0.10
-AUDIO_L_FINAL_UNIT_OVERLAP_SECONDS = 0.15
 AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.05
 # Add a short leading silence so Windows/audio devices do not clip the first syllable.
 AUDIO_INITIAL_BUFFER_SECONDS = 0.25
 AUDIO_MULTI_SYLLABLE_SPEED_FACTOR = 1.10
 AUDIO_TONE4_SPEED_FACTOR = 1.03
-AUDIO_L_FINAL_SPEED_FACTOR = 1.45
 # English-cluster ㅡ-helper syllables keep their consonant onset, then get
 # clipped to a short natural lead-in.  This avoids the rushed sound caused by
 # globally speeding them up, while still preventing a full extra ㅡ vowel.
@@ -2851,11 +2846,6 @@ def audio_unit_final_jamo(unit: str) -> str:
         i += 1
 
     return last_final
-
-
-def audio_unit_has_l_final(unit: str) -> bool:
-    """True when an audio unit is pronounced with final ㄹ."""
-    return audio_unit_final_jamo(unit) == 'ᆯ'
 
 
 def audio_unit_has_short_overlap_final(unit: str) -> bool:
@@ -4202,54 +4192,47 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
         (path, trim_start)
         (path, trim_start, speed_up)                  # old format
         (path, trim_start, trim_end, speed_up)
-        (path, trim_start, trim_end, speed_up, l_final, short_overlap_final)
-        (path, trim_start, trim_end, speed_up, l_final, short_overlap_final, english_cluster_helper)  # current format
+        (path, trim_start, trim_end, speed_up, short_overlap_final, english_cluster_helper)
 
     trim_start skips AUDIO_CONNECTED_TRIM_SECONDS from the beginning.  English
     cluster helpers use their own smaller lead-in trim so the recorded silence
     is skipped without deleting the consonant.
     trim_end removes AUDIO_END_TRIM_SECONDS from the end.
     speed_up may be True/False or a numeric speed factor.  True uses the
-    default multi-syllable factor; numeric factors let ㄹ-final segments use
-    their faster shortening.  l_final/short_overlap_final/english_cluster_helper
-    control whether adjacent overlap uses the normal 0.10s, ㄹ-final 0.15s,
-    checked-final 0.05s, or the shorter English-cluster crossfade.
+    default multi-syllable factor; numeric factors allow the tone-4 contour to
+    use its gentler speed.  short_overlap_final/english_cluster_helper control
+    checked-final overlap or the shorter English-cluster crossfade.
     """
     if not segments:
         return False
 
     params = None
     comparable_params = None
-    frames: list[tuple[bytes, bool, bool, bool, bool]] = []
+    frames: list[tuple[bytes, bool, bool, bool]] = []
     try:
         for segment in segments:
             if len(segment) == 2:
                 path, trim_start = segment
                 trim_end = False
                 speed_up = False
-                l_final = False
                 short_overlap_final = False
                 english_cluster_helper = False
             elif len(segment) == 3:
                 path, trim_start, speed_up = segment
                 trim_end = False
-                l_final = False
                 short_overlap_final = False
                 english_cluster_helper = False
             elif len(segment) == 4:
                 path, trim_start, trim_end, speed_up = segment
-                l_final = False
                 short_overlap_final = False
                 english_cluster_helper = False
             elif len(segment) == 5:
-                path, trim_start, trim_end, speed_up, l_final = segment
-                short_overlap_final = False
+                path, trim_start, trim_end, speed_up, short_overlap_final = segment
                 english_cluster_helper = False
             elif len(segment) == 6:
-                path, trim_start, trim_end, speed_up, l_final, short_overlap_final = segment
-                english_cluster_helper = False
+                path, trim_start, trim_end, speed_up, short_overlap_final, english_cluster_helper = segment
             else:
-                path, trim_start, trim_end, speed_up, l_final, short_overlap_final, english_cluster_helper = segment
+                raise ValueError("Unsupported audio segment format")
 
             if isinstance(speed_up, bool):
                 speed_factor = AUDIO_MULTI_SYLLABLE_SPEED_FACTOR if speed_up else 1.0
@@ -4318,7 +4301,7 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                 # preceding phrase across comma/period/etc.  Spaces and
                 # apostrophes do not reset the phrase, so they still allow
                 # connected overlap.
-                frames.append((data, bool(trim_start), bool(l_final), bool(short_overlap_final), bool(english_cluster_helper)))
+                frames.append((data, bool(trim_start), bool(short_overlap_final), bool(english_cluster_helper)))
 
         if params is None:
             return False
@@ -4338,22 +4321,17 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                 out.writeframes(lead_silence)
 
             combined = b''
-            previous_l_final = False
             previous_short_overlap_final = False
             previous_english_cluster_helper = False
             normal_overlap_frames = max(0, int(sample_rate * AUDIO_UNIT_OVERLAP_SECONDS))
-            l_final_overlap_frames = max(0, int(sample_rate * AUDIO_L_FINAL_UNIT_OVERLAP_SECONDS))
             short_final_overlap_frames = max(0, int(sample_rate * AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS))
             english_cluster_previous_overlap_frames = max(0, int(sample_rate * AUDIO_ENGLISH_CLUSTER_PREVIOUS_OVERLAP_SECONDS))
             english_cluster_next_overlap_frames = max(0, int(sample_rate * AUDIO_ENGLISH_CLUSTER_NEXT_OVERLAP_SECONDS))
-            for data, can_overlap_previous, current_l_final, current_short_overlap_final, current_english_cluster_helper in frames:
+            for data, can_overlap_previous, current_short_overlap_final, current_english_cluster_helper in frames:
                 if not combined:
                     combined = data
                 elif can_overlap_previous:
                     # Checked endings are clipped tightly into the following unit.
-                    # ㄹ-final uses the longer 0.15s overlap before any following
-                    # unit, e.g. 셀+띧 / 틸+키 / 댤+댤.  This shortens
-                    # the perceived gap without cutting the ㄹ recording itself.
                     if current_english_cluster_helper:
                         # Boundary before an affected ㅡ-helper syllable.
                         overlap_frames = english_cluster_previous_overlap_frames
@@ -4362,8 +4340,6 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                         overlap_frames = english_cluster_next_overlap_frames
                     elif previous_short_overlap_final:
                         overlap_frames = short_final_overlap_frames
-                    elif previous_l_final:
-                        overlap_frames = l_final_overlap_frames
                     else:
                         overlap_frames = normal_overlap_frames
                     if overlap_frames > 0:
@@ -4378,7 +4354,6 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                         combined += data
                 else:
                     combined += data
-                previous_l_final = bool(current_l_final)
                 previous_short_overlap_final = bool(current_short_overlap_final)
                 previous_english_cluster_helper = bool(current_english_cluster_helper)
 
@@ -12401,7 +12376,7 @@ class HokkienIMEPad:
             self.text.focus_set()
             return 'break'
 
-        audio_segments: list[tuple[Path, bool, bool, bool, bool, bool, str, bool]] = []
+        audio_segments: list[tuple[Path, bool, bool, bool, bool, str, bool]] = []
         missing: list[str] = []
         for unit_index, (unit, tone, trim_start, trim_end, english_cluster_reduction) in enumerate(audio_units):
             if is_silent_audio_unit(unit, tone):
@@ -12423,9 +12398,8 @@ class HokkienIMEPad:
                 # original tone.  Earlier fallback parts stay tone 3, matching
                 # resolve_audio_files_for_unit().
                 segment_tone = str(tone if (not fallback_parts or idx == len(fallback_parts) - 1) else '3')
-                segment_l_final = audio_unit_has_l_final(segment_unit)
                 segment_short_overlap_final = audio_unit_has_short_overlap_final(segment_unit)
-                audio_segments.append((path, segment_trim_start, segment_trim_end, False, segment_l_final, segment_short_overlap_final, segment_tone, segment_cluster_reduction))
+                audio_segments.append((path, segment_trim_start, segment_trim_end, False, segment_short_overlap_final, segment_tone, segment_cluster_reduction))
             missing.extend(missing_keys)
 
         if unknown_hanri:
@@ -12472,11 +12446,7 @@ class HokkienIMEPad:
         if speed_all_segments:
             updated_segments = []
             total_segments = len(audio_segments)
-            for idx, (path, trim_start, trim_end, _speed, l_final, short_overlap_final, segment_tone, english_cluster_reduction) in enumerate(audio_segments):
-                previous_l_final = idx > 0 and bool(audio_segments[idx - 1][4])
-                next_l_final = idx + 1 < total_segments and bool(audio_segments[idx + 1][4])
-                l_final_between_l_finals = bool(l_final and (previous_l_final or next_l_final))
-
+            for path, trim_start, trim_end, _speed, short_overlap_final, segment_tone, english_cluster_reduction in audio_segments:
                 # English-cluster helper syllables such as 브 in 브레 or both
                 # 스/흐 in 스흐 are clipped during WAV assembly instead of
                 # being globally rushed.
@@ -12487,8 +12457,6 @@ class HokkienIMEPad:
                 # unchanged; only the time-compression factor changes.
                 elif str(segment_tone) == '4':
                     speed_factor = AUDIO_TONE4_SPEED_FACTOR
-                elif l_final_between_l_finals:
-                    speed_factor = AUDIO_L_FINAL_SPEED_FACTOR
                 else:
                     speed_factor = AUDIO_MULTI_SYLLABLE_SPEED_FACTOR
 
@@ -12497,15 +12465,14 @@ class HokkienIMEPad:
                     trim_start,
                     trim_end,
                     speed_factor,
-                    l_final,
                     short_overlap_final,
                     english_cluster_reduction,
                 ))
             audio_segments = updated_segments
         else:
             audio_segments = [
-                (path, trim_start, trim_end, False, _l_final, _short_overlap_final, _english_cluster_reduction)
-                for path, trim_start, trim_end, _speed, _l_final, _short_overlap_final, _segment_tone, _english_cluster_reduction in audio_segments
+                (path, trim_start, trim_end, False, _short_overlap_final, _english_cluster_reduction)
+                for path, trim_start, trim_end, _speed, _short_overlap_final, _segment_tone, _english_cluster_reduction in audio_segments
             ]
 
         self.audio_playing = True

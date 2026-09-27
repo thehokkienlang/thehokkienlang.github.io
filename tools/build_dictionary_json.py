@@ -142,7 +142,6 @@ def audio_for_reading(ime, audio_root: Path, reading: str, audio_mode: str | Non
                 "tone": segment_tone,
                 "trimStart": bool(trim_start or idx > 0),
                 "trimEnd": bool(trim_end or idx < len(paths) - 1),
-                "lFinal": bool(ime.audio_unit_has_l_final(segment_unit)),
                 "shortOverlapFinal": bool(ime.audio_unit_has_short_overlap_final(segment_unit)),
                 "englishClusterHelper": bool(english_cluster_reduction),
             })
@@ -162,14 +161,10 @@ def audio_for_reading(ime, audio_root: Path, reading: str, audio_mode: str | Non
     for idx, segment in enumerate(raw_segments):
         speed = 1.0
         if speed_all_segments:
-            previous_l_final = idx > 0 and bool(raw_segments[idx - 1]["lFinal"])
-            next_l_final = idx + 1 < len(raw_segments) and bool(raw_segments[idx + 1]["lFinal"])
             if segment["englishClusterHelper"]:
                 speed = float(ime.AUDIO_ENGLISH_CLUSTER_SPEED_FACTOR)
             elif str(segment["tone"]) == "4":
                 speed = float(ime.AUDIO_TONE4_SPEED_FACTOR)
-            elif segment["lFinal"] and (previous_l_final or next_l_final):
-                speed = float(ime.AUDIO_L_FINAL_SPEED_FACTOR)
             else:
                 speed = float(ime.AUDIO_MULTI_SYLLABLE_SPEED_FACTOR)
         segment["speed"] = speed

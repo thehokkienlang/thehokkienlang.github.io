@@ -70,9 +70,9 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
   assert.equal(
     vm.runInContext(`TangliengimWebAudio.legacyPlaybackSegments([
-      { tone: '3' }, { tone: '4' }, { tone: '3', lFinal: true }, { tone: '3', lFinal: true },
+      { tone: '3' }, { tone: '4' }, { tone: '3' }, { tone: '3' },
     ]).map(segment => segment.speed).join(',')`, context),
-    '1.1,1.03,1.45,1.45',
+    '1.1,1.03,1.1,1.1',
     'Web playback must use the legacy multi-syllable speed factors'
   );
   assert.equal(vm.runInContext(`(() => {

@@ -1,7 +1,6 @@
 const TangliengimWebAudio = (() => {
   const MULTI_SYLLABLE_SPEED = 1.10;
   const TONE4_SPEED = 1.03;
-  const L_FINAL_SPEED = 1.45;
   let sharedAudioContext = null;
   const decodedAudioCache = new Map();
 
@@ -35,7 +34,6 @@ const TangliengimWebAudio = (() => {
       trimStart: false,
       trimEnd: false,
       speed: 1,
-      lFinal: false,
       shortOverlapFinal: false,
       englishClusterHelper: false,
     }));
@@ -48,12 +46,9 @@ const TangliengimWebAudio = (() => {
       return segments;
     }
     return segments.map((segment, index) => {
-      const previousLFinal = index > 0 && Boolean(segments[index - 1].lFinal);
-      const nextLFinal = index + 1 < segments.length && Boolean(segments[index + 1].lFinal);
       let speed = MULTI_SYLLABLE_SPEED;
       if (segment.englishClusterHelper) speed = 1;
       else if (String(segment.tone || "") === "4") speed = TONE4_SPEED;
-      else if (segment.lFinal && (previousLFinal || nextLFinal)) speed = L_FINAL_SPEED;
       return { ...segment, speed };
     });
   }
@@ -176,7 +171,6 @@ const TangliengimWebAudio = (() => {
       sampleRate: buffer.sampleRate,
       channelCount: buffer.numberOfChannels,
       canOverlapPrevious: Boolean(segment.trimStart),
-      lFinal: Boolean(segment.lFinal),
       shortOverlapFinal: Boolean(segment.shortOverlapFinal),
       englishClusterHelper: Boolean(segment.englishClusterHelper),
     };
@@ -185,7 +179,6 @@ const TangliengimWebAudio = (() => {
   function overlapSeconds(previous, current) {
     if (current.englishClusterHelper || previous.englishClusterHelper) return 0.04;
     if (previous.shortOverlapFinal) return 0.05;
-    if (previous.lFinal) return 0.15;
     return 0.1;
   }
 

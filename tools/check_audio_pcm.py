@@ -53,9 +53,9 @@ def main():
                     {'file': source.name, 'tone': '4', 'trimStart': True, 'trimEnd': True, 'shortOverlapFinal': True},
                     {'file': source.name, 'tone': '3', 'trimStart': True},
                 ]),
-                (f'{rate}-nasal', [
-                    {'file': source.name, 'tone': '3', 'lFinal': True, 'trimEnd': True},
-                    {'file': source.name, 'tone': '3', 'lFinal': True, 'trimStart': True},
+                (f'{rate}-nonchecked-final', [
+                    {'file': source.name, 'tone': '3', 'trimEnd': True},
+                    {'file': source.name, 'tone': '3', 'trimStart': True},
                 ]),
                 (f'{rate}-cluster', [
                     {'file': source.name, 'tone': '3', 'englishClusterHelper': True, 'trimEnd': True},
@@ -82,15 +82,10 @@ def main():
                 if len(segments) > 1 and not segment.get('englishClusterHelper'):
                     if segment['tone'] == '4':
                         speed = reference['AUDIO_TONE4_SPEED_FACTOR']
-                    elif segment.get('lFinal') and (
-                        (i > 0 and segments[i - 1].get('lFinal')) or
-                        (i + 1 < len(segments) and segments[i + 1].get('lFinal'))
-                    ):
-                        speed = reference['AUDIO_L_FINAL_SPEED_FACTOR']
                     else:
                         speed = reference['AUDIO_MULTI_SYLLABLE_SPEED_FACTOR']
                 native.append((sources[segment['file']], segment.get('trimStart', False),
-                               segment.get('trimEnd', False), speed, segment.get('lFinal', False),
+                               segment.get('trimEnd', False), speed,
                                segment.get('shortOverlapFinal', False), segment.get('englishClusterHelper', False)))
             output_path = scratch / 'expected.wav'
             assert reference['concatenate_wav_segments'](native, output_path), name
