@@ -432,6 +432,36 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
+  function toneOverlaySpansFromReading(reading, text, start) {
+    const source = normalizeApostrophes(String(reading || ""));
+    let readingIndex = 0;
+    let textIndex = start;
+    const spans = [];
+
+    while (readingIndex < source.length) {
+      const readingUnit = readingUnitAt(source, readingIndex);
+      const textUnit = readingUnitAt(text, textIndex);
+      if (!readingUnit?.canCarryTone || !textUnit?.canCarryTone || readingUnit.text !== textUnit.text) {
+        return null;
+      }
+
+      const tone = source[readingUnit.end];
+      if (tone && isToneMark(tone)) {
+        spans.push({
+          start: textIndex,
+          end: textUnit.end,
+          hangul: textUnit.text,
+          reading: `${textUnit.text}${tone}`,
+        });
+      }
+
+      readingIndex = readingUnit.end + (tone && isToneMark(tone) ? 1 : 0);
+      textIndex = textUnit.end;
+    }
+
+    return { spans, end: textIndex };
+  }
+
   function renderInlineUpperToneReading(reading) {
     const fragment = document.createDocumentFragment();
     const text = normalizeApostrophes(reading);
@@ -981,6 +1011,41 @@ const TangliengimImeCore = (() => {
         reading,
         explicit: Boolean(explicit),
       }));
+    }
+
+    getHangulToneReadingsForDisplay(text = this.control.value) {
+      const remembered = this.getRememberedHangulReadings(text);
+      const tonesByStart = new Map();
+      let index = 0;
+
+      while (index < text.length) {
+        const inferred = this.dictionaryIndex?.findHangulOverrideAt(text, index);
+        if (inferred?.entry) {
+          const aligned = toneOverlaySpansFromReading(
+            inferred.entry.reading || inferred.entry.readingBase,
+            text,
+            index
+          );
+          if (aligned?.end > index) {
+            for (const span of aligned.spans) {
+              if (!tonesByStart.has(span.start)) tonesByStart.set(span.start, span);
+            }
+            index = aligned.end;
+            continue;
+          }
+        }
+
+        const unit = readingUnitAt(text, index);
+        index = unit?.end ?? index + 1;
+      }
+
+      for (const span of remembered) {
+        const aligned = toneOverlaySpansFromReading(span.reading, text, span.start);
+        if (!aligned || aligned.end > span.end) continue;
+        for (const toneSpan of aligned.spans) tonesByStart.set(toneSpan.start, toneSpan);
+      }
+
+      return [...tonesByStart.values()].sort((left, right) => left.start - right.start);
     }
 
     previousHangulUnit(text, cursor) {

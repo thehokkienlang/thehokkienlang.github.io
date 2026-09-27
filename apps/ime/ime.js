@@ -262,7 +262,7 @@ function updateToneOverlay() {
   imeToneOverlay.replaceChildren(
     imeCore.renderToneOverlayText(
       imeText.value,
-      imeController.getRememberedHangulReadings(imeText.value)
+      imeController.getHangulToneReadingsForDisplay(imeText.value)
     )
   );
   imeText.classList.add("tone-overlay-source");
