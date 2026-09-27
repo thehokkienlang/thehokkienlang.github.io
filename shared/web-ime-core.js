@@ -365,6 +365,35 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
+  function renderToneOverlayText(text, rememberedReadings = []) {
+    const fragment = document.createDocumentFragment();
+    const source = String(text || "");
+    const spans = Array.from(rememberedReadings || []).sort(
+      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
+    );
+    let cursor = 0;
+
+    for (const span of spans) {
+      const start = Number(span?.start);
+      const end = Number(span?.end);
+      const hangul = String(span?.hangul || "");
+      const reading = normalizeApostrophes(String(span?.reading || ""));
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
+        continue;
+      }
+      if (source.slice(start, end) !== hangul || TangliengimHangulIme.normalizeReadingBase(reading) !== hangul) {
+        continue;
+      }
+
+      fragment.append(displayTextNode(source.slice(cursor, start)));
+      fragment.append(renderToneMarkedReading(reading));
+      cursor = end;
+    }
+
+    fragment.append(displayTextNode(source.slice(cursor)));
+    return fragment;
+  }
+
   function renderInlineUpperToneReading(reading) {
     const fragment = document.createDocumentFragment();
     const text = normalizeApostrophes(reading);
@@ -1437,6 +1466,7 @@ const TangliengimImeCore = (() => {
     readingUnitAt,
     readingUnitToneEnd,
     renderInlineUpperToneReading,
+    renderToneOverlayText,
     renderToneMarkedReading,
     searchableEntry,
     singaporeTone1AudioReplacement,

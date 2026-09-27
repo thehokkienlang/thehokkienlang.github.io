@@ -68,6 +68,22 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext(`${controllerName}.candidatesByReading.size > 0`, context));
   assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
+  assert.ok(vm.runInContext(`(() => {
+    const fragment = TangliengimImeCore.renderToneOverlayText('칟토', [
+      { start: 0, end: 2, hangul: '칟토', reading: '칟1토4' },
+    ]);
+    const rubies = [];
+    const visit = node => {
+      if (node?.className === 'hangul-tone') rubies.push(node);
+      for (const child of node?.children || []) visit(child);
+    };
+    visit(fragment);
+    return rubies.length === 2
+      && rubies[0].children[0].textContent === '칟'
+      && rubies[0].children[1].textContent === 'ꞈ'
+      && rubies[1].children[0].textContent === '토'
+      && rubies[1].children[1].textContent === 'ˏ';
+  })()`, context), 'IME tone overlay must reuse ruby tone marks without changing its base Hangul text');
   assert.equal(
     vm.runInContext(`TangliengimWebAudio.legacyPlaybackSegments([
       { tone: '3' }, { tone: '4' }, { tone: '3' }, { tone: '3' },

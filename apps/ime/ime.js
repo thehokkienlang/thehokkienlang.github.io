@@ -7,6 +7,7 @@ const audioButton = document.querySelector("#audioButton");
 const taipeiButton = document.querySelector("#taipeiButton");
 const singaporeButton = document.querySelector("#singaporeButton");
 const candidateBar = document.querySelector("#candidateBar");
+const imeToneOverlay = document.querySelector("#imeToneOverlay");
 const lomariPreview = document.querySelector("#lomariPreview");
 const statusLine = document.querySelector("#statusLine");
 const toast = document.querySelector("#toast");
@@ -30,7 +31,7 @@ const imeController = imeCore.createTextImeController({
   control: imeText,
   candidateContainer: candidateBar,
   enabled: () => true,
-  onUpdate: updateLomariPreview,
+  onUpdate: updateImePresentation,
   onCandidatesChanged: candidatePopup.schedule,
   enterBehavior: "newline",
 });
@@ -248,6 +249,31 @@ function updateLomariPreview() {
   lomariPreview.scrollTop = lomariPreview.scrollHeight;
 }
 
+function syncToneOverlayViewport() {
+  if (!imeToneOverlay) return;
+  if (imeText.clientWidth) imeToneOverlay.style.width = `${imeText.clientWidth}px`;
+  if (imeText.clientHeight) imeToneOverlay.style.height = `${imeText.clientHeight}px`;
+  imeToneOverlay.scrollTop = imeText.scrollTop;
+  imeToneOverlay.scrollLeft = imeText.scrollLeft;
+}
+
+function updateToneOverlay() {
+  if (!imeToneOverlay) return;
+  imeToneOverlay.replaceChildren(
+    imeCore.renderToneOverlayText(
+      imeText.value,
+      imeController.getRememberedHangulReadings(imeText.value)
+    )
+  );
+  imeText.classList.add("tone-overlay-source");
+  syncToneOverlayViewport();
+}
+
+function updateImePresentation() {
+  updateToneOverlay();
+  updateLomariPreview();
+}
+
 function audioPlanFromText(text) {
   return audioPlanner.plan(text);
 }
@@ -319,7 +345,7 @@ async function loadDictionary() {
     state.jamoLomari = new Map(Object.entries(data.runtime?.jamoLomari || {}));
     state.jamoAudio = new Map(Object.entries(data.runtime?.jamoAudio || {}));
     imeController.setEntries(state.entries, dictionaryIndex);
-    updateLomariPreview();
+    updateImePresentation();
     // A successful load is the normal state, so keep the toolbar quiet.
     statusLine.textContent = "";
     statusLine.hidden = true;
@@ -373,14 +399,22 @@ imeText.addEventListener("keyup", (event) => {
   }
 });
 
+imeText.addEventListener("scroll", syncToneOverlayViewport);
+
+if (typeof ResizeObserver === "function") {
+  new ResizeObserver(syncToneOverlayViewport).observe(imeText);
+}
+
 if (typeof window.addEventListener === "function") {
   window.addEventListener("blur", () => {
     guideShifted = false;
     for (const key of guideButtons.keys()) setGuidePressed(key, false);
     refreshGuideShiftState();
   });
+  window.addEventListener("resize", syncToneOverlayViewport);
 }
 
 renderKeyboardGuide();
+updateImePresentation();
 
 loadDictionary();

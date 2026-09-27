@@ -123,6 +123,7 @@ h1 {
   border-top: 1px solid #e4ebf3;
 }
 
+.ime-tone-overlay,
 .ime-text {
   display: block;
   width: 100%;
@@ -135,7 +136,30 @@ h1 {
   font-family: "Tangliengim Tone", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
   font-size: clamp(1.35rem, 3.2vw, 1.85rem);
   line-height: 1.42;
+}
+
+.ime-tone-overlay {
+  position: absolute;
+  inset: 0 auto auto 0;
+  z-index: 1;
+  overflow: hidden;
+  white-space: pre-wrap;
+  overflow-wrap: break-word;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ime-text {
+  position: relative;
+  z-index: 2;
+  background: transparent;
   caret-color: rgba(29, 78, 216, 0.75);
+}
+
+.ime-text.tone-overlay-source {
+  color: transparent;
+  -webkit-text-fill-color: transparent;
 }
 
 /* Keep the guide on screen by giving it space from the input while it is open. */
@@ -145,6 +169,7 @@ h1 {
 
 .ime-text::placeholder {
   color: #a5b0be;
+  -webkit-text-fill-color: #a5b0be;
   font-family: Calibri, "Segoe UI", Arial, sans-serif;
   font-size: inherit;
   line-height: inherit;
@@ -163,6 +188,7 @@ h1 {
   cursor: pointer;
   font-size: 1.7rem;
   line-height: 1;
+  z-index: 3;
 }
 
 .clear-button:hover {
@@ -464,6 +490,13 @@ h1 {
   font-weight: 700;
   line-height: 1;
   text-align: center;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.ime-tone-overlay .hangul-tone {
+  line-height: inherit;
 }
 
 .toast {
