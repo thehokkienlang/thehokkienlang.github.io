@@ -502,7 +502,7 @@ h1 {
 
 .tone-overlay-mark {
   position: absolute;
-  top: calc(-0.72em - 6px);
+  top: calc(-0.72em - 2px);
   left: 50%;
   width: max-content;
   transform: translateX(-50%);
