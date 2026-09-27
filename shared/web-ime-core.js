@@ -40,7 +40,7 @@ const TangliengimImeCore = (() => {
     4: "4", "ˊ": "4", "ˏ": "4",
     5: "5", "ˉ": "5", "ˍ": "5",
   });
-  const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ", "ᆽ", "ᆾ"]);
+  const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ"]);
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
   const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘"]);
@@ -1110,7 +1110,8 @@ const TangliengimImeCore = (() => {
         event.preventDefault();
         this.syncComposerFromControl();
         this.replaceSelectionBeforeImeKey();
-        for (const char of [...event.data]) {
+        const inputText = TangliengimHangulIme.normalizeDisallowedFinalInputText(event.data);
+        for (const char of [...inputText]) {
           if (!this.applyHiddenTone(char)) this.composer.processChar(char);
         }
         this.updateControlFromComposer();
@@ -1132,15 +1133,22 @@ const TangliengimImeCore = (() => {
 
     handleInput() {
       if (this.internalUpdate) return;
-      const normalizedValue = normalizeApostrophes(this.control.value);
+      const imeEnabled = this.isEnabled();
+      const normalizeInput = (value) => {
+        const apostrophesNormalized = normalizeApostrophes(value);
+        return imeEnabled
+          ? TangliengimHangulIme.normalizeDisallowedFinalInputText(apostrophesNormalized)
+          : apostrophesNormalized;
+      };
+      const normalizedValue = normalizeInput(this.control.value);
       if (normalizedValue !== this.control.value) {
-        const start = this.control.selectionStart ?? normalizedValue.length;
-        const end = this.control.selectionEnd ?? start;
+        const start = normalizeInput(this.control.value.slice(0, this.control.selectionStart ?? this.control.value.length)).length;
+        const end = normalizeInput(this.control.value.slice(0, this.control.selectionEnd ?? this.control.value.length)).length;
         this.control.value = normalizedValue;
         this.control.setSelectionRange?.(start, end);
       }
       this.syncRememberedReadings(normalizedValue);
-      if (this.isEnabled()) {
+      if (imeEnabled) {
         this.composer.setText(normalizedValue, this.control.selectionStart ?? normalizedValue.length);
       }
       this.onUpdate();

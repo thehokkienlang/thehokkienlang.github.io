@@ -26,13 +26,14 @@ const TangliengimHangulIme = (() => {
     "ㅕ": "ᅧ", "ㅖ": "ᅨ", "ㅗ": "ᅩ", "ㅛ": "ᅭ", "ㅜ": "ᅮ", "ㅠ": "ᅲ",
     "ㅡ": "ᅳ", "ㅣ": "ᅵ", "ㅢ": "ᅴ",
   };
+  // ㅅ/ㅊ are onset-only; ㅈ is handled as a ㅏ/ㅑ special-medial shortcut.
   const COMPAT_TO_T = {
     "ㄱ": "ᆨ", "ㄴ": "ᆫ", "ㄷ": "ᆮ", "ㄹ": "ᆯ", "ㅁ": "ᆷ",
-    "ㅂ": "ᆸ", "ㅅ": "ᆺ", "ㅇ": "ᆼ", "ㅈ": "ᆽ", "ㅊ": "ᆾ", "ㅎ": "ᇂ",
+    "ㅂ": "ᆸ", "ㅇ": "ᆼ", "ㅎ": "ᇂ",
   };
   const T_TO_L = {
     "ᆨ": "ᄀ", "ᆫ": "ᄂ", "ᆮ": "ᄃ", "ᆯ": "ᄅ", "ᆷ": "ᄆ",
-    "ᆸ": "ᄇ", "ᆺ": "ᄉ", "ᆼ": "ᄋ", "ᆽ": "ᄌ", "ᆾ": "ᄎ", "ᇂ": "ᄒ",
+    "ᆸ": "ᄇ", "ᆼ": "ᄋ", "ᇂ": "ᄒ",
   };
   const L_TO_COMPAT = Object.fromEntries(Object.entries(COMPAT_TO_L).map(([key, value]) => [value, key]));
   const V_TO_COMPAT = Object.fromEntries(Object.entries(COMPAT_TO_V).map(([key, value]) => [value, key]));
@@ -58,6 +59,8 @@ const TangliengimHangulIme = (() => {
   const T_COMBINE = { "ᆯᇂ": "ᆶ" };
   const T_SPLIT = { "ᆶ": ["ᆯ", "ᇂ"] };
   const SPECIAL_MEDIALS = new Set(["ᅷ", "ᆤ", "ힻ"]);
+  const FINAL_J_SHORTCUT_MEDIALS = { "ᅡ": "ᅷ", "ᅣ": "ᆤ" };
+  const DISALLOWED_FINAL_TO_COMPAT = { "ᆺ": "ㅅ", "ᆽ": "ㅈ", "ᆾ": "ㅊ" };
   const SPECIAL_MEDIAL_BACKSPACE_BASE = {
     "ᅷ": "ᅡ",
     "ᆤ": "ᅣ",
@@ -108,6 +111,26 @@ const TangliengimHangulIme = (() => {
       return String.fromCodePoint(0xac00 + (L_INDEX[initial] * 21 + V_INDEX[medial]) * 28 + T_INDEX[final]);
     }
     return `${initial}${medial}${final}`;
+  }
+
+  function normalizeDisallowedFinalInputText(value) {
+    let output = "";
+    for (const char of String(value ?? "")) {
+      const code = char.codePointAt(0);
+      const offset = code - 0xac00;
+      const final = offset >= 0 && offset < 11172 ? T_TABLE[offset % 28] : "";
+      if (!(final in DISALLOWED_FINAL_TO_COMPAT)) {
+        output += char;
+        continue;
+      }
+      const initial = L_TABLE[Math.floor(offset / 588)];
+      const medial = V_TABLE[Math.floor((offset % 588) / 28)];
+      const specialMedial = final === "ᆽ" ? FINAL_J_SHORTCUT_MEDIALS[medial] : "";
+      output += specialMedial
+        ? `${initial}${specialMedial}`
+        : `${String.fromCodePoint(code - T_INDEX[final])}${DISALLOWED_FINAL_TO_COMPAT[final]}`;
+    }
+    return output;
   }
 
   function canBeFinal(compat) {
@@ -316,6 +339,14 @@ const TangliengimHangulIme = (() => {
         }
         this.commit();
         this.initial = initial;
+        this.eToYeAutocorrected = false;
+        return;
+      }
+      if (
+        this.initial && this.medial && !this.final && sourceCompat === "ㅈ" &&
+        this.medial in FINAL_J_SHORTCUT_MEDIALS
+      ) {
+        this.medial = FINAL_J_SHORTCUT_MEDIALS[this.medial];
         this.eToYeAutocorrected = false;
         return;
       }
@@ -588,6 +619,7 @@ const TangliengimHangulIme = (() => {
   return {
     Composer,
     keyboardGuideOutput,
+    normalizeDisallowedFinalInputText,
     normalizeAtomicSelection,
     normalizeReadingBase,
     normalizeReadingToneKey,

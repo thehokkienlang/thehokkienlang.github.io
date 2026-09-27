@@ -445,17 +445,15 @@ COMPAT_TO_V = {
     'ㅕ': 'ᅧ', 'ㅖ': 'ᅨ', 'ㅗ': 'ᅩ', 'ㅛ': 'ᅭ', 'ㅜ': 'ᅮ', 'ㅠ': 'ᅲ',
     'ㅡ': 'ᅳ', 'ㅣ': 'ᅵ', 'ㅢ': 'ᅴ',
 }
-# Hokkien Hangul does not use every Korean batchim.
-# Allowed final consonants here are only the finals used by the IME.
-# Banned finals: ㄲ ㄳ ㄵ ㄶ ㄺ ㄻ ㄼ ㄽ ㄾ ㄿ ㅄ ㅋ ㅌ ㅍ.
+# ㅅ and ㅊ are onset-only. Final ㅈ is intercepted as shorthand for ᅷ/ᆤ.
 COMPAT_TO_T = {
     'ㄱ': 'ᆨ', 'ㄴ': 'ᆫ', 'ㄷ': 'ᆮ', 'ㄹ': 'ᆯ', 'ㅁ': 'ᆷ',
-    'ㅂ': 'ᆸ', 'ㅅ': 'ᆺ', 'ㅇ': 'ᆼ', 'ㅈ': 'ᆽ', 'ㅊ': 'ᆾ',
+    'ㅂ': 'ᆸ', 'ㅇ': 'ᆼ',
     'ㅎ': 'ᇂ',
 }
 T_TO_L = {
     'ᆨ': 'ᄀ', 'ᆩ': 'ᄁ', 'ᆫ': 'ᄂ', 'ᆮ': 'ᄃ', 'ᆯ': 'ᄅ', 'ᆷ': 'ᄆ',
-    'ᆸ': 'ᄇ', 'ᆺ': 'ᄉ', 'ᆼ': 'ᄋ', 'ᆽ': 'ᄌ', 'ᆾ': 'ᄎ',
+    'ᆸ': 'ᄇ', 'ᆼ': 'ᄋ',
     'ᆿ': 'ᄏ', 'ᇀ': 'ᄐ', 'ᇁ': 'ᄑ', 'ᇂ': 'ᄒ',
 }
 
@@ -490,6 +488,8 @@ T_COMBINE = {
 T_SPLIT = {v: k for k, v in T_COMBINE.items()}
 
 SPECIAL_MEDIALS = {'ᅷ', 'ᆤ', 'ힻ'}
+FINAL_J_SHORTCUT_MEDIALS = {'ᅡ': 'ᅷ', 'ᅣ': 'ᆤ'}
+DISALLOWED_FINAL_TO_COMPAT = {'ᆺ': 'ㅅ', 'ᆽ': 'ㅈ', 'ᆾ': 'ㅊ'}
 HANGUL_CHOSEONG_FILLER = '\u115F'
 # Backspace should peel Hokkien non-precomposed vowels back to the
 # closest ordinary Hangul vowel first, rather than leaving only the initial.
@@ -1083,17 +1083,14 @@ CHECKED_TONE_SANDHI_MAP = {
     '3': '1',
 }
 CHECKED_FINALS_FOR_SANDHI = {'ᆨ', 'ᆮ', 'ᆸ', 'ᇂ', 'ᆶ'}
-SANDHI_EQUIVALENT_FINALS = {
-    'ᆽ': 'ᆮ',  # final ㅈ is pronounced/sandhis as ㄷ
-    'ᆾ': 'ᇂ',  # final ㅊ is pronounced/sandhis as ㅎ
-}
+SANDHI_EQUIVALENT_FINALS = {}
 
 
 def canonicalize_sandhi_final_jamo(final: str) -> str:
     """Return the final-jamo class used by tone sandhi.
 
-    This is separate from spelling: the IME still displays 갗/짖 as written,
-    but tone sandhi treats final ㅊ as ㅎ and final ㅈ as ㄷ.
+    Final ㅈ is normalized to a special medial before tone processing; it is
+    not treated as a pronunciation-equivalent coda.
     """
     return SANDHI_EQUIVALENT_FINALS.get(final, final)
 
@@ -1756,6 +1753,23 @@ def decompose_precomposed_syllable(ch: str) -> tuple[str, str, str] | None:
     return initial, medial, final
 
 
+def normalize_disallowed_final_input_text(text: str) -> str:
+    """Normalize final-ㅈ shorthand and split all disallowed coda consonants."""
+    output = []
+    for ch in str(text or ''):
+        decomposed = decompose_precomposed_syllable(ch)
+        if not decomposed or decomposed[2] not in DISALLOWED_FINAL_TO_COMPAT:
+            output.append(ch)
+            continue
+        initial, medial, final = decomposed
+        special_medial = FINAL_J_SHORTCUT_MEDIALS.get(medial) if final == 'ᆽ' else None
+        if special_medial:
+            output.append(initial + special_medial)
+        else:
+            output.append(chr(ord(ch) - T_INDEX[final]) + DISALLOWED_FINAL_TO_COMPAT[final])
+    return ''.join(output)
+
+
 
 
 def medial_typing_components(medial: str) -> list[str]:
@@ -1876,6 +1890,8 @@ def raw_keyboard_prefix_display(raw_prefix: str) -> str:
             elif initial and not medial:
                 commit()
                 initial = new_initial
+            elif initial and medial and not final and compat == 'ㅈ' and medial in FINAL_J_SHORTCUT_MEDIALS:
+                medial = FINAL_J_SHORTCUT_MEDIALS[medial]
             elif initial and medial and not final and compat in COMPAT_TO_T:
                 final = COMPAT_TO_T[compat]
             else:
@@ -2719,20 +2735,22 @@ def audio_folder_path() -> Path:
 #     릐 -> 리   ㅢ is pronounced like ㅣ
 #     괴 -> 궤   ㅚ is pronounced like ㅞ
 #     옹 -> 엉   ㅗ+ㅇ shares the canonical ong recording with ㅓ+ㅇ
+#     용 -> 영   ㅛ+ㅇ shares the canonical yong recording with ㅕ+ㅇ
 AUDIO_EQUIVALENT_MEDIALS = {
     'ᅴ': 'ᅵ',
     'ᅬ': 'ᅰ',
 }
 AUDIO_EQUIVALENT_FINALS = {
-    'ᆺ': '',
-    'ᆽ': 'ᆮ',
-    'ᆾ': 'ᇂ',
 }
 AUDIO_EQUIVALENT_COMPAT_VOWELS = {
     'ㅢ': 'ㅣ',
     'ㅚ': 'ㅞ',
 }
 AUDIO_EQUIVALENT_COMPAT_FINALS = {}
+AUDIO_NG_MEDIAL_ALIASES = {
+    'ᅩ': 'ᅥ',
+    'ᅭ': 'ᅧ',
+}
 
 
 def canonicalize_audio_unit(unit: str) -> str:
@@ -2755,8 +2773,8 @@ def canonicalize_audio_unit(unit: str) -> str:
             initial, medial, final = decomposed
             medial = AUDIO_EQUIVALENT_MEDIALS.get(medial, medial)
             final = AUDIO_EQUIVALENT_FINALS.get(final, final)
-            if medial == 'ᅩ' and final == 'ᆼ':
-                medial = 'ᅥ'
+            if final == 'ᆼ':
+                medial = AUDIO_NG_MEDIAL_ALIASES.get(medial, medial)
             out.append(compose_syllable(initial, medial, final))
             i += 1
             continue
@@ -2770,8 +2788,8 @@ def canonicalize_audio_unit(unit: str) -> str:
             while j < len(text) and text[j] in T_INDEX and text[j] != '':
                 finals.append(AUDIO_EQUIVALENT_FINALS.get(text[j], text[j]))
                 j += 1
-            if medial == 'ᅩ' and finals == ['ᆼ']:
-                medial = 'ᅥ'
+            if finals == ['ᆼ']:
+                medial = AUDIO_NG_MEDIAL_ALIASES.get(medial, medial)
             out.append(initial + medial + ''.join(finals))
             i = j
             continue
@@ -3098,12 +3116,12 @@ def build_jamo_pronunciation_readings() -> dict[str, str]:
     add('미5음4', 'ㅁ', 'ᄆ', 'ᆷ')
     add('비5얍1', 'ㅂ', 'ᄇ', 'ᆸ')
     add('샹5비5얍1', 'ㅃ', 'ᄈ')
-    add('시5오1', 'ㅅ', 'ᄉ', 'ᆺ')
+    add('시5오1', 'ㅅ', 'ᄉ')
     add('이5응1', 'ㅇ', 'ᄋ', 'ᆼ')
     add('ᄐᅷ3이5응1', 'ㆆ', 'ᅙ')
-    add('지5웆1', 'ㅈ', 'ᄌ', 'ᆽ')
+    add('지5웆1', 'ㅈ', 'ᄌ')
     add('샹5지5웆1', 'ㅉ', 'ᄍ')
-    add('치1웇', 'ㅊ', 'ᄎ', 'ᆾ')
+    add('치1웇', 'ㅊ', 'ᄎ')
     add('키1역', 'ㅋ', 'ᄏ', 'ᆿ')
     add('티1욷', 'ㅌ', 'ᄐ', 'ᇀ')
     add('피1얍', 'ㅍ', 'ᄑ', 'ᇁ')
@@ -5264,9 +5282,6 @@ PREVIEW_JONGSEONG_TO_LOMARI = {
     'ᆷ': 'm',
     'ᆸ': 'p',
     'ᆼ': 'ng',
-    'ᆺ': '',    # final ㅅ is silent in this system
-    'ᆽ': 't',   # final ㅈ -> -t, same as ㄷ
-    'ᆾ': 'h',   # final ㅊ -> -h, same as ㅎ
     'ᇂ': 'h',
 }
 
@@ -6038,9 +6053,7 @@ class Composer:
             return
 
         if self.initial and not self.medial:
-            # Standalone ㄹ + ㅅ/ㅎ should become the compatibility cluster
-            # ㅀ, matching the same Hokkien-allowed batchim cluster used
-            # inside full syllables.
+            # Standalone ㄹ + ㅎ should become the allowed ㅀ cluster.
             previous_compat = L_TO_COMPAT.get(self.initial, '')
             if (
                 previous_compat in COMPAT_TO_T
@@ -6057,6 +6070,15 @@ class Composer:
             # Two initials in a row: commit the first and start a new one.
             self.commit()
             self.initial = initial
+            self.e_to_ye_autocorrected = False
+            return
+
+        if (
+            self.initial and self.medial and not self.final
+            and source_compat == 'ㅈ'
+            and self.medial in FINAL_J_SHORTCUT_MEDIALS
+        ):
+            self.medial = FINAL_J_SHORTCUT_MEDIALS[self.medial]
             self.e_to_ye_autocorrected = False
             return
 
@@ -12258,6 +12280,8 @@ class HokkienIMEPad:
         if content:
             content = str(content).replace('\r\n', '\n').replace('\r', '\n')
             content = normalize_typographic_apostrophes(content)
+            if self.ime_on.get():
+                content = normalize_disallowed_final_input_text(content)
             self.push_undo_state()
             self.close_candidate_popup()
             self.flush_sequence_buffer()

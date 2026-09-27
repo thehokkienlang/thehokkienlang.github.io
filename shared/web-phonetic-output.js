@@ -30,8 +30,7 @@ const TangliengimPhoneticOutput = (() => {
   };
   const FINAL_ROMAN = {
     "": "", "\u11a8": "k", "\u11ab": "n", "\u11ae": "t", "\u11af": "l",
-    "\u11b7": "m", "\u11b8": "p", "\u11bc": "ng", "\u11ba": "", "\u11bd": "t",
-    "\u11be": "h", "\u11c2": "h",
+    "\u11b7": "m", "\u11b8": "p", "\u11bc": "ng", "\u11c2": "h",
   };
   const L_CLUSTER_FINALS = {
     "\u11b6": "h", "\u11b0": "k", "\u11cd": "n", "\u11ce": "t",
@@ -60,7 +59,7 @@ const TangliengimPhoneticOutput = (() => {
   };
   const TONE_MARKS = { 1: "\u0302", 2: "\u0300", 3: "", 4: "\u0301", 5: "\u0304" };
   const TONE_PRIORITY = ["a", "e", "o", "u", "i", "n", "m"];
-  const CHECKED_FINALS = new Set(["\u11a8", "\u11ae", "\u11b8", "\u11c2", "\u11b6", "\u11bd", "\u11be"]);
+  const CHECKED_FINALS = new Set(["\u11a8", "\u11ae", "\u11b8", "\u11c2", "\u11b6"]);
   const OPEN_SANDHI = { 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" };
   const CHECKED_SANDHI = { 1: "3", 3: "1" };
   const PUNCTUATION = /[\p{Punctuation}\p{Symbol}]/u;
@@ -181,8 +180,14 @@ const TangliengimPhoneticOutput = (() => {
   function canonicalizeAudioUnit(unit) {
     const text = String(unit || "");
     const parts = unitParts(text);
-    if (!parts || parts[1] !== "\u1169" || parts[2] !== "\u11bc") return text;
-    return composeAudioUnit(parts[0], "\u1165", parts[2]);
+    if (!parts || parts[2] !== "\u11bc") return text;
+    const equivalentMedial = {
+      "\u1169": "\u1165",
+      "\u116d": "\u1167",
+    }[parts[1]];
+    return equivalentMedial
+      ? composeAudioUnit(parts[0], equivalentMedial, parts[2])
+      : text;
   }
 
   function romanizeUnit(unit) {

@@ -325,8 +325,6 @@ JONGSEONG_TO_Lomari = {
     'ᆷ': 'm',
     'ᆸ': 'p',
     'ᆼ': 'ng',
-    'ᆽ': 't',   # final ㅈ → -t (same as ㄷ)
-    'ᆾ': 'h',   # final ㅊ → -h (same as ㅎ)
     'ᇂ': 'h',
 }
 
@@ -369,12 +367,12 @@ def build_jamo_pronunciation_readings() -> dict[str, str]:
         'ㅁ': '미5음4', 'ᄆ': '미5음4', 'ᆷ': '미5음4',
         'ㅂ': '비5얍1', 'ᄇ': '비5얍1', 'ᆸ': '비5얍1',
         'ㅃ': '샹5비5얍1', 'ᄈ': '샹5비5얍1',
-        'ㅅ': '시5오1', 'ᄉ': '시5오1', 'ᆺ': '시5오1',
+        'ㅅ': '시5오1', 'ᄉ': '시5오1',
         'ㅇ': '이5응1', 'ᄋ': '이5응1', 'ᆼ': '이5응1',
         'ㆆ': 'ᄐᅷ3이5응1', 'ᅙ': 'ᄐᅷ3이5응1',
-        'ㅈ': '지5웆1', 'ᄌ': '지5웆1', 'ᆽ': '지5웆1',
+        'ㅈ': '지5웆1', 'ᄌ': '지5웆1',
         'ㅉ': '샹5지5웆1', 'ᄍ': '샹5지5웆1',
-        'ㅊ': '치1웇', 'ᄎ': '치1웇', 'ᆾ': '치1웇',
+        'ㅊ': '치1웇', 'ᄎ': '치1웇',
         'ㅋ': '키1역', 'ᄏ': '키1역', 'ᆿ': '키1역',
         'ㅌ': '티1욷', 'ᄐ': '티1욷', 'ᇀ': '티1욷',
         'ㅍ': '피1얍', 'ᄑ': '피1얍', 'ᇁ': '피1얍',
@@ -447,10 +445,7 @@ CHECKED_SANDHI_TO_CITATION_MAP = {
     '3': '1',
 }
 CHECKED_FINALS_FOR_SANDHI = {'ᆨ', 'ᆮ', 'ᆸ', 'ᇂ', 'ᆶ'}
-SANDHI_EQUIVALENT_FINALS = {
-    'ᆽ': 'ᆮ',
-    'ᆾ': 'ᇂ',
-}
+SANDHI_EQUIVALENT_FINALS = {}
 HANRI_TSV_FILENAME = "hokkien_hanri_dict.tsv"
 DEFAULT_HANRI_TSV_PATH = Path(__file__).resolve().with_name(HANRI_TSV_FILENAME)
 _HANRI_READING_INDEX: dict[str, list[dict]] | None = None
