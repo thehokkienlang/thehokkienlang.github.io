@@ -74,7 +74,7 @@ def main():
     assert "pointer-events: none" in ime_styles and "user-select: none" in ime_styles
     assert "calc(100dvh - 630px)" in ime_styles
     assert 'classList.toggle("keyboard-guide-open", opening)' in ime_script
-    assert "renderToneOverlayText" in ime_script and "getRememberedHangulReadings" in ime_script
+    assert "renderToneOverlayText" in ime_script and "getHangulToneReadingsForDisplay" in ime_script
     assert '/shared/web-ime-menu.css?v=' in ime_html
     assert '/shared/web-ime-menu.css?v=' in dictionary_html
     assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view
