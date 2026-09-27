@@ -1,6 +1,6 @@
 reading	hanri	priority	corrected	english
 # implicit-tone-overrides (single Hangul-only hanri rows used when the typed form has no tone mark)				
-갗	갗	1		and
+갛	갛	1		and
 뎋	뎋	1		
 캏	캏	1		more; even more
 릐2	릐ˋ	1		you
@@ -28,7 +28,6 @@ reading	hanri	priority	corrected	english
 햐1	햐ˆ	1		there
 애	애	1		should; want
 매	매	1		shouldn't; don't want
-얓	얓	1		still; yet
 감2	감ˋ	1		(question marker)
 가2	가ˋ	1		to the extent
 제2	제ˋ	1		this
@@ -57,8 +56,7 @@ reading	hanri	priority	corrected	english
 ’둏	’둏	1		
 ’래	’래	1		
 ’릐	’릐	1		
-’ᄅᆤ2	’ᄅᆤ	1		
-’ᄅᆤ2	’ᄅᆤˋ	2		
+’ᄅᆤ2	’ᄅᆤˋ	1		
 ’뽀4	’뽀ˊ	1		not
 ’에	’에	1		
 ’이	’이	1		
@@ -505,7 +503,7 @@ reading	hanri	priority	corrected	english
 빟	鱉	1		softshell turtle
 ᄇᅷ1	包	1		wrap; bun; bag
 빡1	目	1		eye
-빡새2	目滓	1		eye discharge
+빡새2	目滓	1		tears
 빡쥬1	目睭	1		eye
 빤4	閩	3		Min; Fujian
 빤5	萬	2		ten thousand
@@ -540,8 +538,6 @@ reading	hanri	priority	corrected	english
 뾔5	賣	2		sell
 뾔ᄋᆤ2긴2	뾔要緊	1		won't be important; won't be urgent
 뾔표	賣票	2		sell tickets
-뾧1표	買票	1		buy a ticket
-뾧2	買	1		buy
 뾰2	秒	1		second
 뿌2	母	1		mother
 뿐4	文	1		writing; literature
@@ -572,14 +568,12 @@ reading	hanri	priority	corrected	english
 새2	屎	2		feces
 새2	駛	3		drive; use
 샬1	聲	1		sound; voice
-샬1밓1	샬ˆ밓ˆ	1		
 샬5임1	聲音	1		sound; voice
 샴1샴1싷	閃閃爍	1		sparkling; flickering
 샴1샴1싷1싷	閃閃爍爍	1		sparkling; flickering
 샴1싷	閃爍	1		sparkle; flicker
 서1	酥	2		crisp; flaky
 서1이2	所以	1		therefore; so
-서1잇2	所以	1		therefore; so
 서2	所	1		place; that which
 섬5뻥5	森妄	1		forest; dense; reckless; absurd
 성	喪	2		lose; mourning
@@ -921,7 +915,7 @@ reading	hanri	priority	corrected	english
 짇쳰5커1*	一千箍	1	짇촁5커1	one thousand dollars
 짇촁5커1	一千箍	1		one thousand dollars
 질4	錢	1		money
-짖1에4	짖ˆ个	1		this
+짇1에4	這个	1		this
 짛1	舌	1		tongue
 ᄌᅷ1킈	走去	1		go
 ᄌᅷ2	走	1		run; go
@@ -1534,9 +1528,9 @@ reading	hanri	priority	corrected	english
 도1위5	底位	1		where
 도1롷1	底落	1		where
 샬1랑4	啥人	1		who
-샹4	샹ˊ	1		
+샹4	샹ˊ	1		who
 디랑4	底人	1		who
-댱4	댱ˊ	1		
+댱4	댱ˊ	1		who
 안1좔2	按怎	1		press; according to; how
 안1좔1율5	按怎樣	1		press; according to; how; appearance; manner
 되2	底	1		where; which
@@ -1767,6 +1761,7 @@ reading	hanri	priority	corrected	english
 챨1믕5	請問	1		ask
 우1듀5	宇宙	1		universe; house; time
 갈2	敢	1		dare
+갈5	갈ˉ	1		with; together
 살5당1	三冬	1		three years
 봘	半	1		half
 졩풰1	情批	1		love letter
@@ -2369,7 +2364,6 @@ reading	hanri	priority	corrected	english
 쇼1허솰	小雨傘	1		small umbrella
 쇼1러5	小路	1		path
 팰1걀4	歹行	1		bad; walk; go
-낫1리2	哪裡	1		which; where; inside
 캉1	空	1		empty; air
 캉5취2봏짛1	空喙薄舌	1		sharp-tongued; talkative
 닫1	達	1		reach; achieve
@@ -2546,7 +2540,7 @@ reading	hanri	priority	corrected	english
 띧기	日記	1		diary
 츄훃1	樹箬	1		tree; bamboo leaf
 콸2길	看見	1		see
-나5	若	1		if; like
+나5	若	1		if; supposing that
 친5유2	親友	1		relatives and friends
 컹1	框	1		frame
 퀴5취	開喙	1		open
@@ -2695,7 +2689,7 @@ reading	hanri	priority	corrected	english
 승5셓	霜雪	1		frost and snow
 수5얄4	輸贏	1		win or lose; outcome
 딛1	直	1		straight
-죄5	㩼	1		work; labor
+죄5	㩼	1		many; much
 캼	欠	1		owe; lack
 덩	棟	1		ridgepole; building
 촤5	𤆬	1		lead; bring
@@ -2713,18 +2707,21 @@ reading	hanri	priority	corrected	english
 팧1퀴1	拍開	1		
 꺟ᄐᅷ4	攑頭	1		
 구1등4	久長	1		
-나2	哪	1		
-나2	逽	1		
-햫	遐	1		
-햫1니5	遐邇	1		
-쟣	遮	1		this; so
-쟣1니5	遮邇	1		this; so
+나2	哪	1		how; how could; why would
+나2	逽	1		as; like; as if; while; increasingly
+햫	遐	1		that much; so
+햫1니5	遐邇	1		that much; to that extent
+쟣	遮	1		this much; so
+쟣1니5	遮邇	1		this much; to this extent
 짇	這	1		this
 힏	彼	1		that
-쟣	才	1		then
+쟣	才	1		only; merely; only then
 짇1준5	這陣	1		
-뎩	德	1	
-뎩1걱	德國	1	
-겅5뎩	功德	1	
-도뎩	道德	1	
-삐1뎩	美德	1	
+뎩	德	1		
+뎩1걱	德國	1		
+겅5뎩	功德	1		
+도뎩	道德	1		
+삐1뎩	美德	1		
+얗1	猶	1		still; yet
+얗1쀄5	猶未	1		
+나1리2	哪裡	1	
