@@ -173,6 +173,51 @@ def audio_for_reading(ime, audio_root: Path, reading: str, audio_mode: str | Non
     return {"segments": segments, "files": files, "missing": missing}
 
 
+def audio_for_unit_tone(ime, audio_root: Path, unit: str, tone: str) -> dict[str, Any]:
+    """Resolve one raw audio key without visible-text or TSV interpretation."""
+    unit = str(unit or "")
+    tone = str(tone or "3")
+    if not unit or ime.is_silent_audio_unit(unit, tone):
+        return {"segments": [], "files": [], "missing": []}
+
+    try:
+        paths, missing = ime.resolve_audio_files_for_unit(audio_root, unit, tone)
+    except Exception:
+        paths, missing = [], [f"{unit}{tone}"]
+
+    fallback_parts = ime.split_untoned_hangul_units(unit) if len(paths) > 1 else []
+    segments: list[dict[str, Any]] = []
+    files: list[str] = []
+    for index, path in enumerate(paths):
+        try:
+            url = web_path(path)
+        except ValueError:
+            url = str(path).replace("\\", "/")
+        if url not in files:
+            files.append(url)
+
+        segment_unit = fallback_parts[index] if index < len(fallback_parts) else unit
+        segment_tone = tone if (not fallback_parts or index == len(paths) - 1) else "3"
+        segments.append({
+            "file": url,
+            "unit": segment_unit,
+            "tone": segment_tone,
+            "trimStart": index > 0,
+            "trimEnd": index < len(paths) - 1,
+            "shortOverlapFinal": bool(ime.audio_unit_has_short_overlap_final(segment_unit)),
+            "englishClusterHelper": False,
+            "speed": (
+                float(ime.AUDIO_TONE4_SPEED_FACTOR)
+                if len(paths) > 1 and segment_tone == "4"
+                else float(ime.AUDIO_MULTI_SYLLABLE_SPEED_FACTOR)
+                if len(paths) > 1
+                else 1.0
+            ),
+        })
+
+    return {"segments": segments, "files": files, "missing": list(dict.fromkeys(missing))}
+
+
 def with_singapore_audio_when_needed(ime, audio_root: Path, reading: str) -> dict[str, Any]:
     audio = audio_for_reading(ime, audio_root, reading, getattr(ime, "AUDIO_MODE_TAIPEI", "taipei"))
     singapore_audio = audio_for_reading(
@@ -449,7 +494,7 @@ def build_dictionary(
         for unit in sorted(runtime_units)
     }
     runtime_raw_hangul_audio = {
-        f"{unit}{tone}": with_singapore_audio_when_needed(ime, audio_root, f"{unit}{tone}")
+        f"{unit}{tone}": audio_for_unit_tone(ime, audio_root, unit, tone)
         for unit in sorted(runtime_units)
         for tone in "12345"
     }

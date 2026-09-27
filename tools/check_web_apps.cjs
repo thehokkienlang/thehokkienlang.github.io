@@ -365,6 +365,23 @@ async function loadApp(route, script) {
     'Recorded standalone 엏3 must resolve to orh3.wav'
   );
   assert.ok(
+    vm.runInContext(`(() => {
+      const raw = state.rawHangulAudio.get('뽀3');
+      const mixed = audioPlanFromText('뽀牙');
+      return raw?.segments?.length === 1
+        && raw.segments[0].tone === '3'
+        && raw.segments[0].file === '/public/audio/ㅃ/bo3.wav'
+        && mixed.missing.length === 0
+        && mixed.segments.length === 2
+        && mixed.segments[0].unit === '뽀'
+        && mixed.segments[0].tone === '3'
+        && mixed.segments[0].file === '/public/audio/ㅃ/bo3.wav'
+        && mixed.segments[1].unit === '께'
+        && mixed.segments[1].tone === '4';
+    })()`, context),
+    'Mixed Hangul-Hanri input must resolve the preceding syllable through its raw sandhi-tone audio key'
+  );
+  assert.ok(
     vm.runInContext(`[
       ['공', '겅'], ['꽁', '껑'], ['동', '덩'], ['똥', '떵'], ['롱', '렁'],
       ['몽', '멍'], ['봉', '벙'], ['뽕', '뻥'], ['송', '성'], ['옹', '엉'],
