@@ -495,8 +495,27 @@ h1 {
   -webkit-user-select: none;
 }
 
-.ime-tone-overlay .hangul-tone {
-  line-height: inherit;
+.tone-overlay-unit {
+  position: relative;
+  display: inline;
+}
+
+.tone-overlay-mark {
+  position: absolute;
+  top: calc(-0.84em - 4px);
+  left: calc(50% - 1px);
+  width: 0;
+  transform: translateX(-50%);
+  color: #1f2937;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 1.02em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .toast {

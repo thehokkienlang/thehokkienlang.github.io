@@ -72,18 +72,31 @@ async function loadApp(route, script) {
     const fragment = TangliengimImeCore.renderToneOverlayText('칟토', [
       { start: 0, end: 2, hangul: '칟토', reading: '칟1토4' },
     ]);
-    const rubies = [];
+    const units = [];
     const visit = node => {
-      if (node?.className === 'hangul-tone') rubies.push(node);
+      if (node?.className === 'tone-overlay-unit') units.push(node);
       for (const child of node?.children || []) visit(child);
     };
     visit(fragment);
-    return rubies.length === 2
-      && rubies[0].children[0].textContent === '칟'
-      && rubies[0].children[1].textContent === 'ꞈ'
-      && rubies[1].children[0].textContent === '토'
-      && rubies[1].children[1].textContent === 'ˏ';
-  })()`, context), 'IME tone overlay must reuse ruby tone marks without changing its base Hangul text');
+    return units.length === 2
+      && units[0].children[0].textContent === '칟'
+      && units[0].children[1].className === 'tone-overlay-mark'
+      && units[0].children[1].textContent === 'ꞈ'
+      && units[1].children[0].textContent === '토'
+      && units[1].children[1].textContent === 'ˏ';
+  })()`, context), 'IME tone overlay must keep marks out of the base Hangul text and inline width');
+  assert.ok(vm.runInContext(`(() => {
+    const composer = new TangliengimHangulIme.Composer();
+    composer.setText('가ᄋᅷ나', 4);
+    const positions = [];
+    composer.moveLeft(); positions.push(composer.displayCursorPos());
+    composer.moveLeft(); positions.push(composer.displayCursorPos());
+    composer.moveLeft(); positions.push(composer.displayCursorPos());
+    composer.moveRight(); positions.push(composer.displayCursorPos());
+    composer.moveRight(); positions.push(composer.displayCursorPos());
+    composer.moveRight(); positions.push(composer.displayCursorPos());
+    return positions.join(',') === '3,1,0,1,3,4';
+  })()`, context), 'Left and Right must cross each complete Hangul syllable in one step');
   assert.equal(
     vm.runInContext(`TangliengimWebAudio.legacyPlaybackSegments([
       { tone: '3' }, { tone: '4' }, { tone: '3' }, { tone: '3' },
@@ -593,7 +606,24 @@ async function loadApp(route, script) {
       return prevented && imeController.activeCandidates.length === 0 && candidateBar.hidden &&
         imeText.selectionStart === cursorBefore;
     })()`, context),
-    'Right Arrow must dismiss the popup without moving the caret'
+    'Right Arrow at the end must dismiss the popup without creating a phantom caret stop'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('가나다', 2);
+      imeController.updateControlFromComposer();
+      if (!imeController.activeCandidates.length) return false;
+      const event = {
+        key: 'ArrowRight', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
+        isComposing: false, preventDefault() {},
+      };
+      imeController.handleKeydown(event);
+      return imeController.activeCandidates.length === 0
+        && candidateBar.hidden
+        && imeText.selectionStart === 3;
+    })()`, context),
+    'Right Arrow must dismiss an open popup and cross the next syllable in the same keypress'
   );
   assert.ok(
     vm.runInContext(`(() => {

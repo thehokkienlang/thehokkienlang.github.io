@@ -69,6 +69,7 @@ def main():
     ime_script = local_file("/ime/ime.js").read_text(encoding="utf-8")
     assert ".pad.keyboard-guide-open .ime-text" in ime_styles
     assert ".ime-tone-overlay" in ime_styles
+    assert ".tone-overlay-mark" in ime_styles and "width: 0" in ime_styles
     assert "pointer-events: none" in ime_styles and "user-select: none" in ime_styles
     assert "calc(100dvh - 630px)" in ime_styles
     assert 'classList.toggle("keyboard-guide-open", opening)' in ime_script

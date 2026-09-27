@@ -365,6 +365,44 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
+  function toneOverlayUnitNode(unit, tone) {
+    const mark = HANGUL_TONE_MARKS[tone];
+    if (!mark) return document.createTextNode(unit);
+
+    const wrapper = document.createElement("span");
+    wrapper.className = "tone-overlay-unit";
+    wrapper.append(document.createTextNode(unit));
+
+    const annotation = document.createElement("span");
+    annotation.className = "tone-overlay-mark";
+    annotation.setAttribute("aria-hidden", "true");
+    annotation.textContent = mark;
+    wrapper.append(annotation);
+    return wrapper;
+  }
+
+  function renderToneOverlayReading(reading) {
+    const fragment = document.createDocumentFragment();
+    const text = normalizeApostrophes(reading);
+    let index = 0;
+
+    while (index < text.length) {
+      const unit = readingUnitAt(text, index);
+      if (!unit) break;
+
+      const tone = text[unit.end];
+      if (unit.canCarryTone && isToneMark(tone)) {
+        fragment.append(toneOverlayUnitNode(unit.text, tone));
+        index = unit.end + 1;
+      } else {
+        fragment.append(displayTextNode(unit.text));
+        index = unit.end;
+      }
+    }
+
+    return fragment;
+  }
+
   function renderToneOverlayText(text, rememberedReadings = []) {
     const fragment = document.createDocumentFragment();
     const source = String(text || "");
@@ -386,7 +424,7 @@ const TangliengimImeCore = (() => {
       }
 
       fragment.append(displayTextNode(source.slice(cursor, start)));
-      fragment.append(renderToneMarkedReading(reading));
+      fragment.append(renderToneOverlayReading(reading));
       cursor = end;
     }
 
@@ -1080,12 +1118,17 @@ const TangliengimImeCore = (() => {
 
     handleKeydown(event) {
       if (!this.shouldHandleKey(event)) return;
+      let dismissAfterNavigation = false;
 
       if (this.activeCandidates.length) {
-        if (["Escape", "ArrowRight"].includes(event.key)) {
+        if (event.key === "Escape") {
           event.preventDefault();
           this.dismissCandidates();
           return;
+        }
+        if (event.key === "ArrowRight") {
+          this.dismissCandidates();
+          dismissAfterNavigation = true;
         }
         if (["ArrowUp", "ArrowDown", "Tab"].includes(event.key)) {
           event.preventDefault();
@@ -1130,6 +1173,7 @@ const TangliengimImeCore = (() => {
       }
 
       this.updateControlFromComposer();
+      if (dismissAfterNavigation) this.dismissCandidates();
     }
 
     handleBeforeInput(event) {
