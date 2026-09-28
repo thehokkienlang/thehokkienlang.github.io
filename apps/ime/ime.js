@@ -17,10 +17,11 @@ const keyboardGuide = document.querySelector("#keyboardGuide");
 const keyboardLayout = document.querySelector("#keyboardLayout");
 const pad = document.querySelector(".pad");
 
+const browserNavigator = typeof navigator === "undefined" ? {} : navigator;
 const isMobileWebIme = Boolean(
-  navigator.userAgentData?.mobile ||
-  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
-  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  browserNavigator.userAgentData?.mobile ||
+  /Android|iPhone|iPad|iPod/i.test(browserNavigator.userAgent || "") ||
+  (browserNavigator.platform === "MacIntel" && browserNavigator.maxTouchPoints > 1)
 );
 if (isMobileWebIme) document.documentElement.classList.add("mobile-web-ime");
 

@@ -49,8 +49,6 @@ const TangliengimHangulIme = (() => {
   T_TO_COMPAT["ᆶ"] = "ㅀ";
 
   const V_COMBINE = {
-    "ᅡᅮ": "ᅷ",
-    "ᅣᅮ": "ᆤ",
     "ᅩᅡ": "ᅪ",
     "ᅩᅢ": "ᅫ",
     "ᅩᅵ": "ᅬ",
@@ -58,6 +56,7 @@ const TangliengimHangulIme = (() => {
     "ᅮᅵ": "ᅱ",
     "ᅳᅵ": "ᅴ",
   };
+  const NATIVE_V_COMBINE = { "ᅡᅮ": "ᅷ", "ᅣᅮ": "ᆤ" };
   const T_COMBINE = { "ᆯᇂ": "ᆶ" };
   const T_SPLIT = { "ᆶ": ["ᆯ", "ᇂ"] };
   const SPECIAL_MEDIALS = new Set(["ᅷ", "ᆤ", "ힻ"]);
@@ -455,14 +454,15 @@ const TangliengimHangulIme = (() => {
       this.eToYeAutocorrected = false;
     }
 
-    addVowel(medial) {
+    addVowel(medial, allowNativeSpecial = false) {
       if (!this.hasBuffer()) {
         this.medial = medial;
         this.eToYeAutocorrected = false;
         return;
       }
       if (!this.initial && this.medial && !this.final) {
-        const candidate = V_COMBINE[`${this.medial}${medial}`];
+        const pair = `${this.medial}${medial}`;
+        const candidate = V_COMBINE[pair] || (allowNativeSpecial ? NATIVE_V_COMBINE[pair] : "");
         if (candidate) {
           if (SPECIAL_MEDIALS.has(candidate)) {
             this.medial = "";
@@ -484,7 +484,8 @@ const TangliengimHangulIme = (() => {
         return;
       }
       if (this.initial && this.medial && !this.final) {
-        const candidate = V_COMBINE[`${this.medial}${medial}`];
+        const pair = `${this.medial}${medial}`;
+        const candidate = V_COMBINE[pair] || (allowNativeSpecial ? NATIVE_V_COMBINE[pair] : "");
         if (candidate) {
           this.medial = candidate;
           this.eToYeAutocorrected = false;
@@ -643,8 +644,8 @@ const TangliengimHangulIme = (() => {
       this.keyHistory = [];
     }
 
-    handleCompat(compat) {
-      if (compat in COMPAT_TO_V) this.addVowel(COMPAT_TO_V[compat]);
+    handleCompat(compat, allowNativeSpecial = false) {
+      if (compat in COMPAT_TO_V) this.addVowel(COMPAT_TO_V[compat], allowNativeSpecial);
       else if (compat in COMPAT_TO_L) this.addInitial(COMPAT_TO_L[compat], compat);
       else this.insertLiteral(compat);
     }
@@ -699,6 +700,12 @@ const TangliengimHangulIme = (() => {
 
     processCompat(char) {
       if (char in COMPAT_TO_L || char in COMPAT_TO_V) this.handleCompat(char);
+      else this.insertLiteral(char);
+      this.keyHistory = [];
+    }
+
+    processNativeCompat(char) {
+      if (char in COMPAT_TO_L || char in COMPAT_TO_V) this.handleCompat(char, true);
       else this.insertLiteral(char);
       this.keyHistory = [];
     }

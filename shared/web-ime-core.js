@@ -1333,7 +1333,7 @@ const TangliengimImeCore = (() => {
 
     processNativeKoreanInput(text) {
       for (const unit of TangliengimHangulIme.nativeKoreanInputUnits(text)) {
-        if (unit.compose) this.composer.processCompat(unit.text);
+        if (unit.compose) this.composer.processNativeCompat(unit.text);
         else this.composer.insertLiteral(unit.text);
       }
     }
