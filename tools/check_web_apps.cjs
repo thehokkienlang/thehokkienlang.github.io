@@ -292,25 +292,68 @@ async function loadApp(route, script) {
   assert.ok(
     vm.runInContext(`(() => {
       const shortcuts = [
-        ['앚', 'ᅟᅷ'], ['얒', 'ᅟᆤ'],
+        ['앚', 'ᄋᅷ'], ['얒', 'ᄋᆤ'],
       ];
       const normalized = shortcuts.every(([input, expected]) =>
         TangliengimHangulIme.normalizeDisallowedFinalInputText(input) === expected
       );
-      const composed = [['ㅏ', 'ㅜ', 'ᅟᅷ'], ['ㅑ', 'ㅜ', 'ᅟᆤ']].every(([first, second, expected]) => {
+      const candidateNormalized = [
+        ['ㅏㅜ', 'ᅟᅷ'], ['ㅑㅜ', 'ᄋᆤ'],
+        ['아ㅜ', 'ᄋᅷ'], ['앚', 'ᄋᅷ'], ['야ㅜ', 'ᄋᆤ'], ['얒', 'ᄋᆤ'],
+      ].every(([input, expected]) =>
+        TangliengimHangulIme.normalizeNativeCandidateInput(input) === expected
+      );
+      const composed = [['ㅏ', 'ㅜ', 'ᅟᅷ'], ['ㅑ', 'ㅜ', 'ᄋᆤ']].every(([first, second, expected]) => {
         const composer = new TangliengimHangulIme.Composer();
         composer.processNativeCompat(first);
         composer.processNativeCompat(second);
         return composer.text() === expected;
       });
-      return normalized && composed;
+      const initials = [...'ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅇㅈㅉㅊㅋㅌㅍㅎㆆ'];
+      const equivalent = initials.every(initial =>
+        TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅏㅜ') ===
+          TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅏㅈ') &&
+        TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅜ') ===
+          TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅈ')
+      );
+      return normalized && candidateNormalized && composed && equivalent;
     })()`, context),
-    'Shortcut and Korean-jamo input must converge on the same Tangliengim null-onset vowels'
+    'Unresolved vowel sequences and final-ㅈ shorthand must normalize to the same special-medial reading for every initial'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const candidateRows = input => {
+        imeController.clear();
+        imeController.composer.setText(input, input.length);
+        imeText.value = input;
+        imeText.selectionStart = input.length;
+        imeText.selectionEnd = input.length;
+        return imeController.findCandidates().map(({ entry }) => entry.hanri + '|' + entry.reading);
+      };
+      const sameRows = inputs => {
+        const rows = inputs.map(input => JSON.stringify(candidateRows(input)));
+        return rows.length > 1 && rows[0] !== '[]' && rows.every(row => row === rows[0]);
+      };
+      const equivalent = sameRows(['아ㅜ', '앚', 'ᄋᅷ'])
+        && sameRows(['야ㅜ', '얒', 'ᄋᆤ'])
+        && sameRows(['가ㅜ', '갖', 'ᄀᅷ']);
+      const tones = sameRows(['아ㅜ3', '앚3', 'ᄋᅷ3'])
+        && sameRows(['야ㅜ3', '얒3', 'ᄋᆤ3']);
+      imeController.clear();
+      return equivalent && tones;
+    })()`, context),
+    'Candidate lookup must return the same dictionary candidates and tone choices for equivalent unresolved forms'
   );
   assert.ok(
     vm.runInContext(`(() => {
       imeController.recomposeNativeKoreanInput = true;
-      const commitNative = nativeText => {
+      const cases = [
+        ['ㅏㅜ3', '\\u115fᅷ'],
+        ['아ㅜ3', 'ᄋᅷ'],
+        ['ㅑㅜ3', 'ᄋᆤ'],
+        ['야ㅜ3', 'ᄋᆤ'],
+      ];
+      const commitNative = ([nativeText, expected]) => {
         imeController.clear();
         imeController.handleCompositionStart();
         imeText.value = nativeText;
@@ -319,23 +362,24 @@ async function loadApp(route, script) {
         imeController.handleCompositionEnd({ data: nativeText });
         return {
           text: imeText.value,
+          expected,
           readings: imeController.getRememberedHangulReadings(),
           tones: imeController.getHangulToneReadingsForDisplay(),
         };
       };
-      const committed = commitNative('\\u115fᆤ3');
-      const gboard = commitNative('야ㅜ3');
+      const results = cases.map(commitNative);
       imeController.recomposeNativeKoreanInput = false;
       const keepsToneState = result => {
         const unit = TangliengimImeCore.readingUnitAt(result.text, 0);
-        return result.text === '\\u115fᆤ'
+        const reading = result.expected + '3';
+        return result.text === result.expected
           && unit?.canCarryTone
-          && result.readings.some(reading => reading.reading === '\\u115fᆤ3' && reading.explicit)
-          && result.tones.some(tone => tone.start === 0 && tone.reading === '\\u115fᆤ3');
+          && result.readings.some(span => span.reading === reading && span.explicit)
+          && result.tones.some(tone => tone.start === 0 && tone.reading === reading);
       };
-      return keepsToneState(committed) && keepsToneState(gboard);
+      return results.every(keepsToneState);
     })()`, context),
-    'Mobile native composition must store Tone 3 separately from null-onset Hangul text'
+    'Mobile native composition must keep Tone 3 out of text and preserve each input path onset'
   );
   assert.ok(
     vm.runInContext(`(() => {

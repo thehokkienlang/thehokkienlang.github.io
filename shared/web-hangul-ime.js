@@ -68,6 +68,7 @@ const TangliengimHangulIme = (() => {
     "ힻ": "ᅳ",
   };
   const HANGUL_CHOSEONG_FILLER = "\u115f";
+  const NATIVE_SPECIAL_MEDIAL_ONSET = { "ᅷ": HANGUL_CHOSEONG_FILLER, "ᆤ": "ᄋ" };
   const TONE_MARKS = { 1: "ˆ", 2: "ˋ", 4: "ˊ", 5: "ˉ" };
   const TONE_INPUT = { "ˆ": "1", "ꞈ": "1", "ˋ": "2", "`": "2", "ˎ": "2", "ˊ": "4", "ˏ": "4", "ˉ": "5", "ˍ": "5" };
   const NATIVE_VOWEL_INPUT = {
@@ -176,7 +177,14 @@ const TangliengimHangulIme = (() => {
     const medial = V_TABLE[Math.floor((offset % 588) / 28)];
     if (initial !== "ᄋ" || T_TABLE[offset % 28]) return null;
     const inputs = NATIVE_VOWEL_INPUT[medial];
-    return inputs ? { inputs, length: char.length } : null;
+    return inputs ? { inputs, initial: "ㅇ", length: char.length } : null;
+  }
+
+  function nativeStandaloneVowelInputs(...vowels) {
+    return vowels.flatMap((vowel) => [
+      ...(vowel?.initial ? [vowel.initial] : []),
+      ...(vowel?.inputs || []),
+    ]);
   }
 
   function composeNativeVowelInputs(inputs) {
@@ -189,7 +197,11 @@ const TangliengimHangulIme = (() => {
       result[0] in COMPAT_TO_V ||
       result[0] in NATIVE_COMPAT_VOWEL_INPUT
     )) return result.join("");
-    if (result.length === 2 && result[0] === HANGUL_CHOSEONG_FILLER && SPECIAL_MEDIALS.has(result[1])) {
+    if (
+      result.length === 2 &&
+      (result[0] === HANGUL_CHOSEONG_FILLER || isInitialJamo(result[0])) &&
+      SPECIAL_MEDIALS.has(result[1])
+    ) {
       return result.join("");
     }
     return "";
@@ -248,7 +260,7 @@ const TangliengimHangulIme = (() => {
       const medial = V_TABLE[Math.floor((offset % 588) / 28)];
       const specialMedial = final === "ᆽ" ? FINAL_J_SHORTCUT_MEDIALS[medial] : "";
       output += specialMedial
-        ? `${initial === "ᄋ" ? HANGUL_CHOSEONG_FILLER : initial}${specialMedial}`
+        ? `${initial}${specialMedial}`
         : `${String.fromCodePoint(code - T_INDEX[final])}${DISALLOWED_FINAL_TO_COMPAT[final]}`;
     }
     return output;
@@ -468,13 +480,7 @@ const TangliengimHangulIme = (() => {
         this.medial in FINAL_J_SHORTCUT_MEDIALS
       ) {
         const specialMedial = FINAL_J_SHORTCUT_MEDIALS[this.medial];
-        if (this.initial === "ᄋ") {
-          this.initial = "";
-          this.medial = "";
-          this.insertLiteral(`${HANGUL_CHOSEONG_FILLER}${specialMedial}`);
-        } else {
-          this.medial = specialMedial;
-        }
+        this.medial = specialMedial;
         this.eToYeAutocorrected = false;
         return;
       }
@@ -518,7 +524,8 @@ const TangliengimHangulIme = (() => {
         if (candidate) {
           if (SPECIAL_MEDIALS.has(candidate)) {
             this.medial = "";
-            this.insertLiteral(`${HANGUL_CHOSEONG_FILLER}${candidate}`);
+            const onset = NATIVE_SPECIAL_MEDIAL_ONSET[candidate] || HANGUL_CHOSEONG_FILLER;
+            this.insertLiteral(`${onset}${candidate}`);
           } else {
             this.medial = candidate;
           }
@@ -763,6 +770,25 @@ const TangliengimHangulIme = (() => {
     }
   }
 
+  function normalizeNativeCandidateInput(value) {
+    const chars = [...String(value ?? "")];
+    const composer = new Composer();
+    for (let index = 0; index < chars.length; index += 1) {
+      const char = chars[index];
+      if (char === HANGUL_CHOSEONG_FILLER && chars[index + 1] in NATIVE_SPECIAL_VOWEL_INPUT) {
+        composer.insertLiteral(`${char}${chars[index + 1]}`);
+        index += 1;
+        continue;
+      }
+      for (const unit of nativeKoreanInputUnits(char)) {
+        if (unit.compose) composer.processNativeCompat(unit.text);
+        else composer.insertLiteral(unit.text);
+      }
+    }
+    composer.commit();
+    return composer.text();
+  }
+
   return {
     Composer,
     containsNativeKoreanInput,
@@ -770,6 +796,8 @@ const TangliengimHangulIme = (() => {
     keyboardGuideOutput,
     nativeKoreanInputUnits,
     nativeStandaloneVowelAt,
+    nativeStandaloneVowelInputs,
+    normalizeNativeCandidateInput,
     normalizeDisallowedFinalInputText,
     normalizeAtomicSelection,
     normalizeReadingBase,

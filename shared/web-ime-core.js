@@ -1363,10 +1363,13 @@ const TangliengimImeCore = (() => {
         if (this.recomposeNativeKoreanInput) {
           const first = TangliengimHangulIme.nativeStandaloneVowelAt(input, index);
           const second = first && TangliengimHangulIme.nativeStandaloneVowelAt(input, index + first.length);
-          if (first && second && TangliengimHangulIme.composeNativeVowelInputs([...first.inputs, ...second.inputs])) {
-            for (const vowel of [...first.inputs, ...second.inputs]) this.composer.processNativeCompat(vowel);
-            index += first.length + second.length;
-            continue;
+          if (first && second) {
+            const inputs = TangliengimHangulIme.nativeStandaloneVowelInputs(first, second);
+            if (TangliengimHangulIme.composeNativeVowelInputs(inputs)) {
+              for (const vowel of inputs) this.composer.processNativeCompat(vowel);
+              index += first.length + second.length;
+              continue;
+            }
           }
           if (first?.length > 1) {
             for (const vowel of first.inputs) this.composer.processNativeCompat(vowel);
@@ -1396,7 +1399,10 @@ const TangliengimImeCore = (() => {
         : null;
       const prior = priorFromReplacement || priorFromText;
       const next = prior && TangliengimHangulIme.nativeStandaloneVowelAt(input);
-      if (prior && next && TangliengimHangulIme.composeNativeVowelInputs([...prior.inputs, ...next.inputs])) {
+      const inputs = prior && next
+        ? TangliengimHangulIme.nativeStandaloneVowelInputs(prior, next)
+        : [];
+      if (prior && next && TangliengimHangulIme.composeNativeVowelInputs(inputs)) {
         const before = priorFromReplacement
           ? currentText.slice(0, cursor)
           : currentText.slice(0, cursor - prior.length);
@@ -1404,7 +1410,7 @@ const TangliengimImeCore = (() => {
           ? currentText.slice(cursor)
           : currentText.slice(cursor);
         this.composer.setText(`${before}${after}`, before.length);
-        for (const vowel of [...prior.inputs, ...next.inputs]) this.composer.processNativeCompat(vowel);
+        for (const vowel of inputs) this.composer.processNativeCompat(vowel);
         this.processNativeKoreanInput(input.slice(next.length));
         return;
       }
@@ -1579,11 +1585,15 @@ const TangliengimImeCore = (() => {
       const found = [];
       for (let index = 0; index < chars.length; index += 1) {
         const suffix = chars.slice(index).join("");
-        const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(suffix));
+        const normalizedSuffix = TangliengimHangulIme.normalizeNativeCandidateInput(suffix);
+        const readingBase = TangliengimHangulIme.normalizeReadingBase(normalizedSuffix);
+        const key = normalizeText(readingBase);
         const entries = this.candidatesByReading.get(key);
         if (!entries?.length) continue;
         const start = starts[index];
-        const typedForm = this.typedCandidateForm(start, range.end);
+        const typedForm = TangliengimHangulIme.normalizeNativeCandidateInput(
+          this.typedCandidateForm(start, range.end)
+        );
         const filteredEntries = filterCandidateEntries(typedForm, entries);
         const exactHangulOverride = filteredEntries.some(
           (entry) => entry.kind === "hangul_override" &&
@@ -1604,9 +1614,9 @@ const TangliengimImeCore = (() => {
         if (!exactHangulOverride) {
           found.push({
             entry: {
-              hanri: key ? TangliengimHangulIme.normalizeReadingBase(suffix) : suffix,
+              hanri: key ? readingBase : suffix,
               reading: typedForm,
-              readingBase: TangliengimHangulIme.normalizeReadingBase(suffix),
+              readingBase,
               kind: "hangul_plain",
               generatedCandidate: true,
             },
