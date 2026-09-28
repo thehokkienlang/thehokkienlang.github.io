@@ -309,6 +309,36 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
+      imeController.recomposeNativeKoreanInput = true;
+      const commitNative = nativeText => {
+        imeController.clear();
+        imeController.handleCompositionStart();
+        imeText.value = nativeText;
+        imeText.selectionStart = nativeText.length;
+        imeText.selectionEnd = nativeText.length;
+        imeController.handleCompositionEnd({ data: nativeText });
+        return {
+          text: imeText.value,
+          readings: imeController.getRememberedHangulReadings(),
+          tones: imeController.getHangulToneReadingsForDisplay(),
+        };
+      };
+      const committed = commitNative('\\u115fᆤ3');
+      const gboard = commitNative('야ㅜ3');
+      imeController.recomposeNativeKoreanInput = false;
+      const keepsToneState = result => {
+        const unit = TangliengimImeCore.readingUnitAt(result.text, 0);
+        return result.text === '\\u115fᆤ'
+          && unit?.canCarryTone
+          && result.readings.some(reading => reading.reading === '\\u115fᆤ3' && reading.explicit)
+          && result.tones.some(tone => tone.start === 0 && tone.reading === '\\u115fᆤ3');
+      };
+      return keepsToneState(committed) && keepsToneState(gboard);
+    })()`, context),
+    'Mobile native composition must store Tone 3 separately from null-onset Hangul text'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
       imeController.clear();
       imeController.composer.setText('’에', 2);
       imeController.updateControlFromComposer();

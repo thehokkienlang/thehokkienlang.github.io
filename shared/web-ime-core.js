@@ -281,6 +281,10 @@ const TangliengimImeCore = (() => {
       return { text: char, end: index + 1, canCarryTone: true };
     }
 
+    if (char === "\u115f" && isVowelJamo(text[index + 1])) {
+      return { text: text.slice(index, index + 2), end: index + 2, canCarryTone: true };
+    }
+
     if (isInitialJamo(char) && isVowelJamo(text[index + 1])) {
       let end = index + 2;
       if (isFinalJamo(text[end])) {
@@ -1364,11 +1368,16 @@ const TangliengimImeCore = (() => {
             index += first.length + second.length;
             continue;
           }
+          if (first?.length > 1) {
+            for (const vowel of first.inputs) this.composer.processNativeCompat(vowel);
+            index += first.length;
+            continue;
+          }
         }
         const char = String.fromCodePoint(input.codePointAt(index));
         for (const unit of TangliengimHangulIme.nativeKoreanInputUnits(char)) {
           if (unit.compose) this.composer.processNativeCompat(unit.text);
-          else this.composer.insertLiteral(unit.text);
+          else if (!this.applyHiddenTone(unit.text)) this.composer.insertLiteral(unit.text);
         }
         index += char.length;
       }
