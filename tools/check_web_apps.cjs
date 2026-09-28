@@ -37,6 +37,7 @@ async function loadApp(route, script) {
   const context = vm.createContext({
     console, setTimeout, clearTimeout,
     document: {
+      addEventListener() {},
       querySelector(selector) {
         if (!elements.has(selector)) elements.set(selector, element());
         return elements.get(selector);
@@ -152,8 +153,8 @@ async function loadApp(route, script) {
       searchInput.value = entry.readingBase;
       searchInput.selectionStart = entry.readingBase.length;
       searchInput.selectionEnd = entry.readingBase.length;
-      searchImeController.composer.setText(entry.readingBase, entry.readingBase.length);
-      searchImeController.renderCandidates();
+      searchImeController.onUpdate = () => {};
+      searchImeController.handleInput({ inputType: 'insertText' });
       return searchImeController.activeCandidates.length > 0 && imeCandidates.children.length > 0 && !imeCandidates.hidden;
     })()`, dictionary.context),
     'Dictionary Hanri candidates must render as a visible popup list'
@@ -826,9 +827,8 @@ async function loadApp(route, script) {
       const lomari = lomariRenderer.render('칟토') === 'chît-thó';
       const tones = audioPlanFromText('칟토').segments.map(segment => segment.tone).join(',') === '1,4';
       imeController.handleCursorChange({ type: 'click' });
-      const reopenedOnClick = !candidateBar.hidden &&
-        imeController.activeCandidates[imeController.activeCandidateIndex]?.entry?.reading === '칟1토4';
-      return cleanWhileChoosing && filtered && hiddenToneUndo && remembered && lomari && tones && reopenedOnClick;
+      const staysClosedOnClick = candidateBar.hidden && imeController.activeCandidates.length === 0;
+      return cleanWhileChoosing && filtered && hiddenToneUndo && remembered && lomari && tones && staysClosedOnClick;
     })()`, context),
     'Typed tones must stay hidden while filtering and driving the selected occurrence output'
   );
@@ -966,8 +966,8 @@ async function loadApp(route, script) {
       imeText.value = reading;
       imeText.selectionStart = reading.length;
       imeText.selectionEnd = reading.length;
-      imeController.composer.setText(reading, reading.length);
-      imeController.renderCandidates();
+      imeController.onUpdate = () => {};
+      imeController.handleInput({ inputType: 'insertText' });
       return JSON.stringify(imeController.activeCandidates
         .filter(({ entry }) => entry.kind !== 'hangul_plain')
         .map(({ entry }) => ({
