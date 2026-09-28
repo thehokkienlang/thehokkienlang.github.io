@@ -60,13 +60,23 @@ function setKeyboardSwitchHintVisible(visible) {
   keyboardSwitchHint.setAttribute("aria-hidden", String(!shouldShow));
 }
 
+function dismissKeyboardSwitchHintForSession() {
+  keyboardSwitchHintDismissed = true;
+  try {
+    window.sessionStorage?.setItem(KEYBOARD_HINT_SESSION_KEY, "1");
+  } catch {
+    // Session storage can be unavailable in restricted browser contexts.
+  }
+  setKeyboardSwitchHintVisible(false);
+}
+
 function observeMobileKeyboardInput(text) {
   if (!isMobileWebIme || !text) return;
   const characters = [...String(text)];
-  if (characters.some((char) => !isKeyboardHintAllowedCharacter(char))) {
+  if (characters.some((char) => HANGUL_INPUT_RE.test(char))) {
+    dismissKeyboardSwitchHintForSession();
+  } else if (characters.some((char) => !isKeyboardHintAllowedCharacter(char))) {
     setKeyboardSwitchHintVisible(true);
-  } else if (characters.some((char) => HANGUL_INPUT_RE.test(char))) {
-    setKeyboardSwitchHintVisible(false);
   }
 }
 
@@ -439,11 +449,29 @@ keyboardGuideButton.addEventListener("click", () => {
 imeText.addEventListener("beforeinput", (event) => {
   if (
     !isMobileWebIme ||
-    event.isComposing ||
-    event.inputType !== "insertText" ||
+    !["insertText", "insertCompositionText"].includes(event.inputType) ||
     !event.data
   ) return;
   observeMobileKeyboardInput(event.data);
+}, true);
+
+imeText.addEventListener("paste", (event) => {
+  const pastedText = event.clipboardData?.getData("text/plain") || "";
+  if (isMobileWebIme && [...pastedText].some((char) => HANGUL_INPUT_RE.test(char))) {
+    dismissKeyboardSwitchHintForSession();
+  }
+}, true);
+
+imeText.addEventListener("compositionupdate", (event) => {
+  if (isMobileWebIme && event.data) observeMobileKeyboardInput(event.data);
+}, true);
+
+imeText.addEventListener("input", (event) => {
+  if (
+    isMobileWebIme &&
+    ["insertText", "insertCompositionText"].includes(event.inputType) &&
+    event.data
+  ) observeMobileKeyboardInput(event.data);
 }, true);
 
 imeText.addEventListener("compositionend", (event) => {
@@ -452,13 +480,7 @@ imeText.addEventListener("compositionend", (event) => {
 
 keyboardSwitchHintDismiss?.addEventListener("pointerdown", (event) => event.preventDefault());
 keyboardSwitchHintDismiss?.addEventListener("click", () => {
-  keyboardSwitchHintDismissed = true;
-  try {
-    window.sessionStorage?.setItem(KEYBOARD_HINT_SESSION_KEY, "1");
-  } catch {
-    // Session storage can be unavailable in restricted browser contexts.
-  }
-  setKeyboardSwitchHintVisible(false);
+  dismissKeyboardSwitchHintForSession();
   imeText.focus({ preventScroll: true });
 });
 

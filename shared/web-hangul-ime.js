@@ -150,6 +150,51 @@ const TangliengimHangulIme = (() => {
     return units;
   }
 
+  function nativeStandaloneVowelAt(value, index = 0) {
+    const text = String(value || "");
+    const char = text.slice(index, index + 1);
+    if (!char) return null;
+    if (char === HANGUL_CHOSEONG_FILLER && text[index + 1] in NATIVE_SPECIAL_VOWEL_INPUT) {
+      return { inputs: NATIVE_SPECIAL_VOWEL_INPUT[text[index + 1]], length: 2 };
+    }
+    if (text[index - 1] === HANGUL_CHOSEONG_FILLER && char in NATIVE_SPECIAL_VOWEL_INPUT) {
+      return { inputs: NATIVE_SPECIAL_VOWEL_INPUT[char], length: 2 };
+    }
+    if (char in COMPAT_TO_V) return { inputs: [char], length: char.length };
+    if (char in NATIVE_COMPAT_VOWEL_INPUT) {
+      return { inputs: NATIVE_COMPAT_VOWEL_INPUT[char], length: char.length };
+    }
+    if (char in NATIVE_VOWEL_INPUT) return { inputs: NATIVE_VOWEL_INPUT[char], length: char.length };
+    if (char in NATIVE_SPECIAL_VOWEL_INPUT) {
+      return { inputs: NATIVE_SPECIAL_VOWEL_INPUT[char], length: char.length };
+    }
+
+    const code = char.codePointAt(0);
+    const offset = code - 0xac00;
+    if (offset < 0 || offset >= 11172) return null;
+    const initial = L_TABLE[Math.floor(offset / 588)];
+    const medial = V_TABLE[Math.floor((offset % 588) / 28)];
+    if (initial !== "ᄋ" || T_TABLE[offset % 28]) return null;
+    const inputs = NATIVE_VOWEL_INPUT[medial];
+    return inputs ? { inputs, length: char.length } : null;
+  }
+
+  function composeNativeVowelInputs(inputs) {
+    const composer = new Composer();
+    for (const input of inputs) composer.processNativeCompat(input);
+    composer.commit();
+    const result = [...composer.text()];
+    if (result.length === 1 && (
+      isVowelJamo(result[0]) ||
+      result[0] in COMPAT_TO_V ||
+      result[0] in NATIVE_COMPAT_VOWEL_INPUT
+    )) return result.join("");
+    if (result.length === 2 && result[0] === HANGUL_CHOSEONG_FILLER && SPECIAL_MEDIALS.has(result[1])) {
+      return result.join("");
+    }
+    return "";
+  }
+
   const INITIAL_KEY_TO_L = Object.fromEntries(
     Object.entries(KEY_TO_JAMO)
       .filter(([, jamo]) => jamo in COMPAT_TO_L)
@@ -714,8 +759,10 @@ const TangliengimHangulIme = (() => {
   return {
     Composer,
     containsNativeKoreanInput,
+    composeNativeVowelInputs,
     keyboardGuideOutput,
     nativeKoreanInputUnits,
+    nativeStandaloneVowelAt,
     normalizeDisallowedFinalInputText,
     normalizeAtomicSelection,
     normalizeReadingBase,

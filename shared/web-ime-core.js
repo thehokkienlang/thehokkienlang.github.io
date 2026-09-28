@@ -1255,6 +1255,19 @@ const TangliengimImeCore = (() => {
     }
 
     handleBeforeInput(event) {
+      if (
+        this.recomposeNativeKoreanInput &&
+        this.nativeCompositionActive &&
+        event.inputType === "insertText" &&
+        event.data &&
+        TangliengimHangulIme.containsNativeKoreanInput(event.data)
+      ) {
+        const vowel = TangliengimHangulIme.nativeStandaloneVowelAt(event.data);
+        if (vowel?.length === event.data.length && vowel.inputs.length) {
+          this.nativeComposition.inputData.push(event.data);
+        }
+        return;
+      }
       if (!this.isEnabled() || event.isComposing || !event.cancelable) return;
 
       if (event.inputType === "insertText" && event.data) {
@@ -1266,7 +1279,7 @@ const TangliengimImeCore = (() => {
           this.recomposeNativeKoreanInput &&
           TangliengimHangulIme.containsNativeKoreanInput(inputText)
         ) {
-          this.processNativeKoreanInput(inputText);
+          this.processNativeKoreanInputAtCursor(inputText);
         } else {
           const normalizedInput = TangliengimHangulIme.normalizeDisallowedFinalInputText(inputText);
           for (const char of [...normalizedInput]) {
@@ -1332,10 +1345,92 @@ const TangliengimImeCore = (() => {
     }
 
     processNativeKoreanInput(text) {
-      for (const unit of TangliengimHangulIme.nativeKoreanInputUnits(text)) {
-        if (unit.compose) this.composer.processNativeCompat(unit.text);
-        else this.composer.insertLiteral(unit.text);
+      const input = String(text || "");
+      let index = 0;
+      while (index < input.length) {
+        if (this.recomposeNativeKoreanInput) {
+          const first = TangliengimHangulIme.nativeStandaloneVowelAt(input, index);
+          const second = first && TangliengimHangulIme.nativeStandaloneVowelAt(input, index + first.length);
+          if (first && second && TangliengimHangulIme.composeNativeVowelInputs([...first.inputs, ...second.inputs])) {
+            for (const vowel of [...first.inputs, ...second.inputs]) this.composer.processNativeCompat(vowel);
+            index += first.length + second.length;
+            continue;
+          }
+        }
+        const char = String.fromCodePoint(input.codePointAt(index));
+        for (const unit of TangliengimHangulIme.nativeKoreanInputUnits(char)) {
+          if (unit.compose) this.composer.processNativeCompat(unit.text);
+          else this.composer.insertLiteral(unit.text);
+        }
+        index += char.length;
       }
+    }
+
+    processNativeKoreanInputAtCursor(text, replacedText = "") {
+      let input = String(text || "");
+      const replacedVowel = TangliengimHangulIme.nativeStandaloneVowelAt(replacedText);
+      const priorFromReplacement = replacedVowel?.length === replacedText.length ? replacedVowel : null;
+      if (priorFromReplacement && input.startsWith(replacedText)) input = input.slice(replacedText.length);
+
+      const currentText = this.composer.text();
+      const cursor = this.composer.displayCursorPos();
+      const priorFromText = !priorFromReplacement && cursor > 0
+        ? TangliengimHangulIme.nativeStandaloneVowelAt(currentText, cursor - 1)
+        : null;
+      const prior = priorFromReplacement || priorFromText;
+      const next = prior && TangliengimHangulIme.nativeStandaloneVowelAt(input);
+      if (prior && next && TangliengimHangulIme.composeNativeVowelInputs([...prior.inputs, ...next.inputs])) {
+        const before = priorFromReplacement
+          ? currentText.slice(0, cursor)
+          : currentText.slice(0, cursor - prior.length);
+        const after = priorFromReplacement
+          ? currentText.slice(cursor)
+          : currentText.slice(cursor);
+        this.composer.setText(`${before}${after}`, before.length);
+        for (const vowel of [...prior.inputs, ...next.inputs]) this.composer.processNativeCompat(vowel);
+        this.processNativeKoreanInput(input.slice(next.length));
+        return;
+      }
+      this.processNativeKoreanInput(input);
+    }
+
+    hasNativeInputSequence(text, sequence) {
+      const actual = TangliengimHangulIme.nativeKoreanInputUnits(text)
+        .filter((unit) => unit.compose)
+        .map((unit) => unit.text);
+      const expected = TangliengimHangulIme.nativeKoreanInputUnits(sequence)
+        .filter((unit) => unit.compose)
+        .map((unit) => unit.text);
+      if (!expected.length) return String(text || "").includes(sequence);
+      for (let start = 0; start <= actual.length - expected.length; start += 1) {
+        if (expected.every((unit, offset) => actual[start + offset] === unit)) return true;
+      }
+      return false;
+    }
+
+    recoverNativeCompositionInput(inserted, compositionData, snapshot) {
+      let recovered = inserted;
+      const pending = snapshot.inputData || [];
+      const previousText = snapshot.value.slice(Math.max(0, snapshot.start - 1), snapshot.start);
+      const replacedText = snapshot.value.slice(snapshot.start, snapshot.end);
+      const previousVowel = snapshot.start === snapshot.end
+        ? TangliengimHangulIme.nativeStandaloneVowelAt(previousText)
+        : null;
+      const replacedVowel = TangliengimHangulIme.nativeStandaloneVowelAt(replacedText);
+      const staleComposition = !recovered && (
+        (previousVowel?.length === previousText.length && compositionData === previousText) ||
+        (replacedVowel?.length === replacedText.length && compositionData === replacedText)
+      );
+      if (!recovered && compositionData && !staleComposition) {
+        recovered = compositionData;
+        if (previousVowel?.length === previousText.length && recovered.startsWith(previousText)) {
+          recovered = recovered.slice(previousText.length);
+        }
+      }
+      for (const input of pending) {
+        if (!this.hasNativeInputSequence(recovered, input)) recovered += input;
+      }
+      return recovered;
     }
 
     handleCompositionStart() {
@@ -1346,6 +1441,7 @@ const TangliengimImeCore = (() => {
         start: this.control.selectionStart ?? this.control.value.length,
         end: this.control.selectionEnd ?? this.control.value.length,
         data: "",
+        inputData: [],
       };
       this.nativeCompositionActive = true;
       this.control.classList.add("native-composition");
@@ -1394,17 +1490,17 @@ const TangliengimImeCore = (() => {
         inserted = current.slice(start, current.length - suffixLength);
       }
 
-      const compositionData = normalizeApostrophes(event.data ?? snapshot.data ?? "");
+      const compositionData = normalizeApostrophes(event.data || snapshot.data || "");
+      inserted = this.recoverNativeCompositionInput(inserted, compositionData, snapshot);
       if (!TangliengimHangulIme.containsNativeKoreanInput(inserted) && !TangliengimHangulIme.containsNativeKoreanInput(compositionData)) {
         this.handleInput();
         return;
       }
-      if (!TangliengimHangulIme.containsNativeKoreanInput(inserted) && compositionData) inserted = compositionData;
 
       const base = `${snapshot.value.slice(0, snapshot.start)}${snapshot.value.slice(snapshot.end)}`;
       this.syncRememberedReadings(base);
       this.composer.setText(base, snapshot.start);
-      this.processNativeKoreanInput(inserted);
+      this.processNativeKoreanInputAtCursor(inserted, snapshot.value.slice(snapshot.start, snapshot.end));
       this.updateControlFromComposer();
     }
 
