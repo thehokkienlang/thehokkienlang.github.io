@@ -369,53 +369,71 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
-  function toneOverlayUnitNode(unit, tone) {
-    const mark = HANGUL_TONE_MARKS[tone];
-    if (!mark) return document.createTextNode(unit);
+  function toneOverlayPositions(control, source, spans) {
+    const positions = new Map();
+    if (!spans.length || !control || !document.body || typeof getComputedStyle !== "function") return positions;
 
-    const wrapper = document.createElement("span");
-    wrapper.className = "tone-overlay-unit";
-    wrapper.append(document.createTextNode(unit));
+    const style = getComputedStyle(control);
+    const mirror = document.createElement("div");
+    const properties = [
+      "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
+      "textAlign", "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+      "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth", "direction", "wordBreak",
+      "tabSize", "writingMode",
+    ];
+    mirror.setAttribute("aria-hidden", "true");
+    mirror.tabIndex = -1;
+    mirror.style.position = "fixed";
+    mirror.style.left = "0";
+    mirror.style.top = "0";
+    mirror.style.visibility = "hidden";
+    mirror.style.opacity = "0";
+    mirror.style.pointerEvents = "none";
+    mirror.style.userSelect = "none";
+    mirror.style.webkitUserSelect = "none";
+    mirror.style.caretColor = "transparent";
+    mirror.style.whiteSpace = "pre-wrap";
+    mirror.style.overflowWrap = "break-word";
+    mirror.style.width = `${control.clientWidth}px`;
+    for (const property of properties) mirror.style[property] = style[property];
 
-    const annotation = document.createElement("span");
-    annotation.className = "tone-overlay-mark";
-    annotation.setAttribute("aria-hidden", "true");
-    annotation.textContent = mark;
-    wrapper.append(annotation);
-    return wrapper;
-  }
-
-  function renderToneOverlayReading(reading) {
-    const fragment = document.createDocumentFragment();
-    const text = normalizeApostrophes(reading);
-    let index = 0;
-
-    while (index < text.length) {
-      const unit = readingUnitAt(text, index);
-      if (!unit) break;
-
-      const tone = text[unit.end];
-      if (unit.canCarryTone && isToneMark(tone)) {
-        fragment.append(toneOverlayUnitNode(unit.text, tone));
-        index = unit.end + 1;
-      } else {
-        fragment.append(displayTextNode(unit.text));
-        index = unit.end;
-      }
+    const measures = [];
+    let cursor = 0;
+    for (const span of spans) {
+      mirror.append(document.createTextNode(source.slice(cursor, span.start)));
+      const unit = document.createElement("span");
+      unit.style.position = "relative";
+      unit.style.display = "inline";
+      unit.textContent = span.hangul;
+      mirror.append(unit);
+      measures.push({ start: span.start, unit });
+      cursor = span.end;
     }
-
-    return fragment;
+    mirror.append(document.createTextNode(source.slice(cursor)));
+    document.body.append(mirror);
+    const mirrorRect = mirror.getBoundingClientRect();
+    for (const { start, unit } of measures) {
+      const rect = unit.getBoundingClientRect();
+      if (!rect.width && !rect.height) continue;
+      positions.set(start, {
+        left: rect.left - mirrorRect.left + rect.width / 2,
+        top: rect.top - mirrorRect.top,
+      });
+    }
+    mirror.remove();
+    return positions;
   }
 
-  function renderToneOverlayText(text, rememberedReadings = []) {
+  function renderToneOverlayMarks(text, toneSpans = [], control = null) {
     const fragment = document.createDocumentFragment();
     const source = String(text || "");
-    const spans = Array.from(rememberedReadings || []).sort(
+    const candidates = Array.from(toneSpans || []).sort(
       (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
     );
+    const spans = [];
     let cursor = 0;
 
-    for (const span of spans) {
+    for (const span of candidates) {
       const start = Number(span?.start);
       const end = Number(span?.end);
       const hangul = String(span?.hangul || "");
@@ -426,13 +444,30 @@ const TangliengimImeCore = (() => {
       if (source.slice(start, end) !== hangul || TangliengimHangulIme.normalizeReadingBase(reading) !== hangul) {
         continue;
       }
-
-      fragment.append(displayTextNode(source.slice(cursor, start)));
-      fragment.append(renderToneOverlayReading(reading));
+      const unit = readingUnitAt(reading, 0);
+      const mark = unit?.canCarryTone ? HANGUL_TONE_MARKS[reading[unit.end]] : "";
+      if (!mark) continue;
+      spans.push({ start, end, hangul, mark });
       cursor = end;
     }
 
-    fragment.append(displayTextNode(source.slice(cursor)));
+    const positions = toneOverlayPositions(control, source, spans);
+    for (const span of spans) {
+      const position = positions.get(span.start);
+      if (control && !position) continue;
+      const anchor = document.createElement("span");
+      anchor.className = "tone-overlay-anchor";
+      anchor.setAttribute("aria-hidden", "true");
+      if (position) {
+        anchor.style.left = `${position.left}px`;
+        anchor.style.top = `${position.top}px`;
+      }
+      const annotation = document.createElement("span");
+      annotation.className = "tone-overlay-mark";
+      annotation.textContent = span.mark;
+      anchor.append(annotation);
+      fragment.append(anchor);
+    }
     return fragment;
   }
 
@@ -1812,7 +1847,7 @@ const TangliengimImeCore = (() => {
     readingUnitAt,
     readingUnitToneEnd,
     renderInlineUpperToneReading,
-    renderToneOverlayText,
+    renderToneOverlayMarks,
     renderToneMarkedReading,
     searchableEntry,
     singaporeTone1AudioReplacement,

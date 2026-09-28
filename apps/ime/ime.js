@@ -262,8 +262,8 @@ function syncToneOverlayViewport() {
   if (!imeToneOverlay) return;
   if (imeText.clientWidth) imeToneOverlay.style.width = `${imeText.clientWidth}px`;
   if (imeText.clientHeight) imeToneOverlay.style.height = `${imeText.clientHeight}px`;
-  imeToneOverlay.scrollTop = imeText.scrollTop;
-  imeToneOverlay.scrollLeft = imeText.scrollLeft;
+  const offset = `translate(${-imeText.scrollLeft}px, ${-imeText.scrollTop}px)`;
+  for (const anchor of imeToneOverlay.children) anchor.style.transform = offset;
 }
 
 function updateToneOverlay() {
@@ -276,12 +276,12 @@ function updateToneOverlay() {
     tonesByStart.set(span.start, span);
   }
   imeToneOverlay.replaceChildren(
-    imeCore.renderToneOverlayText(
+    imeCore.renderToneOverlayMarks(
       imeText.value,
-      [...tonesByStart.values()]
+      [...tonesByStart.values()],
+      imeText
     )
   );
-  imeText.classList.add("tone-overlay-source");
   syncToneOverlayViewport();
 }
 
@@ -419,7 +419,7 @@ imeText.addEventListener("keyup", (event) => {
 imeText.addEventListener("scroll", syncToneOverlayViewport);
 
 if (typeof ResizeObserver === "function") {
-  new ResizeObserver(syncToneOverlayViewport).observe(imeText);
+  new ResizeObserver(updateToneOverlay).observe(imeText);
 }
 
 if (typeof window.addEventListener === "function") {
@@ -428,7 +428,7 @@ if (typeof window.addEventListener === "function") {
     for (const key of guideButtons.keys()) setGuidePressed(key, false);
     refreshGuideShiftState();
   });
-  window.addEventListener("resize", syncToneOverlayViewport);
+  window.addEventListener("resize", updateToneOverlay);
 }
 
 renderKeyboardGuide();

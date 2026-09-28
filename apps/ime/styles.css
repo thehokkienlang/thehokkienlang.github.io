@@ -141,10 +141,9 @@ h1 {
 .ime-tone-overlay {
   position: absolute;
   inset: 0 auto auto 0;
-  z-index: 1;
+  z-index: 3;
   overflow: hidden;
-  white-space: pre-wrap;
-  overflow-wrap: break-word;
+  resize: none;
   pointer-events: none;
   user-select: none;
   -webkit-user-select: none;
@@ -155,16 +154,6 @@ h1 {
   z-index: 2;
   background: transparent;
   caret-color: rgba(29, 78, 216, 0.75);
-}
-
-.ime-text.tone-overlay-source {
-  color: transparent;
-  -webkit-text-fill-color: transparent;
-}
-
-.ime-text.tone-overlay-source.native-composition {
-  color: var(--text);
-  -webkit-text-fill-color: var(--text);
 }
 
 .text-wrap.native-composition-active .ime-tone-overlay {
@@ -509,15 +498,16 @@ h1 {
   -webkit-user-select: none;
 }
 
-.tone-overlay-unit {
-  position: relative;
-  display: inline;
+.tone-overlay-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
 }
 
 .tone-overlay-mark {
   position: absolute;
   top: calc(-0.72em - 2px);
-  left: 50%;
+  left: 0;
   width: max-content;
   transform: translateX(-50%);
   color: #1f2937;

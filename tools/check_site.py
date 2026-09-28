@@ -70,11 +70,11 @@ def main():
     assert ".pad.keyboard-guide-open .ime-text" in ime_styles
     assert ".ime-tone-overlay" in ime_styles
     assert ".tone-overlay-mark" in ime_styles
-    assert "left: 50%" in ime_styles and "width: max-content" in ime_styles
+    assert "transform: translateX(-50%)" in ime_styles and "width: max-content" in ime_styles
     assert "pointer-events: none" in ime_styles and "user-select: none" in ime_styles
     assert "calc(100dvh - 630px)" in ime_styles
     assert 'classList.toggle("keyboard-guide-open", opening)' in ime_script
-    assert "renderToneOverlayText" in ime_script and "getHangulToneReadingsForDisplay" in ime_script
+    assert "renderToneOverlayMarks" in ime_script and "getHangulToneReadingsForDisplay" in ime_script
     assert '/shared/web-ime-menu.css?v=' in ime_html
     assert '/shared/web-ime-menu.css?v=' in dictionary_html
     assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view

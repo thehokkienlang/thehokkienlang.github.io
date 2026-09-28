@@ -69,21 +69,19 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
   assert.ok(vm.runInContext(`(() => {
-    const fragment = TangliengimImeCore.renderToneOverlayText('칟토', [
-      { start: 0, end: 2, hangul: '칟토', reading: '칟1토4' },
+    const fragment = TangliengimImeCore.renderToneOverlayMarks('칟토', [
+      { start: 0, end: 1, hangul: '칟', reading: '칟1' },
+      { start: 1, end: 2, hangul: '토', reading: '토4' },
     ]);
-    const units = [];
+    const marks = [];
+    let duplicatedReadingText = false;
     const visit = node => {
-      if (node?.className === 'tone-overlay-unit') units.push(node);
+      if (node?.className === 'tone-overlay-mark') marks.push(node.textContent);
+      if (node?.textContent === '칟' || node?.textContent === '토') duplicatedReadingText = true;
       for (const child of node?.children || []) visit(child);
     };
     visit(fragment);
-    return units.length === 2
-      && units[0].children[0].textContent === '칟'
-      && units[0].children[1].className === 'tone-overlay-mark'
-      && units[0].children[1].textContent === 'ꞈ'
-      && units[1].children[0].textContent === '토'
-      && units[1].children[1].textContent === 'ˏ';
+    return !duplicatedReadingText && marks.join('') === 'ꞈˏ';
   })()`, context), 'IME tone overlay must keep marks out of the base Hangul text and inline width');
   assert.ok(vm.runInContext(`(() => {
     const composer = new TangliengimHangulIme.Composer();
