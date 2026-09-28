@@ -540,6 +540,10 @@ h1 {
 }
 
 @media (max-width: 640px) {
+  .tone-overlay-mark {
+    top: calc(-0.72em - 4px);
+  }
+
   .keyboard-layout {
     --guide-key-width: calc((100vw - 58px) / 10);
     --guide-key-gap: 3px;

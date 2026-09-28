@@ -832,6 +832,7 @@ const TangliengimImeCore = (() => {
       });
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
+      this.renderedCandidateContext = null;
       this.dismissedCandidateContext = null;
       this.internalUpdate = false;
       this.rememberedHanriReadings = [];
@@ -1420,10 +1421,13 @@ const TangliengimImeCore = (() => {
 
     renderCandidates() {
       if (!this.candidateContainer) return;
+      const previousContext = this.renderedCandidateContext;
+      const previousSelection = this.activeCandidates[this.activeCandidateIndex];
       this.candidateContainer.replaceChildren();
 
       if (!this.isEnabled()) {
         this.activeCandidates = [];
+        this.renderedCandidateContext = null;
         this.candidateContainer.hidden = true;
         this.onCandidatesChanged(this);
         return;
@@ -1433,6 +1437,7 @@ const TangliengimImeCore = (() => {
       if (this.dismissedCandidateContext === context) {
         this.activeCandidates = [];
         this.activeCandidateIndex = 0;
+        this.renderedCandidateContext = context;
         this.candidateContainer.hidden = true;
         this.onCandidatesChanged(this);
         return;
@@ -1441,8 +1446,15 @@ const TangliengimImeCore = (() => {
 
       this.activeCandidates = this.findCandidates();
       this.activeCandidateIndex = 0;
+      this.renderedCandidateContext = context;
       const range = this.activeCandidates[0];
-      if (range) {
+      if (range && previousContext === context && previousSelection) {
+        const selected = this.activeCandidates.findIndex(
+          ({ entry, start, end }) => start === previousSelection.start && end === previousSelection.end &&
+            entry.hanri === previousSelection.entry.hanri && entry.reading === previousSelection.entry.reading
+        );
+        if (selected >= 0) this.activeCandidateIndex = selected;
+      } else if (range) {
         const remembered = this.rememberedHangulReadings.find(
           (span) => span.start === range.start && span.end === range.end
         );
@@ -1508,6 +1520,7 @@ const TangliengimImeCore = (() => {
       this.dismissedCandidateContext = this.candidateContextKey();
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
+      this.renderedCandidateContext = this.dismissedCandidateContext;
       this.candidateContainer.replaceChildren();
       this.candidateContainer.hidden = true;
       this.onCandidatesChanged(this);

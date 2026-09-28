@@ -484,14 +484,24 @@ const TangliengimPhoneticOutput = (() => {
       const tokens = applyExternalSandhi(tokenize(normalizedText));
       const output = [];
       let previousWasWord = false;
+      const appendPronunciation = (value) => {
+        const rendered = String(value || "");
+        if (output.at(-1) === "’" && rendered.startsWith("’")) {
+          output.push(rendered.slice(1));
+        } else {
+          output.push(rendered);
+        }
+      };
       for (const token of tokens) {
         if (token.type === "syllable") {
           if (previousWasWord) output.push("-");
-          output.push(applyTone(token.roman || findUnitRoman(token.unit) || romanizeUnit(token.unit), token.tone));
+          appendPronunciation(
+            applyTone(token.roman || findUnitRoman(token.unit) || romanizeUnit(token.unit), token.tone)
+          );
           previousWasWord = true;
         } else if (token.type === "word") {
           if (previousWasWord) output.push("-");
-          output.push(token.text);
+          appendPronunciation(token.text);
           previousWasWord = true;
         } else if (token.type === "hyphen") {
           output.push("-");
