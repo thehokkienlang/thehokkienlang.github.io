@@ -541,7 +541,7 @@ h1 {
 
 @media (max-width: 640px) {
   .tone-overlay-mark {
-    top: calc(-0.72em - 4px);
+    top: calc(-0.72em - 6px);
   }
 
   .keyboard-layout {
