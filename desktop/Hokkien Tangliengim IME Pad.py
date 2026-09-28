@@ -8789,7 +8789,8 @@ class HokkienIMEPad:
             self.refresh_keyboard_guide_keycaps_for_shift()
         if was_ctrled and self.keyboard_help_open:
             self.refresh_keyboard_guide_keycaps_for_ctrl()
-        self.maybe_show_hanri_candidates()
+        if self.input_can_continue_candidate(sequence[-1]):
+            self.maybe_show_hanri_candidates()
         self.text.focus_set()
 
     def press_keyboard_guide_backspace(self) -> None:
@@ -8977,6 +8978,8 @@ class HokkienIMEPad:
         self.text.bind('<ButtonPress-1>', self.on_mouse_press)
         self.text.bind('<B1-Motion>', self.on_mouse_drag_select)
         self.text.bind('<ButtonRelease-1>', self.on_mouse_release)
+        self.root.bind_all('<ButtonPress-1>', self.on_global_button_press, add='+')
+        self.root.bind('<FocusOut>', self.on_root_focus_out, add='+')
         self.text.bind('<<Paste>>', lambda event: self.paste_raw_clipboard())
         self.text.bind('<<Cut>>', lambda event: self.cut_selection())
         self.text.bind('<Control-a>', self.select_all_main_text)
@@ -9206,7 +9209,6 @@ class HokkienIMEPad:
                 self.redo_stack = self.redo_stack[-200:]
         self.restore_undo_state(snapshot)
         self.render()
-        self.maybe_show_hanri_candidates()
         self.text.focus_set()
         return 'break'
 
@@ -9223,7 +9225,6 @@ class HokkienIMEPad:
                 self.undo_stack = self.undo_stack[-200:]
         self.restore_undo_state(snapshot)
         self.render()
-        self.maybe_show_hanri_candidates()
         self.text.focus_set()
         return 'break'
 
@@ -9562,6 +9563,34 @@ class HokkienIMEPad:
             self.mouse_selection_anchor_offset = self.text_index_to_offset(index)
         except tk.TclError:
             self.mouse_selection_anchor_offset = self.composer.display_cursor_pos()
+
+    def on_global_button_press(self, event: tk.Event) -> None:
+        """Dismiss candidates immediately when a click lands outside the menu."""
+        if self.candidate_popup is None:
+            return
+        try:
+            if event.widget.winfo_toplevel() is self.candidate_popup:
+                return
+        except (AttributeError, tk.TclError):
+            pass
+        self.close_candidate_popup()
+
+    def on_root_focus_out(self, _event: tk.Event) -> None:
+        if self.candidate_popup is not None:
+            self.root.after_idle(self.close_candidate_popup_if_focus_left_root)
+
+    def close_candidate_popup_if_focus_left_root(self) -> None:
+        if self.candidate_popup is None:
+            return
+        try:
+            focused = self.root.focus_get()
+            if focused is not None:
+                focused_toplevel = focused.winfo_toplevel()
+                if focused_toplevel is self.root or focused_toplevel is self.candidate_popup:
+                    return
+        except tk.TclError:
+            pass
+        self.close_candidate_popup()
 
     def on_mouse_drag_select(self, event: tk.Event) -> str:
         """Select jamo clusters as whole units while the mouse is dragging."""
@@ -9958,8 +9987,6 @@ class HokkienIMEPad:
                     self.undo_stack = self.undo_stack[-200:]
             self.redo_stack = []
         self.render()
-        if self.hanri_on.get():
-            self.maybe_show_hanri_candidates()
 
     def apply_tone_digit_display_to_latest_input(self, digit: str) -> None:
         """Turn a just-typed tone digit into the displayed tone form.
@@ -10333,9 +10360,9 @@ class HokkienIMEPad:
     def find_hanri_candidate(self, force: bool = False) -> dict | None:
         """Return an exact or predictive Hanri candidate record.
 
-        Candidate lookup is anchored at the current text cursor, not only at the
-        end of the whole input box.  This lets the user move back to the front
-        or middle of a sentence and still get Hanri menus there.
+        Candidate lookup is anchored at the current text cursor, but the menu is
+        only requested by input/edit actions. Moving the caret over committed
+        text alone never opens a candidate menu.
 
         Longest-match rule:
             When several entries can match the text before the cursor, the menu
@@ -10656,6 +10683,20 @@ class HokkienIMEPad:
             return self.with_lomari_key_style_alternate_candidates(predictive_candidate)
 
         return self.with_lomari_key_style_alternate_candidates(None)
+
+    def input_can_continue_candidate(self, value: str) -> bool:
+        """Whether the last inserted character can extend an active reading."""
+        if not value:
+            return False
+        char = value[-1]
+        return (
+            char.isalnum()
+            or char in COMPAT_TO_L
+            or char in COMPAT_TO_V
+            or char in SPECIAL_MEDIALS
+            or char in TONE_DIGITS
+            or char in LOMARI_INPUT_TONE_SYMBOLS
+        )
 
     def maybe_show_hanri_candidates(self, force: bool = False) -> bool:
         """Show a small IME-style candidate popup when a dictionary item matches."""
@@ -11533,7 +11574,6 @@ class HokkienIMEPad:
         self.reset_bopomofo_boundary()
         self.composer.insert_literal(punctuation)
         self.render()
-        self.maybe_show_hanri_candidates()
         return 'break'
 
     def on_keypress(self, event: tk.Event) -> str | None:
@@ -11728,7 +11768,10 @@ class HokkienIMEPad:
             if char in TONE_DIGITS:
                 self.apply_tone_digit_display_to_latest_input(char)
         self.render()
-        self.maybe_show_hanri_candidates()
+        if self.input_can_continue_candidate(char):
+            self.maybe_show_hanri_candidates()
+        else:
+            self.close_candidate_popup()
         return 'break'
 
     def handle_korean_key(self, compat: str) -> None:
@@ -12341,7 +12384,6 @@ class HokkienIMEPad:
                 self.sync_cursor_from_text_widget()
             self.composer.insert_literal(content)
             self.render()
-            self.maybe_show_hanri_candidates()
         self.text.focus_set()
         return 'break'
 

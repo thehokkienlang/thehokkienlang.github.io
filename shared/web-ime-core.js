@@ -41,6 +41,13 @@ const TangliengimImeCore = (() => {
     5: "5", "ˉ": "5", "ˍ": "5",
   });
   const LEGACY_INLINE_TONE_MARKS = /[ˆˋ`ˊˉꞈˎˏˍ]/gu;
+  const COMMITTED_INPUT_TYPES = new Set([
+    "insertFromPaste",
+    "insertFromDrop",
+    "deleteByCut",
+    "historyUndo",
+    "historyRedo",
+  ]);
   const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ"]);
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
@@ -951,7 +958,7 @@ const TangliengimImeCore = (() => {
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
       this.renderedCandidateContext = null;
-      this.dismissedCandidateContext = null;
+      this.unresolvedCandidateContext = null;
       this.internalUpdate = false;
       this.rememberedHanriReadings = [];
       this.rememberedHangulReadings = [];
@@ -966,12 +973,14 @@ const TangliengimImeCore = (() => {
       this.handleCompositionStart = this.handleCompositionStart.bind(this);
       this.handleCompositionUpdate = this.handleCompositionUpdate.bind(this);
       this.handleCompositionEnd = this.handleCompositionEnd.bind(this);
+      this.handleDocumentPointerDown = this.handleDocumentPointerDown.bind(this);
 
       control.addEventListener("keydown", this.handleKeydown);
       control.addEventListener("beforeinput", this.handleBeforeInput);
       control.addEventListener("input", this.handleInput);
       control.addEventListener("click", this.handleCursorChange);
       control.addEventListener("keyup", this.handleCursorChange);
+      document.addEventListener("pointerdown", this.handleDocumentPointerDown);
       if (this.recomposeNativeKoreanInput) {
         control.addEventListener("compositionstart", this.handleCompositionStart);
         control.addEventListener("compositionupdate", this.handleCompositionUpdate);
@@ -992,6 +1001,7 @@ const TangliengimImeCore = (() => {
 
     setEnabled() {
       this.syncComposerFromControl();
+      if (!this.isEnabled()) this.unresolvedCandidateContext = null;
       this.renderCandidates();
     }
 
@@ -1290,7 +1300,7 @@ const TangliengimImeCore = (() => {
       return start;
     }
 
-    updateControlFromComposer() {
+    updateControlFromComposer({ allowCandidateMenu = true } = {}) {
       const nextText = this.composer.text();
       this.syncRememberedReadings(nextText);
       this.internalUpdate = true;
@@ -1298,6 +1308,7 @@ const TangliengimImeCore = (() => {
       const cursor = this.composer.displayCursorPos();
       this.control.setSelectionRange(cursor, cursor);
       this.internalUpdate = false;
+      this.unresolvedCandidateContext = allowCandidateMenu ? this.candidateContextKey() : null;
       this.onUpdate();
       this.renderCandidates();
     }
@@ -1366,7 +1377,8 @@ const TangliengimImeCore = (() => {
         if (!this.applyHiddenTone(event.key)) this.composer.processChar(event.key);
       }
 
-      this.updateControlFromComposer();
+      const allowCandidateMenu = !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key);
+      this.updateControlFromComposer({ allowCandidateMenu });
       if (dismissAfterNavigation) this.dismissCandidates();
     }
 
@@ -1419,7 +1431,7 @@ const TangliengimImeCore = (() => {
       }
     }
 
-    handleInput() {
+    handleInput(event) {
       if (this.internalUpdate) return;
       if (this.nativeCompositionActive) return;
       const imeEnabled = this.isEnabled();
@@ -1440,6 +1452,9 @@ const TangliengimImeCore = (() => {
       if (imeEnabled) {
         this.composer.setText(normalizedValue, this.control.selectionStart ?? normalizedValue.length);
       }
+      this.unresolvedCandidateContext = COMMITTED_INPUT_TYPES.has(event?.inputType)
+        ? null
+        : this.candidateContextKey();
       this.onUpdate();
       this.renderCandidates();
     }
@@ -1456,8 +1471,19 @@ const TangliengimImeCore = (() => {
         this.normalizeControlSelection();
         this.syncComposerFromControl();
       }
-      if (event?.type === "click") this.dismissedCandidateContext = null;
-      this.renderCandidates();
+      const movedCaret = event?.type === "keyup" && ["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key);
+      if (
+        (event?.type === "click" || movedCaret) &&
+        (this.activeCandidates.length || this.unresolvedCandidateContext)
+      ) {
+        this.dismissCandidates(false);
+      }
+    }
+
+    handleDocumentPointerDown(event) {
+      if (this.candidateContainer?.contains(event.target)) return;
+      if (!this.activeCandidates.length && !this.unresolvedCandidateContext) return;
+      this.dismissCandidates(false);
     }
 
     processNativeKoreanInput(text) {
@@ -1575,6 +1601,7 @@ const TangliengimImeCore = (() => {
       this.control.parentElement?.classList.add("native-composition-active");
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
+      this.unresolvedCandidateContext = null;
       this.candidateContainer?.replaceChildren();
       if (this.candidateContainer) this.candidateContainer.hidden = true;
       this.onCandidatesChanged(this);
@@ -1762,7 +1789,7 @@ const TangliengimImeCore = (() => {
       }
 
       const context = this.candidateContextKey();
-      if (this.dismissedCandidateContext === context) {
+      if (this.unresolvedCandidateContext !== context) {
         this.activeCandidates = [];
         this.activeCandidateIndex = 0;
         this.renderedCandidateContext = context;
@@ -1770,7 +1797,6 @@ const TangliengimImeCore = (() => {
         this.onCandidatesChanged(this);
         return;
       }
-      this.dismissedCandidateContext = null;
 
       this.activeCandidates = this.findCandidates();
       this.activeCandidateIndex = 0;
@@ -1844,15 +1870,15 @@ const TangliengimImeCore = (() => {
       return `${this.control.value}\u0000${this.control.selectionStart ?? 0}\u0000${this.control.selectionEnd ?? 0}`;
     }
 
-    dismissCandidates() {
-      this.dismissedCandidateContext = this.candidateContextKey();
+    dismissCandidates(refocus = true) {
+      this.unresolvedCandidateContext = null;
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
-      this.renderedCandidateContext = this.dismissedCandidateContext;
-      this.candidateContainer.replaceChildren();
-      this.candidateContainer.hidden = true;
+      this.renderedCandidateContext = this.candidateContextKey();
+      this.candidateContainer?.replaceChildren();
+      if (this.candidateContainer) this.candidateContainer.hidden = true;
       this.onCandidatesChanged(this);
-      this.control.focus();
+      if (refocus) this.control.focus();
     }
 
     setCandidateIndex(index) {
@@ -1889,7 +1915,7 @@ const TangliengimImeCore = (() => {
       } else {
         this.rememberHanriReading(candidate.start, candidate.entry, next);
       }
-      this.updateControlFromComposer();
+      this.updateControlFromComposer({ allowCandidateMenu: false });
       this.dismissCandidates();
     }
   }
