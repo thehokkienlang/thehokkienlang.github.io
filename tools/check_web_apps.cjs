@@ -229,6 +229,15 @@ async function loadApp(route, script) {
     'The starred 능잡 typo must remain available to the IME candidate index'
   );
   const { context, elements } = await loadApp('ime', 'ime.js');
+  const imeMarkup = fs.readFileSync(path.join(root, appRoot, 'ime', 'index.html'), 'utf8');
+  for (const attribute of [
+    'autocorrect="off"',
+    'spellcheck="false"',
+    'autocomplete="off"',
+    'writingsuggestions="false"',
+  ]) {
+    assert.ok(imeMarkup.includes(attribute), `Mobile IME input must include ${attribute}`);
+  }
   assert.equal(elements.get('#statusLine').textContent, '');
   assert.equal(elements.get('#statusLine').hidden, true, 'Successful dictionary loading must stay visually quiet');
   assert.ok(
@@ -279,6 +288,44 @@ async function loadApp(route, script) {
     })()`, context),
     '랑’',
     'Web IME input must normalize straight apostrophes'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const shortcuts = [
+        ['앚', 'ᅟᅷ'], ['얒', 'ᅟᆤ'],
+      ];
+      const normalized = shortcuts.every(([input, expected]) =>
+        TangliengimHangulIme.normalizeDisallowedFinalInputText(input) === expected
+      );
+      const composed = [['ㅏ', 'ㅜ', 'ᅟᅷ'], ['ㅑ', 'ㅜ', 'ᅟᆤ']].every(([first, second, expected]) => {
+        const composer = new TangliengimHangulIme.Composer();
+        composer.processNativeCompat(first);
+        composer.processNativeCompat(second);
+        return composer.text() === expected;
+      });
+      return normalized && composed;
+    })()`, context),
+    'Shortcut and Korean-jamo input must converge on the same Tangliengim null-onset vowels'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.composer.setText('’에', 2);
+      imeController.updateControlFromComposer();
+      const chosen = imeController.activeCandidates.find(({ entry }) => entry.hanri === '’에');
+      if (!chosen) return false;
+      imeController.applyCandidate(chosen);
+      return imeText.value === '’에' && chosen.start === 0;
+    })()`, context),
+    'A punctuation-prefixed candidate must own an identical punctuation mark immediately before its reading'
+  );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const citation = lomariRenderer.resolvedHangulToneSpans('시');
+      const sandhi = lomariRenderer.resolvedHangulToneSpans('시뎋');
+      return citation[0]?.reading === '시5' && sandhi[0]?.reading === '시3';
+    })()`, context),
+    'Floating Hangul tones must follow the same resolved citation/sandhi state as Lomari'
   );
   assert.ok(
     vm.runInContext(`(() => {

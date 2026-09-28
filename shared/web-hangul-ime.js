@@ -248,7 +248,7 @@ const TangliengimHangulIme = (() => {
       const medial = V_TABLE[Math.floor((offset % 588) / 28)];
       const specialMedial = final === "ᆽ" ? FINAL_J_SHORTCUT_MEDIALS[medial] : "";
       output += specialMedial
-        ? `${initial}${specialMedial}`
+        ? `${initial === "ᄋ" ? HANGUL_CHOSEONG_FILLER : initial}${specialMedial}`
         : `${String.fromCodePoint(code - T_INDEX[final])}${DISALLOWED_FINAL_TO_COMPAT[final]}`;
     }
     return output;
@@ -467,7 +467,14 @@ const TangliengimHangulIme = (() => {
         this.initial && this.medial && !this.final && sourceCompat === "ㅈ" &&
         this.medial in FINAL_J_SHORTCUT_MEDIALS
       ) {
-        this.medial = FINAL_J_SHORTCUT_MEDIALS[this.medial];
+        const specialMedial = FINAL_J_SHORTCUT_MEDIALS[this.medial];
+        if (this.initial === "ᄋ") {
+          this.initial = "";
+          this.medial = "";
+          this.insertLiteral(`${HANGUL_CHOSEONG_FILLER}${specialMedial}`);
+        } else {
+          this.medial = specialMedial;
+        }
         this.eToYeAutocorrected = false;
         return;
       }

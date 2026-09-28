@@ -268,10 +268,17 @@ function syncToneOverlayViewport() {
 
 function updateToneOverlay() {
   if (!imeToneOverlay) return;
+  const tonesByStart = new Map(
+    imeController.getHangulToneReadingsForDisplay(imeText.value)
+      .map((span) => [span.start, span])
+  );
+  for (const span of lomariRenderer.resolvedHangulToneSpans(imeText.value)) {
+    tonesByStart.set(span.start, span);
+  }
   imeToneOverlay.replaceChildren(
     imeCore.renderToneOverlayText(
       imeText.value,
-      imeController.getHangulToneReadingsForDisplay(imeText.value)
+      [...tonesByStart.values()]
     )
   );
   imeText.classList.add("tone-overlay-source");

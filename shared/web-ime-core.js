@@ -720,6 +720,14 @@ const TangliengimImeCore = (() => {
     return /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ12345]/u.test(char);
   }
 
+  function candidateReplacementStart(text, start, replacement) {
+    const normalizedReplacement = normalizeApostrophes(replacement);
+    const leading = Array.from(normalizedReplacement)[0] || "";
+    if (!leading || !/^\p{P}$/u.test(leading) || start <= 0) return start;
+    const preceding = Array.from(normalizeApostrophes(text.slice(0, start))).at(-1) || "";
+    return preceding === leading ? start - preceding.length : start;
+  }
+
   function textControlCaretPosition(control) {
     if (!document.body || typeof getComputedStyle !== "function") return null;
     const style = getComputedStyle(control);
@@ -1574,9 +1582,12 @@ const TangliengimImeCore = (() => {
               TangliengimHangulIme.normalizeReadingToneKey(typedForm)
         );
         for (const entry of filteredEntries) {
+          const replacement = ["hangul_override", "hangul_plain"].includes(entry.kind)
+            ? TangliengimHangulIme.normalizeReadingBase(entry.reading || entry.hanri)
+            : entry.hanri;
           found.push({
             entry,
-            start,
+            start: candidateReplacementStart(range.text, start, replacement),
             end: range.end,
             length: suffix.length,
           });

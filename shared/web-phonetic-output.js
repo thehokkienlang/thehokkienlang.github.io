@@ -358,6 +358,18 @@ const TangliengimPhoneticOutput = (() => {
       }));
     }
 
+    function attachSourcePositions(tokens, text, start, end) {
+      let sourceIndex = start;
+      return tokens.map((token) => {
+        if (token.type !== "syllable") return token;
+        const sourceUnit = readingUnitAt(text, sourceIndex, imeCore);
+        if (!sourceUnit?.canCarryTone || sourceUnit.text !== token.unit || sourceUnit.end > end) return token;
+        const positioned = { ...token, sourceStart: sourceIndex, sourceEnd: sourceUnit.end };
+        sourceIndex = sourceUnit.end + (toneDigit(text[sourceUnit.end]) ? 1 : 0);
+        return positioned;
+      });
+    }
+
     function tokensForExplicitReading(reading) {
       const tokens = [];
       let index = 0;
@@ -428,21 +440,45 @@ const TangliengimPhoneticOutput = (() => {
           const marker = text[unit.end];
           const explicitTone = toneDigit(marker);
           if (explicitTone) {
-            tokens.push({ type: "syllable", unit: unit.text, tone: explicitTone, externalSandhi: false, fromTsv: false });
+            tokens.push({
+              type: "syllable",
+              unit: unit.text,
+              tone: explicitTone,
+              externalSandhi: false,
+              fromTsv: false,
+              sourceStart: index,
+              sourceEnd: unit.end,
+            });
             index = unit.end + 1;
             continue;
           }
 
           const overrideMatch = findHangulOverrideAt(text, index);
           if (overrideMatch?.entry) {
-            tokens.push(...syllablesForEntry(overrideMatch.entry, overrideMatch.preserveTones));
+            tokens.push(...attachSourcePositions(
+              syllablesForEntry(overrideMatch.entry, overrideMatch.preserveTones),
+              text,
+              index,
+              overrideMatch.end
+            ));
             index = overrideMatch.end;
             continue;
           }
 
           const override = findHangulOverride(unit.text);
-          if (override) tokens.push(...syllablesForEntry(override, false));
-          else tokens.push({ type: "syllable", unit: unit.text, tone: "3", externalSandhi: false, fromTsv: false });
+          if (override) {
+            tokens.push(...attachSourcePositions(syllablesForEntry(override, false), text, index, unit.end));
+          } else {
+            tokens.push({
+              type: "syllable",
+              unit: unit.text,
+              tone: "3",
+              externalSandhi: false,
+              fromTsv: false,
+              sourceStart: index,
+              sourceEnd: unit.end,
+            });
+          }
           index = unit.end;
           continue;
         }
@@ -514,7 +550,19 @@ const TangliengimPhoneticOutput = (() => {
       return output.join("");
     }
 
-    return { render };
+    function resolvedHangulToneSpans(text) {
+      const normalizedText = imeCore.normalizeApostrophes(text);
+      return applyExternalSandhi(tokenize(normalizedText))
+        .filter((token) => token.type === "syllable" && Number.isInteger(token.sourceStart))
+        .map((token) => ({
+          start: token.sourceStart,
+          end: token.sourceEnd,
+          hangul: token.unit,
+          reading: `${token.unit}${token.tone}`,
+        }));
+    }
+
+    return { render, resolvedHangulToneSpans };
   }
 
   function createAudioPlanner({
