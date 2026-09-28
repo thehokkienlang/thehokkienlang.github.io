@@ -3,7 +3,7 @@ const TangliengimWebAudio = (() => {
   const TONE4_SPEED = 1.03;
   const AUDIO_JOIN_TIMING = Object.freeze({
     normalOverlapSeconds: 0.12,
-    checkedOverlapSeconds: 0.05,
+    checkedOverlapSeconds: 0.08,
     englishClusterOverlapSeconds: 0.04,
     maxClipFraction: 0.25,
   });
@@ -211,10 +211,10 @@ const TangliengimWebAudio = (() => {
   }
 
   function overlapSeconds(previous, current) {
+    if (previous.shortOverlapFinal) return AUDIO_JOIN_TIMING.checkedOverlapSeconds;
     if (current.englishClusterHelper || previous.englishClusterHelper) {
       return AUDIO_JOIN_TIMING.englishClusterOverlapSeconds;
     }
-    if (previous.shortOverlapFinal) return AUDIO_JOIN_TIMING.checkedOverlapSeconds;
     return AUDIO_JOIN_TIMING.normalOverlapSeconds;
   }
 

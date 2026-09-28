@@ -2255,12 +2255,12 @@ AUDIO_FILE_EXTENSIONS = ('.wav', '.wave')
 # Adjacent audio units inside the same phrase are also overlapped/crossfaded
 # slightly to reduce the stitched-together feeling.  The overlap is determined
 # by the boundary type:
-#   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.05s
+#   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.08s
 #   otherwise -> 0.12s
 AUDIO_CONNECTED_TRIM_SECONDS = 0.20
 AUDIO_END_TRIM_SECONDS = 0.15
 AUDIO_UNIT_OVERLAP_SECONDS = 0.12
-AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.05
+AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.08
 AUDIO_MAX_UNIT_OVERLAP_FRACTION = 0.25
 # Add a short leading silence so Windows/audio devices do not clip the first syllable.
 AUDIO_INITIAL_BUFFER_SECONDS = 0.25
@@ -2897,7 +2897,7 @@ def audio_unit_final_jamo(unit: str) -> str:
 
 
 def audio_unit_has_short_overlap_final(unit: str) -> bool:
-    """True for finals ㄱ/ㄷ/ㅀ/ㅂ/ㅎ, which use only 0.05s overlap."""
+    """True for finals ㄱ/ㄷ/ㅀ/ㅂ/ㅎ, which use the checked-final overlap."""
     return audio_unit_final_jamo(unit) in AUDIO_SHORT_OVERLAP_FINALS
 
 def audio_unit_initial_medial_final(unit: str) -> tuple[str, str, str] | None:
@@ -4382,15 +4382,14 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                 if not combined:
                     combined = data
                 elif can_overlap_previous:
-                    # Checked endings are clipped tightly into the following unit.
-                    if current_english_cluster_helper:
+                    if previous_short_overlap_final:
+                        overlap_frames = short_final_overlap_frames
+                    elif current_english_cluster_helper:
                         # Boundary before an affected ㅡ-helper syllable.
                         overlap_frames = english_cluster_previous_overlap_frames
                     elif previous_english_cluster_helper:
                         # Boundary after an affected ㅡ-helper syllable.
                         overlap_frames = english_cluster_next_overlap_frames
-                    elif previous_short_overlap_final:
-                        overlap_frames = short_final_overlap_frames
                     else:
                         overlap_frames = normal_overlap_frames
                     overlap_frames = min(
