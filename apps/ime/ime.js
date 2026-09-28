@@ -15,6 +15,8 @@ const textWrap = document.querySelector(".text-wrap");
 const keyboardGuideButton = document.querySelector("#keyboardGuideButton");
 const keyboardGuide = document.querySelector("#keyboardGuide");
 const keyboardLayout = document.querySelector("#keyboardLayout");
+const keyboardSwitchHint = document.querySelector("#keyboardSwitchHint");
+const keyboardSwitchHintDismiss = document.querySelector("#keyboardSwitchHintDismiss");
 const pad = document.querySelector(".pad");
 
 const browserNavigator = typeof navigator === "undefined" ? {} : navigator;
@@ -24,6 +26,49 @@ const isMobileWebIme = Boolean(
   (browserNavigator.platform === "MacIntel" && browserNavigator.maxTouchPoints > 1)
 );
 if (isMobileWebIme) document.documentElement.classList.add("mobile-web-ime");
+
+const KEYBOARD_HINT_SESSION_KEY = "tangliengim-keyboard-hint-dismissed";
+const HANGUL_INPUT_RE = /^\p{Script=Hangul}$/u;
+const HANRI_INPUT_RE = /^\p{Script=Han}$/u;
+const PUNCTUATION_OR_SYMBOL_RE = /^[\p{P}\p{S}]$/u;
+const EMOJI_SEQUENCE_COMPONENT_RE = /^[\u200d\ufe0e\ufe0f\u20e3\u{e0020}-\u{e007f}]$/u;
+let keyboardSwitchHintDismissed = false;
+
+try {
+  keyboardSwitchHintDismissed = window.sessionStorage?.getItem(KEYBOARD_HINT_SESSION_KEY) === "1";
+} catch {
+  keyboardSwitchHintDismissed = false;
+}
+
+function isKeyboardHintAllowedCharacter(char) {
+  return /^[0-9]$/u.test(char) ||
+    /^\s$/u.test(char) ||
+    HANGUL_INPUT_RE.test(char) ||
+    HANRI_INPUT_RE.test(char) ||
+    PUNCTUATION_OR_SYMBOL_RE.test(char) ||
+    EMOJI_SEQUENCE_COMPONENT_RE.test(char);
+}
+
+function isKeyboardHintAllowedText(text) {
+  return [...String(text || "")].every(isKeyboardHintAllowedCharacter);
+}
+
+function setKeyboardSwitchHintVisible(visible) {
+  if (!isMobileWebIme || !keyboardSwitchHint) return;
+  const shouldShow = Boolean(visible && !keyboardSwitchHintDismissed);
+  keyboardSwitchHint.classList.toggle("visible", shouldShow);
+  keyboardSwitchHint.setAttribute("aria-hidden", String(!shouldShow));
+}
+
+function observeMobileKeyboardInput(text) {
+  if (!isMobileWebIme || !text) return;
+  const characters = [...String(text)];
+  if (characters.some((char) => !isKeyboardHintAllowedCharacter(char))) {
+    setKeyboardSwitchHintVisible(true);
+  } else if (characters.some((char) => HANGUL_INPUT_RE.test(char))) {
+    setKeyboardSwitchHintVisible(false);
+  }
+}
 
 const imeCore = window.TangliengimImeCore;
 const phoneticCore = window.TangliengimPhoneticOutput;
@@ -389,6 +434,32 @@ keyboardGuideButton.addEventListener("click", () => {
   keyboardGuideButton.setAttribute("aria-expanded", String(opening));
   keyboardGuideButton.querySelector(".guide-chevron").textContent = opening ? "▲" : "▼";
   if (opening) imeText.focus();
+});
+
+imeText.addEventListener("beforeinput", (event) => {
+  if (
+    !isMobileWebIme ||
+    event.isComposing ||
+    event.inputType !== "insertText" ||
+    !event.data
+  ) return;
+  observeMobileKeyboardInput(event.data);
+}, true);
+
+imeText.addEventListener("compositionend", (event) => {
+  if (isMobileWebIme && event.data) observeMobileKeyboardInput(event.data);
+}, true);
+
+keyboardSwitchHintDismiss?.addEventListener("pointerdown", (event) => event.preventDefault());
+keyboardSwitchHintDismiss?.addEventListener("click", () => {
+  keyboardSwitchHintDismissed = true;
+  try {
+    window.sessionStorage?.setItem(KEYBOARD_HINT_SESSION_KEY, "1");
+  } catch {
+    // Session storage can be unavailable in restricted browser contexts.
+  }
+  setKeyboardSwitchHintVisible(false);
+  imeText.focus({ preventScroll: true });
 });
 
 imeText.addEventListener("keydown", (event) => {
