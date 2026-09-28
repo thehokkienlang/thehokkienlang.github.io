@@ -49,6 +49,8 @@ const TangliengimHangulIme = (() => {
   T_TO_COMPAT["ᆶ"] = "ㅀ";
 
   const V_COMBINE = {
+    "ᅡᅮ": "ᅷ",
+    "ᅣᅮ": "ᆤ",
     "ᅩᅡ": "ᅪ",
     "ᅩᅢ": "ᅫ",
     "ᅩᅵ": "ᅬ",
@@ -69,9 +71,84 @@ const TangliengimHangulIme = (() => {
   const HANGUL_CHOSEONG_FILLER = "\u115f";
   const TONE_MARKS = { 1: "ˆ", 2: "ˋ", 4: "ˊ", 5: "ˉ" };
   const TONE_INPUT = { "ˆ": "1", "ꞈ": "1", "ˋ": "2", "`": "2", "ˎ": "2", "ˊ": "4", "ˏ": "4", "ˉ": "5", "ˍ": "5" };
+  const NATIVE_VOWEL_INPUT = {
+    "ᅡ": ["ㅏ"], "ᅢ": ["ㅐ"], "ᅣ": ["ㅑ"], "ᅥ": ["ㅓ"], "ᅦ": ["ㅔ"],
+    "ᅧ": ["ㅕ"], "ᅨ": ["ㅖ"], "ᅩ": ["ㅗ"], "ᅪ": ["ㅗ", "ㅏ"],
+    "ᅫ": ["ㅗ", "ㅐ"], "ᅬ": ["ㅗ", "ㅣ"], "ᅭ": ["ㅛ"], "ᅮ": ["ㅜ"],
+    "ᅰ": ["ㅜ", "ㅔ"], "ᅱ": ["ㅜ", "ㅣ"], "ᅲ": ["ㅠ"], "ᅳ": ["ㅡ"],
+    "ᅴ": ["ㅡ", "ㅣ"], "ᅵ": ["ㅣ"],
+  };
+  const NATIVE_COMPAT_VOWEL_INPUT = {
+    "ㅘ": ["ㅗ", "ㅏ"], "ㅙ": ["ㅗ", "ㅐ"], "ㅚ": ["ㅗ", "ㅣ"],
+    "ㅞ": ["ㅜ", "ㅔ"], "ㅟ": ["ㅜ", "ㅣ"], "ㅢ": ["ㅡ", "ㅣ"],
+  };
+  const NATIVE_SPECIAL_VOWEL_INPUT = { "ᅷ": ["ㅏ", "ㅜ"], "ᆤ": ["ㅑ", "ㅜ"] };
+  const NATIVE_FINAL_INPUT = {
+    "ᆨ": ["ㄱ"], "ᆩ": ["ㄲ"], "ᆪ": ["ㄱ", "ㅅ"], "ᆫ": ["ㄴ"],
+    "ᆬ": ["ㄴ", "ㅈ"], "ᆭ": ["ㄴ", "ㅎ"], "ᆮ": ["ㄷ"], "ᆯ": ["ㄹ"],
+    "ᆰ": ["ㄹ", "ㄱ"], "ᆱ": ["ㄹ", "ㅁ"], "ᆲ": ["ㄹ", "ㅂ"],
+    "ᆳ": ["ㄹ", "ㅅ"], "ᆴ": ["ㄹ", "ㅌ"], "ᆵ": ["ㄹ", "ㅍ"],
+    "ᆶ": ["ㄹ", "ㅎ"], "ᆷ": ["ㅁ"], "ᆸ": ["ㅂ"], "ᆹ": ["ㅂ", "ㅅ"],
+    "ᆺ": ["ㅅ"], "ᆻ": ["ㅅ", "ㅅ"], "ᆼ": ["ㅇ"], "ᆽ": ["ㅈ"],
+    "ᆾ": ["ㅊ"], "ᆿ": ["ㅋ"], "ᇀ": ["ㅌ"], "ᇁ": ["ㅍ"], "ᇂ": ["ㅎ"],
+  };
 
   function normalizeApostrophes(value) {
     return String(value ?? "").replaceAll("'", "’");
+  }
+
+  function containsNativeKoreanInput(value) {
+    return /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]/u.test(String(value || ""));
+  }
+
+  function nativeKoreanInputUnits(value) {
+    const units = [];
+    const compose = (items) => {
+      for (const text of items) units.push({ text, compose: true });
+    };
+
+    for (const char of String(value || "")) {
+      if (char in COMPAT_TO_L || char in COMPAT_TO_V) {
+        compose([char]);
+        continue;
+      }
+      if (char in NATIVE_COMPAT_VOWEL_INPUT) {
+        compose(NATIVE_COMPAT_VOWEL_INPUT[char]);
+        continue;
+      }
+      if (char in L_TO_COMPAT) {
+        compose([L_TO_COMPAT[char]]);
+        continue;
+      }
+      if (char in NATIVE_VOWEL_INPUT) {
+        compose(NATIVE_VOWEL_INPUT[char]);
+        continue;
+      }
+      if (char in NATIVE_SPECIAL_VOWEL_INPUT) {
+        compose(NATIVE_SPECIAL_VOWEL_INPUT[char]);
+        continue;
+      }
+      if (char in NATIVE_FINAL_INPUT) {
+        compose(NATIVE_FINAL_INPUT[char]);
+        continue;
+      }
+
+      const code = char.codePointAt(0);
+      const offset = code - 0xac00;
+      if (offset >= 0 && offset < 11172) {
+        const initial = L_TABLE[Math.floor(offset / 588)];
+        const medial = V_TABLE[Math.floor((offset % 588) / 28)];
+        const final = T_TABLE[offset % 28];
+        const initialInput = L_TO_COMPAT[initial];
+        const medialInput = NATIVE_VOWEL_INPUT[medial];
+        if (initialInput && medialInput) {
+          compose([initialInput, ...medialInput, ...(NATIVE_FINAL_INPUT[final] || [])]);
+          continue;
+        }
+      }
+      units.push({ text: char, compose: false });
+    }
+    return units;
   }
 
   const INITIAL_KEY_TO_L = Object.fromEntries(
@@ -387,7 +464,12 @@ const TangliengimHangulIme = (() => {
       if (!this.initial && this.medial && !this.final) {
         const candidate = V_COMBINE[`${this.medial}${medial}`];
         if (candidate) {
-          this.medial = candidate;
+          if (SPECIAL_MEDIALS.has(candidate)) {
+            this.medial = "";
+            this.insertLiteral(`${HANGUL_CHOSEONG_FILLER}${candidate}`);
+          } else {
+            this.medial = candidate;
+          }
           this.eToYeAutocorrected = false;
           return;
         }
@@ -614,11 +696,19 @@ const TangliengimHangulIme = (() => {
         this.keyHistory = [];
       }
     }
+
+    processCompat(char) {
+      if (char in COMPAT_TO_L || char in COMPAT_TO_V) this.handleCompat(char);
+      else this.insertLiteral(char);
+      this.keyHistory = [];
+    }
   }
 
   return {
     Composer,
+    containsNativeKoreanInput,
     keyboardGuideOutput,
+    nativeKoreanInputUnits,
     normalizeDisallowedFinalInputText,
     normalizeAtomicSelection,
     normalizeReadingBase,

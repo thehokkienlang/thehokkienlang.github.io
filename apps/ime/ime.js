@@ -17,6 +17,13 @@ const keyboardGuide = document.querySelector("#keyboardGuide");
 const keyboardLayout = document.querySelector("#keyboardLayout");
 const pad = document.querySelector(".pad");
 
+const isMobileWebIme = Boolean(
+  navigator.userAgentData?.mobile ||
+  /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+  (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+);
+if (isMobileWebIme) document.documentElement.classList.add("mobile-web-ime");
+
 const imeCore = window.TangliengimImeCore;
 const phoneticCore = window.TangliengimPhoneticOutput;
 const webAudio = window.TangliengimWebAudio;
@@ -34,6 +41,7 @@ const imeController = imeCore.createTextImeController({
   onUpdate: updateImePresentation,
   onCandidatesChanged: candidatePopup.schedule,
   enterBehavior: "newline",
+  recomposeNativeKoreanInput: isMobileWebIme,
 });
 
 const state = {
@@ -373,6 +381,7 @@ taipeiButton.addEventListener("click", () => setSandhiMode("taipei"));
 singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
 
 keyboardGuideButton.addEventListener("click", () => {
+  if (isMobileWebIme) return;
   const opening = keyboardGuide.hidden;
   keyboardGuide.hidden = !opening;
   pad?.classList.toggle("keyboard-guide-open", opening);

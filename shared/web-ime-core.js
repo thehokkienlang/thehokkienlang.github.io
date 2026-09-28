@@ -814,6 +814,7 @@ const TangliengimImeCore = (() => {
       onCandidatesChanged = () => {},
       enterBehavior = "none",
       candidateLimit = 9,
+      recomposeNativeKoreanInput = false,
     }) {
       this.control = control;
       this.candidateContainer = candidateContainer;
@@ -822,6 +823,7 @@ const TangliengimImeCore = (() => {
       this.onCandidatesChanged = onCandidatesChanged;
       this.enterBehavior = enterBehavior;
       this.candidateLimit = candidateLimit;
+      this.recomposeNativeKoreanInput = Boolean(recomposeNativeKoreanInput);
       this.dictionaryIndex = dictionaryIndex;
       this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries);
       this.composer = new TangliengimHangulIme.Composer({
@@ -838,17 +840,27 @@ const TangliengimImeCore = (() => {
       this.rememberedHanriReadings = [];
       this.rememberedHangulReadings = [];
       this.rememberedTextSnapshot = normalizeApostrophes(control.value || "");
+      this.nativeComposition = null;
+      this.nativeCompositionActive = false;
 
       this.handleKeydown = this.handleKeydown.bind(this);
       this.handleBeforeInput = this.handleBeforeInput.bind(this);
       this.handleInput = this.handleInput.bind(this);
       this.handleCursorChange = this.handleCursorChange.bind(this);
+      this.handleCompositionStart = this.handleCompositionStart.bind(this);
+      this.handleCompositionUpdate = this.handleCompositionUpdate.bind(this);
+      this.handleCompositionEnd = this.handleCompositionEnd.bind(this);
 
       control.addEventListener("keydown", this.handleKeydown);
       control.addEventListener("beforeinput", this.handleBeforeInput);
       control.addEventListener("input", this.handleInput);
       control.addEventListener("click", this.handleCursorChange);
       control.addEventListener("keyup", this.handleCursorChange);
+      if (this.recomposeNativeKoreanInput) {
+        control.addEventListener("compositionstart", this.handleCompositionStart);
+        control.addEventListener("compositionupdate", this.handleCompositionUpdate);
+        control.addEventListener("compositionend", this.handleCompositionEnd);
+      }
       this.renderCandidates();
     }
 
@@ -1249,9 +1261,17 @@ const TangliengimImeCore = (() => {
         event.preventDefault();
         this.syncComposerFromControl();
         this.replaceSelectionBeforeImeKey();
-        const inputText = TangliengimHangulIme.normalizeDisallowedFinalInputText(event.data);
-        for (const char of [...inputText]) {
-          if (!this.applyHiddenTone(char)) this.composer.processChar(char);
+        const inputText = event.data;
+        if (
+          this.recomposeNativeKoreanInput &&
+          TangliengimHangulIme.containsNativeKoreanInput(inputText)
+        ) {
+          this.processNativeKoreanInput(inputText);
+        } else {
+          const normalizedInput = TangliengimHangulIme.normalizeDisallowedFinalInputText(inputText);
+          for (const char of [...normalizedInput]) {
+            if (!this.applyHiddenTone(char)) this.composer.processChar(char);
+          }
         }
         this.updateControlFromComposer();
       } else if (event.inputType === "deleteContentBackward") {
@@ -1272,6 +1292,7 @@ const TangliengimImeCore = (() => {
 
     handleInput() {
       if (this.internalUpdate) return;
+      if (this.nativeCompositionActive) return;
       const imeEnabled = this.isEnabled();
       const normalizeInput = (value) => {
         const apostrophesNormalized = normalizeApostrophes(value);
@@ -1308,6 +1329,83 @@ const TangliengimImeCore = (() => {
       }
       if (event?.type === "click") this.dismissedCandidateContext = null;
       this.renderCandidates();
+    }
+
+    processNativeKoreanInput(text) {
+      for (const unit of TangliengimHangulIme.nativeKoreanInputUnits(text)) {
+        if (unit.compose) this.composer.processCompat(unit.text);
+        else this.composer.insertLiteral(unit.text);
+      }
+    }
+
+    handleCompositionStart() {
+      if (!this.recomposeNativeKoreanInput || !this.isEnabled()) return;
+      this.syncComposerFromControl();
+      this.nativeComposition = {
+        value: normalizeApostrophes(this.control.value),
+        start: this.control.selectionStart ?? this.control.value.length,
+        end: this.control.selectionEnd ?? this.control.value.length,
+        data: "",
+      };
+      this.nativeCompositionActive = true;
+      this.control.classList.add("native-composition");
+      this.control.parentElement?.classList.add("native-composition-active");
+      this.activeCandidates = [];
+      this.activeCandidateIndex = 0;
+      this.candidateContainer?.replaceChildren();
+      if (this.candidateContainer) this.candidateContainer.hidden = true;
+      this.onCandidatesChanged(this);
+    }
+
+    handleCompositionUpdate(event) {
+      if (!this.nativeCompositionActive || !this.nativeComposition) return;
+      this.nativeComposition.data = normalizeApostrophes(event.data || "");
+    }
+
+    handleCompositionEnd(event) {
+      if (!this.nativeCompositionActive || !this.nativeComposition) return;
+      const snapshot = this.nativeComposition;
+      const current = normalizeApostrophes(this.control.value);
+      this.nativeCompositionActive = false;
+      this.nativeComposition = null;
+      this.control.classList.remove("native-composition");
+      this.control.parentElement?.classList.remove("native-composition-active");
+
+      const prefix = snapshot.value.slice(0, snapshot.start);
+      const suffix = snapshot.value.slice(snapshot.end);
+      let inserted = "";
+      if (current.startsWith(prefix) && current.endsWith(suffix)) {
+        inserted = current.slice(prefix.length, current.length - suffix.length || current.length);
+      } else {
+        let start = 0;
+        while (start < snapshot.value.length && start < current.length && snapshot.value[start] === current[start]) {
+          start += 1;
+        }
+        let suffixLength = 0;
+        while (
+          suffixLength < snapshot.value.length - start &&
+          suffixLength < current.length - start &&
+          snapshot.value[snapshot.value.length - 1 - suffixLength] === current[current.length - 1 - suffixLength]
+        ) {
+          suffixLength += 1;
+        }
+        snapshot.start = start;
+        snapshot.end = snapshot.value.length - suffixLength;
+        inserted = current.slice(start, current.length - suffixLength);
+      }
+
+      const compositionData = normalizeApostrophes(event.data ?? snapshot.data ?? "");
+      if (!TangliengimHangulIme.containsNativeKoreanInput(inserted) && !TangliengimHangulIme.containsNativeKoreanInput(compositionData)) {
+        this.handleInput();
+        return;
+      }
+      if (!TangliengimHangulIme.containsNativeKoreanInput(inserted) && compositionData) inserted = compositionData;
+
+      const base = `${snapshot.value.slice(0, snapshot.start)}${snapshot.value.slice(snapshot.end)}`;
+      this.syncRememberedReadings(base);
+      this.composer.setText(base, snapshot.start);
+      this.processNativeKoreanInput(inserted);
+      this.updateControlFromComposer();
     }
 
     activeCandidateRange() {

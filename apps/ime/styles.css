@@ -162,6 +162,20 @@ h1 {
   -webkit-text-fill-color: transparent;
 }
 
+.ime-text.tone-overlay-source.native-composition {
+  color: var(--text);
+  -webkit-text-fill-color: var(--text);
+}
+
+.text-wrap.native-composition-active .ime-tone-overlay {
+  visibility: hidden;
+}
+
+.mobile-web-ime .keyboard-guide-button,
+.mobile-web-ime .keyboard-guide {
+  display: none !important;
+}
+
 /* Keep the guide on screen by giving it space from the input while it is open. */
 .pad.keyboard-guide-open .ime-text {
   min-height: clamp(192px, calc(100dvh - 630px), 300px);
