@@ -1,6 +1,12 @@
 const TangliengimWebAudio = (() => {
   const MULTI_SYLLABLE_SPEED = 1.10;
   const TONE4_SPEED = 1.03;
+  const AUDIO_JOIN_TIMING = Object.freeze({
+    normalOverlapSeconds: 0.12,
+    checkedOverlapSeconds: 0.05,
+    englishClusterOverlapSeconds: 0.04,
+    maxClipFraction: 0.25,
+  });
   let sharedAudioContext = null;
   const decodedAudioCache = new Map();
   const processedAudioCache = new Map();
@@ -205,9 +211,20 @@ const TangliengimWebAudio = (() => {
   }
 
   function overlapSeconds(previous, current) {
-    if (current.englishClusterHelper || previous.englishClusterHelper) return 0.04;
-    if (previous.shortOverlapFinal) return 0.05;
-    return 0.1;
+    if (current.englishClusterHelper || previous.englishClusterHelper) {
+      return AUDIO_JOIN_TIMING.englishClusterOverlapSeconds;
+    }
+    if (previous.shortOverlapFinal) return AUDIO_JOIN_TIMING.checkedOverlapSeconds;
+    return AUDIO_JOIN_TIMING.normalOverlapSeconds;
+  }
+
+  function overlapFrames(previous, current, sampleRate) {
+    if (!previous || !current.canOverlapPrevious) return 0;
+    const shorterClipFrames = Math.min(previous.channels[0].length, current.channels[0].length);
+    return Math.min(
+      Math.floor(sampleRate * overlapSeconds(previous, current)),
+      Math.floor(shorterClipFrames * AUDIO_JOIN_TIMING.maxClipFraction)
+    );
   }
 
   function appendChannels(previousChannels, nextChannels, overlapFrames) {
@@ -250,9 +267,7 @@ const TangliengimWebAudio = (() => {
       if (segment.sampleRate !== sampleRate || segment.channelCount !== channelCount) {
         throw new Error("Audio files use different formats");
       }
-      const overlap = previousSegment && segment.canOverlapPrevious
-        ? Math.floor(sampleRate * overlapSeconds(previousSegment, segment))
-        : 0;
+      const overlap = overlapFrames(previousSegment, segment, sampleRate);
       combined = appendChannels(combined, segment.channels, overlap);
       previousSegment = segment;
     }

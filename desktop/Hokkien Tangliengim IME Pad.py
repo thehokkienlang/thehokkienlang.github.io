@@ -2227,11 +2227,12 @@ AUDIO_FILE_EXTENSIONS = ('.wav', '.wave')
 # slightly to reduce the stitched-together feeling.  The overlap is determined
 # by the boundary type:
 #   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.05s
-#   otherwise -> 0.10s
+#   otherwise -> 0.12s
 AUDIO_CONNECTED_TRIM_SECONDS = 0.20
 AUDIO_END_TRIM_SECONDS = 0.15
-AUDIO_UNIT_OVERLAP_SECONDS = 0.10
+AUDIO_UNIT_OVERLAP_SECONDS = 0.12
 AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.05
+AUDIO_MAX_UNIT_OVERLAP_FRACTION = 0.25
 # Add a short leading silence so Windows/audio devices do not clip the first syllable.
 AUDIO_INITIAL_BUFFER_SECONDS = 0.25
 AUDIO_MULTI_SYLLABLE_SPEED_FACTOR = 1.10
@@ -4341,11 +4342,14 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
             combined = b''
             previous_short_overlap_final = False
             previous_english_cluster_helper = False
+            previous_unit_frames = 0
+            frame_size = channels * sample_width
             normal_overlap_frames = max(0, int(sample_rate * AUDIO_UNIT_OVERLAP_SECONDS))
             short_final_overlap_frames = max(0, int(sample_rate * AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS))
             english_cluster_previous_overlap_frames = max(0, int(sample_rate * AUDIO_ENGLISH_CLUSTER_PREVIOUS_OVERLAP_SECONDS))
             english_cluster_next_overlap_frames = max(0, int(sample_rate * AUDIO_ENGLISH_CLUSTER_NEXT_OVERLAP_SECONDS))
             for data, can_overlap_previous, current_short_overlap_final, current_english_cluster_helper in frames:
+                current_unit_frames = len(data) // frame_size
                 if not combined:
                     combined = data
                 elif can_overlap_previous:
@@ -4360,6 +4364,10 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                         overlap_frames = short_final_overlap_frames
                     else:
                         overlap_frames = normal_overlap_frames
+                    overlap_frames = min(
+                        overlap_frames,
+                        int(min(previous_unit_frames, current_unit_frames) * AUDIO_MAX_UNIT_OVERLAP_FRACTION),
+                    )
                     if overlap_frames > 0:
                         combined = overlap_pcm16_audio_units(
                             combined,
@@ -4374,6 +4382,7 @@ def concatenate_wav_segments(segments: list[tuple], output_path: Path) -> bool:
                     combined += data
                 previous_short_overlap_final = bool(current_short_overlap_final)
                 previous_english_cluster_helper = bool(current_english_cluster_helper)
+                previous_unit_frames = current_unit_frames
 
             if combined:
                 out.writeframes(combined)
