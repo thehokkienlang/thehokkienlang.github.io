@@ -1754,19 +1754,33 @@ def decompose_precomposed_syllable(ch: str) -> tuple[str, str, str] | None:
 
 
 def normalize_disallowed_final_input_text(text: str) -> str:
-    """Normalize final-ㅈ shorthand and split all disallowed coda consonants."""
+    """Keep valid final-ㅈ syllables intact and split other disallowed codas."""
     output = []
     for ch in str(text or ''):
         decomposed = decompose_precomposed_syllable(ch)
         if not decomposed or decomposed[2] not in DISALLOWED_FINAL_TO_COMPAT:
             output.append(ch)
             continue
-        initial, medial, final = decomposed
-        special_medial = FINAL_J_SHORTCUT_MEDIALS.get(medial) if final == 'ᆽ' else None
-        if special_medial:
-            output.append(initial + special_medial)
-        else:
-            output.append(chr(ord(ch) - T_INDEX[final]) + DISALLOWED_FINAL_TO_COMPAT[final])
+        _initial, medial, final = decomposed
+        if final == 'ᆽ' and medial in FINAL_J_SHORTCUT_MEDIALS:
+            output.append(ch)
+            continue
+        output.append(chr(ord(ch) - T_INDEX[final]) + DISALLOWED_FINAL_TO_COMPAT[final])
+    return ''.join(output)
+
+
+def normalize_final_j_candidate_lookup(text: str) -> str:
+    """Resolve final-ㅈ shorthand only in a temporary dictionary lookup string."""
+    output = []
+    for ch in str(text or ''):
+        decomposed = decompose_precomposed_syllable(ch)
+        if decomposed and decomposed[2] == 'ᆽ':
+            initial, medial, _final = decomposed
+            special_medial = FINAL_J_SHORTCUT_MEDIALS.get(medial)
+            if special_medial:
+                output.append(initial + special_medial)
+                continue
+        output.append(ch)
     return ''.join(output)
 
 
@@ -1890,9 +1904,10 @@ def raw_keyboard_prefix_display(raw_prefix: str) -> str:
             elif initial and not medial:
                 commit()
                 initial = new_initial
-            elif initial and medial and not final and compat == 'ㅈ' and medial in FINAL_J_SHORTCUT_MEDIALS:
-                medial = FINAL_J_SHORTCUT_MEDIALS[medial]
-            elif initial and medial and not final and compat in COMPAT_TO_T:
+            elif (
+                initial and medial and not final and compat in COMPAT_TO_T
+                and (compat != 'ㅈ' or medial in FINAL_J_SHORTCUT_MEDIALS)
+            ):
                 final = COMPAT_TO_T[compat]
             else:
                 commit()
@@ -6083,15 +6098,10 @@ class Composer:
             return
 
         if (
-            self.initial and self.medial and not self.final
-            and source_compat == 'ㅈ'
-            and self.medial in FINAL_J_SHORTCUT_MEDIALS
+            self.initial and self.medial and not self.final and source_compat
+            and can_be_final_from_compat(source_compat)
+            and (source_compat != 'ㅈ' or self.medial in FINAL_J_SHORTCUT_MEDIALS)
         ):
-            self.medial = FINAL_J_SHORTCUT_MEDIALS[self.medial]
-            self.e_to_ye_autocorrected = False
-            return
-
-        if self.initial and self.medial and not self.final and source_compat and can_be_final_from_compat(source_compat):
             self.final = COMPAT_TO_T[source_compat]
             if (
                 self.should_use_e_to_ye_autocorrect()
@@ -10400,6 +10410,23 @@ class HokkienIMEPad:
             score = match_score(score_text, phase)
             if best_exact is None or score > best_exact[0]:
                 best_exact = (score, candidate)
+
+        for raw_start in range(len(before_lookup)):
+            raw_suffix = before_lookup[raw_start:]
+            normalized_suffix = normalize_final_j_candidate_lookup(raw_suffix)
+            if normalized_suffix == raw_suffix:
+                continue
+            base_reading = strip_reading_tones(normalized_suffix)
+            entries = HANRI_DICT.get(base_reading)
+            if entries:
+                consider_exact(
+                    normalized_suffix,
+                    0,
+                    before_cursor[:raw_start],
+                    normalized_suffix,
+                    base_reading,
+                    entries,
+                )
 
         exact_tests_for_suffix = HANRI_EXACT_CANDIDATE_BUCKETS.get(before_lookup[-1], []) if before_lookup else []
         base_tests_for_suffix = HANRI_BASE_CANDIDATE_BUCKETS.get(last_non_tone_char(before_lookup), [])

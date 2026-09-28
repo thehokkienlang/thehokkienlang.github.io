@@ -256,12 +256,12 @@ const TangliengimHangulIme = (() => {
         output += char;
         continue;
       }
-      const initial = L_TABLE[Math.floor(offset / 588)];
       const medial = V_TABLE[Math.floor((offset % 588) / 28)];
-      const specialMedial = final === "ᆽ" ? FINAL_J_SHORTCUT_MEDIALS[medial] : "";
-      output += specialMedial
-        ? `${initial}${specialMedial}`
-        : `${String.fromCodePoint(code - T_INDEX[final])}${DISALLOWED_FINAL_TO_COMPAT[final]}`;
+      if (final === "ᆽ" && medial in FINAL_J_SHORTCUT_MEDIALS) {
+        output += char;
+        continue;
+      }
+      output += `${String.fromCodePoint(code - T_INDEX[final])}${DISALLOWED_FINAL_TO_COMPAT[final]}`;
     }
     return output;
   }
@@ -476,15 +476,9 @@ const TangliengimHangulIme = (() => {
         return;
       }
       if (
-        this.initial && this.medial && !this.final && sourceCompat === "ㅈ" &&
-        this.medial in FINAL_J_SHORTCUT_MEDIALS
+        this.initial && this.medial && !this.final && sourceCompat && canBeFinal(sourceCompat) &&
+        (sourceCompat !== "ㅈ" || this.medial in FINAL_J_SHORTCUT_MEDIALS)
       ) {
-        const specialMedial = FINAL_J_SHORTCUT_MEDIALS[this.medial];
-        this.medial = specialMedial;
-        this.eToYeAutocorrected = false;
-        return;
-      }
-      if (this.initial && this.medial && !this.final && sourceCompat && canBeFinal(sourceCompat)) {
         this.final = COMPAT_TO_T[sourceCompat];
         const corrected = composeSyllable(this.initial, "ᅨ", this.final);
         if (
@@ -786,7 +780,23 @@ const TangliengimHangulIme = (() => {
       }
     }
     composer.commit();
-    return composer.text();
+    let output = "";
+    for (const char of composer.text()) {
+      const code = char.codePointAt(0);
+      const offset = code - 0xac00;
+      const final = offset >= 0 && offset < 11172 ? T_TABLE[offset % 28] : "";
+      if (final === "ᆽ") {
+        const initial = L_TABLE[Math.floor(offset / 588)];
+        const medial = V_TABLE[Math.floor((offset % 588) / 28)];
+        const specialMedial = FINAL_J_SHORTCUT_MEDIALS[medial];
+        if (specialMedial) {
+          output += `${initial}${specialMedial}`;
+          continue;
+        }
+      }
+      output += char;
+    }
+    return output;
   }
 
   return {

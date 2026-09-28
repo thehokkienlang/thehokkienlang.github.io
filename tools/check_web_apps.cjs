@@ -294,8 +294,8 @@ async function loadApp(route, script) {
       const shortcuts = [
         ['앚', 'ᄋᅷ'], ['얒', 'ᄋᆤ'],
       ];
-      const normalized = shortcuts.every(([input, expected]) =>
-        TangliengimHangulIme.normalizeDisallowedFinalInputText(input) === expected
+      const preserved = shortcuts.every(([input]) =>
+        TangliengimHangulIme.normalizeDisallowedFinalInputText(input) === input
       );
       const candidateNormalized = [
         ['ㅏㅜ', 'ᅟᅷ'], ['ㅑㅜ', 'ᄋᆤ'],
@@ -316,7 +316,7 @@ async function loadApp(route, script) {
         TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅜ') ===
           TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅈ')
       );
-      return normalized && candidateNormalized && composed && equivalent;
+      return preserved && candidateNormalized && composed && equivalent;
     })()`, context),
     'Unresolved vowel sequences and final-ㅈ shorthand must normalize to the same special-medial reading for every initial'
   );
