@@ -67,6 +67,12 @@ def normalized_reading(tone_marker, value: str) -> str:
     )
 
 
+def strip_inline_hanri_tone_marks(tone_marker, value: str) -> str:
+    """Keep legacy inline tone glyphs out of candidate/headword text."""
+    tone_symbols = getattr(tone_marker, "TONE_SYMBOLS", set())
+    return "".join(char for char in str(value or "") if char not in tone_symbols)
+
+
 def safe_priority(value: str) -> int:
     try:
         return int(str(value or "").strip())
@@ -333,7 +339,8 @@ def build_dictionary(
 
         for row_number, row in enumerate(reader, start=2):
             raw_reading = str(row.get("reading") or "").strip()
-            hanri = str(row.get("hanri") or "").strip()
+            raw_hanri = str(row.get("hanri") or "").strip()
+            hanri = strip_inline_hanri_tone_marks(tone_marker, raw_hanri)
             priority_text = str(row.get("priority") or "").strip()
             corrected_raw = str(row.get("corrected") or "").strip()
             english = str(row.get("english") or "").strip()
@@ -387,13 +394,13 @@ def build_dictionary(
                 "lomariKey": normalize_for_search(lomari),
                 "english": english,
                 "englishKey": normalize_for_search(english),
-                "categories": list(category_memberships.get(hanri, [])),
+                "categories": list(category_memberships.get(raw_hanri, [])),
                 "audio": audio,
                 "priority": priority,
                 "form": ime.infer_default_form(effective_reading),
                 "raw": {
                     "reading": raw_reading,
-                    "hanri": hanri,
+                    "hanri": raw_hanri,
                     "priority": priority_text,
                     "corrected": corrected_raw,
                     "english": english,
@@ -456,7 +463,9 @@ def build_dictionary(
 
     entries.sort(key=lambda item: (item["priority"], item["row"], item["reading"], item["hanri"]))
 
-    known_headwords = {entry["hanri"] for entry in entries if entry["hanri"]}
+    known_headwords = {
+        entry["raw"]["hanri"] for entry in entries if entry["raw"]["hanri"]
+    }
     unknown_headwords = sorted(set(category_memberships) - known_headwords)
     if unknown_headwords:
         raise ValueError(f"Category TSV contains unknown headword(s): {', '.join(unknown_headwords)}")

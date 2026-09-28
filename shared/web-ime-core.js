@@ -40,6 +40,7 @@ const TangliengimImeCore = (() => {
     4: "4", "ˊ": "4", "ˏ": "4",
     5: "5", "ˉ": "5", "ˍ": "5",
   });
+  const LEGACY_INLINE_TONE_MARKS = /[ˆˋ`ˊˉꞈˎˏˍ]/gu;
   const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ"]);
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
@@ -171,6 +172,10 @@ const TangliengimImeCore = (() => {
 
   function searchableEntry(entry) {
     return entry.active && entry.kind !== "numeric_override";
+  }
+
+  function stripLegacyInlineToneMarks(value) {
+    return String(value || "").replace(LEGACY_INLINE_TONE_MARKS, "");
   }
 
   function isToneMark(char) {
@@ -669,7 +674,12 @@ const TangliengimImeCore = (() => {
   }
 
   function createDictionaryIndex(entries) {
-    const activeEntries = (entries || []).filter(searchableEntry);
+    const activeEntries = (entries || [])
+      .filter(searchableEntry)
+      .map((entry) => {
+        const hanri = stripLegacyInlineToneMarks(entry.hanri);
+        return hanri === entry.hanri ? entry : { ...entry, hanri };
+      });
     const hanriEntries = activeEntries
       .filter((entry) => entry.hanri && entry.kind !== "hangul_override")
       .sort((a, b) =>
