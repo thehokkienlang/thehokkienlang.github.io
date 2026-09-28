@@ -297,6 +297,13 @@ async function loadApp(route, script) {
       const preserved = shortcuts.every(([input]) =>
         TangliengimHangulIme.normalizeDisallowedFinalInputText(input) === input
       );
+      const continued = (() => {
+        const composer = new TangliengimHangulIme.Composer();
+        for (const jamo of 'ㅇㅏㅈ') composer.processNativeCompat(jamo);
+        if (composer.text() !== '앚') return false;
+        composer.processNativeCompat('ㅐ');
+        return composer.text() === '아재';
+      })();
       const candidateNormalized = [
         ['ㅏㅜ', 'ᅟᅷ'], ['ㅑㅜ', 'ᄋᆤ'],
         ['아ㅜ', 'ᄋᅷ'], ['앚', 'ᄋᅷ'], ['야ㅜ', 'ᄋᆤ'], ['얒', 'ᄋᆤ'],
@@ -316,7 +323,7 @@ async function loadApp(route, script) {
         TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅜ') ===
           TangliengimHangulIme.normalizeNativeCandidateInput(initial + 'ㅑㅈ')
       );
-      return preserved && candidateNormalized && composed && equivalent;
+      return preserved && continued && candidateNormalized && composed && equivalent;
     })()`, context),
     'Unresolved vowel sequences and final-ㅈ shorthand must normalize to the same special-medial reading for every initial'
   );

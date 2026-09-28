@@ -26,14 +26,14 @@ const TangliengimHangulIme = (() => {
     "ㅕ": "ᅧ", "ㅖ": "ᅨ", "ㅗ": "ᅩ", "ㅛ": "ᅭ", "ㅜ": "ᅮ", "ㅠ": "ᅲ",
     "ㅡ": "ᅳ", "ㅣ": "ᅵ", "ㅢ": "ᅴ",
   };
-  // ㅅ/ㅊ are onset-only; ㅈ is handled as a ㅏ/ㅑ special-medial shortcut.
+  // ㅅ/ㅊ are onset-only; ㅈ is a temporary coda only after ㅏ/ㅑ.
   const COMPAT_TO_T = {
     "ㄱ": "ᆨ", "ㄴ": "ᆫ", "ㄷ": "ᆮ", "ㄹ": "ᆯ", "ㅁ": "ᆷ",
-    "ㅂ": "ᆸ", "ㅇ": "ᆼ", "ㅎ": "ᇂ",
+    "ㅂ": "ᆸ", "ㅇ": "ᆼ", "ㅈ": "ᆽ", "ㅎ": "ᇂ",
   };
   const T_TO_L = {
     "ᆨ": "ᄀ", "ᆫ": "ᄂ", "ᆮ": "ᄃ", "ᆯ": "ᄅ", "ᆷ": "ᄆ",
-    "ᆸ": "ᄇ", "ᆼ": "ᄋ", "ᇂ": "ᄒ",
+    "ᆸ": "ᄇ", "ᆼ": "ᄋ", "ᆽ": "ᄌ", "ᇂ": "ᄒ",
   };
   const L_TO_COMPAT = Object.fromEntries(Object.entries(COMPAT_TO_L).map(([key, value]) => [value, key]));
   const V_TO_COMPAT = Object.fromEntries(Object.entries(COMPAT_TO_V).map(([key, value]) => [value, key]));
@@ -781,7 +781,15 @@ const TangliengimHangulIme = (() => {
     }
     composer.commit();
     let output = "";
-    for (const char of composer.text()) {
+    const composedChars = [...composer.text()];
+    for (let index = 0; index < composedChars.length; index += 1) {
+      const char = composedChars[index];
+      const jamoSpecialMedial = FINAL_J_SHORTCUT_MEDIALS[composedChars[index + 1]];
+      if (isInitialJamo(char) && jamoSpecialMedial && composedChars[index + 2] === "ᆽ") {
+        output += `${char}${jamoSpecialMedial}`;
+        index += 2;
+        continue;
+      }
       const code = char.codePointAt(0);
       const offset = code - 0xac00;
       const final = offset >= 0 && offset < 11172 ? T_TABLE[offset % 28] : "";

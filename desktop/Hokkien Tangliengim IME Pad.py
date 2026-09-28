@@ -445,15 +445,15 @@ COMPAT_TO_V = {
     'ㅕ': 'ᅧ', 'ㅖ': 'ᅨ', 'ㅗ': 'ᅩ', 'ㅛ': 'ᅭ', 'ㅜ': 'ᅮ', 'ㅠ': 'ᅲ',
     'ㅡ': 'ᅳ', 'ㅣ': 'ᅵ', 'ㅢ': 'ᅴ',
 }
-# ㅅ and ㅊ are onset-only. Final ㅈ is intercepted as shorthand for ᅷ/ᆤ.
+# ㅅ and ㅊ are onset-only. Final ㅈ is temporary after ㅏ/ㅑ.
 COMPAT_TO_T = {
     'ㄱ': 'ᆨ', 'ㄴ': 'ᆫ', 'ㄷ': 'ᆮ', 'ㄹ': 'ᆯ', 'ㅁ': 'ᆷ',
-    'ㅂ': 'ᆸ', 'ㅇ': 'ᆼ',
+    'ㅂ': 'ᆸ', 'ㅇ': 'ᆼ', 'ㅈ': 'ᆽ',
     'ㅎ': 'ᇂ',
 }
 T_TO_L = {
     'ᆨ': 'ᄀ', 'ᆩ': 'ᄁ', 'ᆫ': 'ᄂ', 'ᆮ': 'ᄃ', 'ᆯ': 'ᄅ', 'ᆷ': 'ᄆ',
-    'ᆸ': 'ᄇ', 'ᆼ': 'ᄋ',
+    'ᆸ': 'ᄇ', 'ᆼ': 'ᄋ', 'ᆽ': 'ᄌ',
     'ᆿ': 'ᄏ', 'ᇀ': 'ᄐ', 'ᇁ': 'ᄑ', 'ᇂ': 'ᄒ',
 }
 
@@ -1772,15 +1772,29 @@ def normalize_disallowed_final_input_text(text: str) -> str:
 def normalize_final_j_candidate_lookup(text: str) -> str:
     """Resolve final-ㅈ shorthand only in a temporary dictionary lookup string."""
     output = []
-    for ch in str(text or ''):
+    chars = str(text or '')
+    index = 0
+    while index < len(chars):
+        ch = chars[index]
+        if (
+            (ch in L_INDEX or ch in EXTRA_INITIALS)
+            and index + 2 < len(chars)
+            and chars[index + 1] in FINAL_J_SHORTCUT_MEDIALS
+            and chars[index + 2] == 'ᆽ'
+        ):
+            output.append(ch + FINAL_J_SHORTCUT_MEDIALS[chars[index + 1]])
+            index += 3
+            continue
         decomposed = decompose_precomposed_syllable(ch)
         if decomposed and decomposed[2] == 'ᆽ':
             initial, medial, _final = decomposed
             special_medial = FINAL_J_SHORTCUT_MEDIALS.get(medial)
             if special_medial:
                 output.append(initial + special_medial)
+                index += 1
                 continue
         output.append(ch)
+        index += 1
     return ''.join(output)
 
 
