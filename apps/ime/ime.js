@@ -416,7 +416,16 @@ imeText.addEventListener("keyup", (event) => {
   }
 });
 
-imeText.addEventListener("scroll", syncToneOverlayViewport);
+let toneOverlayScrollPending = false;
+imeText.addEventListener("scroll", () => {
+  syncToneOverlayViewport();
+  if (toneOverlayScrollPending) return;
+  toneOverlayScrollPending = true;
+  window.requestAnimationFrame(() => {
+    toneOverlayScrollPending = false;
+    updateToneOverlay();
+  });
+});
 
 if (typeof ResizeObserver === "function") {
   new ResizeObserver(updateToneOverlay).observe(imeText);

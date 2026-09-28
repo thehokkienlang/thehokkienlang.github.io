@@ -397,30 +397,89 @@ const TangliengimImeCore = (() => {
     mirror.style.width = `${control.clientWidth}px`;
     for (const property of properties) mirror.style[property] = style[property];
 
-    const measures = [];
-    let cursor = 0;
-    for (const span of spans) {
-      mirror.append(document.createTextNode(source.slice(cursor, span.start)));
-      const unit = document.createElement("span");
-      unit.style.position = "relative";
-      unit.style.display = "inline";
-      unit.textContent = span.hangul;
-      mirror.append(unit);
-      measures.push({ start: span.start, unit });
-      cursor = span.end;
-    }
-    mirror.append(document.createTextNode(source.slice(cursor)));
+    const textNode = document.createTextNode(source);
+    mirror.append(textNode);
     document.body.append(mirror);
     const mirrorRect = mirror.getBoundingClientRect();
-    for (const { start, unit } of measures) {
-      const rect = unit.getBoundingClientRect();
+    for (const span of spans) {
+      const range = document.createRange();
+      range.setStart(textNode, span.start);
+      range.setEnd(textNode, span.end);
+      const rect = range.getBoundingClientRect();
       if (!rect.width && !rect.height) continue;
-      positions.set(start, {
+      positions.set(span.start, {
         left: rect.left - mirrorRect.left + rect.width / 2,
         top: rect.top - mirrorRect.top,
       });
     }
     mirror.remove();
+
+    // The textarea's own caret hit-test accounts for spacing its DOM mirror cannot reproduce exactly.
+    if (typeof document.caretPositionFromPoint !== "function") return positions;
+    const controlRect = control.getBoundingClientRect();
+    const lineHeight = Number.parseFloat(style.lineHeight);
+    if (!lineHeight || !controlRect.width || !controlRect.height) return positions;
+
+    const left = controlRect.left + Number.parseFloat(style.borderLeftWidth) + Number.parseFloat(style.paddingLeft);
+    const right = controlRect.left + control.clientWidth - Number.parseFloat(style.paddingRight);
+    const firstLine = controlRect.top + Number.parseFloat(style.borderTopWidth) +
+      Number.parseFloat(style.paddingTop) + lineHeight / 2 - control.scrollTop;
+    const minimumY = Math.max(controlRect.top + 1, 0);
+    const maximumY = Math.min(controlRect.bottom - 1, window.innerHeight - 1);
+    if (right <= left || maximumY < minimumY) return positions;
+
+    const caretOffset = (x, y) => {
+      const caret = document.caretPositionFromPoint(x, y);
+      return caret?.offsetNode === control ? caret.offset : null;
+    };
+    const lines = [];
+    const firstVisibleLine = Math.max(0, Math.ceil((minimumY - firstLine) / lineHeight));
+    for (let line = firstVisibleLine; firstLine + line * lineHeight <= maximumY; line += 1) {
+      const y = firstLine + line * lineHeight;
+      const start = caretOffset(left, y);
+      const end = caretOffset(right, y);
+      if (start !== null && end !== null && end >= start) lines.push({ start, end, y });
+    }
+
+    for (const span of spans) {
+      const line = lines.find(({ start, end }) => start <= span.start && span.end <= end);
+      if (!line) continue;
+      const measured = positions.get(span.start);
+      if (!measured) continue;
+      const estimate = controlRect.left + measured.left - control.scrollLeft;
+      let lower = Math.max(left, Math.min(right, estimate - 1));
+      let upper = Math.max(lower, Math.min(right, estimate + 1));
+      let lowerOffset = caretOffset(lower, line.y);
+      let upperOffset = caretOffset(upper, line.y);
+      let distance = 2;
+      while (lowerOffset !== null && lowerOffset >= span.end && lower > left) {
+        upper = lower;
+        upperOffset = lowerOffset;
+        lower = Math.max(left, lower - distance);
+        lowerOffset = caretOffset(lower, line.y);
+        distance *= 2;
+      }
+      distance = 2;
+      while (upperOffset !== null && upperOffset < span.end && upper < right) {
+        lower = upper;
+        lowerOffset = upperOffset;
+        upper = Math.min(right, upper + distance);
+        upperOffset = caretOffset(upper, line.y);
+        distance *= 2;
+      }
+      if (lowerOffset === null || upperOffset === null || lowerOffset >= span.end || upperOffset < span.end) continue;
+      while (upper - lower > 0.25) {
+        const middle = (lower + upper) / 2;
+        const offset = caretOffset(middle, line.y);
+        if (offset === null) break;
+        if (offset >= span.end) upper = middle;
+        else lower = middle;
+      }
+      positions.set(span.start, {
+        left: (lower + upper) / 2 - controlRect.left + control.scrollLeft,
+        top: line.y - controlRect.top - lineHeight / 2 + control.scrollTop,
+      });
+    }
     return positions;
   }
 
