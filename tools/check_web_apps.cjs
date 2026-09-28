@@ -246,14 +246,10 @@ async function loadApp(route, script) {
     'Web IME must consume the shared dictionary index for priority Hanri matching'
   );
   assert.equal(elements.get('#keyboardLayout').children.length, 5, 'IME keyboard guide must render five key rows');
-  assert.ok(
-    vm.runInContext(`(() => {
-      const allowed = ['ᄋ', 'ㅏ', '가', '𤆬', '0', '9', '!?', ' ', '👩🏽‍💻', '🏳️‍🌈'];
-      const rejected = ['a', 'é', 'Б', 'あ'];
-      return allowed.every(isKeyboardHintAllowedText)
-        && rejected.every(value => !isKeyboardHintAllowedText(value));
-    })()`, context),
-    'Mobile keyboard hint must allow Hangul, Hanri, digits, punctuation, whitespace, and emoji only'
+  assert.equal(
+    elements.has('#keyboardSwitchHint'),
+    false,
+    'Web IME must not render a prompt recommending a particular system keyboard'
   );
   assert.equal(
     vm.runInContext('JSON.stringify(GUIDE_ROWS)', context),
