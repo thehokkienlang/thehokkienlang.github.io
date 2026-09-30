@@ -1,7 +1,9 @@
 """Check the combined Pages artifact before it is published."""
 
+import csv
 import hashlib
 import json
+from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
@@ -92,7 +94,24 @@ def main():
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
-    assert data["schemaVersion"] == 3
+    assert data["schemaVersion"] == 7
+    assert data["columns"] == ["reading", "hanri", "priority", "corrected", "english", "entry_type", "entry_id"]
+    assert all(
+        entry["entryType"] == entry["raw"]["entry_type"]
+        for entry in data["entries"]
+    ), "An entry lost its TSV type during the build"
+    source_entries = [entry for entry in data["entries"] if not entry.get("autoSandhi")]
+    assert len({entry["id"] for entry in source_entries}) == len(source_entries)
+    assert all(entry["id"] == entry["raw"]["entry_id"] for entry in source_entries)
+    with (ROOT / "data/hokkien_hanri_dict.tsv").open(encoding="utf-8", newline="") as handle:
+        source_types = Counter(
+            row["entry_type"] for row in csv.DictReader(handle, delimiter="\t")
+            if not row["reading"].startswith("#")
+        )
+    published_types = Counter(
+        entry["entryType"] for entry in data["entries"] if not entry.get("autoSandhi")
+    )
+    assert published_types == source_types, "Published entry_type counts differ from the TSV"
     assert data["runtime"]["unitRoman"], "Missing Local-IME-derived unit romanisation"
     assert data["runtime"]["rawHangulAudio"], "Missing Local-IME-derived raw Hangul audio"
     assert data["runtime"]["jamoLomari"], "Missing Local-IME-derived jamo romanisation"
@@ -110,6 +129,8 @@ def main():
     assert any("place-names" in entry["categories"] for entry in data["entries"])
     digest = hashlib.sha256((ROOT / "data/hokkien_hanri_dict.tsv").read_bytes()).hexdigest()
     assert data["sourceSha256"] == digest, "Published JSON is out of sync with the TSV"
+    registry_digest = hashlib.sha256((ROOT / "data/dictionary_entry_id_registry.tsv").read_bytes()).hexdigest()
+    assert data["idRegistrySourceSha256"] == registry_digest, "Published JSON is out of sync with the ID registry"
     category_digest = hashlib.sha256((ROOT / "data/dictionary_categories.tsv").read_bytes()).hexdigest()
     assert data["categorySourceSha256"] == category_digest, "Published JSON is out of sync with category data"
     assert data["entries"], "Empty dictionary"

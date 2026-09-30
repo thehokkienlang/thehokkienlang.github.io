@@ -306,7 +306,19 @@ class DesktopHttpServer(ThreadingHTTPServer):
         destination = self.repo_root / "data" / "hokkien_hanri_dict.tsv"
         if not source.is_file() or not destination.is_file():
             return False
-        return source.resolve() != destination.resolve() and source.read_bytes() != destination.read_bytes()
+        if source.resolve() == destination.resolve():
+            return False
+        source_registry = source.with_name("dictionary_entry_id_registry.tsv")
+        destination_registry = destination.with_name("dictionary_entry_id_registry.tsv")
+        if source.read_bytes() != destination.read_bytes():
+            return True
+        return (
+            source_registry.is_file()
+            and (
+                not destination_registry.is_file()
+                or source_registry.read_bytes() != destination_registry.read_bytes()
+            )
+        )
 
     def bridge_interpreter(self) -> Path:
         interpreter = Path(sys.executable)

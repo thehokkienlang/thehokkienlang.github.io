@@ -72,10 +72,14 @@ def main() -> int:
     check_python_syntax()
     for relative in JAVASCRIPT_FILES:
         run(f"JavaScript syntax: {relative}", "node", "--check", relative)
+    run("Dictionary TSV schema", sys.executable, "-X", "utf8", "tools/validate_dictionary_tsv.py")
+    run("Tangliengim collation", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
+        "-s", "tests", "-p", "test_dictionary_collation.py")
     if args.source_only:
         run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
     else:
         run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
+    run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
     run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")

@@ -82,7 +82,22 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
             assert pad.confirm_and_save_bracketed_hanri_annotations(converter, formatted)
         with target.open(encoding="utf-8", newline="") as stream:
             rows = list(csv.reader(stream, delimiter="\t"))
-        assert rows == [["뎩1걱", "德國", "1", ""]], rows
+        assert len(rows) == 1 and rows[0][:6] == ["뎩1걱", "德國", "1", "", "", "lexical"], rows
+        assert rows[0][6] == "U+5FB7_U+570B_00", rows
+        registry = target.with_name("dictionary_entry_id_registry.tsv")
+        assert registry.is_file(), registry
+        with registry.open("a", encoding="utf-8", newline="") as stream:
+            csv.writer(stream, delimiter="\t", lineterminator="\r\n").writerow(
+                ["U+5FB7_U+570B_01", "德國", ""]
+            )
+        with (
+            patch.dict(os.environ, {"HOKKIEN_HANRI_DICT_PATH": str(target)}),
+            patch.object(converter, "hanri_reading_entry_exists", return_value=False),
+        ):
+            assert converter.append_hanri_reading_to_tsv("德國", "뎩2걱")
+        with target.open(encoding="utf-8", newline="") as stream:
+            rows = list(csv.reader(stream, delimiter="\t"))
+        assert rows[1][6] == "U+5FB7_U+570B_02", rows
 
 
 def main() -> None:

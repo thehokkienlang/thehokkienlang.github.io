@@ -14,16 +14,29 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+from dictionary_schema import (
+    DICTIONARY_COLUMNS,
+    canonical_entry_headword,
+    entry_id_matches_headword,
+    valid_entry_id,
+)
+from validate_dictionary_tsv import validate_registry
+
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TSV_PATH = REPO_ROOT / "data" / "hokkien_hanri_dict.tsv"
+DEFAULT_REGISTRY_PATH = REPO_ROOT / "data" / "dictionary_entry_id_registry.tsv"
 DEFAULT_CATEGORY_PATH = REPO_ROOT / "data" / "dictionary_categories.tsv"
 DEFAULT_OUTPUT_PATH = REPO_ROOT / "public" / "data" / "hokkien-hanri-dict.json"
 DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
 
-SCHEMA_VERSION = 3
+SCHEMA_VERSION = 7
+
+ENTRY_TYPES = frozenset({
+    "lexical", "correction_alias", "hangul_override", "number_pronunciation",
+})
 
 
 def load_tone_marker_module():
@@ -90,6 +103,19 @@ def row_kind(tone_marker, hanri: str) -> str:
     if str(hanri or "").strip().isdigit():
         return "numeric_override"
     return "other"
+
+
+def expected_entry_type(reading: str, corrected: str, kind: str) -> str | None:
+    """Recognize existing TSV roles without changing their runtime interpretation."""
+    if reading and reading[0].isdigit() and corrected:
+        return "number_pronunciation"
+    if reading.endswith("*") and corrected:
+        return "correction_alias"
+    if kind == "hangul_override":
+        return "hangul_override"
+    if kind in {"plain_hanri", "mixed_hanri"}:
+        return "lexical"
+    return None
 
 
 def reading_to_lomari(tone_marker, reading: str) -> str:
@@ -316,27 +342,31 @@ def build_dictionary(
     tsv_path: Path,
     audio_root: Path = DEFAULT_AUDIO_ROOT,
     category_path: Path = DEFAULT_CATEGORY_PATH,
+    registry_path: Path | None = None,
 ) -> dict[str, Any]:
     tone_marker = load_tone_marker_module()
     ime = load_ime_module()
     source_bytes = tsv_path.read_bytes()
+    registry_path = registry_path or tsv_path.with_name("dictionary_entry_id_registry.tsv")
     category_labels, category_memberships = load_categories(category_path)
 
     entries: list[dict[str, Any]] = []
     skipped_rows: list[dict[str, Any]] = []
     duplicate_keys: list[dict[str, Any]] = []
-    seen_effective_pairs: dict[tuple[str, str], str] = {}
+    correction_aliases: list[dict[str, Any]] = []
+    effective_pairs: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
     runtime_units: set[str] = set()
     counts: Counter[str] = Counter()
 
     with tsv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         fieldnames = [str(name or "").strip() for name in (reader.fieldnames or [])]
-        required = {"reading", "hanri"}
+        required = {"reading", "hanri", "entry_type", "entry_id"}
         missing = sorted(required - set(fieldnames))
         if missing:
             raise ValueError(f"TSV is missing required column(s): {', '.join(missing)}")
 
+        seen_entry_ids: set[str] = set()
         for row_number, row in enumerate(reader, start=2):
             raw_reading = str(row.get("reading") or "").strip()
             raw_hanri = str(row.get("hanri") or "").strip()
@@ -344,6 +374,8 @@ def build_dictionary(
             priority_text = str(row.get("priority") or "").strip()
             corrected_raw = str(row.get("corrected") or "").strip()
             english = str(row.get("english") or "").strip()
+            entry_type = str(row.get("entry_type") or "").strip()
+            entry_id = str(row.get("entry_id") or "").strip()
 
             if not raw_reading and not hanri and not corrected_raw:
                 counts["blank_rows"] += 1
@@ -371,6 +403,22 @@ def build_dictionary(
                 pass
             priority = safe_priority(priority_text)
             kind = row_kind(tone_marker, hanri)
+            expected_type = expected_entry_type(raw_reading, corrected_raw, kind)
+            if entry_type not in ENTRY_TYPES or entry_type != expected_type:
+                raise ValueError(
+                    f"TSV row {row_number}: entry_type {entry_type!r} does not match "
+                    f"the existing row role {expected_type!r}"
+                )
+            if not valid_entry_id(entry_id):
+                raise ValueError(f"TSV row {row_number}: invalid entry_id {entry_id!r}")
+            if not entry_id_matches_headword(entry_id, raw_hanri):
+                raise ValueError(
+                    f"TSV row {row_number}: entry_id does not match canonical headword "
+                    f"{canonical_entry_headword(raw_hanri)!r}"
+                )
+            if entry_id in seen_entry_ids:
+                raise ValueError(f"TSV row {row_number}: duplicate entry_id {entry_id!r}")
+            seen_entry_ids.add(entry_id)
             active = bool(hanri and effective_reading)
             skip_reason = ""
 
@@ -378,7 +426,6 @@ def build_dictionary(
                 active = False
                 skip_reason = "numeric reading with corrected override is skipped by desktop loader"
 
-            entry_id = f"tsv-{row_number:05d}"
             lomari = reading_to_lomari(tone_marker, effective_reading)
             reading_base = tone_marker.strip_reading_tones(effective_reading)
             audio = with_singapore_audio_when_needed(ime, audio_root, effective_reading)
@@ -386,6 +433,7 @@ def build_dictionary(
                 "id": entry_id,
                 "row": row_number,
                 "kind": kind,
+                "entryType": entry_type,
                 "active": active,
                 "hanri": hanri,
                 "reading": effective_reading,
@@ -404,6 +452,8 @@ def build_dictionary(
                     "priority": priority_text,
                     "corrected": corrected_raw,
                     "english": english,
+                    "entry_type": entry_type,
+                    "entry_id": entry_id,
                 },
             }
             if corrected:
@@ -411,22 +461,63 @@ def build_dictionary(
             if skip_reason:
                 entry["skipReason"] = skip_reason
 
-            pair = (hanri, effective_reading)
-            if active and pair in seen_effective_pairs:
-                duplicate_keys.append({
-                    "firstId": seen_effective_pairs[pair],
-                    "duplicateId": entry_id,
-                    "hanri": hanri,
-                    "reading": effective_reading,
-                })
-            elif active:
-                seen_effective_pairs[pair] = entry_id
+            if active:
+                effective_pairs[(hanri, effective_reading)].append(entry)
 
             entries.append(entry)
             counts[f"kind_{kind}"] += 1
             counts["active_entries" if active else "inactive_entries"] += 1
             if corrected:
                 counts["corrected_entries"] += 1
+
+    registry_errors = validate_registry(
+        registry_path,
+        {
+            entry["id"]: canonical_entry_headword(entry["raw"]["hanri"])
+            for entry in entries
+        },
+    )
+    if registry_errors:
+        raise ValueError("Invalid entry ID registry: " + "; ".join(registry_errors))
+
+    for (hanri, reading), group in effective_pairs.items():
+        canonical = []
+        aliases_by_source: dict[str, list[dict[str, Any]]] = defaultdict(list)
+        for entry in group:
+            if entry.get("correctedFrom") and entry["raw"]["reading"].endswith("*"):
+                aliases_by_source[entry["correctedFrom"]].append(entry)
+            else:
+                canonical.append(entry)
+
+        for duplicate in canonical[1:]:
+            duplicate_keys.append({
+                "firstId": canonical[0]["id"],
+                "duplicateId": duplicate["id"],
+                "hanri": hanri,
+                "reading": reading,
+                "reason": "repeated_effective_reading",
+            })
+        for source_reading, aliases in aliases_by_source.items():
+            for alias in aliases:
+                correction_aliases.append({
+                    "aliasId": alias["id"],
+                    "canonicalId": canonical[0]["id"] if canonical else None,
+                    "hanri": hanri,
+                    "sourceReading": source_reading,
+                    "reading": reading,
+                })
+            for duplicate in aliases[1:]:
+                duplicate_keys.append({
+                    "firstId": aliases[0]["id"],
+                    "duplicateId": duplicate["id"],
+                    "hanri": hanri,
+                    "reading": reading,
+                    "reason": "repeated_correction_alias",
+                })
+
+    row_by_id = {entry["id"]: entry["row"] for entry in entries}
+    duplicate_keys.sort(key=lambda item: row_by_id[item["duplicateId"]])
+    correction_aliases.sort(key=lambda item: row_by_id[item["aliasId"]])
 
     # The desktop IME exposes a generated sandhi candidate beside every
     # citation reading. These rows are runtime-only: they participate in IME
@@ -528,13 +619,16 @@ def build_dictionary(
         "source": str(tsv_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "sourceBytes": len(source_bytes),
         "sourceSha256": file_sha256(tsv_path),
+        "idRegistrySource": str(registry_path.relative_to(REPO_ROOT)).replace("\\", "/"),
+        "idRegistrySourceSha256": file_sha256(registry_path),
         "categorySource": str(category_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "categorySourceSha256": file_sha256(category_path),
-        "columns": ["reading", "hanri", "priority", "corrected", "english"],
+        "columns": list(DICTIONARY_COLUMNS),
         "sort": "priority, row, reading, hanri",
         "counts": dict(sorted(counts.items())),
         "skippedRows": skipped_rows,
         "duplicateEffectiveReadings": duplicate_keys,
+        "correctionAliases": correction_aliases,
         "categories": [
             {
                 "id": category,
@@ -558,12 +652,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=DEFAULT_TSV_PATH)
     parser.add_argument("--categories", type=Path, default=DEFAULT_CATEGORY_PATH)
+    parser.add_argument("--registry", type=Path)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--audio-root", type=Path, default=DEFAULT_AUDIO_ROOT)
     parser.add_argument("--check", action="store_true", help="validate only; do not write output")
     args = parser.parse_args()
 
-    data = build_dictionary(args.input, args.audio_root, args.categories)
+    data = build_dictionary(args.input, args.audio_root, args.categories, args.registry)
     encoded = json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=False) + "\n"
 
     if args.check:

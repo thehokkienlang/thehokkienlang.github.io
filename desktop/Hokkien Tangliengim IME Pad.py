@@ -1397,6 +1397,8 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             hanri_col = header.index('hanri')
             priority_col = header.index('priority') if 'priority' in header else None
             corrected_col = header.index('corrected') if 'corrected' in header else None
+            entry_type_col = header.index('entry_type') if 'entry_type' in header else None
+            entry_id_col = header.index('entry_id') if 'entry_id' in header else None
             row_offset = 2
         else:
             # Headerless TSV: reading / hanri / priority.
@@ -1406,12 +1408,16 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             hanri_col = 1
             priority_col = 2
             corrected_col = None
+            entry_type_col = None
+            entry_id_col = None
             row_offset = 1
 
         for offset, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
             hanri = row[hanri_col].strip() if len(row) > hanri_col else ''
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
+            entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
+            entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
 
             if not reading_cell or not hanri:
                 continue
@@ -1443,6 +1449,8 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                 'auto_sandhi': False,
                 'nonstandard': is_nonstandard,
                 'corrected': corrected,
+                'entry_type': entry_type,
+                'entry_id': entry_id,
             }
             entries.setdefault(base_reading, []).append(citation_entry)
 
@@ -1468,6 +1476,8 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                             'auto_sandhi': True,
                             'nonstandard': is_nonstandard,
                             'corrected': corrected_sandhi,
+                            'entry_type': entry_type,
+                            'entry_id': f'{entry_id}-sandhi' if entry_id else '',
                         })
 
         loaded: dict[str, list[dict]] = {}
@@ -7209,21 +7219,30 @@ class HokkienIMEPad:
 
     @classmethod
     def push_tsv_to_github_repository(cls, source_tsv: Path, repo: Path) -> str:
-        destination = repo / 'data' / HANRI_TSV_FILENAME
-        relative_destination = destination.relative_to(repo).as_posix()
-        source_bytes = source_tsv.read_bytes()
-        destination_bytes = destination.read_bytes() if destination.exists() else None
+        source_registry = source_tsv.with_name('dictionary_entry_id_registry.tsv')
+        if not source_registry.is_file():
+            raise FileNotFoundError(f'Local ID registry not found: {source_registry}')
+        transfers = (
+            (source_tsv, repo / 'data' / HANRI_TSV_FILENAME),
+            (source_registry, repo / 'data' / source_registry.name),
+        )
+        relative_destinations = [destination.relative_to(repo).as_posix() for _source, destination in transfers]
 
-        if destination_bytes != source_bytes:
+        for source, destination in transfers:
+            source_bytes = source.read_bytes()
+            destination_bytes = destination.read_bytes() if destination.exists() else None
+            if destination_bytes == source_bytes:
+                continue
+            relative_destination = destination.relative_to(repo).as_posix()
             status = cls.run_git_command(repo, 'status', '--porcelain', '--', relative_destination).stdout.strip()
             if status:
                 return 'conflict'
             destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source_tsv, destination)
+            shutil.copy2(source, destination)
 
-        cls.run_git_command(repo, 'add', '--', relative_destination)
+        cls.run_git_command(repo, 'add', '--', *relative_destinations)
         staged = subprocess.run(
-            ['git', '-C', str(repo), 'diff', '--cached', '--quiet', '--', relative_destination],
+            ['git', '-C', str(repo), 'diff', '--cached', '--quiet', '--', *relative_destinations],
             capture_output=True,
             text=True,
             encoding='utf-8',
@@ -7231,7 +7250,7 @@ class HokkienIMEPad:
             check=False,
         )
         if staged.returncode == 1:
-            cls.run_git_command(repo, 'commit', '-m', 'Sync local TSV additions', '--', relative_destination)
+            cls.run_git_command(repo, 'commit', '-m', 'Sync local TSV additions', '--', *relative_destinations)
         elif staged.returncode != 0:
             detail = (staged.stderr or staged.stdout).strip()
             raise RuntimeError(detail or 'Could not inspect the staged TSV change.')

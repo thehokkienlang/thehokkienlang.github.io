@@ -447,6 +447,7 @@ CHECKED_SANDHI_TO_CITATION_MAP = {
 CHECKED_FINALS_FOR_SANDHI = {'ᆨ', 'ᆮ', 'ᆸ', 'ᇂ', 'ᆶ'}
 SANDHI_EQUIVALENT_FINALS = {}
 HANRI_TSV_FILENAME = "hokkien_hanri_dict.tsv"
+HANRI_ID_REGISTRY_FILENAME = "dictionary_entry_id_registry.tsv"
 DEFAULT_HANRI_TSV_PATH = Path(__file__).resolve().with_name(HANRI_TSV_FILENAME)
 _HANRI_READING_INDEX: dict[str, list[dict]] | None = None
 _HANRI_READING_KEYS: list[str] | None = None
@@ -1286,6 +1287,66 @@ def hanri_tsv_path_for_write() -> Path:
     return DEFAULT_HANRI_TSV_PATH
 
 
+def canonical_dictionary_headword(value: str) -> str:
+    """Mirror the repository ID namespace without changing displayed text."""
+    tone_marks = set('ˆˋ`ˊˉꞈˎˏˍ')
+    visible = ''.join(char for char in str(value or '') if char not in tone_marks)
+    return unicodedata.normalize('NFC', visible)
+
+
+def dictionary_entry_id_base(headword: str) -> str:
+    canonical = canonical_dictionary_headword(headword)
+    if not canonical:
+        raise ValueError('Dictionary headword cannot be empty.')
+    return '_'.join(f'U+{ord(char):04X}' for char in canonical)
+
+
+def dictionary_id_registry_path(tsv_path: Path) -> Path:
+    return tsv_path.with_name(HANRI_ID_REGISTRY_FILENAME)
+
+
+def _ensure_dictionary_id_registry(tsv_path: Path) -> Path:
+    registry_path = dictionary_id_registry_path(tsv_path)
+    if registry_path.exists():
+        return registry_path
+
+    rows = [['entry_id', 'canonical_headword', 'redirect_entry_id']]
+    if tsv_path.exists():
+        with tsv_path.open('r', encoding='utf-8-sig', newline='') as handle:
+            reader = csv.reader(handle, delimiter='\t')
+            next(reader, None)
+            if any(row and not row[0].startswith('#') for row in reader):
+                raise FileNotFoundError(f'Dictionary ID registry is required for existing entries: {registry_path}')
+    with registry_path.open('w', encoding='utf-8', newline='') as handle:
+        csv.writer(handle, delimiter='\t', lineterminator='\r\n').writerows(rows)
+    return registry_path
+
+
+def reserve_dictionary_entry_id(tsv_path: Path, headword: str) -> str:
+    """Reserve the next never-used suffix before appending its TSV row."""
+    canonical = canonical_dictionary_headword(headword)
+    base = dictionary_entry_id_base(canonical)
+    registry_path = _ensure_dictionary_id_registry(tsv_path)
+    with registry_path.open('r', encoding='utf-8-sig', newline='') as handle:
+        rows = list(csv.reader(handle, delimiter='\t'))
+    if not rows or rows[0] != ['entry_id', 'canonical_headword', 'redirect_entry_id']:
+        raise ValueError('Dictionary ID registry has an invalid header.')
+
+    used = []
+    prefix = base + '_'
+    for row in rows[1:]:
+        if len(row) != 3:
+            raise ValueError('Dictionary ID registry contains a malformed row.')
+        if row[0].startswith(prefix) and row[0][len(prefix):].isdigit():
+            used.append(int(row[0][len(prefix):]))
+    entry_id = f'{base}_{max(used, default=-1) + 1:02d}'
+    with registry_path.open('a', encoding='utf-8', newline='') as handle:
+        csv.writer(handle, delimiter='\t', lineterminator='\r\n').writerow(
+            [entry_id, canonical, '']
+        )
+    return entry_id
+
+
 def hanri_reading_entry_exists(hanri: str, reading: str) -> bool:
     target_hanri = str(hanri or '').strip()
     target_reading = normalize_tone_symbols_to_digits(strip_nonstandard_reading_mark(reading))
@@ -1352,20 +1413,27 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
     reading = normalize_tone_symbols_to_digits(strip_nonstandard_reading_mark(reading))
     if not hanri or not reading:
         return False
+    if field_is_plain_cjk_key(hanri) or field_is_mixed_hanri_key(hanri):
+        entry_type = 'lexical'
+    elif hangul_override_key(hanri):
+        entry_type = 'hangul_override'
+    else:
+        return False
     if hanri_reading_entry_exists(hanri, reading):
         return False
 
     path = hanri_tsv_path_for_write()
     path.parent.mkdir(parents=True, exist_ok=True)
     needs_newline = path.exists() and path.stat().st_size > 0
+    entry_id = reserve_dictionary_entry_id(path, hanri)
     with path.open('a', encoding='utf-8', newline='') as f:
         if needs_newline:
             with path.open('rb') as existing:
                 existing.seek(-1, os.SEEK_END)
-                if existing.read(1) not in {b'\n', b'\r'}:
-                    f.write('\n')
-        writer = csv.writer(f, delimiter='\t', lineterminator='\n')
-        writer.writerow([reading, hanri, '1', ''])
+                if existing.read(1) != b'\n':
+                    f.write('\r\n')
+        writer = csv.writer(f, delimiter='\t', lineterminator='\r\n')
+        writer.writerow([reading, hanri, '1', '', '', entry_type, entry_id])
 
     _HANRI_READING_INDEX = None
     _HANRI_READING_KEYS = None
@@ -1666,6 +1734,8 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             hanri_col = header.index('hanri')
             priority_col = header.index('priority') if 'priority' in header else None
             corrected_col = header.index('corrected') if 'corrected' in header else None
+            entry_type_col = header.index('entry_type') if 'entry_type' in header else None
+            entry_id_col = header.index('entry_id') if 'entry_id' in header else None
             row_offset = 2
         else:
             data_rows = rows
@@ -1673,12 +1743,16 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             hanri_col = 1
             priority_col = 2
             corrected_col = None
+            entry_type_col = None
+            entry_id_col = None
             row_offset = 1
 
         for row_number, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
             hanri = row[hanri_col].strip() if len(row) > hanri_col else ''
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
+            entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
+            entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
             if not reading_cell or not hanri:
                 continue
 
@@ -1699,6 +1773,8 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
                 'reading': corrected or reading,
                 'priority': priority,
                 'row': row_number,
+                'entry_type': entry_type,
+                'entry_id': entry_id,
             }
 
             if field_is_mixed_hanri_key(hanri):

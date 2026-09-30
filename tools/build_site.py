@@ -57,6 +57,7 @@ def main() -> int:
     manifest = {
         "routes": ["/dictionary/", "/ime/"],
         "sourceSha256": data["sourceSha256"],
+        "idRegistrySourceSha256": data["idRegistrySourceSha256"],
         "categorySourceSha256": data["categorySourceSha256"],
         "entries": len(data["entries"]),
         "shared": {

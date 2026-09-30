@@ -6,6 +6,12 @@ Build and validation scripts for the dictionary and web IME.
 
 `build_dictionary_json.py` converts the canonical TSV into shared web JSON.
 
+`sort_dictionary_tsv.py` applies the reusable Tangliengim syllabic collation on demand; `validate_dictionary_tsv.py` reports unsorted rows as a maintenance notice.
+
+`assign_dictionary_entry_ids.py` performs the six/seven-column migration to Unicode-derived IDs. Before public release, it does not register old `tlg-...` IDs as redirects and reports no change after migration.
+
+`migrate_dictionary_entry_ids_zero_based.py` performed the one-time Task 6e shift from `_01` to `_00`. Do not rerun that historical migration. `assign_dictionary_entry_ids.py` and the Local writer allocate `_00` to a new headword and use the next suffix currently recorded in the registry for additional entries.
+
 `build_site.py` regenerates that JSON and builds both interfaces into `_site`.
 It versions browser assets by their contents so updates do not reuse stale code.
 

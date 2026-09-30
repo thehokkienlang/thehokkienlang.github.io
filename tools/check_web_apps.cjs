@@ -70,6 +70,17 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
   assert.ok(vm.runInContext(`(() => {
+    const index = TangliengimImeCore.createDictionaryIndex(state.entries);
+    const kah = state.entries.find(entry => entry.id === 'U+5FA6_00');
+    return kah?.hanri === '徦' && kah.reading === '갛' && kah.entryType === 'lexical'
+      && index.findHanriEntry('徦', 0)?.id === kah.id
+      && [...index.candidatesByReading.values()].some(entries => entries.some(entry => entry.id === kah.id))
+      && !state.entries.some(entry => entry.id === 'U+AC00_00')
+      && state.entries.find(entry => entry.id === 'U+5E95_00')?.reading === '되2'
+      && state.entries.find(entry => entry.id === 'U+5E95_01')?.reading === '도2'
+      && state.entries.find(entry => entry.id === 'U+54EA_U+88E1_00')?.english === 'where';
+  })()`, context), `${route} must consume the approved v3.1 forms and active IDs`);
+  assert.ok(vm.runInContext(`(() => {
     const fragment = TangliengimImeCore.renderToneOverlayMarks('칟토', [
       { start: 0, end: 1, hangul: '칟', reading: '칟1' },
       { start: 1, end: 2, hangul: '토', reading: '토4' },
@@ -424,30 +435,32 @@ async function loadApp(route, script) {
   assert.ok(
     vm.runInContext(`(() => {
       imeController.clear();
-      imeController.composer.setText('쟐4', 2);
+      const defaultReading = findHanriEntry('情', 0)?.reading;
+      const selectedReading = defaultReading === '쟐4' ? '졩4' : '쟐4';
+      imeController.composer.setText(selectedReading, 2);
       imeController.updateControlFromComposer();
       const chosen = imeController.activeCandidates.find(
-        ({ entry }) => entry.hanri === '情' && entry.reading === '쟐4'
+        ({ entry }) => entry.hanri === '情' && entry.reading === selectedReading && !entry.autoSandhi
       );
       if (!chosen) return false;
       imeController.applyCandidate(chosen);
-      const selectedAtStart = findHanriEntry('情', 0)?.reading === '쟐4';
-      const selectedLomari = lomariRenderer.render('情') === 'jiá̰';
-      const selectedAudio = audioPlanFromText('情').segments[0]?.unit === '쟐';
+      const selectedAtStart = findHanriEntry('情', 0)?.reading === selectedReading;
+      const selectedLomari = lomariRenderer.render('情') === chosen.entry.lomari;
+      const selectedAudio = audioPlanFromText('情').segments[0]?.unit === chosen.entry.audio.segments[0]?.unit;
 
       imeController.composer.setText('人情', 2);
       imeController.updateControlFromComposer();
-      const followsEdit = findHanriEntry('人情', 1)?.reading === '쟐4';
-      const followsEditOutput = lomariRenderer.render('人情').endsWith('-jiá̰');
+      const followsEdit = findHanriEntry('人情', 1)?.reading === selectedReading;
+      const followsEditOutput = lomariRenderer.render('人情').endsWith('-' + chosen.entry.lomari);
 
       imeController.composer.setText('情', 1);
       imeController.updateControlFromComposer();
-      const followsUndo = findHanriEntry('情', 0)?.reading === '쟐4';
+      const followsUndo = findHanriEntry('情', 0)?.reading === selectedReading;
 
       imeController.clear();
       imeController.composer.setText('情', 1);
       imeController.updateControlFromComposer();
-      const forgottenAfterDelete = findHanriEntry('情', 0)?.reading !== '쟐4';
+      const forgottenAfterDelete = findHanriEntry('情', 0)?.reading === defaultReading;
       return selectedAtStart && selectedLomari && selectedAudio && followsEdit && followsEditOutput && followsUndo && forgottenAfterDelete;
     })()`, context),
     'A selected Hanri reading must drive Lomari and audio until that Hanri is deleted'
