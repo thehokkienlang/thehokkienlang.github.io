@@ -67,6 +67,16 @@ def file_sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
+def validate_audio_filename_case(audio_root: Path) -> None:
+    mismatches = sorted(
+        path.relative_to(audio_root).as_posix()
+        for path in audio_root.rglob("*")
+        if path.is_file() and path.suffix.lower() == ".wav" and path.name != path.name.lower()
+    )
+    if mismatches:
+        raise ValueError("WAV filenames must be lowercase for portable audio lookup: " + ", ".join(mismatches))
+
+
 def normalize_for_search(value: str) -> str:
     """Lowercase and remove combining marks/punctuation for broad lookup keys."""
     decomposed = unicodedata.normalize("NFKD", str(value or ""))
@@ -344,6 +354,7 @@ def build_dictionary(
     category_path: Path = DEFAULT_CATEGORY_PATH,
     registry_path: Path | None = None,
 ) -> dict[str, Any]:
+    validate_audio_filename_case(audio_root)
     tone_marker = load_tone_marker_module()
     ime = load_ime_module()
     source_bytes = tsv_path.read_bytes()

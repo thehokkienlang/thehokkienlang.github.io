@@ -97,3 +97,24 @@ dictionary sources.
   for new physical-device or listening tests.
 
 The remaining work starts with Task I, then Task II, Task III, and Task IV.
+
+## Deployment portability correction
+
+The first GitHub Actions run exposed 28 mixed-case WAV paths in the Git tree,
+although 27 of their existing Windows filenames were lowercase. Both fresh runner
+builds therefore differed from the local baseline in 75 raw-Hangul audio
+records and five jamo-audio records. Entries, IDs, indexes, counts, and Lomari
+were unchanged. A clean export reproduced the runner runtime hash exactly.
+
+Those 28 paths were renamed to lowercase in Git, with unchanged WAV bytes.
+The additional `jU1.wav` correction restores previously unavailable `주1`
+audio in 11 source entries and five raw-audio records. After auditing these
+restored audio references, the baseline was refreshed; no checks were weakened.
+Fresh staged-tree and working-tree JSON builds are byte-identical. The builder now
+rejects mixed-case WAV filenames explicitly, and two focused tests protect
+this portability rule alongside the 16 existing dictionary tests.
+
+The active Local IME and recorder output inventories already contain only
+lowercase WAV filenames. The local recorder's export helper was additionally
+restricted to lowercase for arbitrary fallback input. The legacy backup was
+not modified.
