@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import sys
 import unicodedata
 from pathlib import Path
 from urllib.parse import quote
@@ -448,7 +449,6 @@ CHECKED_FINALS_FOR_SANDHI = {'ᆨ', 'ᆮ', 'ᆸ', 'ᇂ', 'ᆶ'}
 SANDHI_EQUIVALENT_FINALS = {}
 HANRI_TSV_FILENAME = "hokkien_hanri_dict.tsv"
 HANRI_ID_REGISTRY_FILENAME = "dictionary_entry_id_registry.tsv"
-DEFAULT_HANRI_TSV_PATH = Path(__file__).resolve().with_name(HANRI_TSV_FILENAME)
 _HANRI_READING_INDEX: dict[str, list[dict]] | None = None
 _HANRI_READING_KEYS: list[str] | None = None
 _MIXED_HANRI_READING_INDEX: dict[str, list[dict]] | None = None
@@ -1278,13 +1278,7 @@ def sandhi_bracket_reading_if_followed(text: str, closing_bracket_index: int, re
 
 
 def hanri_tsv_path_for_write() -> Path:
-    env_path = os.environ.get("HOKKIEN_HANRI_DICT_PATH")
-    if env_path:
-        return Path(env_path)
-    for path in hanri_tsv_candidates():
-        if path.exists():
-            return path
-    return DEFAULT_HANRI_TSV_PATH
+    return hanri_tsv_candidates()[0]
 
 
 def canonical_dictionary_headword(value: str) -> str:
@@ -1407,6 +1401,17 @@ def existing_hanri_readings(hanri: str) -> list[str]:
     return readings
 
 
+def dictionary_simplified_headword(hanri: str) -> str:
+    repo = Path(os.environ.get('HOKKIEN_GITHUB_REPO_PATH') or source_repo_root())
+    if not (repo / 'tools' / 'simplified_lookup.py').is_file():
+        repo = Path.home() / 'Documents' / 'GitHub' / 'thehokkienlang.github.io'
+    tools_path = str(repo / 'tools')
+    if tools_path not in sys.path:
+        sys.path.insert(0, tools_path)
+    from simplified_lookup import simplified_headword
+    return simplified_headword(hanri)
+
+
 def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
     global _HANRI_READING_INDEX, _HANRI_READING_KEYS, _MIXED_HANRI_READING_INDEX, _MIXED_HANRI_READING_KEYS, _HANGUL_OVERRIDE_INDEX, _HANGUL_OVERRIDE_KEYS
     hanri = str(hanri or '').strip()
@@ -1425,6 +1430,7 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
     path = hanri_tsv_path_for_write()
     path.parent.mkdir(parents=True, exist_ok=True)
     needs_newline = path.exists() and path.stat().st_size > 0
+    simplified = dictionary_simplified_headword(hanri)
     entry_id = reserve_dictionary_entry_id(path, hanri)
     with path.open('a', encoding='utf-8', newline='') as f:
         if needs_newline:
@@ -1433,7 +1439,7 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
                 if existing.read(1) != b'\n':
                     f.write('\r\n')
         writer = csv.writer(f, delimiter='\t', lineterminator='\r\n')
-        writer.writerow([reading, hanri, '1', '', '', entry_type, entry_id])
+        writer.writerow([reading, hanri, '1', '', '', entry_type, entry_id, simplified])
 
     _HANRI_READING_INDEX = None
     _HANRI_READING_KEYS = None
@@ -1599,25 +1605,16 @@ def is_followed_by_hanri(text: str, index: int) -> bool:
     return False
 
 def hanri_tsv_candidates() -> list[Path]:
+    """Resolve the same repository TSV for both reading and writing."""
     env_path = os.environ.get("HOKKIEN_HANRI_DICT_PATH")
-    candidates: list[Path] = []
     if env_path:
-        candidates.append(Path(env_path))
-    candidates.extend([
-        Path(__file__).resolve().with_name(HANRI_TSV_FILENAME),
-        repo_data_path(HANRI_TSV_FILENAME),
-        DEFAULT_HANRI_TSV_PATH,
-        Path.cwd() / HANRI_TSV_FILENAME,
-        Path.cwd() / 'data' / HANRI_TSV_FILENAME,
-    ])
-    seen = set()
-    unique: list[Path] = []
-    for path in candidates:
-        key = str(path)
-        if key not in seen:
-            unique.append(path)
-            seen.add(key)
-    return unique
+        return [Path(env_path)]
+    env_repo = os.environ.get("HOKKIEN_GITHUB_REPO_PATH")
+    if env_repo:
+        return [Path(env_repo) / 'data' / HANRI_TSV_FILENAME]
+    if Path(__file__).resolve().parent.name.lower() == 'desktop':
+        return [repo_data_path(HANRI_TSV_FILENAME)]
+    return [Path.home() / 'Documents' / 'GitHub' / 'thehokkienlang.github.io' / 'data' / HANRI_TSV_FILENAME]
 
 def strip_nonstandard_reading_mark(reading: str) -> str:
     return str(reading or '').strip().rstrip('*')
@@ -1736,6 +1733,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             corrected_col = header.index('corrected') if 'corrected' in header else None
             entry_type_col = header.index('entry_type') if 'entry_type' in header else None
             entry_id_col = header.index('entry_id') if 'entry_id' in header else None
+            simplified_col = header.index('simplified') if 'simplified' in header else None
             row_offset = 2
         else:
             data_rows = rows
@@ -1745,6 +1743,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             corrected_col = None
             entry_type_col = None
             entry_id_col = None
+            simplified_col = None
             row_offset = 1
 
         for row_number, row in enumerate(data_rows, start=row_offset):
@@ -1753,6 +1752,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
+            simplified = row[simplified_col] if simplified_col is not None and len(row) > simplified_col else ''
             if not reading_cell or not hanri:
                 continue
 
@@ -1775,6 +1775,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
                 'row': row_number,
                 'entry_type': entry_type,
                 'entry_id': entry_id,
+                'simplified': simplified,
             }
 
             if field_is_mixed_hanri_key(hanri):

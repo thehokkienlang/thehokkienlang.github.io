@@ -94,8 +94,8 @@ def main():
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
-    assert data["schemaVersion"] == 7
-    assert data["columns"] == ["reading", "hanri", "priority", "corrected", "english", "entry_type", "entry_id"]
+    assert data["schemaVersion"] == 8
+    assert data["columns"] == ["reading", "hanri", "priority", "corrected", "english", "entry_type", "entry_id", "simplified"]
     assert all(
         entry["entryType"] == entry["raw"]["entry_type"]
         for entry in data["entries"]

@@ -3,6 +3,7 @@
 ## Ownership
 
 - GitHub owns the shared Tangliengim engine, TSV, audio data, Web IME, Dictionary, shared styling, and parity tests.
+- The active Local IME reads and writes the checkout's `data/hokkien_hanri_dict.tsv` and adjacent ID registry directly. It does not maintain separate TSV/registry copies. Sync TSV publishes those repository changes rather than copying a local dictionary over them.
 - The active desktop application owns HTML modes, TSV editing and GitHub sync, native clipboard/filesystem access, and packaging. These appear inside the shared desktop web shell through localhost-only bridge endpoints.
 - `C:\Users\Asus\Documents\Hokkien Programs\Hokkien Hangul IME\Hokkien Tangliengim IME Pad.py` is an untouched legacy backup and is never modified.
 - `C:\Users\Asus\Documents\Hokkien Programs\Hokkien Hangul IME\Hokkien Tangliengim IME Pad GitHub Synced Ver\Hokkien Tangliengim IME Pad.py` is the current desktop reference for parity checks. It remains the implementation home of local-only HTML modes and TSV sync, now invoked from the shared shell through the bridge.

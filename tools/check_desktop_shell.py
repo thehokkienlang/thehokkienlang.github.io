@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import csv
+import json
 import importlib.util
 import os
+import subprocess
 import sys
 import tempfile
 import threading
@@ -56,6 +58,12 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
     converter = importlib.util.module_from_spec(gui_spec)
     sys.modules[gui_spec.name] = converter
     gui_spec.loader.exec_module(converter)
+    with patch.dict(os.environ, {"HOKKIEN_GITHUB_REPO_PATH": str(ROOT)}):
+        os.environ.pop("HOKKIEN_HANRI_DICT_PATH", None)
+        expected = ROOT / "data" / "hokkien_hanri_dict.tsv"
+        assert pad_module.hanri_tsv_path_candidates() == [expected]
+        assert converter.hanri_tsv_candidates() == [expected]
+        assert converter.hanri_tsv_path_for_write() == expected
     formatted = pad_module.format_text_tones_for_output(tsv_input)
     annotations = converter.hanri_hangul_bracket_annotations(formatted)
     assert len(annotations) == 1, annotations
@@ -84,6 +92,7 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
             rows = list(csv.reader(stream, delimiter="\t"))
         assert len(rows) == 1 and rows[0][:6] == ["뎩1걱", "德國", "1", "", "", "lexical"], rows
         assert rows[0][6] == "U+5FB7_U+570B_00", rows
+        assert len(rows[0]) == 8 and rows[0][7] == "德国", rows
         registry = target.with_name("dictionary_entry_id_registry.tsv")
         assert registry.is_file(), registry
         with registry.open("a", encoding="utf-8", newline="") as stream:
@@ -98,10 +107,52 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
         with target.open(encoding="utf-8", newline="") as stream:
             rows = list(csv.reader(stream, delimiter="\t"))
         assert rows[1][6] == "U+5FB7_U+570B_02", rows
+        assert rows[1][7] == "德国", rows
+
+
+def check_repository_sync_pending(shell) -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        repo = Path(folder)
+        data = repo / "data"
+        data.mkdir()
+        tsv = data / "hokkien_hanri_dict.tsv"
+        registry = data / "dictionary_entry_id_registry.tsv"
+        tsv.write_text("dictionary\n", encoding="utf-8")
+        registry.write_text("registry\n", encoding="utf-8")
+        def git(*args):
+            return subprocess.run(
+                ["git", "-c", f"safe.directory={repo.as_posix()}", "-C", str(repo), *args],
+                check=True, capture_output=True,
+            )
+        git("init", "--initial-branch=main")
+        git("config", "user.name", "TSV test")
+        git("config", "user.email", "tsv-test@example.invalid")
+        git("add", "data")
+        git("commit", "-m", "Initial dictionary")
+        git("update-ref", "refs/remotes/origin/main", "HEAD")
+        classic = repo / "classic" / "pad.py"
+        classic.parent.mkdir()
+        classic.with_name("hokkien_hanri_dict.tsv").write_text("stale copy", encoding="utf-8")
+        server = shell.DesktopHttpServer(repo, classic)
+        try:
+            assert server.local_tsv_path() == tsv
+            assert not server.tsv_sync_pending()
+            tsv.write_text("changed dictionary\n", encoding="utf-8")
+            assert server.tsv_sync_pending()
+            git("add", "data")
+            git("commit", "-m", "New reading")
+            assert server.tsv_sync_pending(), "Unpushed dictionary commits must remain pending"
+            git("update-ref", "refs/remotes/origin/main", "HEAD")
+            assert not server.tsv_sync_pending()
+            registry.write_text("changed registry\n", encoding="utf-8")
+            assert server.tsv_sync_pending(), "Registry changes must be published too"
+        finally:
+            server.server_close()
 
 
 def main() -> None:
     shell = load_shell()
+    check_repository_sync_pending(shell)
     check_hidden_tones_in_bracketed_tsv_input()
     # Exercise the real pipe boundary under a non-UTF-8 Windows-style default.
     with tempfile.TemporaryDirectory() as folder:
@@ -148,7 +199,7 @@ def main() -> None:
         with urlopen(base + "/desktop-api/status", timeout=5) as response:
             status = response.read().decode("utf-8")
         assert '"ok": true' in status
-        assert '"tsvPending": false' in status
+        assert json.loads(status)['tsvPending'] == server.tsv_sync_pending()
     finally:
         server.shutdown()
         server.server_close()

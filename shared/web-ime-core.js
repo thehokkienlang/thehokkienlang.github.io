@@ -1945,6 +1945,7 @@ const TangliengimImeCore = (() => {
     renderToneOverlayMarks,
     renderToneMarkedReading,
     searchableEntry,
+    stripLegacyInlineToneMarks,
     singaporeTone1AudioReplacement,
     tonesByBasePosition,
     typedTonesAreCompatibleWithEntry,

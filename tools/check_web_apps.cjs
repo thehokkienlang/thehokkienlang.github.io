@@ -148,6 +148,21 @@ async function loadApp(route, script) {
   const dictionary = await loadApp('dictionary', 'app.js');
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
+  assert.ok(vm.runInContext(`(() => {
+    const groups = state.groups.filter(group => group.search.simplified);
+    return groups.length > 2500 && groups.every(group =>
+      scoreGroup(group, [group.search.simplified], 'lomari') > 0
+      && scoreGroup(group, [group.search.simplifiedRaw], 'lomari') > 0
+      && group.readings.every(entry => entry.id && entry.hanri === group.hanri)
+    );
+  })()`, dictionary.context), 'Simplified aliases must search existing canonical entries');
+  assert.ok(vm.runInContext(`(() => {
+    const entry = state.entries.find(item => item.hanri === '台灣' && !item.autoSandhi);
+    searchInput.value = '台湾';
+    return entry && searchGroups().shown.some(group => group.readings.some(reading => reading.id === entry.id))
+      && entry.hanri === '台灣';
+  })()`, dictionary.context), '台湾 must find and display canonical 台灣');
+  vm.runInContext("searchInput.value = ''", dictionary.context);
   assert.ok(
     vm.runInContext(`(() => {
       const index = TangliengimImeCore.createDictionaryIndex(state.entries);

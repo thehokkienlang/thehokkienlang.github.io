@@ -296,29 +296,29 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.bridge_lock = threading.Lock()
 
     def local_tsv_path(self) -> Path:
-        beside_classic = self.classic_script.with_name("hokkien_hanri_dict.tsv")
-        if beside_classic.is_file():
-            return beside_classic
         return self.repo_root / "data" / "hokkien_hanri_dict.tsv"
 
     def tsv_sync_pending(self) -> bool:
-        source = self.local_tsv_path()
-        destination = self.repo_root / "data" / "hokkien_hanri_dict.tsv"
-        if not source.is_file() or not destination.is_file():
+        if not (self.repo_root / ".git").exists():
             return False
-        if source.resolve() == destination.resolve():
+        paths = ["data/hokkien_hanri_dict.tsv", "data/dictionary_entry_id_registry.tsv"]
+        command = ["git", "-c", f"safe.directory={self.repo_root.as_posix()}", "-C", str(self.repo_root)]
+        options = {
+            "capture_output": True, "text": True, "encoding": "utf-8",
+            "errors": "replace", "check": False,
+            "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0,
+            "env": {**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
+        }
+        try:
+            status = subprocess.run([*command, "status", "--porcelain", "--", *paths], **options)
+            if status.returncode != 0:
+                return False
+            if status.stdout.strip():
+                return True
+            ahead = subprocess.run([*command, "diff", "--quiet", "origin/main..HEAD", "--", *paths], **options)
+            return ahead.returncode == 1
+        except OSError:
             return False
-        source_registry = source.with_name("dictionary_entry_id_registry.tsv")
-        destination_registry = destination.with_name("dictionary_entry_id_registry.tsv")
-        if source.read_bytes() != destination.read_bytes():
-            return True
-        return (
-            source_registry.is_file()
-            and (
-                not destination_registry.is_file()
-                or source_registry.read_bytes() != destination_registry.read_bytes()
-            )
-        )
 
     def bridge_interpreter(self) -> Path:
         interpreter = Path(sys.executable)
@@ -332,6 +332,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
         env = os.environ.copy()
         env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
+        env["HOKKIEN_HANRI_DICT_PATH"] = str(self.local_tsv_path())
         # subprocess encoding controls only the parent; set the child's pipes too.
         env["PYTHONIOENCODING"] = "utf-8"
         with self.bridge_lock:
@@ -391,6 +392,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
             interpreter = pythonw
         env = os.environ.copy()
         env["HOKKIEN_IME_PYTHONW_LAUNCHED"] = "1"
+        env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
+        env["HOKKIEN_HANRI_DICT_PATH"] = str(self.local_tsv_path())
         self.classic_process = subprocess.Popen(
             [str(interpreter), str(self.classic_script), "--classic-ui"],
             cwd=str(self.classic_script.parent),

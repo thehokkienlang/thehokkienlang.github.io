@@ -16,6 +16,7 @@ from tools.tangliengim_collation import (
     ENTRY_TYPE_ORDER, FINAL_ORDER, INITIAL_ORDER, VOWEL_ORDER, out_of_order_pairs, reading_sort_key, row_sort_key,
 )
 from tools.dictionary_schema import (
+    DICTIONARY_COLUMNS,
     ENTRY_ID_REGISTRY_COLUMNS,
     canonical_entry_headword,
     entry_public_path,
@@ -26,7 +27,12 @@ from tools.dictionary_schema import (
 
 
 ROOT = Path(__file__).resolve().parents[1]
-COLUMNS = ["reading", "hanri", "priority", "corrected", "english", "entry_type", "entry_id"]
+COLUMNS = list(DICTIONARY_COLUMNS)
+
+
+def current_rows(rows):
+    from tools.simplified_lookup import simplified_headword
+    return [row + [simplified_headword(row[1])] if len(row) == 7 else row for row in rows]
 
 
 def test_id(headword: str, number: int = 0) -> str:
@@ -39,7 +45,7 @@ def write_registry(tsv_path: Path, rows: list[list[str]]) -> None:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
         writer.writerow(ENTRY_ID_REGISTRY_COLUMNS)
         for row in rows:
-            writer.writerow([row[-1], canonical_entry_headword(row[1]), ""])
+            writer.writerow([row[6], canonical_entry_headword(row[1]), ""])
 
 
 class CollationTests(unittest.TestCase):
@@ -114,7 +120,7 @@ class CollationTests(unittest.TestCase):
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
                 writer.writerow(["# preserved comment"])
-                writer.writerows(rows)
+                writer.writerows(current_rows(rows))
             write_registry(path, rows)
 
             validator = subprocess.run(
@@ -130,16 +136,16 @@ class CollationTests(unittest.TestCase):
             with path.open(encoding="utf-8", newline="") as handle:
                 ordered = list(csv.reader(handle, delimiter="\t"))
             self.assertEqual(ordered[1], ["# preserved comment"])
-            self.assertEqual(Counter(map(tuple, ordered[2:])), Counter(map(tuple, rows)))
-            self.assertEqual([row[-2] for row in ordered[2:]], list(ENTRY_TYPE_ORDER[:1]) + ["lexical", "lexical", "correction_alias", "number_pronunciation"])
+            self.assertEqual(Counter(map(tuple, ordered[2:])), Counter(map(tuple, current_rows(rows))))
+            self.assertEqual([row[5] for row in ordered[2:]], list(ENTRY_TYPE_ORDER[:1]) + ["lexical", "lexical", "correction_alias", "number_pronunciation"])
 
     def test_complete_dictionary_uses_syllabic_keys(self) -> None:
         with (ROOT / "data/hokkien_hanri_dict.tsv").open(encoding="utf-8", newline="") as handle:
             rows = [row for row in csv.DictReader(handle, delimiter="\t") if not row["reading"].startswith("#")]
-        self.assertEqual(len(rows), 2749)
+        self.assertEqual(len(rows), 2748)
         self.assertEqual(Counter(row["entry_type"] for row in rows), {
-            "hangul_override": 65, "lexical": 2664,
-            "correction_alias": 10, "number_pronunciation": 10,
+            "hangul_override": 64, "lexical": 2665,
+            "correction_alias": 9, "number_pronunciation": 10,
         })
         self.assertEqual(out_of_order_pairs(rows, COLUMNS), 0)
         entry_ids = [row["entry_id"] for row in rows]
@@ -147,7 +153,7 @@ class CollationTests(unittest.TestCase):
         self.assertTrue(all(entry_id_matches_headword(row["entry_id"], row["hanri"]) for row in rows))
         bases = {value.rsplit("_", 1)[0] for value in entry_ids}
         self.assertTrue(all(f"{base}_00" in entry_ids for base in bases))
-        self.assertTrue(any(row["reading"] == "리1호2*" and row["entry_type"] == "correction_alias" for row in rows))
+        self.assertFalse(any(row["entry_id"] == "U+B990_U+D638_01" for row in rows))
         for row in rows:
             if row["entry_type"] != "number_pronunciation":
                 self.assertTrue(all(token[0] == 0 for token in reading_sort_key(row["reading"])[0]), row["reading"])
@@ -169,6 +175,7 @@ class CollationTests(unittest.TestCase):
             rows = [row for row in csv.DictReader(handle, delimiter="\t") if not row["reading"].startswith("#")]
         by_id = {row["entry_id"]: row for row in rows}
         for entry_id, reading, headword, entry_type in (
+            ("U+4F6E_00", "갛", "佮", "lexical"),
             ("U+5FA6_00", "갛", "徦", "lexical"),
             ("U+5E95_00", "되2", "底", "lexical"),
             ("U+5E95_01", "도2", "底", "lexical"),
@@ -184,14 +191,14 @@ class CollationTests(unittest.TestCase):
         self.assertEqual(by_id["U+54EA_U+88E1_00"]["english"], "where")
         with (ROOT / "data/dictionary_entry_id_registry.tsv").open(encoding="utf-8", newline="") as handle:
             registry = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual(len(registry), len(rows))
-        self.assertEqual({row["entry_id"] for row in registry}, set(by_id))
+        self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | {"U+B990_U+D638_01"})
         for record in registry:
             self.assertEqual(record["redirect_entry_id"], "")
-            self.assertEqual(record["canonical_headword"], canonical_entry_headword(by_id[record["entry_id"]]["hanri"]))
+            if record["entry_id"] in by_id:
+                self.assertEqual(record["canonical_headword"], canonical_entry_headword(by_id[record["entry_id"]]["hanri"]))
 
     def test_entry_id_migration_is_idempotent(self) -> None:
-        legacy_columns = COLUMNS[:-1]
+        legacy_columns = COLUMNS[:6]
         legacy_rows = [
             ["가", "家", "1", "", "home", "lexical"],
             ["나", "那", "1", "", "", "lexical"],
@@ -227,7 +234,7 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerows(rows)
+                writer.writerows(current_rows(rows))
             write_registry(path, rows[:1])
             result = subprocess.run(
                 [sys.executable, str(ROOT / "tools/validate_dictionary_tsv.py"), str(path)],
@@ -260,8 +267,10 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerow(["걀4", "行", "1", "", "go", "lexical", old_ids[0]])
-                writer.writerow(["행4", "行", "2", "", "walk", "lexical", old_ids[2]])
+                writer.writerows(current_rows([
+                    ["걀4", "行", "1", "", "go", "lexical", old_ids[0]],
+                    ["행4", "行", "2", "", "walk", "lexical", old_ids[2]],
+                ]))
             with registry_path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(ENTRY_ID_REGISTRY_COLUMNS)
@@ -288,7 +297,7 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerow(["가", "家", "1", "", "home", "lexical", test_id("家")])
+                writer.writerow(["가", "家", "1", "", "home", "lexical", test_id("家"), "家"])
             original = path.read_bytes()
             result = subprocess.run(
                 [sys.executable, str(ROOT / "tools/assign_dictionary_entry_ids.py"), str(path)],
@@ -306,7 +315,7 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerow(row)
+                writer.writerows(current_rows([row]))
             subprocess.run(
                 [sys.executable, str(ROOT / "tools/assign_dictionary_entry_ids.py"), str(path)],
                 capture_output=True, text=True, encoding="utf-8", check=True,
@@ -326,7 +335,7 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerow(row)
+                writer.writerows(current_rows([row]))
             registry_path = path.with_name("dictionary_entry_id_registry.tsv")
             with registry_path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")

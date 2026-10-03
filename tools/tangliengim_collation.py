@@ -148,7 +148,7 @@ def row_sort_key(row: Mapping[str, str], columns: Sequence[str]) -> tuple:
     entry_type = row["entry_type"]
     if entry_type not in TYPE_RANK:
         raise ValueError(f"Unknown entry_type: {entry_type!r}")
-    exact_row = "\t".join(row[column] for column in columns).encode("utf-8")
+    exact_row = "\t".join(row[column] for column in columns if column != "simplified").encode("utf-8")
     return (
         TYPE_RANK[entry_type],
         reading_sort_key(row["reading"]),

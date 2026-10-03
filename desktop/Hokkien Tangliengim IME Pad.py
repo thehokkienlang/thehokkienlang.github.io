@@ -117,24 +117,16 @@ def github_repo_for_tsv_sync() -> Path | None:
 
 
 def hanri_tsv_path_candidates() -> list[Path]:
+    """Use the repository dictionary, never a separate adjacent TSV copy."""
     env_path = os.environ.get('HOKKIEN_HANRI_DICT_PATH')
-    candidates: list[Path] = []
     if env_path:
-        candidates.append(Path(env_path))
-    candidates.extend([
-        bundled_resource_path(HANRI_TSV_FILENAME),
-        repo_data_path(HANRI_TSV_FILENAME),
-        Path.cwd() / HANRI_TSV_FILENAME,
-        Path.cwd() / 'data' / HANRI_TSV_FILENAME,
-    ])
-    seen: set[str] = set()
-    unique: list[Path] = []
-    for path in candidates:
-        key = str(path)
-        if key not in seen:
-            unique.append(path)
-            seen.add(key)
-    return unique
+        return [Path(env_path)]
+    env_repo = os.environ.get('HOKKIEN_GITHUB_REPO_PATH')
+    if env_repo:
+        return [Path(env_repo) / 'data' / HANRI_TSV_FILENAME]
+    if Path(__file__).resolve().parent.name.lower() == 'desktop':
+        return [repo_data_path(HANRI_TSV_FILENAME)]
+    return [Path.home() / 'Documents' / 'GitHub' / 'thehokkienlang.github.io' / 'data' / HANRI_TSV_FILENAME]
 
 
 TONE_MARKER_MODULE_PATH = Path(
@@ -1371,7 +1363,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
     global HANRI_DICT_SOURCE
 
     if tsv_path is None:
-        tsv_path = next((path for path in hanri_tsv_path_candidates() if path.exists()), bundled_resource_path(HANRI_TSV_FILENAME))
+        tsv_path = hanri_tsv_path_candidates()[0]
 
     if not tsv_path.exists():
         HANRI_DICT_SOURCE = 'built-in fallback; TSV not found'
@@ -1399,6 +1391,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             corrected_col = header.index('corrected') if 'corrected' in header else None
             entry_type_col = header.index('entry_type') if 'entry_type' in header else None
             entry_id_col = header.index('entry_id') if 'entry_id' in header else None
+            simplified_col = header.index('simplified') if 'simplified' in header else None
             row_offset = 2
         else:
             # Headerless TSV: reading / hanri / priority.
@@ -1410,6 +1403,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             corrected_col = None
             entry_type_col = None
             entry_id_col = None
+            simplified_col = None
             row_offset = 1
 
         for offset, row in enumerate(data_rows, start=row_offset):
@@ -1418,6 +1412,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
+            simplified = row[simplified_col] if simplified_col is not None and len(row) > simplified_col else ''
 
             if not reading_cell or not hanri:
                 continue
@@ -1451,6 +1446,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                 'corrected': corrected,
                 'entry_type': entry_type,
                 'entry_id': entry_id,
+                'simplified': simplified,
             }
             entries.setdefault(base_reading, []).append(citation_entry)
 
@@ -1478,6 +1474,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                             'corrected': corrected_sandhi,
                             'entry_type': entry_type,
                             'entry_id': f'{entry_id}-sandhi' if entry_id else '',
+                            'simplified': simplified,
                         })
 
         loaded: dict[str, list[dict]] = {}
@@ -1571,7 +1568,7 @@ def load_literal_digit_pronunciations(
                 pattern_map[number_key + following] = number_reading
 
     if tsv_path is None:
-        tsv_path = next((path for path in hanri_tsv_path_candidates() if path.exists()), bundled_resource_path(HANRI_TSV_FILENAME))
+        tsv_path = hanri_tsv_path_candidates()[0]
 
     if not tsv_path.exists():
         patterns = sorted(
@@ -7219,26 +7216,13 @@ class HokkienIMEPad:
 
     @classmethod
     def push_tsv_to_github_repository(cls, source_tsv: Path, repo: Path) -> str:
-        source_registry = source_tsv.with_name('dictionary_entry_id_registry.tsv')
-        if not source_registry.is_file():
-            raise FileNotFoundError(f'Local ID registry not found: {source_registry}')
-        transfers = (
-            (source_tsv, repo / 'data' / HANRI_TSV_FILENAME),
-            (source_registry, repo / 'data' / source_registry.name),
-        )
-        relative_destinations = [destination.relative_to(repo).as_posix() for _source, destination in transfers]
-
-        for source, destination in transfers:
-            source_bytes = source.read_bytes()
-            destination_bytes = destination.read_bytes() if destination.exists() else None
-            if destination_bytes == source_bytes:
-                continue
-            relative_destination = destination.relative_to(repo).as_posix()
-            status = cls.run_git_command(repo, 'status', '--porcelain', '--', relative_destination).stdout.strip()
-            if status:
-                return 'conflict'
-            destination.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, destination)
+        destination = repo / 'data' / HANRI_TSV_FILENAME
+        if source_tsv.resolve() != destination.resolve():
+            raise ValueError('Sync TSV publishes the repository dictionary; separate TSV copies are no longer supported.')
+        registry = destination.with_name('dictionary_entry_id_registry.tsv')
+        if not registry.is_file():
+            raise FileNotFoundError(f'Repository ID registry not found: {registry}')
+        relative_destinations = [destination.relative_to(repo).as_posix(), registry.relative_to(repo).as_posix()]
 
         cls.run_git_command(repo, 'add', '--', *relative_destinations)
         staged = subprocess.run(

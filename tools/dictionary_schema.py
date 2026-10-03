@@ -15,6 +15,7 @@ DICTIONARY_COLUMNS = (
     "english",
     "entry_type",
     "entry_id",
+    "simplified",
 )
 
 ENTRY_ID_REGISTRY_COLUMNS = (

@@ -8,7 +8,9 @@ Build and validation scripts for the dictionary and web IME.
 
 `sort_dictionary_tsv.py` applies the reusable Tangliengim syllabic collation on demand; `validate_dictionary_tsv.py` reports unsorted rows as a maintenance notice.
 
-`assign_dictionary_entry_ids.py` performs the six/seven-column migration to Unicode-derived IDs. Before public release, it does not register old `tlg-...` IDs as redirects and reports no change after migration.
+`assign_dictionary_entry_ids.py` supports the historical six/seven-column inputs and current eight-column schema. It preserves Simplified metadata, canonical IDs, and reserved suffixes. Before public release, it does not register old `tlg-...` IDs as redirects and reports no change after migration.
+
+`populate_simplified_lookup.py` performed the one-time Simplified lookup-column migration, keeping all previous cells and row order intact. It refuses to overwrite an existing Simplified column. `simplified_lookup.py` is the shared script-preserving converter used by that migration and the Local writer, backed by the pinned OpenCC subset in `tools/vendor/opencc`.
 
 `migrate_dictionary_entry_ids_zero_based.py` performed the one-time Task 6e shift from `_01` to `_00`. Do not rerun that historical migration. `assign_dictionary_entry_ids.py` and the Local writer allocate `_00` to a new headword and use the next suffix currently recorded in the registry for additional entries.
 

@@ -16,6 +16,7 @@ from dictionary_schema import (
     valid_entry_id,
 )
 from tangliengim_collation import ENTRY_TYPE_ORDER, out_of_order_pairs
+from simplified_lookup import simplified_field_errors
 
 
 EXPECTED_HEADER = list(DICTIONARY_COLUMNS)
@@ -138,7 +139,7 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
             if row[0].startswith("#"):
                 continue
             if len(row) != len(EXPECTED_HEADER):
-                errors.append(f"line {line_number}: expected 7 fields, found {len(row)}")
+                errors.append(f"line {line_number}: expected {len(EXPECTED_HEADER)} fields, found {len(row)}")
                 continue
             entry_count += 1
             data_rows.append(dict(zip(EXPECTED_HEADER, row)))
@@ -151,6 +152,8 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
                 errors.append(f"line {line_number}: reading is empty")
             if not row[1]:
                 errors.append(f"line {line_number}: hanri is empty")
+            for issue in simplified_field_errors(row[1], row[7]):
+                errors.append(f"line {line_number}: {issue}")
             if not row[2].isascii() or not row[2].isdigit() or int(row[2]) < 1:
                 errors.append(f"line {line_number}: priority must be a positive integer")
             entry_type = row[5]
@@ -183,7 +186,7 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
 
     errors.extend(validate_registry(registry_path or path.with_name("dictionary_entry_id_registry.tsv"), active_ids))
     if not errors:
-        print(f"Valid: {entry_count} entries, seven fields, unique stable IDs, UTF-8/NFC, CRLF line endings")
+        print(f"Valid: {entry_count} entries, {len(EXPECTED_HEADER)} fields, unique stable IDs, UTF-8/NFC, CRLF line endings")
         inversions = out_of_order_pairs(data_rows, EXPECTED_HEADER)
         if inversions:
             print(f"Maintenance notice: TSV is not in canonical Tangliengim order "

@@ -21,6 +21,7 @@ from dictionary_schema import (
     valid_entry_id,
 )
 from validate_dictionary_tsv import validate_registry
+from simplified_lookup import simplified_field_errors
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -32,7 +33,7 @@ DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
 
-SCHEMA_VERSION = 7
+SCHEMA_VERSION = 8
 
 ENTRY_TYPES = frozenset({
     "lexical", "correction_alias", "hangul_override", "number_pronunciation",
@@ -372,7 +373,7 @@ def build_dictionary(
     with tsv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         fieldnames = [str(name or "").strip() for name in (reader.fieldnames or [])]
-        required = {"reading", "hanri", "entry_type", "entry_id"}
+        required = {"reading", "hanri", "entry_type", "entry_id", "simplified"}
         missing = sorted(required - set(fieldnames))
         if missing:
             raise ValueError(f"TSV is missing required column(s): {', '.join(missing)}")
@@ -387,6 +388,7 @@ def build_dictionary(
             english = str(row.get("english") or "").strip()
             entry_type = str(row.get("entry_type") or "").strip()
             entry_id = str(row.get("entry_id") or "").strip()
+            raw_simplified = str(row.get("simplified") or "")
 
             if not raw_reading and not hanri and not corrected_raw:
                 counts["blank_rows"] += 1
@@ -401,6 +403,10 @@ def build_dictionary(
                 counts["comment_rows"] += 1
                 continue
 
+            errors = simplified_field_errors(raw_hanri, raw_simplified)
+            if errors:
+                raise ValueError(f"TSV row {row_number}: {'; '.join(errors)}")
+            simplified = raw_simplified
             reading = normalized_reading(tone_marker, raw_reading)
             corrected = normalized_reading(tone_marker, corrected_raw) if corrected_raw else ""
             effective_reading = corrected or reading
@@ -447,6 +453,7 @@ def build_dictionary(
                 "entryType": entry_type,
                 "active": active,
                 "hanri": hanri,
+                "simplified": simplified,
                 "reading": effective_reading,
                 "readingBase": reading_base,
                 "lomari": lomari,
@@ -465,6 +472,7 @@ def build_dictionary(
                     "english": english,
                     "entry_type": entry_type,
                     "entry_id": entry_id,
+                    "simplified": raw_simplified,
                 },
             }
             if corrected:
@@ -581,6 +589,7 @@ def build_dictionary(
 
     indexes: dict[str, dict[str, list[str]]] = {
         "byHanri": {},
+        "bySimplified": {},
         "byReading": {},
         "byReadingBase": {},
         "byLomari": {},
@@ -593,6 +602,11 @@ def build_dictionary(
             continue
         entry_id = entry["id"]
         append_index(indexes["byHanri"], entry["hanri"], entry_id)
+        if entry["simplified"]:
+            append_index(indexes["bySimplified"], entry["simplified"], entry_id)
+            visible_alias = canonical_entry_headword(entry["simplified"])
+            if visible_alias != entry["simplified"]:
+                append_index(indexes["bySimplified"], visible_alias, entry_id)
         append_index(indexes["byReading"], entry["reading"], entry_id)
         append_index(indexes["byReadingBase"], entry["readingBase"], entry_id)
         append_index(indexes["byLomari"], entry["lomari"], entry_id)

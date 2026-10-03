@@ -32,6 +32,7 @@ raw Hangul audio, and Taipei/Singapore audio metadata.
 
 Edit `data/hokkien_hanri_dict.tsv` in this repository, locally or on GitHub.
 Every deployment regenerates JSON from that TSV, the desktop engine, and audio.
+The active Local IME reads and saves new readings directly in this same repository TSV and its ID registry. Its Sync TSV button publishes repository changes; no separate Local IME dictionary copy is maintained. Manual TSV edits still require rebuilding generated JSON before the shared web interface reflects them.
 Each row has an explicit `entry_type` and a pre-release Unicode-derived `entry_id`; see [the TSV schema](docs/dictionary-tsv-schema.md).
 Do not edit generated JSON or maintain a second TSV in the archived dictionary
 repository. Historical local desktop installations are separate from this checkout.

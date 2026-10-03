@@ -87,6 +87,8 @@ function groupEntries(entries) {
         categories: [],
         search: {
           hanri: normalizeText(headword),
+          simplified: normalizeText(ImeCore.stripLegacyInlineToneMarks(entry.simplified || "")),
+          simplifiedRaw: normalizeText(entry.simplified || ""),
           reading: "",
           readingBase: "",
           lomari: "",
@@ -116,6 +118,8 @@ function groupEntries(entries) {
     group.search.english = normalizeEnglishSearch(group.readings.map((item) => item.english || "").join(" "));
     group.search.all = [
       group.search.hanri,
+      group.search.simplified,
+      group.search.simplifiedRaw,
       group.search.reading,
       group.search.readingBase,
       group.search.lomari,
@@ -143,6 +147,8 @@ function scoreGroup(group, queries, mode) {
 
   const fields = [
     { name: "hanri", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "simplified", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "simplifiedRaw", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "reading", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "readingBase", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "lomari", boost: mode === "lomari" ? 6 : 0 },

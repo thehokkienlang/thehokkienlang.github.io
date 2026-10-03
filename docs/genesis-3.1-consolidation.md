@@ -2,7 +2,7 @@
 
 This checkpoint completes Genesis 3.1C against the current working-tree TSV
 and the published *Tangliengim Orthography v3.1*, especially sections 4.1-4.5.
-It is the data reference for Tasks I-IV; none of those tasks is implemented.
+It is the data reference for Exodus I–IV; none of those phases is implemented.
 IDs remain pre-release. This checkpoint does not freeze public identifiers or
 establish backwards-compatibility obligations.
 
@@ -96,7 +96,7 @@ dictionary sources.
   both applications. This checkpoint does not substitute automated checks
   for new physical-device or listening tests.
 
-The remaining work starts with Task I, then Task II, Task III, and Task IV.
+The remaining work starts with Exodus I, then Exodus II, Exodus III, and Exodus IV.
 
 ## Deployment portability correction
 

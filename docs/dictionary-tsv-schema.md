@@ -1,6 +1,6 @@
 # Dictionary TSV schema
 
-`data/hokkien_hanri_dict.tsv` is UTF-8, NFC-normalized, CRLF-terminated TSV with seven columns in this order:
+`data/hokkien_hanri_dict.tsv` is UTF-8, NFC-normalized, CRLF-terminated TSV with eight columns in this order:
 
 | Column | Meaning |
 | --- | --- |
@@ -11,6 +11,25 @@
 | `english` | Optional English gloss. |
 | `entry_type` | Required semantic row role, defined below. |
 | `entry_id` | Unicode-derived identity for this source row, in the form `U+XXXX[_U+XXXX...]_NN`. IDs are still pre-release. |
+| `simplified` | Simplified Chinese lookup alias. Required when `hanri` contains Hanri; empty for pure Hangul, numeric, or other headwords without Hanri. |
+
+`hanri` remains the canonical display and identity source. `simplified` is search
+metadata only: it does not change IDs, priorities, candidates, pronunciation, or
+canonical TSV ordering. Mixed aliases preserve every non-Hanri code point
+(Hangul, tone symbols, punctuation, digits, Latin text, and symbols) exactly.
+Identical Traditional/Simplified spellings are stored explicitly on Hanri rows.
+Unmapped rare Hanri are retained. The sorter also excludes `simplified` from its
+final digest tie-breaker.
+
+The Local writer generates this field using the pinned, vendored OpenCC `tw2s`
+converter; it requires no extra installation. Phrase conversion applies only to
+contiguous Hanri spans. Existing manually reviewed aliases are preserved when
+IDs are allocated or the TSV is sorted. Review the populated choices in
+[`simplified-lookup-review.md`](simplified-lookup-review.md). Unlikely secondary glyphs
+and Traditional 著 alternatives to Simplified 着 are not review cases.
+The generated JSON (schema 8) retains the alias on each existing entry and adds
+`indexes.bySimplified`; Dictionary searches score it like canonical Hanri and
+continue displaying the canonical headword. No additional lexical rows are made.
 
 `entry_id` belongs to a real dictionary row, not its current position. Ordinary editing and sorting do not renumber IDs. An approved pre-release identity migration may change an ID directly. The base encodes every NFC-normalized Unicode code point in the identity headword with uppercase hexadecimal notation. The first entry for a headword receives `_00`, the first additional entry `_01`, and so on without a two-digit maximum. For example, the base `行` entry uses `U+884C_00`, while `食飽` uses `U+98DF_U+98FD_00`. `_00` is a real TSV entry, never a synthetic headword group.
 
@@ -18,7 +37,7 @@ The identity headword is the stored `hanri` value after removing the nine legacy
 
 Existing IDs survive changes to gloss, priority, type, and physical order. Before public release, an approved canonical-headword or ordinal change updates the TSV ID and registry directly; unpublished former IDs need no alias, redirect, or tombstone. The future public path is derived from the same stored ID through `entry_public_path`: `U+5BB6_U+5DF1_00` maps to `/dictionary/家己/`, while `U+5BB6_U+5DF1_01` maps to `/dictionary/家己/01/`. URLs are percent-encoded in code; these examples show their decoded form. There is no separate URL ordinal field. Dictionary entry-page routing is not implemented yet.
 
-`data/dictionary_entry_id_registry.tsv` is the allocation ledger. It has `entry_id`, `canonical_headword`, and a reserved `redirect_entry_id` column, which stays empty before public ID release. The current registry contains active Unicode IDs only: the old `tlg-...` development IDs and unpublished migration redirects have been removed. Normal new-entry allocation uses the next suffix already recorded for that headword. Approved pre-release migrations may revise IDs and remove obsolete registry records directly. After public IDs are frozen, redirects and retired suffixes can be retained for compatibility. New Local IME entries reserve the next suffix in the registry before appending the TSV row, and TSV sync transfers both files together.
+`data/dictionary_entry_id_registry.tsv` is the allocation ledger. It has `entry_id`, `canonical_headword`, and a reserved `redirect_entry_id` column, which stays empty before public ID release. The current registry contains active Unicode IDs only: the old `tlg-...` development IDs and unpublished migration redirects have been removed. Normal new-entry allocation uses the next suffix already recorded for that headword. Approved pre-release migrations may revise IDs and remove obsolete registry records directly. After public IDs are frozen, redirects and retired suffixes can be retained for compatibility. New Local IME entries reserve the next suffix directly in the repository registry before appending the repository TSV row. Sync TSV commits and pushes both repository files, without transferring separate copies.
 
 An existing dictionary must retain its registry. Writers refuse to regenerate a missing ledger from active rows, because that could change allocations made during normal editing. A brand-new empty dictionary can create its initial registry.
 

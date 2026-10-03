@@ -9,6 +9,7 @@ import os
 import tempfile
 from collections import defaultdict
 from pathlib import Path
+from simplified_lookup import simplified_headword
 
 from dictionary_schema import (
     DICTIONARY_COLUMNS,
@@ -25,7 +26,8 @@ from dictionary_schema import (
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PATH = ROOT / "data" / "hokkien_hanri_dict.tsv"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "dictionary_entry_id_registry.tsv"
-LEGACY_COLUMNS = DICTIONARY_COLUMNS[:-1]
+LEGACY_COLUMNS = DICTIONARY_COLUMNS[:6]
+PRE_SIMPLIFIED_COLUMNS = DICTIONARY_COLUMNS[:7]
 
 
 def _serialize(rows: list[list[str]]) -> bytes:
@@ -75,8 +77,8 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
         raise ValueError("TSV is empty")
 
     header = tuple(rows[0])
-    if header not in {LEGACY_COLUMNS, DICTIONARY_COLUMNS}:
-        raise ValueError("Expected the legacy six-column or current seven-column dictionary header")
+    if header not in {LEGACY_COLUMNS, PRE_SIMPLIFIED_COLUMNS, DICTIONARY_COLUMNS}:
+        raise ValueError("Expected the legacy six/seven-column or current eight-column dictionary header")
 
     data_positions = [
         index for index, row in enumerate(rows)
@@ -87,7 +89,7 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
         if len(rows[position]) != expected_fields:
             raise ValueError(f"Data row {position + 1} has {len(rows[position])} fields; expected {expected_fields}")
     if (
-        header == DICTIONARY_COLUMNS
+        "entry_id" in header
         and not registry_path.exists()
         and any(valid_entry_id(rows[position][6]) for position in data_positions)
     ):
@@ -103,7 +105,7 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
             base, suffix_text = row[0].rsplit("_", 1)
             next_suffixes[base] = max(next_suffixes[base], int(suffix_text) + 1)
     for position in data_positions:
-        if header == DICTIONARY_COLUMNS and valid_entry_id(rows[position][6]):
+        if "entry_id" in header and valid_entry_id(rows[position][6]):
             base, suffix_text = rows[position][6].rsplit("_", 1)
             next_suffixes[base] = max(next_suffixes[base], int(suffix_text) + 1)
 
@@ -121,7 +123,7 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
     for position in data_positions:
         row = rows[position]
         headword = canonical_entry_headword(row[1])
-        old_id = row[6] if header == DICTIONARY_COLUMNS else ""
+        old_id = row[6] if "entry_id" in header else ""
         if old_id and valid_entry_id(old_id):
             if not entry_id_matches_headword(old_id, headword):
                 raise ValueError(f"Data row {position + 1}: entry_id does not match canonical headword {headword!r}")
@@ -138,7 +140,8 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
         if new_id in active_ids:
             raise ValueError(f"Duplicate assigned entry_id {new_id!r}")
         active_ids.add(new_id)
-        migrated[position] = [*row[:6], new_id]
+        simplified = row[7] if "simplified" in header else simplified_headword(row[1])
+        migrated[position] = [*row[:6], new_id, simplified]
 
     # Ordinary allocation retains existing Unicode IDs. An approved pre-release
     # migration may revise them separately; registry-only suffixes stay reserved.
