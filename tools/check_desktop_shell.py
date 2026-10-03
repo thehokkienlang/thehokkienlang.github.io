@@ -112,7 +112,8 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
 
 def check_repository_sync_pending(shell) -> None:
     with tempfile.TemporaryDirectory() as folder:
-        repo = Path(folder)
+        # Windows CI can return an 8.3 temp path; the server resolves its root.
+        repo = Path(folder).resolve()
         data = repo / "data"
         data.mkdir()
         tsv = data / "hokkien_hanri_dict.tsv"
