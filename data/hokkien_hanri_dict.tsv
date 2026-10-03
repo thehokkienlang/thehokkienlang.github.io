@@ -1497,7 +1497,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 심5뎡1	心中	1		in one's heart	lexical	U+5FC3_U+4E2D_00	心中
 심5래5	心內	1		in one's heart	lexical	U+5FC3_U+5167_00	心内
 심5리2	心理	1		psychology; mentality	lexical	U+5FC3_U+7406_00	心理
-심1밓1	什物	1		thing	lexical	U+4EC0_U+7269_00	什物
+심1밓1	什物	1		what	lexical	U+4EC0_U+7269_00	什物
 심5샬1	心聲	1		inner voice; heartfelt thoughts	lexical	U+5FC3_U+8072_00	心声
 심5승1	心酸	1		sad; bitter	lexical	U+5FC3_U+9178_00	心酸
 심5안1	心安	1		peaceful; at ease	lexical	U+5FC3_U+5B89_00	心安
@@ -1720,7 +1720,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 위5	為	1		for; because of	lexical	U+70BA_00	为
 위1대5	偉大	1		big; great	lexical	U+5049_U+5927_00	伟大
 위샬1밓1	為啥物	1		why	lexical	U+70BA_U+5565_U+7269_00	为啥物
-위심1밓1	為什物	1		for; because of; thing	lexical	U+70BA_U+4EC0_U+7269_00	为什物
+위심1밓1	為什物	1		why	lexical	U+70BA_U+4EC0_U+7269_00	为什物
 위읻	唯一	1		the only	lexical	U+552F_U+4E00_00	唯一
 위좔1율5	為怎樣	1		for; because of	lexical	U+70BA_U+600E_U+6A23_00	为怎样
 위지2	為止	1		for; because of	lexical	U+70BA_U+6B62_00	为止
