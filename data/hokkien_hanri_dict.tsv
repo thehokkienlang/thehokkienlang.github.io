@@ -1,33 +1,30 @@
 reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 # implicit-tone-overrides (single Hangul-only hanri rows used when the typed form has no tone mark)							
 가5야1	가ˉ야ˆ	1		kaya	hangul_override	U+AC00_U+C57C_00	
-가5야5또디1	가ˉ야ˉ또디ˆ	1		kaya roti	hangul_override	U+AC00_U+C57C_U+B610_U+B514_00	
+가5야5또디1	가ˉ야ˉ또디ˆ	1		kaya bread; kaya roti	hangul_override	U+AC00_U+C57C_U+B610_U+B514_00	
 갈5	갈ˉ	1		with; together	hangul_override	U+AC08_00	
 감2	감ˋ	1		(question marker)	hangul_override	U+AC10_00	
 고5비1	고ˉ비ˆ	1		coffee	hangul_override	U+ACE0_U+BE44_00	
 곻	곻	1		again	hangul_override	U+ACFB_00	
 꽈2	꽈ˋ	1		I; me	hangul_override	U+AF48_00	
-’꽈	’꽈	1			hangul_override	U+2019_U+AF48_00	
+’꽈	’꽈	1		me	hangul_override	U+2019_U+AF48_00	
 꽌2	꽌ˋ	1		I; my; we (exclusive of listener)	hangul_override	U+AF4C_00	
 꾼2	꾼ˋ	1		I; my; we (exclusive of listener)	hangul_override	U+AFBC_00	
-나2	나ˋ	1			hangul_override	U+B098_00	
 댱4	댱ˊ	1		who	hangul_override	U+B331_00	
 뎋	뎋	1			hangul_override	U+B38B_00	
-도1위5	도ˆ위ˉ	1			hangul_override	U+B3C4_U+C704_00	
 ’됴	’됴	1			hangul_override	U+2019_U+B434_00	
 ’둏	’둏	1			hangul_override	U+2019_U+B44F_00	
-또디1	또디ˆ	1			hangul_override	U+B610_U+B514_00	
+또디1	또디ˆ	1		bread; roti	hangul_override	U+B610_U+B514_00	
 란2	란ˋ	1		we (inclusive of listener)	hangul_override	U+B780_00	
 ’래	’래	1			hangul_override	U+2019_U+B798_00	
-’ᄅᆤ2	’ᄅᆤˋ	1			hangul_override	U+2019_U+1105_U+11A4_00	
+’ᄅᆤ2	’ᄅᆤˋ	1		perfective aspect marker	hangul_override	U+2019_U+1105_U+11A4_00	
 렁2	렁ˋ	1		all	hangul_override	U+B801_00	
 릐2	릐ˋ	1		you	hangul_override	U+B990_00	
-’릐	’릐	1			hangul_override	U+2019_U+B990_00	
-릐1호2	릐ˆ호ˋ	1			hangul_override	U+B990_U+D638_00	
+’릐	’릐	1		you	hangul_override	U+2019_U+B990_00	
 린2	린ˋ	1		you; your	hangul_override	U+B9B0_00	
 매	매	1		shouldn't; don't want	hangul_override	U+B9E4_00	
-매5로1	매ˉ로ˆ	1			hangul_override	U+B9E4_U+B85C_00	
-메5끼1	메ˉ끼ˆ	1			hangul_override	U+BA54_U+B07C_00	
+매5로1	매ˉ로ˆ	1		Milo	hangul_override	U+B9E4_U+B85C_00	
+메5끼1	메ˉ끼ˆ	1		Maggi (noodles)	hangul_override	U+BA54_U+B07C_00	
 빼2	빼ˋ	1		bad	hangul_override	U+BE7C_00	
 뻐2	뻐ˋ	1		wife	hangul_override	U+BED0_00	
 ’뽀4	’뽀ˊ	1		not	hangul_override	U+2019_U+BF40_00	
@@ -37,14 +34,14 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 샹4	샹ˊ	1		who	hangul_override	U+C0F9_00	
 쉬2	쉬ˋ	2		nice	hangul_override	U+C26C_00	
 시5	시ˉ	1		is	hangul_override	U+C2DC_00	
-아5	아ˉ	1			hangul_override	U+C544_00	
+아5	아ˉ	1		ah	hangul_override	U+C544_00	
 안1네1	안ˆ네ˆ	1		like this; like that	hangul_override	U+C548_U+B124_00	
 안1니1	안ˆ니ˆ	1		like this; like that	hangul_override	U+C548_U+B2C8_00	
 애	애	1		should; want	hangul_override	U+C560_00	
-’에	’에	1			hangul_override	U+2019_U+C5D0_00	
+’에	’에	1		’s; possessive particle; attributive particle	hangul_override	U+2019_U+C5D0_00	
 에당	에당	1		can; be able to	hangul_override	U+C5D0_U+B2F9_00	
 음시5	음시ˉ	1		is not	hangul_override	U+C74C_U+C2DC_00	
-’이	’이	1			hangul_override	U+2019_U+C774_00	
+’이	’이	1		him	hangul_override	U+2019_U+C774_00	
 이5	이ˉ	1		he; she; they	hangul_override	U+C774_00	
 인5	인ˉ	1		they, their	hangul_override	U+C778_00	
 자5뻐2	자ˉ뻐ˋ	1		woman	hangul_override	U+C790_U+BED0_00	
@@ -59,25 +56,25 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 캏	캏	1		more; even more	hangul_override	U+CE8F_00	
 ’킈	’킈	1			hangul_override	U+2019_U+D088_00	
 햐1	햐ˆ	1		there	hangul_override	U+D590_00	
-햫	햫	1			hangul_override	U+D5AB_00	
-햫1니5	햫ˆ니ˉ	1			hangul_override	U+D5AB_U+B2C8_00	
+햫	햫	1		so; that (much)	hangul_override	U+D5AB_00	
+햫1니5	햫ˆ니ˉ	1		so; that (much)	hangul_override	U+D5AB_U+B2C8_00	
 허5	허ˉ	1		give	hangul_override	U+D5C8_00	
-헤2	헤ˋ	1			hangul_override	U+D5E4_00	
+헤2	헤ˋ	1		that	hangul_override	U+D5E4_00	
 힏	힏	1		that	hangul_override	U+D78F_00	
 가1	加	1		add; increase	lexical	U+52A0_00	加
 가1	家	2		home	lexical	U+5BB6_00	家
-가1	鉸	1			lexical	U+9278_00	铰
+가1	鉸	1		cut	lexical	U+9278_00	铰
 가	到	1		reach; arrive	lexical	U+5230_00	到
 가	教	1		teach; religion	lexical	U+6559_00	教
-가5	咬	1			lexical	U+54AC_00	咬
+가5	咬	1		bite	lexical	U+54AC_00	咬
 가5기5	家己	1		oneself	lexical	U+5BB6_U+5DF1_00	家己
 가5끼5	嘉義	1		Chiayi	lexical	U+5609_U+7FA9_00	嘉义
 가5덩1	加東	1		Katong	lexical	U+52A0_U+6771_00	加东
 가5도1	鉸刀	1		scissors	lexical	U+9278_U+5200_00	铰刀
 가5ᄉᅷ	咳嗽	1		cough	lexical	U+54B3_U+55FD_00	咳嗽
 가2수2	駕駛	1		drive; use	lexical	U+99D5_U+99DB_00	驾驶
-가5좧1	虼蚻	1			lexical	U+867C_U+86BB_00	虼蚻
-가5ᄐᅷ믕4	鉸頭毛	1			lexical	U+9278_U+982D_U+6BDB_00	铰头毛
+가5좧1	虼蚻	1		cockroach	lexical	U+867C_U+86BB_00	虼蚻
+가5ᄐᅷ믕4	鉸頭毛	1		cut hair	lexical	U+9278_U+982D_U+6BDB_00	铰头毛
 각	覺	1		feel; perceive	lexical	U+89BA_00	觉
 각	角	1		corner; horn	lexical	U+89D2_00	角
 각1딛	覺得	1		think that; feel that	lexical	U+89BA_U+5F97_00	觉得
@@ -179,7 +176,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 겅1	光	2		light	lexical	U+5149_00	光
 겅1	公	1		male	lexical	U+516C_00	公
 겅2	講	1		say	lexical	U+8B1B_01	讲
-겅5뎩	功德	1			lexical	U+529F_U+5FB7_00	功德
+겅5뎩	功德	1		pious deeds	lexical	U+529F_U+5FB7_00	功德
 겅5리2	公里	1		male	lexical	U+516C_U+91CC_00	公里
 겅5마2	公媽	1		grandparents	lexical	U+516C_U+5ABD_00	公妈
 겅5뼹4	光明	1		bright; brightness	lexical	U+5149_U+660E_00	光明
@@ -216,8 +213,8 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 곈5뎽5	堅定	1		fixed; certain; decide	lexical	U+5805_U+5B9A_00	坚定
 곈5치4	堅持	1		persevere	lexical	U+5805_U+6301_00	坚持
 곈컹1	健康	1		healthy; strong; peaceful	lexical	U+5065_U+5EB7_00	健康
-곋1	傑	1			lexical	U+5091_00	杰
-곋1	杰	1			lexical	U+6770_00	杰
+곋1	傑	1		outstanding	lexical	U+5091_00	杰
+곋1	杰	1		outstanding	lexical	U+6770_00	杰
 곋1격1	結局	1		tie; knot	lexical	U+7D50_U+5C40_00	结局
 곋1고2	結果	1		tie; knot	lexical	U+7D50_U+679C_00	结果
 곋1훈1	結婚	1		to get married	lexical	U+7D50_U+5A5A_00	结婚
@@ -256,7 +253,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 괄5	汗	1		sweat	lexical	U+6C57_00	汗
 괄1긴2	趕緊	1		hurriedly	lexical	U+8D95_U+7DCA_00	赶紧
 괄5빵4	菅芒	1		cogon grass; awn; miscanthus	lexical	U+83C5_U+8292_00	菅芒
-괄틸1	寒天	1			lexical	U+5BD2_U+5929_00	寒天
+괄틸1	寒天	1		cold day	lexical	U+5BD2_U+5929_00	寒天
 괘1	乖	1		obedient; well-behaved	lexical	U+4E56_00	乖
 괘	怪	1		weird; to blame	lexical	U+602A_00	怪
 괘5걀2	乖囝	1		child	lexical	U+4E56_U+56DD_00	乖囝
@@ -273,7 +270,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 구2	久	1		long time	lexical	U+4E45_00	久
 구5	舅	1		maternal uncle	lexical	U+8205_00	舅
 구니4	舊年	1		year	lexical	U+820A_U+5E74_00	旧年
-구1등4	久長	1			lexical	U+4E45_U+9577_00	久长
+구1등4	久長	1		long (time)	lexical	U+4E45_U+9577_00	久长
 구자2	舊早	1		early; morning	lexical	U+820A_U+65E9_00	旧早
 군1	君	1		gentleman	lexical	U+541B_00	君
 군5엉4	君王	1		lord; ruler; king	lexical	U+541B_U+738B_00	君王
@@ -285,7 +282,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 궤	過	1		pass	lexical	U+904E_01	过
 궤2꼔	過癮	1		pass; exceed	lexical	U+904E_U+766E_00	过瘾
 궤1ᄃᆤ4	粿條	1		kway teow	lexical	U+7CBF_U+689D_00	粿条
-궤2뎽4	過程	1			lexical	U+904E_U+7A0B_00	过程
+궤2뎽4	過程	1		process	lexical	U+904E_U+7A0B_00	过程
 궤1즤2	果子	1		child; son	lexical	U+679C_U+5B50_00	果子
 궤2켛	過客	1		pass; exceed	lexical	U+904E_U+5BA2_00	过客
 궤2킈	過去	1		pass; exceed; go	lexical	U+904E_U+53BB_00	过去
@@ -296,7 +293,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 귀	貴	1		expensive; noble	lexical	U+8CB4_00	贵
 귀5강1	規工	1		work	lexical	U+898F_U+5DE5_00	规工
 귀1나배2	幾若擺	1		several times	lexical	U+5E7E_U+82E5_U+64FA_00	几若摆
-귀5룯1	規律	1			lexical	U+898F_U+5F8B_00	规律
+귀5룯1	規律	1		regularity; routine	lexical	U+898F_U+5F8B_00	规律
 귀5미4	規暝	1		the whole night	lexical	U+898F_U+669D_00	规暝
 귀5셕1	歸屬	1		return; belong to	lexical	U+6B78_U+5C6C_00	归属
 귀5셕	歸宿	1		return; belong to; lodging; destiny	lexical	U+6B78_U+5BBF_00	归宿
@@ -350,7 +347,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 깐1졩4	眼前	1		before one's eyes; in front	lexical	U+773C_U+524D_00	眼前
 꺄게4	夯枷	1		carry; lift; cangue; shackle	lexical	U+592F_U+67B7_00	夯枷
 꺟1	攑	1		lift; grab	lexical	U+6511_00	攑
-꺟ᄐᅷ4	攑頭	1			lexical	U+6511_U+982D_00	攑头
+꺟ᄐᅷ4	攑頭	1		lift up one’s head	lexical	U+6511_U+982D_00	攑头
 꺼5	五	1		five	lexical	U+4E94_00	五
 꺼댬1봘	五點半	1		five thirty	lexical	U+4E94_U+9EDE_U+534A_00	五点半
 꺼밯	五百	1		five hundred	lexical	U+4E94_U+767E_00	五百
@@ -360,7 +357,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 껑껑5	慐慐	1		foolish; dazed	lexical	U+6150_U+6150_00	𰑟𰑟
 껑랑4	慐人	1		foolish person	lexical	U+6150_U+4EBA_00	𰑟人
 껑신4	慐神	1		absent-minded; dazed	lexical	U+6150_U+795E_00	𰑟神
-께4	牙	1			lexical	U+7259_00	牙
+께4	牙	1		tooth	lexical	U+7259_00	牙
 께5	藝	1		art; skill	lexical	U+85DD_00	艺
 께숟1	藝術	1		arts	lexical	U+85DD_U+8853_00	艺术
 꼑샬4	獄城	1		prison; hell; city; wall	lexical	U+7344_U+57CE_00	狱城
@@ -392,7 +389,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 꾼4	銀	1		silver; money	lexical	U+9280_00	银
 뀋1	月	1		moon; month	lexical	U+6708_00	月
 뀋뉴4	月娘	1		moon	lexical	U+6708_U+5A18_00	月娘
-뀋뱔2	月餅	1			lexical	U+6708_U+9905_00	月饼
+뀋뱔2	月餅	1		mooncake	lexical	U+6708_U+9905_00	月饼
 뀋일4	月圓	1		full moon	lexical	U+6708_U+5713_00	月圆
 끤4	銀	1		silver; money	lexical	U+9280_01	银
 끼4	疑	1		doubt; suspect	lexical	U+7591_00	疑
@@ -474,7 +471,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 당5람아1	東南亞	1		Southeast Asia	lexical	U+6771_U+5357_U+4E9E_00	东南亚
 당5롕4	東寧	1		east	lexical	U+6771_U+5BE7_00	东宁
 당5롕임1	東寧音	1		Tangliengim	lexical	U+6771_U+5BE7_U+97F3_00	东宁音
-당5새5람박	東西南北	1		all directions	lexical	U+6771_U+897F_U+5357_U+5317_00	东西南北
+당5새5람박	東西南北	1		all directions (lit. east-west-south-north)	lexical	U+6771_U+897F_U+5357_U+5317_00	东西南北
 당5시4	當時	1		that time	lexical	U+7576_U+6642_00	当时
 당5아1	東亞	1		East Asia	lexical	U+6771_U+4E9E_00	东亚
 당옿1	同學	1		learn; study	lexical	U+540C_U+5B78_00	同学
@@ -573,22 +570,22 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 뎡ᄋᆤ	重要	1		important	lexical	U+91CD_U+8981_00	重要
 뎡5옿1	中學	1		secondary school; middle school	lexical	U+4E2D_U+5B78_00	中学
 뎡5응1	中央	1		middle; in	lexical	U+4E2D_U+592E_00	中央
-뎡5츄1	中秋	1		Mid-Autumn Festival	lexical	U+4E2D_U+79CB_00	中秋
-뎡5츄5졛	中秋節	1			lexical	U+4E2D_U+79CB_U+7BC0_00	中秋节
+뎡5츄1	中秋	1		Mid-Autumn	lexical	U+4E2D_U+79CB_00	中秋
+뎡5츄5졛	中秋節	1		Mid-Autumn Festival	lexical	U+4E2D_U+79CB_U+7BC0_00	中秋节
 뎡5화4	中華	1		Chinese; China	lexical	U+4E2D_U+83EF_00	中华
 뎩	得	1		obtain; can	lexical	U+5F97_00	得
-뎩	德	1			lexical	U+5FB7_00	德
-뎩1걱	德國	1			lexical	U+5FB7_U+570B_00	德国
+뎩	德	1		virtue	lexical	U+5FB7_00	德
+뎩1걱	德國	1		Germany	lexical	U+5FB7_U+570B_00	德国
 뎬4	田	1		field	lexical	U+7530_00	田
 뎬5	電	1		electricity	lexical	U+96FB_00	电
 뎬ᄂᅷ2	電腦	1		computer	lexical	U+96FB_U+8166_00	电脑
-뎬대4	電台	1			lexical	U+96FB_U+53F0_00	电台
+뎬대4	電台	1		radio station	lexical	U+96FB_U+53F0_00	电台
 뎬덩5	電動	1		electricity	lexical	U+96FB_U+52D5_00	电动
 뎬시5	電視	1		television	lexical	U+96FB_U+8996_00	电视
 뎬시기1	電視機	1		television set	lexical	U+96FB_U+8996_U+6A5F_00	电视机
 뎬얄2	電影	1		movie; film	lexical	U+96FB_U+5F71_00	电影
 뎬웨5	電話	1		telephone	lexical	U+96FB_U+8A71_00	电话
-뎬헝1	電風	1			lexical	U+96FB_U+98A8_00	电风
+뎬헝1	電風	1		electric fan	lexical	U+96FB_U+98A8_00	电风
 뎬훼2	電火	1		electric light	lexical	U+96FB_U+706B_00	电火
 뎽1	燈	1		lamp; light	lexical	U+71C8_00	灯
 뎽2	等	3		wait; class; rank	lexical	U+7B49_01	等
@@ -607,14 +604,14 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 도2	底	1		where; which	lexical	U+5E95_01	底
 도	倒	1		fall; reverse	lexical	U+5012_00	倒
 도5	道	1		road; way	lexical	U+9053_00	道
-도뎩	道德	1			lexical	U+9053_U+5FB7_00	道德
+도뎩	道德	1		moral	lexical	U+9053_U+5FB7_00	道德
 도2등2	倒轉	1		turn back; reverse	lexical	U+5012_U+8F49_00	倒转
 도1롷1	底落	1		where	lexical	U+5E95_U+843D_00	底落
 도리2	道理	1		reason; principle	lexical	U+9053_U+7406_00	道理
 도5샤5	多謝	1		thanks; thank you	lexical	U+591A_U+8B1D_00	多谢
 도1위5	底位	1		where	lexical	U+5E95_U+4F4D_00	底位
 도5졩4	多情	1		sentimental; affectionate	lexical	U+591A_U+60C5_00	多情
-도2츄2	倒手	1			lexical	U+5012_U+624B_00	倒手
+도2츄2	倒手	1		left hand	lexical	U+5012_U+624B_00	倒手
 돟	桌	1		table; desk	lexical	U+684C_00	桌
 돠	蹛	1		stay; live at	lexical	U+8E5B_00	蹛
 돠5	大	1		big; large	lexical	U+5927_00	大
@@ -969,7 +966,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 뱔2	餅	1		cake; biscuit	lexical	U+9905_00	饼
 뱔	拚	2		struggle; fight; work hard	lexical	U+62DA_00	拚
 뱔2ᄉᅷ	摒掃	1		sweep	lexical	U+6452_U+6383_00	摒扫
-뱧	壁	1			lexical	U+58C1_00	壁
+뱧	壁	1		wall	lexical	U+58C1_00	壁
 ᄇᆤ5디	漂緻	1		fine; delicate	lexical	U+6F02_U+7DFB_00	漂致
 ᄇᆤ1옌2	表演	1		surface; express; perform; develop	lexical	U+8868_U+6F14_00	表演
 버5	步	1		step	lexical	U+6B65_00	步
@@ -977,7 +974,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 버2데5	布袋	1		cloth; spread; bag	lexical	U+5E03_U+888B_00	布袋
 버믕4	部門	1		door	lexical	U+90E8_U+9580_00	部门
 벙5	磅	1		pound; weigh	lexical	U+78C5_00	磅
-벙캉1	磅空	1			lexical	U+78C5_U+7A7A_00	磅空
+벙캉1	磅空	1		tunnel	lexical	U+78C5_U+7A7A_00	磅空
 벙헝4	彷徨	1		seem; wander; hesitate	lexical	U+5F77_U+5FA8_00	彷徨
 베4	爬	1		climb; crawl	lexical	U+722C_00	爬
 베5	爸	1		father	lexical	U+7238_00	爸
@@ -999,7 +996,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 볜서2	便所	1		convenient; place; that which	lexical	U+4FBF_U+6240_00	便所
 볜솅4	變成	1		change	lexical	U+8B8A_U+6210_00	变成
 볜2죄	變做	1		become; turn into	lexical	U+8B8A_U+505A_00	变做
-볜2태	變態	1			lexical	U+8B8A_U+614B_00	变态
+볜2태	變態	1		to metamorphose; pervert	lexical	U+8B8A_U+614B_00	变态
 볜2화	變化	1		change	lexical	U+8B8A_U+5316_00	变化
 볭1	兵	1		soldier	lexical	U+5175_00	兵
 볭4	平	1		flat; level; peaceful	lexical	U+5E73_00	平
@@ -1172,7 +1169,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 삐5	微	1		slight; subtle	lexical	U+5FAE_00	微
 삐1걱	美國	1		United States	lexical	U+7F8E_U+570B_00	美国
 삐1걱1랑4	美國人	1		American person	lexical	U+7F8E_U+570B_U+4EBA_00	美国人
-삐1뎩	美德	1			lexical	U+7F8E_U+5FB7_00	美德
+삐1뎩	美德	1		virtue; noble attribute; United States–Germany	lexical	U+7F8E_U+5FB7_00	美德
 삐래4	未來	1		future	lexical	U+672A_U+4F86_00	未来
 삐1레5	美麗	1		beautiful	lexical	U+7F8E_U+9E97_00	美丽
 삐1빵5	美夢	1		beautiful dream	lexical	U+7F8E_U+5922_00	美梦
@@ -1321,7 +1318,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 셴5	蟮	1			lexical	U+87EE_00	蟮
 셴5릐2	仙女	1		immortal; fairy; woman; female	lexical	U+4ED9_U+5973_00	仙女
 셴5실1	先生	1		teacher; Mr.; husband	lexical	U+5148_U+751F_00	先生
-셴탕4	蟮蟲	1			lexical	U+87EE_U+87F2_00	蟮虫
+셴탕4	蟮蟲	1		house lizard	lexical	U+87EE_U+87F2_00	蟮虫
 셷1게	設計	1		set up; design; plan; count	lexical	U+8A2D_U+8A08_00	设计
 솅1	先	1		first	lexical	U+5148_00	先
 솅1	升	1		rise; ascend	lexical	U+5347_00	升
@@ -1510,10 +1507,10 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 심5졩4	心情	1		mood; feeling	lexical	U+5FC3_U+60C5_01	心情
 심5ᄐᅷ4	心頭	1		heart; mind	lexical	U+5FC3_U+982D_00	心头
 심5턀	心疼	1		love dearly; heartache	lexical	U+5FC3_U+75BC_00	心疼
-심5ᄐᆤ	心跳	1			lexical	U+5FC3_U+8DF3_00	心跳
+심5ᄐᆤ	心跳	1		heartbeat	lexical	U+5FC3_U+8DF3_00	心跳
 심1퐐	審判	1		judge; examine; decide	lexical	U+5BE9_U+5224_00	审判
 심5희1	心虛	1		guilty	lexical	U+5FC3_U+865B_00	心虚
-아1	阿	1			lexical	U+963F_00	阿
+아1	阿	1		prefix used in terms of address, especially endearingly	lexical	U+963F_00	阿
 아1	鴉	1		crow	lexical	U+9D09_00	鸦
 아2	仔	1		diminutive suffix	lexical	U+4ED4_00	仔
 아2	啞	1		mute; dumb	lexical	U+555E_00	哑
@@ -1553,25 +1550,25 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 암2캄	暗崁	1		dark	lexical	U+6697_U+5D01_00	暗崁
 앙1	翁	1		old man; father-in-law	lexical	U+7FC1_00	翁
 앙4	紅	1		red	lexical	U+7D05_00	红
-앙구5궤2	紅龜粿	1		red tortoise cake	lexical	U+7D05_U+9F9C_U+7CBF_00	红龟粿
+앙구5궤2	紅龜粿	1		Ang ku kueh; red tortoise cake	lexical	U+7D05_U+9F9C_U+7CBF_00	红龟粿
 앙ᄃᅷ5	紅豆	1		red bean; azuki bean	lexical	U+7D05_U+8C46_00	红豆
-앙ᄃᅷ틍1	紅豆湯	1			lexical	U+7D05_U+8C46_U+6E6F_00	红豆汤
+앙ᄃᅷ틍1	紅豆湯	1		red bean soup	lexical	U+7D05_U+8C46_U+6E6F_00	红豆汤
 앙데4	紅茶	1		black tea	lexical	U+7D05_U+8336_00	红茶
-앙뎽5기	紅登記	1		red; record; remember	lexical	U+7D05_U+767B_U+8A18_00	红登记
+앙뎽5기	紅登記	1		National Registration Identity Card (NRIC) (Singapore Citizen)	lexical	U+7D05_U+767B_U+8A18_00	红登记
 앙머4	紅毛	1		Western; Caucasian	lexical	U+7D05_U+6BDB_00	红毛
 앙머교4	紅毛橋	1		Ang Mo Kio	lexical	U+7D05_U+6BDB_U+6A4B_00	红毛桥
 앙머랑4	紅毛人	1		Westerner; Caucasian	lexical	U+7D05_U+6BDB_U+4EBA_00	红毛人
-앙머웨5	紅毛話	1		red; hair; fur; speech; language	lexical	U+7D05_U+6BDB_U+8A71_00	红毛话
+앙머웨5	紅毛話	1		Caucasian speech; English	lexical	U+7D05_U+6BDB_U+8A71_00	红毛话
 앙5새	翁婿	1		husband	lexical	U+7FC1_U+5A7F_00	翁婿
-앙셱	紅色	1			lexical	U+7D05_U+8272_00	红色
+앙셱	紅色	1		red colour	lexical	U+7D05_U+8272_00	红色
 앙솰1	紅山	1		Bukit Merah	lexical	U+7D05_U+5C71_00	红山
 앙쇼1	紅燒	1		braised in soy sauce	lexical	U+7D05_U+71D2_00	红烧
-앙짐4	紅蟳	1			lexical	U+7D05_U+87F3_00	红𫊻
-앙훼1	紅花	1		red	lexical	U+7D05_U+82B1_00	红花
+앙짐4	紅蟳	1		Scylla serrata; mud crab; mangrove crab	lexical	U+7D05_U+87F3_00	红𫊻
+앙훼1	紅花	1		red flower	lexical	U+7D05_U+82B1_00	红花
 앟	鴨	1		duck	lexical	U+9D28_00	鸭
 앟1빻	鴨肉	1		duck meat	lexical	U+9D28_U+8089_00	鸭肉
 ᄋᅷ5	後	1		after; behind	lexical	U+5F8C_00	后
-ᄋᅷ강2	後港	1		Hougang	lexical	U+5F8C_U+6E2F_00	后港
+ᄋᅷ강2	後港	1		Hougang (Aukang)	lexical	U+5F8C_U+6E2F_00	后港
 ᄋᅷ레1배	後禮拜	1		next week	lexical	U+5F8C_U+79AE_U+62DC_00	后礼拜
 ᄋᅷ배2	後擺	1		next time; later	lexical	U+5F8C_U+64FA_00	后摆
 ᄋᅷ뱧	後壁	1		after; behind	lexical	U+5F8C_U+58C1_00	后壁
@@ -1595,7 +1592,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 얌4	鹽	1		salt	lexical	U+9E7D_00	盐
 얌5	炎	1		flame; inflammation	lexical	U+708E_00	炎
 얗1	猶	1		still; yet	lexical	U+7336_00	犹
-얗1쀄5	猶未	1			lexical	U+7336_U+672A_00	犹未
+얗1쀄5	猶未	1		not yet	lexical	U+7336_U+672A_00	犹未
 ᄋᆤ	要	1		important; want	lexical	U+8981_00	要
 ᄋᆤ5귀2	枵鬼	1		ghost	lexical	U+67B5_U+9B3C_00	枵鬼
 ᄋᆤ5규4	要求	1		request; demand	lexical	U+8981_U+6C42_00	要求
@@ -1673,7 +1670,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 완솅4	完成	1		complete; finish	lexical	U+5B8C_U+6210_00	完成
 완5슈4	冤仇	1		wronged; injustice; enemy; hatred	lexical	U+51A4_U+4EC7_00	冤仇
 완2유4	怨尤	1		resent; complain	lexical	U+6028_U+5C24_00	怨尤
-완좐4	完全	1			lexical	U+5B8C_U+5168_00	完全
+완좐4	完全	1		completely	lexical	U+5B8C_U+5168_00	完全
 완2키	怨氣	1		resentment	lexical	U+6028_U+6C23_00	怨气
 완2탄	怨嘆	1		to sigh; to lament	lexical	U+6028_U+5606_00	怨叹
 완탄1	雲吞	1		wonton	lexical	U+96F2_U+541E_00	云吞
@@ -1756,7 +1753,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 음둏1	음著	1		not right; wrong	lexical	U+C74C_U+8457_00	음着
 응4	黃	1		yellow; Huang	lexical	U+9EC3_00	黄
 응2빵5	向望	1		hope; look forward to	lexical	U+5411_U+671B_00	向望
-응셱	黃色	1			lexical	U+9EC3_U+8272_00	黄色
+응셱	黃色	1		yellow colour	lexical	U+9EC3_U+8272_00	黄色
 이1	醫	1		medicine; doctor	lexical	U+91AB_00	医
 이2	已	1		already	lexical	U+5DF2_00	已
 이	意	2		meaning; intention	lexical	U+610F_00	意
@@ -1780,7 +1777,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 읻1뎽2	一等	1		first-class	lexical	U+4E00_U+7B49_00	一等
 읻1뎽5	一定	1		certainly; definitely	lexical	U+4E00_U+5B9A_00	一定
 읻1딛1	一直	1		always; straight	lexical	U+4E00_U+76F4_00	一直
-읻1봘1	一般	1			lexical	U+4E00_U+822C_00	一般
+읻1봘1	一般	1		normal; ordinary	lexical	U+4E00_U+822C_00	一般
 읻1솅1	一生	1		whole life	lexical	U+4E00_U+751F_00	一生
 읻1체	一切	1		everything	lexical	U+4E00_U+5207_00	一切
 일4	圓	1		round; complete	lexical	U+5713_00	圆
@@ -1824,7 +1821,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 쟐	正	1		correct; proper	lexical	U+6B63_00	正
 쟐4	情	1		feeling; affection	lexical	U+60C5_00	情
 쟐4	誠	1		sincere; honest	lexical	U+8AA0_00	诚
-쟐2츄2	正手	1			lexical	U+6B63_U+624B_00	正手
+쟐2츄2	正手	1		right hand	lexical	U+6B63_U+624B_00	正手
 쟐호2	誠好	1		good	lexical	U+8AA0_U+597D_00	诚好
 쟘1	尖	1		sharp; pointed	lexical	U+5C16_00	尖
 쟘시4	暫時	1		time	lexical	U+66AB_U+6642_00	暂时
@@ -2023,7 +2020,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 진	震	2		shake; Zhen	lexical	U+9707_00	震
 진5	盡	1		exhaust; all	lexical	U+76E1_00	尽
 진2강1	晉江	1		Jinjiang	lexical	U+6649_U+6C5F_00	晋江
-진2덩1	震東	1		Zhen Dong	lexical	U+9707_U+6771_00	震东
+진2덩1	震東	1		Zhen Dong (creator of Tangliengim)	lexical	U+9707_U+6771_00	震东
 진5심1	真心	1		sincere; wholehearted	lexical	U+771F_U+5FC3_00	真心
 진5쟐	真正	1		really	lexical	U+771F_U+6B63_00	真正
 진5졩4	真情	1		true feelings	lexical	U+771F_U+60C5_00	真情
@@ -2072,7 +2069,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 짇장4	一欉	1		one	lexical	U+4E00_U+6B09_00	一欉
 짇쟣	一隻	1		one	lexical	U+4E00_U+96BB_00	一只
 짇졍2	一種	1		one kind	lexical	U+4E00_U+7A2E_00	一种
-짇1준5	這陣	1			lexical	U+9019_U+9663_00	这阵
+짇1준5	這陣	1		this time; this moment	lexical	U+9019_U+9663_00	这阵
 짇준5	一陣	1		a while; for a moment	lexical	U+4E00_U+9663_00	一阵
 짇촁5커1	一千箍	1		one thousand dollars	lexical	U+4E00_U+5343_U+7B8D_00	一千箍
 짇춘	一吋	1		one	lexical	U+4E00_U+540B_00	一吋
@@ -2136,10 +2133,10 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 체1	叉	1		fork; cross	lexical	U+53C9_00	叉
 첼1	星	1		star	lexical	U+661F_00	星
 첼1	青	1		green	lexical	U+9752_00	青
-첼5셱	青色	1			lexical	U+9752_U+8272_00	青色
+첼5셱	青色	1		green colour	lexical	U+9752_U+8272_00	青色
 첼5첼1	生生	1		alive; raw	lexical	U+751F_U+751F_00	生生
-첼5ᄑᅷ	青袍	1		blue; green	lexical	U+9752_U+888D_00	青袍
-첼5훈5	生份	1			lexical	U+751F_U+4EFD_00	生份
+첼5ᄑᅷ	青袍	1		a green/blue Chinese long shirt	lexical	U+9752_U+888D_00	青袍
+첼5훈5	生份	1		estranged	lexical	U+751F_U+4EFD_00	生份
 쳏	冊	1		book	lexical	U+518A_00	册
 쳥1	沖	2		rush; rinse	lexical	U+6C96_00	冲
 쳥1	衝	1		rush; collide	lexical	U+885D_00	冲
@@ -2224,11 +2221,11 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 츌2과1	唱歌	1		sing song	lexical	U+5531_U+6B4C_00	唱歌
 츼2	鼠	1		rat; mouse	lexical	U+9F20_00	鼠
 치1	痴	1		foolish; infatuated	lexical	U+75F4_00	痴
-치	刺	1			lexical	U+523A_00	刺
+치	刺	1		to prick	lexical	U+523A_00	刺
 치	試	1		try; test	lexical	U+8A66_00	试
 치5	市	1		city	lexical	U+5E02_00	市
 치5	飼	1		feed; raise	lexical	U+98FC_00	饲
-치2곅	刺激	1			lexical	U+523A_U+6FC0_00	刺激
+치2곅	刺激	1		exciting; to agitate	lexical	U+523A_U+6FC0_00	刺激
 치뎔2	市長	2		city mayor	lexical	U+5E02_U+9577_00	市长
 치듈2	市長	1		city mayor	lexical	U+5E02_U+9577_01	市长
 치5심1	痴心	1		infatuation	lexical	U+75F4_U+5FC3_00	痴心
@@ -2267,7 +2264,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 카5층1	尻川	1		buttocks	lexical	U+5C3B_U+5DDD_00	尻川
 카5ᄐᅷ우1	跤頭趺	1		knee	lexical	U+8DE4_U+982D_U+8DBA_00	跤头趺
 카5ᄐᅷ후1	跤頭趺	1		knee	lexical	U+8DE4_U+982D_U+8DBA_01	跤头趺
-칵1뎽5	確定	1			lexical	U+78BA_U+5B9A_00	确定
+칵1뎽5	確定	1		confirm	lexical	U+78BA_U+5B9A_00	确定
 칸1	牽	1		lead; pull	lexical	U+727D_00	牵
 캄1	堪	1		can bear; worthy	lexical	U+582A_00	堪
 캄	崁	1		cliff; ridge	lexical	U+5D01_00	崁
@@ -2459,7 +2456,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 팧1뱔	拍拚	1		strive; work hard	lexical	U+62CD_U+62DA_00	拍拚
 팧1승	拍算	1		plan; calculate	lexical	U+62CD_U+7B97_00	拍算
 팧1죠5허1	拍招呼	1		hit; beat	lexical	U+62CD_U+62DB_U+547C_00	拍招呼
-팧1퀴1	拍開	1			lexical	U+62CD_U+958B_00	拍开
+팧1퀴1	拍開	1		to open	lexical	U+62CD_U+958B_00	拍开
 ᄑᅷ	泡	1		soak; bubble	lexical	U+6CE1_00	泡
 ᄑᅷ2데4	泡茶	1		make tea	lexical	U+6CE1_U+8336_00	泡茶
 ᄑᅷ2미5	泡麵	1		instant noodles	lexical	U+6CE1_U+9EB5_00	泡面
@@ -2652,7 +2649,7 @@ reading	hanri	priority	corrected	english	entry_type	entry_id	simplified
 홛1더5	法度	1		law; method; degree; measure	lexical	U+6CD5_U+5EA6_00	法度
 홛1뎬2	發展	1		send out; develop; unfold	lexical	U+767C_U+5C55_00	发展
 홛1보2	法寶	1		treasured method; magic weapon	lexical	U+6CD5_U+5BF6_00	法宝
-홛1솅1	發生	1			lexical	U+767C_U+751F_00	发生
+홛1솅1	發生	1		happen	lexical	U+767C_U+751F_00	发生
 홛1혠5	發現	1		send out; develop; present; appear	lexical	U+767C_U+73FE_00	发现
 활1	歡	1		happy; welcome	lexical	U+6B61_00	欢
 활5	岸	1		shore; bank	lexical	U+5CB8_00	岸

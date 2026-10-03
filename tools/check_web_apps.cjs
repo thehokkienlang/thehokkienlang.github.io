@@ -168,7 +168,7 @@ async function loadApp(route, script) {
       const index = TangliengimImeCore.createDictionaryIndex(state.entries);
       return searchImeController.dictionaryIndex === state.dictionaryIndex
         && index.findHanriEntry('用心肝', 0)?.hanri === '用'
-        && index.findHangulOverrideAt('릐호', 0)?.entry?.reading === '릐1호2';
+        && index.findHangulOverrideAt('릐', 0)?.entry?.reading === '릐2';
     })()`, dictionary.context),
     'Dictionary candidates and shared priority/override lookup must use one shared index'
   );
@@ -874,7 +874,7 @@ async function loadApp(route, script) {
   );
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
-    ['릐호', 'lî-hò'],
+    ['릐호', 'lî-ho'],
     ['릐 시뎋哭', 'lì si-têh-khau'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
     ['賣票', 'boe-phio'],
@@ -898,7 +898,7 @@ async function loadApp(route, script) {
     assert.equal(plan.missing.join(','), '', `${input}: no false missing-audio warning`);
   }
   vm.runInContext(`setSandhiMode('taipei')`, context);
-  for (const [input, tones] of [['릐', '2'], ['릐호', '1,2']]) {
+  for (const [input, tones] of [['릐', '2'], ['릐호', '1,3']]) {
     const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
     assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: longest Hangul override audio`);
     assert.equal(plan.missing.join(','), '', `${input}: Hangul override audio is available`);

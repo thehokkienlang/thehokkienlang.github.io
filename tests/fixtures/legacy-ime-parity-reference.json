@@ -31,20 +31,20 @@
       }
     },
     {
-      "input": "릐호",
+      "input": "안네",
       "expected": {
         "taipei": {
           "segments": [
             {
-              "unit": "릐",
+              "unit": "안",
               "tone": "1",
               "trimStart": false,
               "trimEnd": true,
               "englishClusterHelper": false
             },
             {
-              "unit": "호",
-              "tone": "2",
+              "unit": "네",
+              "tone": "1",
               "trimStart": true,
               "trimEnd": false,
               "englishClusterHelper": false
@@ -55,15 +55,15 @@
         "singapore": {
           "segments": [
             {
-              "unit": "릐",
+              "unit": "안",
               "tone": "4",
               "trimStart": false,
               "trimEnd": true,
               "englishClusterHelper": false
             },
             {
-              "unit": "호",
-              "tone": "2",
+              "unit": "네",
+              "tone": "1",
               "trimStart": true,
               "trimEnd": false,
               "englishClusterHelper": false
@@ -323,8 +323,8 @@
   ],
   "overrides": [
     {
-      "text": "릐호",
-      "expected": "릐1호2"
+      "text": "안네",
+      "expected": "안1네1"
     },
     {
       "text": "릐",

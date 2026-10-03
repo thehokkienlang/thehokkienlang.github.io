@@ -44,7 +44,7 @@ class SimplifiedLookupTests(unittest.TestCase):
     def test_every_source_row_and_sort_key(self):
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as stream:
             rows = [row for row in csv.DictReader(stream, delimiter='\t') if not row['reading'].startswith('#')]
-        self.assertEqual(len(rows), 2748)
+        self.assertEqual(len(rows), 2745)
         self.assertEqual(sum(contains_hanri(row['hanri']) for row in rows), 2674)
         for row in rows:
             self.assertEqual(simplified_field_errors(row['hanri'], row['simplified']), [], row['entry_id'])

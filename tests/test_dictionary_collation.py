@@ -142,9 +142,9 @@ class CollationTests(unittest.TestCase):
     def test_complete_dictionary_uses_syllabic_keys(self) -> None:
         with (ROOT / "data/hokkien_hanri_dict.tsv").open(encoding="utf-8", newline="") as handle:
             rows = [row for row in csv.DictReader(handle, delimiter="\t") if not row["reading"].startswith("#")]
-        self.assertEqual(len(rows), 2748)
+        self.assertEqual(len(rows), 2745)
         self.assertEqual(Counter(row["entry_type"] for row in rows), {
-            "hangul_override": 64, "lexical": 2665,
+            "hangul_override": 61, "lexical": 2665,
             "correction_alias": 9, "number_pronunciation": 10,
         })
         self.assertEqual(out_of_order_pairs(rows, COLUMNS), 0)
@@ -191,7 +191,9 @@ class CollationTests(unittest.TestCase):
         self.assertEqual(by_id["U+54EA_U+88E1_00"]["english"], "where")
         with (ROOT / "data/dictionary_entry_id_registry.tsv").open(encoding="utf-8", newline="") as handle:
             registry = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | {"U+B990_U+D638_01"})
+        self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | {
+            "U+B990_U+D638_01", "U+B990_U+D638_00", "U+B098_00", "U+B3C4_U+C704_00",
+        })
         for record in registry:
             self.assertEqual(record["redirect_entry_id"], "")
             if record["entry_id"] in by_id:

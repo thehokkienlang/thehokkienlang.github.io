@@ -4,9 +4,9 @@
 
 | Measure | Rows |
 | --- | ---: |
-| TSV data rows | 2748 |
+| TSV data rows | 2745 |
 | Hanri-containing rows populated | 2674 |
-| Pure Hangul rows left empty | 64 |
+| Pure Hangul rows left empty | 61 |
 | Other non-Hanri rows left empty (number pronunciations) | 10 |
 | Simplified differs from canonical headword | 1228 |
 | Simplified identical to canonical headword | 1446 |

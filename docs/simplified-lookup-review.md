@@ -6,9 +6,9 @@ No outstanding manual-review cases.
 
 ## Counts
 
-- total: 2748
+- total: 2745
 - hanri: 2674
-- pure_hangul: 64
+- pure_hangul: 61
 - other_empty: 10
 - different: 1228
 - identical: 1446
