@@ -982,6 +982,12 @@ function mergeGlosses(glosses) {
 const raw = fs.readFileSync(tsvPath, "utf8").replace(/^\uFEFF/, "");
 const rows = raw.split(/\r?\n/);
 const header = rows.shift();
+const fieldNames = header.split("\t");
+const expectedFields = ["hanri", "simplified", "reading", "mandarin_trad", "mandarin_simp", "english", "corrected", "entry_type", "entry_id"];
+if (JSON.stringify(fieldNames) !== JSON.stringify(expectedFields)) throw new Error("Unsupported dictionary header");
+const readingField = fieldNames.indexOf("reading");
+const hanriField = fieldNames.indexOf("hanri");
+const englishField = fieldNames.indexOf("english");
 const kept = [];
 const seenRows = new Set();
 let duplicateRowsRemoved = 0;
@@ -998,7 +1004,7 @@ for (const row of rows) {
 
 const parsed = kept.map((line) => {
   const columns = line.split("\t");
-  while (columns.length < 5) columns.push("");
+  if (columns.length !== fieldNames.length) throw new Error("Malformed dictionary row");
   return columns;
 });
 
@@ -1007,7 +1013,7 @@ const exactGlossByHanriOnly = new Map();
 const singleCharGloss = new Map(fallbackGloss);
 
 for (const columns of parsed) {
-  const [reading, hanri, , , english] = columns;
+  const reading = columns[readingField], hanri = columns[hanriField], english = columns[englishField];
   if (!reading || reading.startsWith("#")) continue;
   if (!isPlainHanri(hanri)) continue;
   const gloss = normalizeEnglish(english);
@@ -1033,8 +1039,8 @@ let copiedHanriOnly = 0;
 let filledFromComponents = 0;
 
 for (const columns of parsed) {
-  const [reading, hanri] = columns;
-  if (!reading || reading.startsWith("#") || normalizeEnglish(columns[4])) continue;
+  const reading = columns[readingField], hanri = columns[hanriField];
+  if (!reading || reading.startsWith("#") || normalizeEnglish(columns[englishField])) continue;
   if (!isPlainHanri(hanri)) continue;
 
   let gloss = exactGlossByHanri.get(hanri);
@@ -1056,15 +1062,15 @@ for (const columns of parsed) {
   }
 
   if (gloss) {
-    columns[4] = gloss;
+    columns[englishField] = gloss;
   }
 }
 
-const output = [header, ...parsed.map((columns) => columns.slice(0, 5).join("\t"))].join("\n") + "\n";
+const output = [header, ...parsed.map((columns) => columns.join("\t"))].join("\r\n") + "\r\n";
 fs.writeFileSync(tsvPath, output, "utf8");
 
 const remainingBlankHanri = parsed.filter((columns) => {
-  const [reading, hanri, , , english] = columns;
+  const reading = columns[readingField], hanri = columns[hanriField], english = columns[englishField];
   return reading && !reading.startsWith("#") && isPlainHanri(hanri) && !normalizeEnglish(english);
 }).length;
 

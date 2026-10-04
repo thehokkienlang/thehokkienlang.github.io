@@ -81,6 +81,8 @@ def main() -> int:
         run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
     run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
     run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
+    run('Static priority and reading defaults', 'node', 'tools/check_static_ranking.cjs')
+    run('Static Desktop ranking and row independence',sys.executable,'-X','utf8','tools/check_static_desktop.py')
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()

@@ -8,7 +8,7 @@ import io
 from pathlib import Path
 
 from assign_dictionary_entry_ids import _atomic_write, _serialize
-from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS, split_entry_id
+from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS, split_entry_id, is_comment_row
 from validate_dictionary_tsv import DEFAULT_PATH, validate
 
 
@@ -56,10 +56,11 @@ def migrate(path: Path, registry_path: Path | None = None) -> int:
     migrated = [row[:] for row in rows]
     migrated_count = 0
     for index, row in enumerate(migrated[1:], start=1):
-        if row and not row[0].startswith("#"):
-            if row[6] not in replacements:
+        if row and not is_comment_row(row):
+            id_column = DICTIONARY_COLUMNS.index("entry_id")
+            if row[id_column] not in replacements:
                 raise ValueError(f"TSV row {index + 1} has no registry identity")
-            row[6] = replacements[row[6]]
+            row[id_column] = replacements[row[id_column]]
             migrated_count += 1
 
     migrated_registry = [row[:] for row in registry_rows]

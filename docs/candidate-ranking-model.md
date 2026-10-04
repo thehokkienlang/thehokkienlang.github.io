@@ -1,34 +1,85 @@
-# Candidate ranking model (design for Exodus I)
+# Candidate ranking model (static foundation for Exodus I)
 
-This document fixes the intended ranking rules before adaptive ranking is implemented. The rules below do not change the current IME in Session 1.
+The Pre-Exodus static reform is implemented. Adaptive learning is not.
 
-## Static order
+## Identity and default order
 
-- TSV `priority` is a static default prior. Lower positive integers rank earlier. It is not a counter and must never be changed by a user's selections.
-- For a fresh user, use the Task 5c canonical candidate order: `priority`, canonical TSV source row, then Hanri text. Keep the existing tone filtering, longest matching input, candidate limit, and generated fallback rules.
-- Treat a correction alias as its own TSV entry. It remains available for its source spelling, but its selection history must not be combined with the canonical reading's history.
+The main dictionary has nine lexical/search/identity columns, with no ranking
+values or flags. Physical row position is diagnostic, never ranking state.
+Source entries compare by entry type (Hangul override, lexical, correction alias,
+number pronunciation), canonical Tangliengim SOURCE reading (initial, vowel,
+final, next syllable, then tones), canonical headword code points, corrected
+reading code points, and finally entry_id. Python collation produces canonicalKey
+for Web consumption; Web does not implement competing linguistic collation.
+Dictionary search keeps relevance first, then the canonical comparator.
 
-## Personal order
+Generated sandhi variants follow their source identity within a reading group
+and retain existing tone eligibility. They can occur between other real rows,
+as before, but never precede their own source when both are eligible. Generated
+toneless fallbacks remain last. Manual overrides can reorder eligible real TSV
+classes, as the previous numeric system permitted; they cannot change eligibility.
 
-After the existing eligibility and tone filters, rank each selectable TSV entry by:
+## Sparse contextual override file
 
+data/dictionary_priority.tsv is UTF-8/NFC, CRLF-terminated, with exactly:
+
+```text
+lookup_key entry entry_id rank
 ```
-effective_score = priority - 1.25 * (1 - 2 ** (-min(selection_count, 64) / 3))
-```
 
-Sort by lower `effective_score`, then lower original `priority`, earlier source row, Hanri text, and stable `entry_id`. Counts start at zero, so a fresh user sees the canonical TSV order. One selection can move an entry within a tied priority group. About seven selections can move a priority-2 entry ahead of an unselected priority-1 entry. A priority-3 entry cannot jump ahead of an unselected priority-1 entry through learning alone.
+The actual header uses tabs. entry_id is authoritative. entry is a human-readable
+label that must equal the referenced TSV headword; runtime never identifies by it.
+rank is a positive 1-based absolute slot, not a global weight or user counter.
 
-The boost saturates below 1.25 priority points; counts stop growing at 64. There is no automatic time decay in the first implementation. A user must be able to clear learned preferences. These limits prevent an old or repeated choice from growing without bound.
+lookup_key follows existing input normalization, stored in readable NFC: NFKD
+letters/numbers only, then NFC and lowercase. Reading keys first remove tone digits,
+legacy tone symbols and correction markers. Hanri keys identify a headword or the
+remaining Hanri run. The same ID can have different ranks in different contexts.
 
-## Selection event and persistence
+Build the normal list, pin listed identities at their requested absolute slots,
+then fill empty slots with unlisted candidates in default relative order.
+A lone rank-2 pin for D produces A,D,B,C from A,B,C,D. Ranks need not be contiguous.
+Duplicate pairs, conflicting slots, out-of-range ranks, unknown/generated IDs,
+ineligible references and stale labels are errors, never silently repaired.
+No override means normal order. The file is sorted by lookup_key, then rank.
 
-- Count one event only when the user explicitly commits a visible TSV candidate, whether by click, tap, number key, or Enter on the highlighted candidate. Tab and arrow navigation alone do not count. Showing a menu, typing, or accepting text without choosing a candidate does not count.
-- Store counts by stable `entry_id`, separately for each user/device. Never write counts into the TSV or generated dictionary JSON. Ignore IDs that no longer exist and keep a version on the preference store.
-- The Web IME can use browser-local storage. The desktop shell currently starts on a random localhost port, so browser storage by origin would not persist reliably between launches. Exodus I needs a desktop-local storage bridge or an equivalent stable per-user store.
-- Generated toneless fallbacks are always last and never learn. Generated sandhi candidates keep their existing eligibility and position rules but do not collect selection counts. Learning cannot bypass tone compatibility, input matching, or candidate deduplication.
+The complete reading group is ranked before existing tone filters. Compiled
+staticOrder metadata preserves its relative order in filtered Web subsets.
+staticRanks contains validated exceptions for contextual Hanri resolution.
+These runtime fields are derived, not additional human-maintained ranking sources.
 
-Session 2 assigned every TSV source row a Unicode-derived `entry_id`. The builder publishes it as the JSON entry `id` and derives runtime sandhi IDs from it. These IDs remain pre-release during Genesis 3.1; Exodus I will use the finalized IDs. The regression baseline records both this identity layer and the canonical zero-selection order.
+## Reading defaults and segmentation
 
-## Regression baseline
+The same override mechanism handles polyphonic readings and Hanri segmentation.
+Without an override, segmentation prefers greater coverage, fewer segments, a
+longer first segment, then canonical order. Context pins choose matching entries;
+unmatched-character coverage protection remains. Old summed numeric costs are
+removed. Meaningful old choices are explicit contextual exceptions, not hidden
+global weights or source-row ties. Python audio/HTML and Web use these semantics.
 
-After regenerating `public/data/hokkien-hanri-dict.json`, run `node tools/check_dictionary_baseline.cjs` to compare semantic JSON, every reading-key candidate order, and visible menus against the post-5c fixture. The comparison resolves generated IDs to entry positions, so a stable-ID migration can pass without weakening the order check. Use `--capture` only when intentionally accepting a new baseline; ordinary TSV additions will naturally require a reviewed refresh.
+## Future Exodus I
+
+Adaptive preferences will layer on this completed static order, keyed by permanent
+entry_id. Bounded boosts must be calibrated in contextual static-position units,
+not the removed numeric-priority points. User data must never rewrite either TSV
+or generated JSON. Only explicit candidate commits can learn; display, typing,
+Tab/arrow navigation and generated fallbacks cannot. Aliases keep separate
+identities. Exodus I/II will implement and test bounds, persistence, resets and
+deterministic ties. Desktop's changing localhost origin requires a local preference
+store or bridge, rather than assuming browser storage persists across launches.
+
+## Reviewed baseline
+
+docs/static-priority-migration.json classifies preserved priority-tier effects,
+preserved reading/segmentation defaults and expected equal-priority row-tie changes.
+Unrelated lexical/search/identity/audio changes are rejected before baseline capture.
+tools/check_static_ranking.cjs checks row independence, sparse slots and preserved
+contexts. tests/fixtures/dictionary-baseline.json records the reviewed static
+foundation, including compiled canonical keys and contextual override metadata.
+
+The subsequent user-approved obsolete Hangul-override cleanup is recorded in
+`hangul-override-cleanup.json`. It removes eight redundant overrides and replaces
+the copula override with lexical `是 / 시5`. The final override file therefore
+contains 97 rows across 73 contexts, rather than the pre-cleanup 98/74. Its
+intentional dictionary/default changes were reviewed separately from ranking
+parity before the final baseline refresh.

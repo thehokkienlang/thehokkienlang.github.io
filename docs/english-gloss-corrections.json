@@ -1,0 +1,855 @@
+{
+  "purpose": "User-authorized corrections of obvious whole-word English errors during Mandarin completion",
+  "corrections": [
+    {
+      "entry_id": "U+89BA_U+9192_00",
+      "hanri": "覺醒",
+      "reading": "각1칠2",
+      "old_english": "feel; perceive",
+      "new_english": "awaken; become aware",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/覺醒",
+      "revision": 84623557
+    },
+    {
+      "entry_id": "U+7C21_U+55AE_00",
+      "hanri": "簡單",
+      "reading": "간1단1",
+      "old_english": "single; alone",
+      "new_english": "simple; uncomplicated",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/簡單",
+      "revision": 92420384
+    },
+    {
+      "entry_id": "U+4F6E_U+610F_00",
+      "hanri": "佮意",
+      "reading": "갛1이",
+      "old_english": "meaning; intention",
+      "new_english": "like; be fond of",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/佮意",
+      "revision": 78463355
+    },
+    {
+      "entry_id": "U+4ECB_U+7D39_00",
+      "hanri": "介紹",
+      "reading": "개2ᄉᆤ5",
+      "old_english": "introduce; between; continue",
+      "new_english": "introduce; recommend; explain",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/介紹",
+      "revision": 88999625
+    },
+    {
+      "entry_id": "U+53E4_U+65E9_00",
+      "hanri": "古早",
+      "reading": "거1자2",
+      "old_english": "early; morning",
+      "new_english": "long ago; olden days",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/古早",
+      "revision": 92022622
+    },
+    {
+      "entry_id": "U+53E4_U+9310_00",
+      "hanri": "古錐",
+      "reading": "거1쥐1",
+      "old_english": "ancient; old; awl; pointed",
+      "new_english": "cute; adorable",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/古錐",
+      "revision": 84973732
+    },
+    {
+      "entry_id": "U+516C_U+91CC_00",
+      "hanri": "公里",
+      "reading": "겅5리2",
+      "old_english": "male",
+      "new_english": "kilometre",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/公里",
+      "revision": 92042991
+    },
+    {
+      "entry_id": "U+5BB6_U+8CC4_00",
+      "hanri": "家賄",
+      "reading": "게5훼2",
+      "old_english": "home; family",
+      "new_english": "family property",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/家賄",
+      "revision": 83685969
+    },
+    {
+      "entry_id": "U+7D50_U+5C40_00",
+      "hanri": "結局",
+      "reading": "곋1격1",
+      "old_english": "tie; knot",
+      "new_english": "outcome; ending",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/結局",
+      "revision": 86468627
+    },
+    {
+      "entry_id": "U+7D93_U+6FDF_00",
+      "hanri": "經濟",
+      "reading": "곙5제",
+      "old_english": "scripture; classic; pass through",
+      "new_english": "economy; finance; economics",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/經濟",
+      "revision": 91570815
+    },
+    {
+      "entry_id": "U+6A5F_U+6703_00",
+      "hanri": "機會",
+      "reading": "기5훼5",
+      "old_english": "machine; opportunity; can; meeting",
+      "new_english": "opportunity; chance",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/機會",
+      "revision": 92751037
+    },
+    {
+      "entry_id": "U+671D_U+9BAE_00",
+      "hanri": "朝鮮",
+      "reading": "ᄃᆤ셴2",
+      "old_english": "morning; dynasty; fresh",
+      "new_english": "Korea; Joseon; North Korea",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/朝鮮",
+      "revision": 91682184
+    },
+    {
+      "entry_id": "U+9023_U+97AD_00",
+      "hanri": "連鞭",
+      "reading": "럄미1",
+      "old_english": "connect; even; whip",
+      "new_english": "immediately; at once",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/連鞭",
+      "revision": 90084790
+    },
+    {
+      "entry_id": "U+672C_U+6027_U+96E3_U+79FB_00",
+      "hanri": "本性難移",
+      "reading": "분1솅2란이4",
+      "old_english": "root; book; classifier",
+      "new_english": "one's nature is hard to change",
+      "reason": "Transparent whole-expression idiom; root/book/classifier describes only 本.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+793E_U+6703_00",
+      "hanri": "社會",
+      "reading": "샤훼5",
+      "old_english": "can; meeting",
+      "new_english": "society; community",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/社會",
+      "revision": 90038506
+    },
+    {
+      "entry_id": "U+68EE_U+5984_00",
+      "hanri": "森妄",
+      "reading": "섬5뻥5",
+      "old_english": "forest; dense; reckless; absurd",
+      "new_english": "arrogant",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/森妄",
+      "revision": 84828564
+    },
+    {
+      "entry_id": "U+4E0A_U+7B2C_00",
+      "hanri": "上第",
+      "reading": "셩데5",
+      "old_english": "above; on; ordinal prefix",
+      "new_english": "first-class; superior",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/上第",
+      "revision": 60786655
+    },
+    {
+      "entry_id": "U+56DB_U+914D_00",
+      "hanri": "四配",
+      "reading": "수2풰",
+      "old_english": "four",
+      "new_english": "matching; compatible; suitable",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/四配",
+      "revision": 92052244
+    },
+    {
+      "entry_id": "U+6697_U+5D01_00",
+      "hanri": "暗崁",
+      "reading": "암2캄",
+      "old_english": "dark",
+      "new_english": "conceal; hide away",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/暗崁",
+      "revision": 91661184
+    },
+    {
+      "entry_id": "U+51A4_U+5BB6_00",
+      "hanri": "冤家",
+      "reading": "완5게1",
+      "old_english": "home; family",
+      "new_english": "quarrel; argue; bicker",
+      "reason": "The oan-ke reading matches the Hokkien quarrel sense, not Mandarin enemy/sweetheart.",
+      "source": "https://en.wiktionary.org/wiki/冤家",
+      "revision": 92486629
+    },
+    {
+      "entry_id": "U+6DFA_U+62D6_00",
+      "hanri": "淺拖",
+      "reading": "쳰1톼1",
+      "old_english": "shallow; drag; delay",
+      "new_english": "slippers",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/淺拖",
+      "revision": 91961378
+    },
+    {
+      "entry_id": "U+6E05_U+6C23_00",
+      "hanri": "清氣",
+      "reading": "촁5키",
+      "old_english": "fresh; clear",
+      "new_english": "clean",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/清氣",
+      "revision": 92083001
+    },
+    {
+      "entry_id": "U+51CA_U+5F69_00",
+      "hanri": "凊彩",
+      "reading": "친2채2",
+      "old_english": "cold; cool; color; prize",
+      "new_english": "any; whichever; casual; careless",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/凊彩",
+      "revision": 89443767
+    },
+    {
+      "entry_id": "U+725A_U+817F_00",
+      "hanri": "牚腿",
+      "reading": "틸2튀2",
+      "old_english": "prop up; support; leg",
+      "new_english": "have stiff, sore legs (from exertion)",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/牚腿",
+      "revision": 84397707
+    },
+    {
+      "entry_id": "U+81A8_U+98A8_00",
+      "hanri": "膨風",
+      "reading": "펑2헝1",
+      "old_english": "wind",
+      "new_english": "feel bloated; brag",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/膨風",
+      "revision": 82388054
+    },
+    {
+      "entry_id": "U+80A8_U+5976_00",
+      "hanri": "肨奶",
+      "reading": "항2롕1",
+      "old_english": "milk; breast",
+      "new_english": "plump (of a baby)",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/肨奶",
+      "revision": 79172190
+    },
+    {
+      "entry_id": "U+70CC_00",
+      "hanri": "烌",
+      "reading": "후1",
+      "old_english": "warm; roast",
+      "new_english": "dust; ash",
+      "reason": "Corrected the whole-word sense; removed unrelated component-character meanings.",
+      "source": "https://en.wiktionary.org/wiki/烌",
+      "revision": 87591722
+    },
+    {
+      "entry_id": "U+72E1_U+5236_00",
+      "hanri": "狡制",
+      "reading": "ᄀᅷ1제",
+      "old_english": "crafty; cunning; control; system",
+      "new_english": "fussy; contrary; awkward",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://itaigi.tw/k/古怪/",
+      "revision": null
+    },
+    {
+      "entry_id": "U+639B_U+610F_00",
+      "hanri": "掛意",
+      "reading": "과2이",
+      "old_english": "meaning; intention",
+      "new_english": "worry; be concerned",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/掛意",
+      "revision": 74191420
+    },
+    {
+      "entry_id": "U+83C5_U+8292_00",
+      "hanri": "菅芒",
+      "reading": "괄5빵4",
+      "old_english": "cogon grass; awn; miscanthus",
+      "new_english": "silvergrass; miscanthus grass",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/8911/",
+      "revision": null
+    },
+    {
+      "entry_id": "U+91D1_U+91D1_00",
+      "hanri": "金金",
+      "reading": "김5김1",
+      "old_english": "gold",
+      "new_english": "wide-eyed; with eyes wide open",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/und-hani/su/4565/",
+      "revision": null
+    },
+    {
+      "entry_id": "U+903D_00",
+      "hanri": "逽",
+      "reading": "나2",
+      "old_english": "as; like; as if; while; increasingly",
+      "new_english": "as; like; as if; while",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/逽",
+      "revision": 89107849
+    },
+    {
+      "entry_id": "U+89F8_U+7E8F_00",
+      "hanri": "觸纏",
+      "reading": "닥1딜4",
+      "old_english": "touch; offend; entangle",
+      "new_english": "difficult to deal with; troublesome; pester",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/觸纏",
+      "revision": 84378882
+    },
+    {
+      "entry_id": "U+89F8_U+820C_00",
+      "hanri": "觸舌",
+      "reading": "닥1짛1",
+      "old_english": "tongue",
+      "new_english": "click the tongue (in admiration)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/觸舌",
+      "revision": 82793928
+    },
+    {
+      "entry_id": "U+4ECA_U+4ED4_00",
+      "hanri": "今仔",
+      "reading": "달5아2",
+      "old_english": "diminutive suffix",
+      "new_english": "just; just now",
+      "reason": "Reading 달5아2 matches taⁿ-á (just now), not kin-á (today); removed the suffix-only gloss.",
+      "source": "https://en.wiktionary.org/wiki/今仔",
+      "revision": 84392652
+    },
+    {
+      "entry_id": "U+6FB9_00",
+      "hanri": "澹",
+      "reading": "담4",
+      "old_english": "calm; watery",
+      "new_english": "wet; damp",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/澹",
+      "revision": 87590878
+    },
+    {
+      "entry_id": "U+6C93_U+6C93_U+4ED4_00",
+      "hanri": "沓沓仔",
+      "reading": "ᄃᅷᇂᄃᅷᇂ아2",
+      "old_english": "diminutive suffix",
+      "new_english": "slowly",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/沓沓仔",
+      "revision": 88961329
+    },
+    {
+      "entry_id": "U+64CB_U+606C_00",
+      "hanri": "擋恬",
+      "reading": "덩2댬5",
+      "old_english": "block; stop; quiet; calm",
+      "new_english": "stop; come to a halt",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+7576_U+958B_00",
+      "hanri": "當開",
+      "reading": "덩5캐1",
+      "old_english": "bloom",
+      "new_english": "be in bloom",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+7576_U+958B_01",
+      "hanri": "當開",
+      "reading": "등5캐1",
+      "old_english": "bloom",
+      "new_english": "be in bloom",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+843D_U+6F06_00",
+      "hanri": "落漆",
+      "reading": "락1찯",
+      "old_english": "fall; drop",
+      "new_english": "paint peeling off; make a fool of oneself",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/落漆",
+      "revision": 78571913
+    },
+    {
+      "entry_id": "U+9732_U+87BA_00",
+      "hanri": "露螺",
+      "reading": "러레4",
+      "old_english": "dew; expose",
+      "new_english": "Rolex (watch)",
+      "reason": "Preserved your explicit Rolex sense rather than replacing it with the other snail sense.",
+      "source": "https://en.wiktionary.org/wiki/露螺",
+      "revision": 92924239
+    },
+    {
+      "entry_id": "U+6AF3_U+4ED4_00",
+      "hanri": "櫳仔",
+      "reading": "렁아2",
+      "old_english": "diminutive suffix",
+      "new_english": "prison; jail",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/櫳仔",
+      "revision": 78641531
+    },
+    {
+      "entry_id": "U+843D_U+5857_U+6642_00",
+      "hanri": "落塗時",
+      "reading": "롷터시4",
+      "old_english": "fall; drop; time",
+      "new_english": "when landing; on reaching the ground",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+6797_U+7530_00",
+      "hanri": "林田",
+      "reading": "림뎬4",
+      "old_english": "forest; surname; field",
+      "new_english": "Japanese surname Hayashida",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/林田",
+      "revision": 82566241
+    },
+    {
+      "entry_id": "U+8FA6_U+516C_U+4F19_00",
+      "hanri": "辦公伙",
+      "reading": "반겅5훼2",
+      "old_english": "male",
+      "new_english": "playing house",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+83DD_00",
+      "hanri": "菝",
+      "reading": "받1",
+      "old_english": "smilax",
+      "new_english": "guava",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/菝",
+      "revision": 88210742
+    },
+    {
+      "entry_id": "U+83DD_U+4ED4_00",
+      "hanri": "菝仔",
+      "reading": "받아2",
+      "old_english": "diminutive suffix",
+      "new_english": "guava",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/菝仔",
+      "revision": 90959950
+    },
+    {
+      "entry_id": "U+9589_U+601D_00",
+      "hanri": "閉思",
+      "reading": "비2수",
+      "old_english": "close; shut; think; miss",
+      "new_english": "shy",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/閉思",
+      "revision": 85567107
+    },
+    {
+      "entry_id": "U+BF40_U+5F69_U+5DE5_00",
+      "hanri": "뽀彩工",
+      "reading": "뽀채1강1",
+      "old_english": "not work",
+      "new_english": "pointless; meaningless",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+4E0A_U+611B_00",
+      "hanri": "上愛",
+      "reading": "셩애",
+      "old_english": "above; on; love; want",
+      "new_english": "love most; favourite",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+715E_00",
+      "hanri": "煞",
+      "reading": "쇃",
+      "old_english": "finish; suddenly",
+      "new_english": "stop; finish; unexpectedly",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/煞",
+      "revision": 92677644
+    },
+    {
+      "entry_id": "U+76F8_U+4F28_00",
+      "hanri": "相伨",
+      "reading": "쇼5틴5",
+      "old_english": "mutual; appearance",
+      "new_english": "support each other; help one another",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+6B7B_U+6B7B_00",
+      "hanri": "死死",
+      "reading": "시1시2",
+      "old_english": "die",
+      "new_english": "firmly; tightly; resolutely",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/死死",
+      "revision": 60880541
+    },
+    {
+      "entry_id": "U+63DE_U+8170_00",
+      "hanri": "揞腰",
+      "reading": "알2요1",
+      "old_english": "cover; hide; waist",
+      "new_english": "stoop; bend over; bow slightly",
+      "reason": "The attested àⁿ-io sense is bend over; 插腰 described a different action.",
+      "source": "https://en.wiktionary.org/wiki/揞腰",
+      "revision": 78465743
+    },
+    {
+      "entry_id": "U+9837_U+9838_00",
+      "hanri": "頷頸",
+      "reading": "암군2",
+      "old_english": "chin; nod; neck",
+      "new_english": "neck",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/頷頸",
+      "revision": 87991258
+    },
+    {
+      "entry_id": "U+67B5_U+9B3C_00",
+      "hanri": "枵鬼",
+      "reading": "ᄋᆤ5귀2",
+      "old_english": "ghost",
+      "new_english": "hungry person; glutton",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/枵鬼",
+      "revision": 85012456
+    },
+    {
+      "entry_id": "U+70CF_U+767D_U+7121_U+5E38_00",
+      "hanri": "烏白無常",
+      "reading": "어5벻뿌셩4",
+      "old_english": "black; white; not have; no; usual",
+      "new_english": "Black and White Impermanence (underworld deities)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/黑白無常",
+      "revision": null
+    },
+    {
+      "entry_id": "U+70CF_U+7D17_00",
+      "hanri": "烏紗",
+      "reading": "어5세1",
+      "old_english": "black",
+      "new_english": "official's hat; official position (figurative)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/烏紗",
+      "revision": 78648440
+    },
+    {
+      "entry_id": "U+96B1_U+75C0_U+6A4B_00",
+      "hanri": "隱痀橋",
+      "reading": "운1구5교4",
+      "old_english": "hide; hidden; hunchback; bridge",
+      "new_english": "arched bridge",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+6709_U+60C5_U+773E_U+751F_00",
+      "hanri": "有情眾生",
+      "reading": "유1졩졍2솅1",
+      "old_english": "have; feeling; affection; life; give birth",
+      "new_english": "sentient beings (Buddhism)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+8D70_U+63E3_00",
+      "hanri": "走揣",
+      "reading": "ᄌᅷ1췌5",
+      "old_english": "run; leave",
+      "new_english": "search everywhere; go looking for",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/走揣",
+      "revision": 92746605
+    },
+    {
+      "entry_id": "U+8D70_U+53BB_00",
+      "hanri": "走去",
+      "reading": "ᄌᅷ1킈",
+      "old_english": "go",
+      "new_english": "run over to; run to",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/走去",
+      "revision": 78463987
+    },
+    {
+      "entry_id": "U+5728_U+5BA4_00",
+      "hanri": "在室",
+      "reading": "재셱",
+      "old_english": "exist; at; room; chamber",
+      "new_english": "virgin",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+5C16_U+982D_U+B610_U+B514_00",
+      "hanri": "尖頭또디ˆ",
+      "reading": "쟘5ᄐᅷ또디1",
+      "old_english": "pointed head",
+      "new_english": "baguette",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+98DF_U+529B_00",
+      "hanri": "食力",
+      "reading": "쟣랃1",
+      "old_english": "eat",
+      "new_english": "strenuous; exhausting; in trouble (colloquial)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/食力; https://en.wiktionary.org/wiki/jialat",
+      "revision": null
+    },
+    {
+      "entry_id": "U+98DF_U+98A8_00",
+      "hanri": "食風",
+      "reading": "쟣헝1",
+      "old_english": "eat; wind",
+      "new_english": "relax; take a vacation",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/食風",
+      "revision": 84449621
+    },
+    {
+      "entry_id": "U+7E12_00",
+      "hanri": "縒",
+      "reading": "좧1",
+      "old_english": "wrong; uneven",
+      "new_english": "difference; error; deviate from the intended form",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/縒",
+      "revision": 78662694
+    },
+    {
+      "entry_id": "U+63D2_U+8349_00",
+      "hanri": "插草",
+      "reading": "챃1ᄎᅷ2",
+      "old_english": "insert",
+      "new_english": "camouflage (military)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+665F_U+990A_00",
+      "hanri": "晟養",
+      "reading": "챨영2",
+      "old_english": "bright; flourishing; raise; nourish",
+      "new_english": "raise; bring up",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+5275_U+6CBB_00",
+      "hanri": "創治",
+      "reading": "청2디5",
+      "old_english": "create; wound; govern; treat",
+      "new_english": "bully; tease; play tricks on",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/創治",
+      "revision": 91087548
+    },
+    {
+      "entry_id": "U+51FA_U+696D_00",
+      "hanri": "出業",
+      "reading": "춛1꺕1",
+      "old_english": "go out; produce; work; karma",
+      "new_english": "graduate",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/出業",
+      "revision": 92049093
+    },
+    {
+      "entry_id": "U+59FC_U+4ED4_00",
+      "hanri": "姼仔",
+      "reading": "칟1아2",
+      "old_english": "diminutive suffix",
+      "new_english": "girlfriend (colloquial)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/姼仔",
+      "revision": 78618755
+    },
+    {
+      "entry_id": "U+82A1_U+82B3_00",
+      "hanri": "芡芳",
+      "reading": "켼2팡1",
+      "old_english": "thickening starch; fragrant",
+      "new_english": "fry aromatics to release their fragrance",
+      "reason": "MOE defines frying aromatics to release fragrance (爆香), not starch thickening (勾芡).",
+      "source": "https://pedia.cloud.edu.tw/Entry/Detail/?search=芡芳&title=芡芳",
+      "revision": null
+    },
+    {
+      "entry_id": "U+6C23_U+8EAB_U+60F1_U+547D_00",
+      "hanri": "氣身惱命",
+      "reading": "키2신5로1먀5",
+      "old_english": "body; life; fate",
+      "new_english": "furious; extremely angry",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/6171/",
+      "revision": null
+    },
+    {
+      "entry_id": "U+982D_U+5599_00",
+      "hanri": "頭喙",
+      "reading": "ᄐᅷ취",
+      "old_english": "head",
+      "new_english": "headcount",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/頭喙",
+      "revision": 85576299
+    },
+    {
+      "entry_id": "U+6311_U+5DE5_00",
+      "hanri": "挑工",
+      "reading": "ᄐᆤ5강1",
+      "old_english": "work",
+      "new_english": "specially; deliberately; on purpose",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://zh.wiktionary.org/zh-hant/刁工",
+      "revision": null
+    },
+    {
+      "entry_id": "U+985B_U+8E31_00",
+      "hanri": "顛踱",
+      "reading": "톈5톻1",
+      "old_english": "top; crazy; pace; walk",
+      "new_english": "to mess around",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/顛踱",
+      "revision": 79087528
+    },
+    {
+      "entry_id": "U+62D6_U+4ED4_00",
+      "hanri": "拖仔",
+      "reading": "톼5아2",
+      "old_english": "diminutive suffix",
+      "new_english": "slippers",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/拖仔",
+      "revision": 82317699
+    },
+    {
+      "entry_id": "U+69CC_U+69CC_00",
+      "hanri": "槌槌",
+      "reading": "튀튀4",
+      "old_english": "hammer; beat",
+      "new_english": "stupid; foolish",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/槌槌",
+      "revision": 78467739
+    },
+    {
+      "entry_id": "U+98C4_U+6487_00",
+      "hanri": "飄撇",
+      "reading": "ᄑᆤ5폗",
+      "old_english": "float; flutter; cast aside; skim",
+      "new_english": "stylish; charming; carefree",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/飄撇",
+      "revision": 90351008
+    },
+    {
+      "entry_id": "U+8B40_U+53EB_00",
+      "hanri": "譀叫",
+      "reading": "함2교",
+      "old_english": "call",
+      "new_english": "shout; call",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+597D_U+6C34_00",
+      "hanri": "好水",
+      "reading": "호1쥐2",
+      "old_english": "good; water",
+      "new_english": "good water",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+53CD_U+80CC_00",
+      "hanri": "反背",
+      "reading": "환1붸5",
+      "old_english": "opposite; turn against; back; betray",
+      "new_english": "betray; go against",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/反背",
+      "revision": 81031455
+    },
+    {
+      "entry_id": "U+706B_U+738B_U+723A_00",
+      "hanri": "火王爺",
+      "reading": "훼1엉야4",
+      "old_english": "fire; king",
+      "new_english": "Fire King (deity)",
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "",
+      "revision": null
+    }
+  ]
+}

@@ -1,0 +1,1401 @@
+{
+  "beforeSourceSha256": "7e999195ace0b2aa94745a98e5e824639e816a9c8dd7e2478d4e4301c7baed52",
+  "legacyRows": 2745,
+  "nonDefaultLegacyRows": 138,
+  "legacyPriorityHistogram": {
+    "1": 2607,
+    "2": 83,
+    "3": 34,
+    "4": 10,
+    "5": 5,
+    "6": 3,
+    "7": 2,
+    "8": 1
+  },
+  "priorityTierGroupsPreserved": 54,
+  "groups": 74,
+  "overrideRows": 98,
+  "meaningfulPriorityEffects": [
+    {
+      "lookup_key": "감",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+AC10_00",
+        "U+611F_00",
+        "U+542B_00",
+        "U+7518_00"
+      ],
+      "default": [
+        "U+AC10_00",
+        "U+7518_00",
+        "U+611F_00",
+        "U+542B_00"
+      ],
+      "desired": [
+        "U+AC10_00",
+        "U+611F_00",
+        "U+542B_00",
+        "U+7518_00"
+      ]
+    },
+    {
+      "lookup_key": "쉬",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5AA0_00",
+        "U+6C34_00",
+        "U+8AB0_00",
+        "U+96A8_00",
+        "U+C26C_00"
+      ],
+      "default": [
+        "U+C26C_00",
+        "U+5AA0_00",
+        "U+6C34_00",
+        "U+8AB0_00",
+        "U+96A8_00"
+      ],
+      "desired": [
+        "U+5AA0_00",
+        "U+6C34_00",
+        "U+8AB0_00",
+        "U+96A8_00",
+        "U+C26C_00"
+      ]
+    },
+    {
+      "lookup_key": "시",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+C2DC_00",
+        "U+65BD_00",
+        "U+7D72_00",
+        "U+8A69_00",
+        "U+6642_00",
+        "U+56DB_00",
+        "U+6B7B_00"
+      ],
+      "default": [
+        "U+C2DC_00",
+        "U+65BD_00",
+        "U+7D72_00",
+        "U+8A69_00",
+        "U+6B7B_00",
+        "U+56DB_00",
+        "U+6642_00"
+      ],
+      "desired": [
+        "U+C2DC_00",
+        "U+65BD_00",
+        "U+7D72_00",
+        "U+8A69_00",
+        "U+6642_00",
+        "U+56DB_00",
+        "U+6B7B_00"
+      ]
+    },
+    {
+      "lookup_key": "에",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+2019_U+C5D0_00",
+        "U+4E2A_00",
+        "U+4E0B_00",
+        "U+6328_00",
+        "U+4E0B_01"
+      ],
+      "default": [
+        "U+2019_U+C5D0_00",
+        "U+4E2A_00",
+        "U+4E0B_00",
+        "U+4E0B_01",
+        "U+6328_00"
+      ],
+      "desired": [
+        "U+2019_U+C5D0_00",
+        "U+4E2A_00",
+        "U+4E0B_00",
+        "U+6328_00",
+        "U+4E0B_01"
+      ]
+    },
+    {
+      "lookup_key": "제",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+C81C_00",
+        "U+5750_00",
+        "U+707D_00",
+        "U+9F4B_00",
+        "U+50B5_00",
+        "U+88FD_00",
+        "U+969B_00",
+        "U+796D_00"
+      ],
+      "default": [
+        "U+C81C_00",
+        "U+707D_00",
+        "U+9F4B_00",
+        "U+50B5_00",
+        "U+796D_00",
+        "U+88FD_00",
+        "U+969B_00",
+        "U+5750_00"
+      ],
+      "desired": [
+        "U+C81C_00",
+        "U+5750_00",
+        "U+707D_00",
+        "U+9F4B_00",
+        "U+50B5_00",
+        "U+88FD_00",
+        "U+969B_00",
+        "U+796D_00"
+      ]
+    },
+    {
+      "lookup_key": "허",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+D5C8_00",
+        "U+8B77_00",
+        "U+96E8_00",
+        "U+864E_00"
+      ],
+      "default": [
+        "U+D5C8_00",
+        "U+864E_00",
+        "U+8B77_00",
+        "U+96E8_00"
+      ],
+      "desired": [
+        "U+D5C8_00",
+        "U+8B77_00",
+        "U+96E8_00",
+        "U+864E_00"
+      ]
+    },
+    {
+      "lookup_key": "가",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+52A0_00",
+        "U+9278_00",
+        "U+5230_00",
+        "U+6559_00",
+        "U+54AC_00",
+        "U+5BB6_00"
+      ],
+      "default": [
+        "U+52A0_00",
+        "U+5BB6_00",
+        "U+9278_00",
+        "U+5230_00",
+        "U+6559_00",
+        "U+54AC_00"
+      ],
+      "desired": [
+        "U+52A0_00",
+        "U+9278_00",
+        "U+5230_00",
+        "U+6559_00",
+        "U+54AC_00",
+        "U+5BB6_00"
+      ]
+    },
+    {
+      "lookup_key": "ᄀᅷ",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5230_01",
+        "U+7334_00",
+        "U+539A_00",
+        "U+5920_00",
+        "U+6559_01",
+        "U+4E5D_00",
+        "U+72D7_00"
+      ],
+      "default": [
+        "U+4E5D_00",
+        "U+72D7_00",
+        "U+5230_01",
+        "U+5920_00",
+        "U+6559_01",
+        "U+7334_00",
+        "U+539A_00"
+      ],
+      "desired": [
+        "U+5230_01",
+        "U+7334_00",
+        "U+539A_00",
+        "U+5920_00",
+        "U+6559_01",
+        "U+4E5D_00",
+        "U+72D7_00"
+      ]
+    },
+    {
+      "lookup_key": "걀",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+9A5A_00",
+        "U+4EF6_00",
+        "U+884C_00",
+        "U+56DD_00",
+        "U+4EAC_00"
+      ],
+      "default": [
+        "U+4EAC_00",
+        "U+9A5A_00",
+        "U+56DD_00",
+        "U+884C_00",
+        "U+4EF6_00"
+      ],
+      "desired": [
+        "U+9A5A_00",
+        "U+4EF6_00",
+        "U+884C_00",
+        "U+56DD_00",
+        "U+4EAC_00"
+      ]
+    },
+    {
+      "lookup_key": "겅",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+516C_00",
+        "U+8B1B_01",
+        "U+5149_00"
+      ],
+      "default": [
+        "U+5149_00",
+        "U+516C_00",
+        "U+8B1B_01"
+      ],
+      "desired": [
+        "U+516C_00",
+        "U+8B1B_01",
+        "U+5149_00"
+      ]
+    },
+    {
+      "lookup_key": "게",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+52A0_01",
+        "U+5BB6_01",
+        "U+5047_00",
+        "U+4F4E_00",
+        "U+5AC1_00"
+      ],
+      "default": [
+        "U+52A0_01",
+        "U+5BB6_01",
+        "U+5047_00",
+        "U+5AC1_00",
+        "U+4F4E_00"
+      ],
+      "desired": [
+        "U+52A0_01",
+        "U+5BB6_01",
+        "U+5047_00",
+        "U+4F4E_00",
+        "U+5AC1_00"
+      ]
+    },
+    {
+      "lookup_key": "괄",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+809D_00",
+        "U+6C57_00",
+        "U+5BD2_00"
+      ],
+      "default": [
+        "U+809D_00",
+        "U+5BD2_00",
+        "U+6C57_00"
+      ],
+      "desired": [
+        "U+809D_00",
+        "U+6C57_00",
+        "U+5BD2_00"
+      ]
+    },
+    {
+      "lookup_key": "기",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+652F_00",
+        "U+8A18_00",
+        "U+5176_00",
+        "U+65D7_00",
+        "U+6A5F_00"
+      ],
+      "default": [
+        "U+652F_00",
+        "U+6A5F_00",
+        "U+8A18_00",
+        "U+5176_00",
+        "U+65D7_00"
+      ],
+      "desired": [
+        "U+652F_00",
+        "U+8A18_00",
+        "U+5176_00",
+        "U+65D7_00",
+        "U+6A5F_00"
+      ]
+    },
+    {
+      "lookup_key": "능",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5169_00",
+        "U+5375_00",
+        "U+8EDF_00"
+      ],
+      "default": [
+        "U+8EDF_00",
+        "U+5169_00",
+        "U+5375_00"
+      ],
+      "desired": [
+        "U+5169_00",
+        "U+5375_00",
+        "U+8EDF_00"
+      ]
+    },
+    {
+      "lookup_key": "단",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7B49_00",
+        "U+64F2_00",
+        "U+4F46_00",
+        "U+9673_00"
+      ],
+      "default": [
+        "U+7B49_00",
+        "U+64F2_00",
+        "U+9673_00",
+        "U+4F46_00"
+      ],
+      "desired": [
+        "U+7B49_00",
+        "U+64F2_00",
+        "U+4F46_00",
+        "U+9673_00"
+      ]
+    },
+    {
+      "lookup_key": "당",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6771_00",
+        "U+51CD_00",
+        "U+52D5_00",
+        "U+91CD_00",
+        "U+7576_01",
+        "U+7576_00",
+        "U+51AC_00"
+      ],
+      "default": [
+        "U+51AC_00",
+        "U+6771_00",
+        "U+7576_00",
+        "U+51CD_00",
+        "U+7576_01",
+        "U+52D5_00",
+        "U+91CD_00"
+      ],
+      "desired": [
+        "U+6771_00",
+        "U+51CD_00",
+        "U+52D5_00",
+        "U+91CD_00",
+        "U+7576_01",
+        "U+7576_00",
+        "U+51AC_00"
+      ]
+    },
+    {
+      "lookup_key": "덩",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7576_02",
+        "U+68DF_00",
+        "U+7576_03",
+        "U+6771_01"
+      ],
+      "default": [
+        "U+6771_01",
+        "U+7576_02",
+        "U+68DF_00",
+        "U+7576_03"
+      ],
+      "desired": [
+        "U+7576_02",
+        "U+68DF_00",
+        "U+7576_03",
+        "U+6771_01"
+      ]
+    },
+    {
+      "lookup_key": "데",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+8336_00",
+        "U+7B2C_00",
+        "U+77ED_00",
+        "U+5730_00"
+      ],
+      "default": [
+        "U+77ED_00",
+        "U+8336_00",
+        "U+5730_00",
+        "U+7B2C_00"
+      ],
+      "desired": [
+        "U+8336_00",
+        "U+7B2C_00",
+        "U+77ED_00",
+        "U+5730_00"
+      ]
+    },
+    {
+      "lookup_key": "뎽",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+71C8_00",
+        "U+5B9A_01",
+        "U+9802_00",
+        "U+7B49_01"
+      ],
+      "default": [
+        "U+71C8_00",
+        "U+7B49_01",
+        "U+9802_00",
+        "U+5B9A_01"
+      ],
+      "desired": [
+        "U+71C8_00",
+        "U+5B9A_01",
+        "U+9802_00",
+        "U+7B49_01"
+      ]
+    },
+    {
+      "lookup_key": "등",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7576_04",
+        "U+8F49_00",
+        "U+5510_00",
+        "U+5802_00",
+        "U+9577_00",
+        "U+7576_05"
+      ],
+      "default": [
+        "U+7576_04",
+        "U+8F49_00",
+        "U+7576_05",
+        "U+5510_00",
+        "U+5802_00",
+        "U+9577_00"
+      ],
+      "desired": [
+        "U+7576_04",
+        "U+8F49_00",
+        "U+5510_00",
+        "U+5802_00",
+        "U+9577_00",
+        "U+7576_05"
+      ]
+    },
+    {
+      "lookup_key": "띤수",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+4EBA_U+58EB_00",
+        "U+4EBA_U+4E8B_00"
+      ],
+      "default": [
+        "U+4EBA_U+4E8B_00",
+        "U+4EBA_U+58EB_00"
+      ],
+      "desired": [
+        "U+4EBA_U+58EB_00",
+        "U+4EBA_U+4E8B_00"
+      ]
+    },
+    {
+      "lookup_key": "ᄅᅷ",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5289_00",
+        "U+6A13_00",
+        "U+6D41_00",
+        "U+7559_00",
+        "U+8001_00",
+        "U+6F0F_00"
+      ],
+      "default": [
+        "U+6F0F_00",
+        "U+5289_00",
+        "U+6A13_00",
+        "U+6D41_00",
+        "U+7559_00",
+        "U+8001_00"
+      ],
+      "desired": [
+        "U+5289_00",
+        "U+6A13_00",
+        "U+6D41_00",
+        "U+7559_00",
+        "U+8001_00",
+        "U+6F0F_00"
+      ]
+    },
+    {
+      "lookup_key": "러",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6EF7_00",
+        "U+8DEF_00",
+        "U+9B6F_00",
+        "U+9732_00"
+      ],
+      "default": [
+        "U+6EF7_00",
+        "U+9B6F_00",
+        "U+8DEF_00",
+        "U+9732_00"
+      ],
+      "desired": [
+        "U+6EF7_00",
+        "U+8DEF_00",
+        "U+9B6F_00",
+        "U+9732_00"
+      ]
+    },
+    {
+      "lookup_key": "믕",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+9580_00",
+        "U+554F_00",
+        "U+6BDB_00"
+      ],
+      "default": [
+        "U+6BDB_00",
+        "U+9580_00",
+        "U+554F_00"
+      ],
+      "desired": [
+        "U+9580_00",
+        "U+554F_00",
+        "U+6BDB_00"
+      ]
+    },
+    {
+      "lookup_key": "볭",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5175_00",
+        "U+5E73_00",
+        "U+723F_00",
+        "U+670B_00"
+      ],
+      "default": [
+        "U+5175_00",
+        "U+5E73_00",
+        "U+670B_00",
+        "U+723F_00"
+      ],
+      "desired": [
+        "U+5175_00",
+        "U+5E73_00",
+        "U+723F_00",
+        "U+670B_00"
+      ]
+    },
+    {
+      "lookup_key": "보",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5831_00",
+        "U+5A46_00",
+        "U+5BF6_00"
+      ],
+      "default": [
+        "U+5BF6_00",
+        "U+5831_00",
+        "U+5A46_00"
+      ],
+      "desired": [
+        "U+5831_00",
+        "U+5A46_00",
+        "U+5BF6_00"
+      ]
+    },
+    {
+      "lookup_key": "빤",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6162_00",
+        "U+842C_00",
+        "U+95A9_00"
+      ],
+      "default": [
+        "U+95A9_00",
+        "U+6162_00",
+        "U+842C_00"
+      ],
+      "desired": [
+        "U+6162_00",
+        "U+842C_00",
+        "U+95A9_00"
+      ]
+    },
+    {
+      "lookup_key": "삐",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7C73_00",
+        "U+5473_00",
+        "U+5FAE_00",
+        "U+7F8E_00"
+      ],
+      "default": [
+        "U+7C73_00",
+        "U+7F8E_00",
+        "U+5473_00",
+        "U+5FAE_00"
+      ],
+      "desired": [
+        "U+7C73_00",
+        "U+5473_00",
+        "U+5FAE_00",
+        "U+7F8E_00"
+      ]
+    },
+    {
+      "lookup_key": "삔",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7720_00",
+        "U+9762_00",
+        "U+6C11_00"
+      ],
+      "default": [
+        "U+6C11_00",
+        "U+7720_00",
+        "U+9762_00"
+      ],
+      "desired": [
+        "U+7720_00",
+        "U+9762_00",
+        "U+6C11_00"
+      ]
+    },
+    {
+      "lookup_key": "살",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+4E09_00",
+        "U+5565_00",
+        "U+886B_00"
+      ],
+      "default": [
+        "U+4E09_00",
+        "U+886B_00",
+        "U+5565_00"
+      ],
+      "desired": [
+        "U+4E09_00",
+        "U+5565_00",
+        "U+886B_00"
+      ]
+    },
+    {
+      "lookup_key": "서",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6240_00",
+        "U+9165_00"
+      ],
+      "default": [
+        "U+9165_00",
+        "U+6240_00"
+      ],
+      "desired": [
+        "U+6240_00",
+        "U+9165_00"
+      ]
+    },
+    {
+      "lookup_key": "세",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+4E16_00",
+        "U+897F_01"
+      ],
+      "default": [
+        "U+897F_01",
+        "U+4E16_00"
+      ],
+      "desired": [
+        "U+4E16_00",
+        "U+897F_01"
+      ]
+    },
+    {
+      "lookup_key": "셩",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+4E0A_00",
+        "U+50B7_00",
+        "U+5E38_00",
+        "U+76F8_00",
+        "U+76F8_01"
+      ],
+      "default": [
+        "U+50B7_00",
+        "U+76F8_00",
+        "U+76F8_01",
+        "U+5E38_00",
+        "U+4E0A_00"
+      ],
+      "desired": [
+        "U+4E0A_00",
+        "U+50B7_00",
+        "U+5E38_00",
+        "U+76F8_00",
+        "U+76F8_01"
+      ]
+    },
+    {
+      "lookup_key": "솰",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5C71_00",
+        "U+6563_00",
+        "U+7DDA_00",
+        "U+5098_00"
+      ],
+      "default": [
+        "U+5C71_00",
+        "U+5098_00",
+        "U+6563_00",
+        "U+7DDA_00"
+      ],
+      "desired": [
+        "U+5C71_00",
+        "U+6563_00",
+        "U+7DDA_00",
+        "U+5098_00"
+      ]
+    },
+    {
+      "lookup_key": "쇼",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+71D2_00",
+        "U+5C0F_00",
+        "U+76F8_02"
+      ],
+      "default": [
+        "U+71D2_00",
+        "U+76F8_02",
+        "U+5C0F_00"
+      ],
+      "desired": [
+        "U+71D2_00",
+        "U+5C0F_00",
+        "U+76F8_02"
+      ]
+    },
+    {
+      "lookup_key": "수",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+601D_00",
+        "U+8F38_00",
+        "U+4E8B_00",
+        "U+58EB_00",
+        "U+4F7F_01",
+        "U+99DB_01"
+      ],
+      "default": [
+        "U+601D_00",
+        "U+8F38_00",
+        "U+4F7F_01",
+        "U+99DB_01",
+        "U+4E8B_00",
+        "U+58EB_00"
+      ],
+      "desired": [
+        "U+601D_00",
+        "U+8F38_00",
+        "U+4E8B_00",
+        "U+58EB_00",
+        "U+4F7F_01",
+        "U+99DB_01"
+      ]
+    },
+    {
+      "lookup_key": "신",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+65B0_00",
+        "U+795E_00",
+        "U+8EAB_00",
+        "U+4FE1_00"
+      ],
+      "default": [
+        "U+65B0_00",
+        "U+8EAB_00",
+        "U+4FE1_00",
+        "U+795E_00"
+      ],
+      "desired": [
+        "U+65B0_00",
+        "U+795E_00",
+        "U+8EAB_00",
+        "U+4FE1_00"
+      ]
+    },
+    {
+      "lookup_key": "어",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+70CF_00",
+        "U+6E56_00",
+        "U+828B_00",
+        "U+6316_00",
+        "U+80E1_00"
+      ],
+      "default": [
+        "U+70CF_00",
+        "U+6316_00",
+        "U+6E56_00",
+        "U+80E1_00",
+        "U+828B_00"
+      ],
+      "desired": [
+        "U+70CF_00",
+        "U+6E56_00",
+        "U+828B_00",
+        "U+6316_00",
+        "U+80E1_00"
+      ]
+    },
+    {
+      "lookup_key": "영",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7528_00",
+        "U+52C7_00"
+      ],
+      "default": [
+        "U+52C7_00",
+        "U+7528_00"
+      ],
+      "desired": [
+        "U+7528_00",
+        "U+52C7_00"
+      ]
+    },
+    {
+      "lookup_key": "유",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+53CB_00",
+        "U+6CB9_00",
+        "U+4F51_00",
+        "U+53C8_00",
+        "U+7950_00",
+        "U+6182_00"
+      ],
+      "default": [
+        "U+6182_00",
+        "U+53CB_00",
+        "U+6CB9_00",
+        "U+4F51_00",
+        "U+53C8_00",
+        "U+7950_00"
+      ],
+      "desired": [
+        "U+53CB_00",
+        "U+6CB9_00",
+        "U+4F51_00",
+        "U+53C8_00",
+        "U+7950_00",
+        "U+6182_00"
+      ]
+    },
+    {
+      "lookup_key": "율",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+694A_01",
+        "U+7F8A_00",
+        "U+6D0B_00"
+      ],
+      "default": [
+        "U+694A_01",
+        "U+6D0B_00",
+        "U+7F8A_00"
+      ],
+      "desired": [
+        "U+694A_01",
+        "U+7F8A_00",
+        "U+6D0B_00"
+      ]
+    },
+    {
+      "lookup_key": "ᄌᆤ",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7167_00",
+        "U+9CE5_00"
+      ],
+      "default": [
+        "U+9CE5_00",
+        "U+7167_00"
+      ],
+      "desired": [
+        "U+7167_00",
+        "U+9CE5_00"
+      ]
+    },
+    {
+      "lookup_key": "졍",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5C07_00",
+        "U+7AE0_00",
+        "U+5F9E_00",
+        "U+7A2E_00"
+      ],
+      "default": [
+        "U+5C07_00",
+        "U+7AE0_00",
+        "U+7A2E_00",
+        "U+5F9E_00"
+      ],
+      "desired": [
+        "U+5C07_00",
+        "U+7AE0_00",
+        "U+5F9E_00",
+        "U+7A2E_00"
+      ]
+    },
+    {
+      "lookup_key": "졩",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6B63_01",
+        "U+524D_01",
+        "U+60C5_01",
+        "U+9418_00",
+        "U+66FE_01"
+      ],
+      "default": [
+        "U+9418_00",
+        "U+6B63_01",
+        "U+524D_01",
+        "U+60C5_01",
+        "U+66FE_01"
+      ],
+      "desired": [
+        "U+6B63_01",
+        "U+524D_01",
+        "U+60C5_01",
+        "U+9418_00",
+        "U+66FE_01"
+      ]
+    },
+    {
+      "lookup_key": "죄",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+3A7C_00",
+        "U+505A_01",
+        "U+9F4A_00"
+      ],
+      "default": [
+        "U+505A_01",
+        "U+9F4A_00",
+        "U+3A7C_00"
+      ],
+      "desired": [
+        "U+3A7C_00",
+        "U+505A_01",
+        "U+9F4A_00"
+      ]
+    },
+    {
+      "lookup_key": "주",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+716E_00",
+        "U+6148_00",
+        "U+81EA_00",
+        "U+5B50_00",
+        "U+6CE8_00",
+        "U+4E3B_00",
+        "U+66F8_00",
+        "U+73E0_00"
+      ],
+      "default": [
+        "U+66F8_00",
+        "U+73E0_00",
+        "U+4E3B_00",
+        "U+5B50_00",
+        "U+716E_00",
+        "U+6CE8_00",
+        "U+6148_00",
+        "U+81EA_00"
+      ],
+      "desired": [
+        "U+716E_00",
+        "U+6148_00",
+        "U+81EA_00",
+        "U+5B50_00",
+        "U+6CE8_00",
+        "U+4E3B_00",
+        "U+66F8_00",
+        "U+73E0_00"
+      ]
+    },
+    {
+      "lookup_key": "준",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+6E96_00",
+        "U+5B58_00",
+        "U+9663_00",
+        "U+8239_00",
+        "U+4FCA_00"
+      ],
+      "default": [
+        "U+6E96_00",
+        "U+4FCA_00",
+        "U+5B58_00",
+        "U+8239_00",
+        "U+9663_00"
+      ],
+      "desired": [
+        "U+6E96_00",
+        "U+5B58_00",
+        "U+9663_00",
+        "U+8239_00",
+        "U+4FCA_00"
+      ]
+    },
+    {
+      "lookup_key": "진",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+771F_00",
+        "U+76E1_00",
+        "U+9707_00"
+      ],
+      "default": [
+        "U+771F_00",
+        "U+9707_00",
+        "U+76E1_00"
+      ],
+      "desired": [
+        "U+771F_00",
+        "U+76E1_00",
+        "U+9707_00"
+      ]
+    },
+    {
+      "lookup_key": "처",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+7C97_00",
+        "U+918B_00",
+        "U+521D_00"
+      ],
+      "default": [
+        "U+521D_00",
+        "U+7C97_00",
+        "U+918B_00"
+      ],
+      "desired": [
+        "U+7C97_00",
+        "U+918B_00",
+        "U+521D_00"
+      ]
+    },
+    {
+      "lookup_key": "쳥",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+885D_00",
+        "U+6C96_00"
+      ],
+      "default": [
+        "U+6C96_00",
+        "U+885D_00"
+      ],
+      "desired": [
+        "U+885D_00",
+        "U+6C96_00"
+      ]
+    },
+    {
+      "lookup_key": "ᄐᅷ",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+982D_00",
+        "U+900F_00",
+        "U+5077_00"
+      ],
+      "default": [
+        "U+5077_00",
+        "U+900F_00",
+        "U+982D_00"
+      ],
+      "desired": [
+        "U+982D_00",
+        "U+900F_00",
+        "U+5077_00"
+      ]
+    },
+    {
+      "lookup_key": "혱",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+8208_00",
+        "U+5E78_00",
+        "U+8861_00"
+      ],
+      "default": [
+        "U+8208_00",
+        "U+8861_00",
+        "U+5E78_00"
+      ],
+      "desired": [
+        "U+8208_00",
+        "U+5E78_00",
+        "U+8861_00"
+      ]
+    },
+    {
+      "lookup_key": "호",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+597D_00",
+        "U+4F55_00",
+        "U+865F_00",
+        "U+548C_01",
+        "U+6CB3_00"
+      ],
+      "default": [
+        "U+597D_00",
+        "U+4F55_00",
+        "U+548C_01",
+        "U+6CB3_00",
+        "U+865F_00"
+      ],
+      "desired": [
+        "U+597D_00",
+        "U+4F55_00",
+        "U+865F_00",
+        "U+548C_01",
+        "U+6CB3_00"
+      ]
+    },
+    {
+      "lookup_key": "훈",
+      "reason": "meaningful legacy priority tiers",
+      "old": [
+        "U+5206_01",
+        "U+5206_02",
+        "U+6068_00",
+        "U+85B0_00",
+        "U+9B42_00",
+        "U+7C89_00",
+        "U+75D5_00",
+        "U+660F_00",
+        "U+96F2_00",
+        "U+596E_00"
+      ],
+      "default": [
+        "U+5206_01",
+        "U+85B0_00",
+        "U+7C89_00",
+        "U+596E_00",
+        "U+75D5_00",
+        "U+96F2_00",
+        "U+9B42_00",
+        "U+5206_02",
+        "U+6068_00",
+        "U+660F_00"
+      ],
+      "desired": [
+        "U+5206_01",
+        "U+5206_02",
+        "U+6068_00",
+        "U+85B0_00",
+        "U+9B42_00",
+        "U+7C89_00",
+        "U+75D5_00",
+        "U+660F_00",
+        "U+96F2_00",
+        "U+596E_00"
+      ]
+    }
+  ],
+  "readingDefaultOverrides": [
+    {
+      "lookup_key": "一",
+      "entry_id": "U+4E00_01",
+      "headword": "一",
+      "reading": "짇1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "一十五",
+      "entry_id": "U+4E00_01",
+      "headword": "一",
+      "reading": "짇1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "一名",
+      "entry_id": "U+4E00_01",
+      "headword": "一",
+      "reading": "짇1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "傷",
+      "entry_id": "U+50B7_01",
+      "headword": "傷",
+      "reading": "슐1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "光",
+      "entry_id": "U+5149_01",
+      "headword": "光",
+      "reading": "긍1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "初",
+      "entry_id": "U+521D_01",
+      "headword": "初",
+      "reading": "최1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "地",
+      "entry_id": "U+5730_01",
+      "headword": "地",
+      "reading": "되5",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "地動",
+      "entry_id": "U+5730_01",
+      "headword": "地",
+      "reading": "되5",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "子",
+      "entry_id": "U+5B50_01",
+      "headword": "子",
+      "reading": "즤2",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "家",
+      "entry_id": "U+5BB6_01",
+      "headword": "家",
+      "reading": "게1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "市長",
+      "entry_id": "U+5E02_U+9577_01",
+      "headword": "市長",
+      "reading": "치듈2",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "心情",
+      "entry_id": "U+5FC3_U+60C5_01",
+      "headword": "心情",
+      "reading": "심5졩4",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "想",
+      "entry_id": "U+60F3_01",
+      "headword": "想",
+      "reading": "슐5",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "暗暝",
+      "entry_id": "U+6697_U+669D_01",
+      "headword": "暗暝",
+      "reading": "암2미4",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "氣",
+      "entry_id": "U+6C23_01",
+      "headword": "氣",
+      "reading": "키",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "用心肝",
+      "entry_id": "U+7528_00",
+      "headword": "用",
+      "reading": "영5",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "當",
+      "entry_id": "U+7576_02",
+      "headword": "當",
+      "reading": "덩1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "相",
+      "entry_id": "U+76F8_02",
+      "headword": "相",
+      "reading": "쇼1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "相揣",
+      "entry_id": "U+76F8_02",
+      "headword": "相",
+      "reading": "쇼1",
+      "reason": "preserve Hanri default/segmentation"
+    },
+    {
+      "lookup_key": "短",
+      "entry_id": "U+77ED_01",
+      "headword": "短",
+      "reading": "ᄃힻ2",
+      "reason": "preserve Hanri default/segmentation"
+    }
+  ],
+  "unexpectedDifferences": [],
+  "rowTieGroupsChanged": 0,
+  "rowTieChanges": []
+}

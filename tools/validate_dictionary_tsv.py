@@ -14,9 +14,12 @@ from dictionary_schema import (
     canonical_entry_headword,
     entry_id_matches_headword,
     valid_entry_id,
+    is_comment_row,
+    resolve_dictionary_record,
 )
 from tangliengim_collation import ENTRY_TYPE_ORDER, out_of_order_pairs
 from simplified_lookup import simplified_field_errors
+from dictionary_ranking import load_priority
 
 
 EXPECTED_HEADER = list(DICTIONARY_COLUMNS)
@@ -136,35 +139,39 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
             if not row:
                 errors.append(f"line {line_number}: blank row")
                 continue
-            if row[0].startswith("#"):
+            if is_comment_row(row, EXPECTED_HEADER):
                 continue
             if len(row) != len(EXPECTED_HEADER):
                 errors.append(f"line {line_number}: expected {len(EXPECTED_HEADER)} fields, found {len(row)}")
                 continue
             entry_count += 1
-            data_rows.append(dict(zip(EXPECTED_HEADER, row)))
+            record = dict(zip(EXPECTED_HEADER, row))
+            data_rows.append(record)
             for column, cell in enumerate(row, 1):
                 if cell != cell.strip():
                     errors.append(f"line {line_number}, field {column}: surrounding whitespace")
                 if unicodedata.normalize("NFC", cell) != cell:
                     errors.append(f"line {line_number}, field {column}: value is not NFC-normalized")
-            if not row[0]:
+            if not record["reading"]:
                 errors.append(f"line {line_number}: reading is empty")
-            if not row[1]:
+            if not record["hanri"]:
                 errors.append(f"line {line_number}: hanri is empty")
-            for issue in simplified_field_errors(row[1], row[7]):
+            try:
+                resolved = resolve_dictionary_record(record)
+            except ValueError as exc:
+                errors.append(f"line {line_number}: {exc}")
+                continue
+            for issue in simplified_field_errors(record["hanri"], resolved["simplified"]):
                 errors.append(f"line {line_number}: {issue}")
-            if not row[2].isascii() or not row[2].isdigit() or int(row[2]) < 1:
-                errors.append(f"line {line_number}: priority must be a positive integer")
-            entry_type = row[5]
-            entry_id = row[6]
+            entry_type = record["entry_type"]
+            entry_id = record["entry_id"]
             if not valid_entry_id(entry_id):
                 errors.append(f"line {line_number}: invalid entry_id {entry_id!r}")
             elif entry_id in entry_ids:
                 errors.append(f"line {line_number}: duplicate entry_id {entry_id!r}")
             else:
                 entry_ids.add(entry_id)
-                headword = canonical_entry_headword(row[1])
+                headword = canonical_entry_headword(record["hanri"])
                 active_ids[entry_id] = headword
                 if not entry_id_matches_headword(entry_id, headword):
                     errors.append(
@@ -172,19 +179,24 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
                     )
             if entry_type not in ENTRY_TYPES:
                 errors.append(f"line {line_number}: invalid entry_type {entry_type!r}")
-            elif row[0][0:1].isdigit() and row[3] and entry_type != "number_pronunciation":
+            elif record["reading"][0:1].isdigit() and record["corrected"] and entry_type != "number_pronunciation":
                 errors.append(f"line {line_number}: numeric pronunciation must use number_pronunciation")
-            elif row[0].endswith("*") and row[3] and entry_type != "correction_alias":
+            elif record["reading"].endswith("*") and record["corrected"] and entry_type != "correction_alias":
                 errors.append(f"line {line_number}: corrected * reading must use correction_alias")
-            elif entry_type == "number_pronunciation" and not (row[0][0:1].isdigit() and row[3]):
+            elif entry_type == "number_pronunciation" and not (record["reading"][0:1].isdigit() and record["corrected"]):
                 errors.append(f"line {line_number}: number_pronunciation needs a numeric reading and corrected value")
-            elif entry_type == "correction_alias" and not (row[0].endswith("*") and row[3]):
+            elif entry_type == "correction_alias" and not (record["reading"].endswith("*") and record["corrected"]):
                 errors.append(f"line {line_number}: correction_alias needs a * reading and corrected value")
     except (csv.Error, StopIteration) as exc:
         errors.append(f"invalid TSV structure: {exc}")
         return errors
 
     errors.extend(validate_registry(registry_path or path.with_name("dictionary_entry_id_registry.tsv"), active_ids))
+    if not errors:
+        try:
+            load_priority(path.with_name('dictionary_priority.tsv'), data_rows)
+        except (ValueError, UnicodeError, csv.Error) as exc:
+            errors.append(str(exc))
     if not errors:
         print(f"Valid: {entry_count} entries, {len(EXPECTED_HEADER)} fields, unique stable IDs, UTF-8/NFC, CRLF line endings")
         inversions = out_of_order_pairs(data_rows, EXPECTED_HEADER)

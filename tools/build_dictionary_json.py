@@ -19,9 +19,12 @@ from dictionary_schema import (
     canonical_entry_headword,
     entry_id_matches_headword,
     valid_entry_id,
+    resolve_dictionary_record,
+    is_comment_record,
 )
 from validate_dictionary_tsv import validate_registry
 from simplified_lookup import simplified_field_errors
+from dictionary_ranking import annotate_entries, canonical_key, read_records
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -33,7 +36,7 @@ DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
 
-SCHEMA_VERSION = 8
+SCHEMA_VERSION = 10
 
 ENTRY_TYPES = frozenset({
     "lexical", "correction_alias", "hangul_override", "number_pronunciation",
@@ -95,13 +98,6 @@ def strip_inline_hanri_tone_marks(tone_marker, value: str) -> str:
     """Keep legacy inline tone glyphs out of candidate/headword text."""
     tone_symbols = getattr(tone_marker, "TONE_SYMBOLS", set())
     return "".join(char for char in str(value or "") if char not in tone_symbols)
-
-
-def safe_priority(value: str) -> int:
-    try:
-        return int(str(value or "").strip())
-    except Exception:
-        return 9999
 
 
 def row_kind(tone_marker, hanri: str) -> str:
@@ -373,7 +369,7 @@ def build_dictionary(
     with tsv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
         fieldnames = [str(name or "").strip() for name in (reader.fieldnames or [])]
-        required = {"reading", "hanri", "entry_type", "entry_id", "simplified"}
+        required = set(DICTIONARY_COLUMNS)
         missing = sorted(required - set(fieldnames))
         if missing:
             raise ValueError(f"TSV is missing required column(s): {', '.join(missing)}")
@@ -383,30 +379,31 @@ def build_dictionary(
             raw_reading = str(row.get("reading") or "").strip()
             raw_hanri = str(row.get("hanri") or "").strip()
             hanri = strip_inline_hanri_tone_marks(tone_marker, raw_hanri)
-            priority_text = str(row.get("priority") or "").strip()
             corrected_raw = str(row.get("corrected") or "").strip()
             english = str(row.get("english") or "").strip()
             entry_type = str(row.get("entry_type") or "").strip()
             entry_id = str(row.get("entry_id") or "").strip()
-            raw_simplified = str(row.get("simplified") or "")
 
             if not raw_reading and not hanri and not corrected_raw:
                 counts["blank_rows"] += 1
                 continue
 
-            if raw_reading.startswith("#") and not hanri:
+            if is_comment_record(row):
                 skipped_rows.append({
                     "row": row_number,
                     "reason": "comment",
-                    "text": raw_reading,
+                    "text": raw_reading if raw_reading.startswith("#") else raw_hanri,
                 })
                 counts["comment_rows"] += 1
                 continue
 
-            errors = simplified_field_errors(raw_hanri, raw_simplified)
+            row = resolve_dictionary_record(row)
+            simplified = row["simplified"]
+            mandarin_trad = row["mandarin_trad"]
+            mandarin_simp = row["mandarin_simp"]
+            errors = simplified_field_errors(raw_hanri, simplified)
             if errors:
                 raise ValueError(f"TSV row {row_number}: {'; '.join(errors)}")
-            simplified = raw_simplified
             reading = normalized_reading(tone_marker, raw_reading)
             corrected = normalized_reading(tone_marker, corrected_raw) if corrected_raw else ""
             effective_reading = corrected or reading
@@ -418,7 +415,6 @@ def build_dictionary(
                 )
             except Exception:
                 pass
-            priority = safe_priority(priority_text)
             kind = row_kind(tone_marker, hanri)
             expected_type = expected_entry_type(raw_reading, corrected_raw, kind)
             if entry_type not in ENTRY_TYPES or entry_type != expected_type:
@@ -454,6 +450,8 @@ def build_dictionary(
                 "active": active,
                 "hanri": hanri,
                 "simplified": simplified,
+                "mandarin_trad": mandarin_trad,
+                "mandarin_simp": mandarin_simp,
                 "reading": effective_reading,
                 "readingBase": reading_base,
                 "lomari": lomari,
@@ -462,17 +460,17 @@ def build_dictionary(
                 "englishKey": normalize_for_search(english),
                 "categories": list(category_memberships.get(raw_hanri, [])),
                 "audio": audio,
-                "priority": priority,
                 "form": ime.infer_default_form(effective_reading),
                 "raw": {
                     "reading": raw_reading,
                     "hanri": raw_hanri,
-                    "priority": priority_text,
                     "corrected": corrected_raw,
                     "english": english,
                     "entry_type": entry_type,
                     "entry_id": entry_id,
-                    "simplified": raw_simplified,
+                    "simplified": simplified,
+                    "mandarin_trad": mandarin_trad,
+                    "mandarin_simp": mandarin_simp,
                 },
             }
             if corrected:
@@ -500,6 +498,7 @@ def build_dictionary(
         raise ValueError("Invalid entry ID registry: " + "; ".join(registry_errors))
 
     for (hanri, reading), group in effective_pairs.items():
+        group.sort(key=canonical_key)
         canonical = []
         aliases_by_source: dict[str, list[dict[str, Any]]] = defaultdict(list)
         for entry in group:
@@ -534,9 +533,8 @@ def build_dictionary(
                     "reason": "repeated_correction_alias",
                 })
 
-    row_by_id = {entry["id"]: entry["row"] for entry in entries}
-    duplicate_keys.sort(key=lambda item: row_by_id[item["duplicateId"]])
-    correction_aliases.sort(key=lambda item: row_by_id[item["aliasId"]])
+    duplicate_keys.sort(key=lambda item: item['duplicateId'])
+    correction_aliases.sort(key=lambda item: item['aliasId'])
 
     # The desktop IME exposes a generated sandhi candidate beside every
     # citation reading. These rows are runtime-only: they participate in IME
@@ -551,7 +549,7 @@ def build_dictionary(
         auto_sandhi_entries.append({
             **entry,
             "id": f'{entry["id"]}-sandhi',
-            "row": entry["row"] + 0.01,
+            "row": entry["row"],
             "reading": sandhi_reading,
             "readingBase": tone_marker.strip_reading_tones(sandhi_reading),
             "lomari": reading_to_lomari(tone_marker, sandhi_reading),
@@ -571,7 +569,9 @@ def build_dictionary(
     # stay available for standalone input such as 엏3 -> orh3.wav.
     runtime_units.update(recorded_keyboard_units(ime, audio_root))
 
-    entries.sort(key=lambda item: (item["priority"], item["row"], item["reading"], item["hanri"]))
+    priority_path = tsv_path.with_name('dictionary_priority.tsv')
+    annotate_entries(entries, priority_path, read_records(tsv_path))
+    entries.sort(key=lambda item: (canonical_key(item), bool(item.get('autoSandhi'))))
 
     known_headwords = {
         entry["raw"]["hanri"] for entry in entries if entry["raw"]["hanri"]
@@ -590,6 +590,8 @@ def build_dictionary(
     indexes: dict[str, dict[str, list[str]]] = {
         "byHanri": {},
         "bySimplified": {},
+        "byMandarinTrad": {},
+        "byMandarinSimp": {},
         "byReading": {},
         "byReadingBase": {},
         "byLomari": {},
@@ -607,6 +609,10 @@ def build_dictionary(
             visible_alias = canonical_entry_headword(entry["simplified"])
             if visible_alias != entry["simplified"]:
                 append_index(indexes["bySimplified"], visible_alias, entry_id)
+        for name, index_name in (("mandarin_trad", "byMandarinTrad"), ("mandarin_simp", "byMandarinSimp")):
+            for value in entry[name].split(";"):
+                if value.strip():
+                    append_index(indexes[index_name], value.strip(), entry_id)
         append_index(indexes["byReading"], entry["reading"], entry_id)
         append_index(indexes["byReadingBase"], entry["readingBase"], entry_id)
         append_index(indexes["byLomari"], entry["lomari"], entry_id)
@@ -649,7 +655,9 @@ def build_dictionary(
         "categorySource": str(category_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "categorySourceSha256": file_sha256(category_path),
         "columns": list(DICTIONARY_COLUMNS),
-        "sort": "priority, row, reading, hanri",
+        "prioritySource": str(priority_path.relative_to(REPO_ROOT)).replace('\\', '/'),
+        "prioritySourceSha256": file_sha256(priority_path),
+        "sort": "entry_type, Tangliengim reading, headword, corrected reading, entry_id; generated variants follow source",
         "counts": dict(sorted(counts.items())),
         "skippedRows": skipped_rows,
         "duplicateEffectiveReadings": duplicate_keys,

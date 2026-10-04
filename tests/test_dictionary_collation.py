@@ -17,6 +17,7 @@ from tools.tangliengim_collation import (
 )
 from tools.dictionary_schema import (
     DICTIONARY_COLUMNS,
+    PRE_MANDARIN_COLUMNS,
     ENTRY_ID_REGISTRY_COLUMNS,
     canonical_entry_headword,
     entry_public_path,
@@ -32,7 +33,16 @@ COLUMNS = list(DICTIONARY_COLUMNS)
 
 def current_rows(rows):
     from tools.simplified_lookup import simplified_headword
-    return [row + [simplified_headword(row[1])] if len(row) == 7 else row for row in rows]
+    result = []
+    for row in rows:
+        if len(row) == len(COLUMNS):
+            result.append(row)
+            continue
+        record = dict(zip(PRE_MANDARIN_COLUMNS, row))
+        if 'simplified' not in record:
+            record['simplified'] = simplified_headword(record['hanri'])
+        result.append([record.get(name, '') for name in COLUMNS])
+    return result
 
 
 def test_id(headword: str, number: int = 0) -> str:
@@ -44,8 +54,9 @@ def write_registry(tsv_path: Path, rows: list[list[str]]) -> None:
     with registry.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
         writer.writerow(ENTRY_ID_REGISTRY_COLUMNS)
-        for row in rows:
-            writer.writerow([row[6], canonical_entry_headword(row[1]), ""])
+        for row in current_rows(rows):
+            record = dict(zip(COLUMNS, row))
+            writer.writerow([record['entry_id'], canonical_entry_headword(record['hanri']), ""])
 
 
 class CollationTests(unittest.TestCase):
@@ -96,10 +107,10 @@ class CollationTests(unittest.TestCase):
 
     def test_explicit_type_grouping(self) -> None:
         rows = [
-            dict(zip(COLUMNS, ["가", "家", "1", "", "", "lexical", test_id("家")])),
-            dict(zip(COLUMNS, ["가", "가", "1", "", "", "hangul_override", test_id("가")])),
-            dict(zip(COLUMNS, ["가*", "家", "1", "가1", "", "correction_alias", test_id("家", 1)])),
-            dict(zip(COLUMNS, ["1", "1", "1", "짇1", "", "number_pronunciation", test_id("1")])),
+            dict(zip(PRE_MANDARIN_COLUMNS, ["가", "家", "1", "", "", "lexical", test_id("家")])),
+            dict(zip(PRE_MANDARIN_COLUMNS, ["가", "가", "1", "", "", "hangul_override", test_id("가")])),
+            dict(zip(PRE_MANDARIN_COLUMNS, ["가*", "家", "1", "가1", "", "correction_alias", test_id("家", 1)])),
+            dict(zip(PRE_MANDARIN_COLUMNS, ["1", "1", "1", "짇1", "", "number_pronunciation", test_id("1")])),
         ]
         self.assertEqual(
             [row["entry_type"] for row in sorted(reversed(rows), key=lambda row: row_sort_key(row, COLUMNS))],
@@ -137,14 +148,14 @@ class CollationTests(unittest.TestCase):
                 ordered = list(csv.reader(handle, delimiter="\t"))
             self.assertEqual(ordered[1], ["# preserved comment"])
             self.assertEqual(Counter(map(tuple, ordered[2:])), Counter(map(tuple, current_rows(rows))))
-            self.assertEqual([row[5] for row in ordered[2:]], list(ENTRY_TYPE_ORDER[:1]) + ["lexical", "lexical", "correction_alias", "number_pronunciation"])
+            self.assertEqual([row[COLUMNS.index('entry_type')] for row in ordered[2:]], list(ENTRY_TYPE_ORDER[:1]) + ["lexical", "lexical", "correction_alias", "number_pronunciation"])
 
     def test_complete_dictionary_uses_syllabic_keys(self) -> None:
         with (ROOT / "data/hokkien_hanri_dict.tsv").open(encoding="utf-8", newline="") as handle:
             rows = [row for row in csv.DictReader(handle, delimiter="\t") if not row["reading"].startswith("#")]
-        self.assertEqual(len(rows), 2745)
+            self.assertEqual(len(rows), 2737)
         self.assertEqual(Counter(row["entry_type"] for row in rows), {
-            "hangul_override": 61, "lexical": 2665,
+            "hangul_override": 52, "lexical": 2666,
             "correction_alias": 9, "number_pronunciation": 10,
         })
         self.assertEqual(out_of_order_pairs(rows, COLUMNS), 0)
@@ -200,7 +211,7 @@ class CollationTests(unittest.TestCase):
                 self.assertEqual(record["canonical_headword"], canonical_entry_headword(by_id[record["entry_id"]]["hanri"]))
 
     def test_entry_id_migration_is_idempotent(self) -> None:
-        legacy_columns = COLUMNS[:6]
+        legacy_columns = list(PRE_MANDARIN_COLUMNS[:6])
         legacy_rows = [
             ["가", "家", "1", "", "home", "lexical"],
             ["나", "那", "1", "", "", "lexical"],
@@ -220,8 +231,8 @@ class CollationTests(unittest.TestCase):
             self.assertEqual(path.with_name("dictionary_entry_id_registry.tsv").read_bytes(), registry_once)
             with path.open(encoding="utf-8", newline="") as handle:
                 migrated = list(csv.DictReader(handle, delimiter="\t"))
-            self.assertEqual([{key: row[key] for key in legacy_columns} for row in migrated], [
-                dict(zip(legacy_columns, row)) for row in legacy_rows
+            self.assertEqual([{key: row[key] for key in legacy_columns if key != 'priority'} for row in migrated], [
+                {key:value for key,value in dict(zip(legacy_columns, row)).items() if key != 'priority'} for row in legacy_rows
             ])
             self.assertEqual(len({row["entry_id"] for row in migrated}), 2)
             self.assertEqual([row["entry_id"] for row in migrated], [test_id("家"), test_id("那")])
@@ -299,7 +310,7 @@ class CollationTests(unittest.TestCase):
             with path.open("w", encoding="utf-8", newline="") as handle:
                 writer = csv.writer(handle, delimiter="\t", lineterminator="\r\n")
                 writer.writerow(COLUMNS)
-                writer.writerow(["가", "家", "1", "", "home", "lexical", test_id("家"), "家"])
+                writer.writerows(current_rows([["가", "家", "1", "", "home", "lexical", test_id("家"), "家"]]))
             original = path.read_bytes()
             result = subprocess.run(
                 [sys.executable, str(ROOT / "tools/assign_dictionary_entry_ids.py"), str(path)],

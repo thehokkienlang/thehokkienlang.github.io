@@ -12,6 +12,7 @@ from pathlib import Path
 
 from tangliengim_collation import row_sort_key
 from validate_dictionary_tsv import DEFAULT_PATH, EXPECTED_HEADER, validate
+from dictionary_schema import is_comment_row
 
 
 def _serialize(rows: list[list[str]]) -> bytes:
@@ -30,7 +31,7 @@ def sort_tsv(path: Path) -> int:
     if rows[0] != EXPECTED_HEADER or _serialize(rows) != original:
         raise ValueError("TSV cannot be rewritten byte-for-byte except for row order")
 
-    positions = [index for index, row in enumerate(rows) if index and not row[0].startswith("#")]
+    positions = [index for index, row in enumerate(rows) if index and not is_comment_row(row, EXPECTED_HEADER)]
     items = [(index, rows[index]) for index in positions]
     ordered = sorted(
         items,

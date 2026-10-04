@@ -7,7 +7,7 @@ import unicodedata
 from urllib.parse import quote
 
 
-DICTIONARY_COLUMNS = (
+PRE_MANDARIN_COLUMNS = (
     "reading",
     "hanri",
     "priority",
@@ -17,6 +17,42 @@ DICTIONARY_COLUMNS = (
     "entry_id",
     "simplified",
 )
+
+DICTIONARY_COLUMNS = (
+    "hanri", "simplified", "reading", "mandarin_trad", "mandarin_simp",
+    "english", "corrected", "entry_type", "entry_id",
+)
+DITTO = "〃"
+INHERITED_FIELDS = {"simplified": "hanri", "mandarin_trad": "hanri", "mandarin_simp": "mandarin_trad"}
+
+
+def is_comment_record(record) -> bool:
+    return any(str(record.get(name, "")).startswith("#") for name in ("reading", "hanri"))
+
+
+def is_comment_row(row, columns=DICTIONARY_COLUMNS) -> bool:
+    return is_comment_record(dict(zip(columns, row)))
+
+
+def resolve_dictionary_record(record) -> dict[str, str]:
+    """Resolve source-only inheritance once, before any dictionary consumer."""
+    resolved = dict(record)
+    for name, value in resolved.items():
+        if DITTO in str(value or "") and (name not in INHERITED_FIELDS or value != DITTO):
+            raise ValueError(f"{name}: 〃 is allowed only as a whole inheritance field")
+    for name, source in INHERITED_FIELDS.items():
+        if resolved.get(name) == DITTO:
+            inherited = resolved.get(source, "")
+            if not inherited:
+                raise ValueError(f"{name}: 〃 requires a non-empty {source}")
+            resolved[name] = inherited
+    if resolved.get("mandarin_simp") and not resolved.get("mandarin_trad"):
+        raise ValueError("mandarin_simp requires a corresponding mandarin_trad value")
+    return resolved
+
+
+def inherited_storage(value: str, source: str) -> str:
+    return DITTO if value and value == source else value
 
 ENTRY_ID_REGISTRY_COLUMNS = (
     "entry_id",

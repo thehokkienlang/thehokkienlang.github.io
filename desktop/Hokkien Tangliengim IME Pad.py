@@ -116,6 +116,23 @@ def github_repo_for_tsv_sync() -> Path | None:
     return None
 
 
+def dictionary_schema_api():
+    for repo in github_repo_path_candidates():
+        directory = repo / 'tools'
+        if (directory / 'dictionary_schema.py').is_file():
+            if str(directory) not in sys.path:
+                sys.path.insert(0, str(directory))
+            import dictionary_schema
+            return dictionary_schema
+    raise FileNotFoundError('Shared dictionary schema not found')
+
+
+def dictionary_ranking_api():
+    dictionary_schema_api()
+    import dictionary_ranking
+    return dictionary_ranking
+
+
 def hanri_tsv_path_candidates() -> list[Path]:
     """Use the repository dictionary, never a separate adjacent TSV copy."""
     env_path = os.environ.get('HOKKIEN_HANRI_DICT_PATH')
@@ -527,28 +544,28 @@ Examples: zkn→ᄏᅷ   din→ᄋᆤ   dmp→ᄋힻ   mdk→ᅙᅡ
 Tone buttons: ˆ  ˋ  ˊ  ˉ     Tone 3 stays unmarked. Alt+digit inserts a literal numeral. Banned batchim are blocked."""
 
 # Hanri dictionary entries are stored internally as:
-#     base_reading_without_tones -> [{'reading': tone_marked_reading, 'hanri': str, 'priority': int, 'row': int}, ...]
+#     base_reading_without_tones -> [{'reading': tone_marked_reading, 'hanri': str, 'row': int}, ...]
 # Tones are written directly inside the reading column in the TSV.  Example:
 #     랑4    人
 #     랑5    弄
 # The IME also lets plain 랑 show both candidates, while 랑4 filters to 人 only.
 FALLBACK_HANRI_DICT = {
-    '가ᄉᅷ': [{'reading': '가ᄉᅷ', 'hanri': '咳嗽', 'priority': 1, 'row': 0}],
-    '띤': [{'reading': '띤', 'hanri': '人', 'priority': 1, 'row': 0}],
-    '띤심': [{'reading': '띤심', 'hanri': '人參', 'priority': 1, 'row': 0}],
-    '띤솅': [{'reading': '띤솅', 'hanri': '人生', 'priority': 1, 'row': 0}],
-    '띤수': [{'reading': '띤수', 'hanri': '人事', 'priority': 1, 'row': 0}],
+    '가ᄉᅷ': [{'reading': '가ᄉᅷ', 'hanri': '咳嗽', 'row': 0}],
+    '띤': [{'reading': '띤', 'hanri': '人', 'row': 0}],
+    '띤심': [{'reading': '띤심', 'hanri': '人參', 'row': 0}],
+    '띤솅': [{'reading': '띤솅', 'hanri': '人生', 'row': 0}],
+    '띤수': [{'reading': '띤수', 'hanri': '人事', 'row': 0}],
     '겅': [
-        {'reading': '겅2', 'hanri': '講', 'priority': 1, 'row': 0, 'form': '本'},
-        {'reading': '겅1', 'hanri': '講', 'priority': 2, 'row': 0, 'form': '變'},
+        {'reading': '겅2', 'hanri': '講', 'row': 0, 'form': '本'},
+        {'reading': '겅1', 'hanri': '講', 'row': 0, 'form': '變'},
     ],
     '랑': [
-        {'reading': '랑4', 'hanri': '人', 'priority': 1, 'row': 0},
-        {'reading': '랑5', 'hanri': '弄', 'priority': 2, 'row': 0},
+        {'reading': '랑4', 'hanri': '人', 'row': 0},
+        {'reading': '랑5', 'hanri': '弄', 'row': 0},
     ],
-    '세개': [{'reading': '세2개', 'hanri': '世界', 'priority': 1, 'row': 0}],
-    '짇띧': [{'reading': '짇띧', 'hanri': '一日', 'priority': 1, 'row': 0}],
-    '활히': [{'reading': '활5히2', 'hanri': '歡喜', 'priority': 1, 'row': 0}],
+    '세개': [{'reading': '세2개', 'hanri': '世界', 'row': 0}],
+    '짇띧': [{'reading': '짇띧', 'hanri': '一日', 'row': 0}],
+    '활히': [{'reading': '활5히2', 'hanri': '歡喜', 'row': 0}],
 }
 
 HANRI_TSV_FILENAME = 'hokkien_hanri_dict.tsv'
@@ -1036,13 +1053,6 @@ def format_text_tones_for_output(text: str, show_tones: bool = True, keep_litera
     return ''.join(out)
 
 
-def _safe_priority(value: str, default: int = 9999) -> int:
-    try:
-        return int(str(value).strip())
-    except Exception:
-        return default
-
-
 def is_single_untoned_precomposed_hangul(reading: str) -> bool:
     """True for one precomposed Hangul syllable with no explicit tone digit.
 
@@ -1341,7 +1351,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
     Load Hanri candidates from a TSV file.
 
     Recommended TSV columns:
-        reading    hanri    priority    corrected
+        named lexical fields (no ranking columns)
 
     If reading ends in *, it is treated as a wrong/non-standard spelling.
     The corrected column can then store the standard Hangul spelling shown on
@@ -1387,24 +1397,13 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             data_rows = rows[1:]
             reading_col = header.index('reading')
             hanri_col = header.index('hanri')
-            priority_col = header.index('priority') if 'priority' in header else None
             corrected_col = header.index('corrected') if 'corrected' in header else None
             entry_type_col = header.index('entry_type') if 'entry_type' in header else None
             entry_id_col = header.index('entry_id') if 'entry_id' in header else None
             simplified_col = header.index('simplified') if 'simplified' in header else None
             row_offset = 2
         else:
-            # Headerless TSV: reading / hanri / priority.
-            # The corrected column requires a header so old 3-column files remain unambiguous.
-            data_rows = rows
-            reading_col = 0
-            hanri_col = 1
-            priority_col = 2
-            corrected_col = None
-            entry_type_col = None
-            entry_id_col = None
-            simplified_col = None
-            row_offset = 1
+            raise ValueError('Dictionary requires the current named-column schema.')
 
         for offset, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
@@ -1412,7 +1411,9 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
-            simplified = row[simplified_col] if simplified_col is not None and len(row) > simplified_col else ''
+            metadata = dictionary_schema_api().resolve_dictionary_record(
+                dict(zip(header, row)) if has_header else {'hanri': hanri, 'simplified': ''}
+            )
 
             if not reading_cell or not hanri:
                 continue
@@ -1428,8 +1429,6 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                 continue
 
             base_reading = strip_reading_tones(reading_raw)
-            priority_text = row[priority_col].strip() if priority_col is not None and len(row) > priority_col else ''
-            priority = _safe_priority(priority_text, default=9999)
             form = infer_default_form(reading_raw)
 
             if not base_reading:
@@ -1438,7 +1437,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             citation_entry = {
                 'reading': reading_raw,
                 'hanri': hanri,
-                'priority': priority,
+                'raw': metadata,
                 'row': offset,
                 'form': form,
                 'auto_sandhi': False,
@@ -1446,7 +1445,9 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                 'corrected': corrected,
                 'entry_type': entry_type,
                 'entry_id': entry_id,
-                'simplified': simplified,
+                'simplified': metadata.get('simplified', ''),
+                'mandarin_trad': metadata.get('mandarin_trad', ''),
+                'mandarin_simp': metadata.get('mandarin_simp', ''),
             }
             entries.setdefault(base_reading, []).append(citation_entry)
 
@@ -1465,23 +1466,27 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                             'reading': sandhi_reading,
                             'citation_reading': reading_raw,
                             'hanri': hanri,
-                            'priority': priority,
-                            # Put the generated sandhi just after its citation row.
-                            'row': offset + 0.01,
+                            'raw': metadata,
+                            'row': offset,
                             'form': '變',
                             'auto_sandhi': True,
                             'nonstandard': is_nonstandard,
                             'corrected': corrected_sandhi,
                             'entry_type': entry_type,
                             'entry_id': f'{entry_id}-sandhi' if entry_id else '',
-                            'simplified': simplified,
+                            'simplified': metadata.get('simplified', ''),
+                            'mandarin_trad': metadata.get('mandarin_trad', ''),
+                            'mandarin_simp': metadata.get('mandarin_simp', ''),
                         })
 
+        ranking = dictionary_ranking_api()
+        ranking.annotate_entries([e for values in entries.values() for e in values],
+                                 tsv_path.with_name('dictionary_priority.tsv'), ranking.read_records(tsv_path))
         loaded: dict[str, list[dict]] = {}
         for reading, rows_for_reading in entries.items():
             seen = set()
             candidates = []
-            for entry in sorted(rows_for_reading, key=lambda e: (e['priority'], e['row'], e['hanri'])):
+            for entry in ranking.rank_entries(rows_for_reading, reading):
                 key = (entry['hanri'], entry.get('reading', ''), entry.get('form', ''), entry.get('corrected', ''))
                 if key not in seen:
                     candidates.append(entry)
@@ -1492,11 +1497,13 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
         if loaded:
             total = sum(len(v) for v in loaded.values())
             HANRI_DICT_SOURCE = f'{tsv_path.name}: {total} Hanri entries / {len(loaded)} readings'
-            return loaded
+            return {reading:loaded[reading] for reading in sorted(loaded,key=lambda key:(ranking.reading_sort_key(key),key))}
 
         HANRI_DICT_SOURCE = 'built-in fallback; TSV had no valid entries'
         return _fallback_hanri_dict()
 
+    except dictionary_ranking_api().InvalidStaticPriority:
+        raise
     except Exception as exc:
         HANRI_DICT_SOURCE = f'built-in fallback; could not load TSV ({exc})'
         return _fallback_hanri_dict()
@@ -1524,7 +1531,7 @@ def load_literal_digit_pronunciations(
 
     Rows are written in the same TSV as ordinary entries, using corrected as the
     hidden Hangul pronunciation:
-        reading  hanri  priority  corrected
+        named lexical fields (no ranking columns)
         1        1      1         짇1
         2        2      1         띠5
         2箍      2箍    1         능5
@@ -2218,7 +2225,7 @@ def reload_hanri_resources() -> None:
     global HANRI_EXACT_CANDIDATE_TESTS, HANRI_BASE_CANDIDATE_TESTS
     global HANRI_EXACT_CANDIDATE_BUCKETS, HANRI_BASE_CANDIDATE_BUCKETS
     global DIGIT_PRONUNCIATIONS, DIGIT_CONTEXT_PRONUNCIATIONS, DIGIT_PRONUNCIATION_PATTERNS
-    global AUDIO_HANRI_INDEX, MIXED_AUDIO_HANRI_INDEX, AUDIO_HANRI_PRIORITY_INDEX
+    global AUDIO_HANRI_INDEX, MIXED_AUDIO_HANRI_INDEX, AUDIO_HANRI_SEGMENT_INDEX
     global AUDIO_READING_INDEX, AUDIO_READING_INDEX_BY_FIRST
 
     HANRI_DICT = load_hanri_dict()
@@ -2232,7 +2239,7 @@ def reload_hanri_resources() -> None:
     DIGIT_PRONUNCIATIONS, DIGIT_CONTEXT_PRONUNCIATIONS, DIGIT_PRONUNCIATION_PATTERNS = load_literal_digit_pronunciations()
     AUDIO_HANRI_INDEX = build_audio_hanri_index(HANRI_DICT)
     MIXED_AUDIO_HANRI_INDEX = build_mixed_audio_hanri_index(AUDIO_HANRI_INDEX)
-    AUDIO_HANRI_PRIORITY_INDEX = build_audio_hanri_priority_index(HANRI_DICT)
+    AUDIO_HANRI_SEGMENT_INDEX = build_audio_hanri_segment_index(HANRI_DICT)
     AUDIO_READING_INDEX = build_audio_reading_index(HANRI_DICT)
     AUDIO_READING_INDEX_BY_FIRST = build_audio_reading_index_by_first(AUDIO_READING_INDEX)
 
@@ -2350,52 +2357,18 @@ def entry_audio_reading(entry: dict, base_reading: str = '') -> str:
 
 
 def build_audio_hanri_index(hanri_dict: dict[str, list[dict]]) -> list[tuple[str, str]]:
-    """Map visible Hanri strings back to Hangul readings for audio/playback.
-
-    If multiple TSV rows have the same visible Hanri text, choose the row with
-    the best TSV priority.  This matters for homographs/homophones such as:
-        치뎔2    市長    2
-        치듈2    市長    1
-    where visible 市長 must default to 치듈2, not whichever row/base reading was
-    loaded first.  Auto-generated sandhi rows are kept behind real TSV rows.
-    """
-    records: list[tuple[str, str, bool, int, float, str]] = []
-
-    for base_reading, entries in hanri_dict.items():
+    """Resolve visible headwords using the shared contextual static order."""
+    groups: dict[str,list[dict]] = {}
+    for base,entries in hanri_dict.items():
         for entry in entries:
-            hanri = str(entry.get('hanri', ''))
+            hanri = str(entry.get('hanri',''))
             if not field_has_hanri(hanri):
                 continue
-            reading = entry_audio_reading(entry, base_reading)
-            auto_sandhi = bool(entry.get('auto_sandhi'))
-            priority = int(entry.get('priority', 9999))
-            try:
-                row_value = float(entry.get('row', 9999))
-            except Exception:
-                row_value = 9999.0
-
-            for key in (
-                hanri,
-                format_text_tones_for_output(hanri, True),
-                format_text_tones_for_output(hanri, False),
-            ):
-                key = str(key)
-                if key:
-                    records.append((key, reading, auto_sandhi, priority, row_value, hanri))
-
-    # Longest visible key still wins for parsing, so longer Hanri phrases beat
-    # shorter component characters.  For the same key, priority decides the
-    # default pronunciation, then row order as a deterministic tie-break.
-    records.sort(key=lambda item: (-len(item[0]), item[0], item[2], item[3], item[4], item[5], item[1]))
-
-    items: list[tuple[str, str]] = []
-    seen_keys: set[str] = set()
-    for key, reading, _auto_sandhi, _priority, _row_value, _hanri in records:
-        if key not in seen_keys:
-            items.append((key, reading))
-            seen_keys.add(key)
-
-    return items
+            for key in {hanri,format_text_tones_for_output(hanri,True),format_text_tones_for_output(hanri,False)}:
+                groups.setdefault(key,[]).append(entry)
+    ranking = dictionary_ranking_api()
+    return [(key,entry_audio_reading(ranking.rank_entries(groups[key],key)[0]))
+            for key in sorted(groups,key=lambda key:(-len(key),key))]
 
 def is_audio_hangul_only_override_field(text: str) -> bool:
     """True when a TSV hanri field is a Hangul-only audio override.
@@ -2421,41 +2394,13 @@ def is_audio_hangul_only_override_field(text: str) -> bool:
     return bool(meaningful_chars) and all(is_hangulish_for_tone(ch) for ch in meaningful_chars)
 
 
-def build_audio_hanri_priority_index(hanri_dict: dict[str, list[dict]]) -> list[tuple[str, str, int]]:
-    records: list[tuple[str, str, bool, int, float, str]] = []
-
-    for base_reading, entries in hanri_dict.items():
+def build_audio_hanri_segment_index(hanri_dict: dict[str, list[dict]]) -> list[dict]:
+    records = {}
+    for entries in hanri_dict.values():
         for entry in entries:
-            hanri = str(entry.get('hanri', ''))
-            if not field_has_hanri(hanri):
-                continue
-            reading = entry_audio_reading(entry, base_reading)
-            auto_sandhi = bool(entry.get('auto_sandhi'))
-            priority = int(entry.get('priority', 9999))
-            try:
-                row_value = float(entry.get('row', 9999))
-            except Exception:
-                row_value = 9999.0
-
-            for key in (
-                hanri,
-                format_text_tones_for_output(hanri, True),
-                format_text_tones_for_output(hanri, False),
-            ):
-                key = str(key)
-                if key:
-                    records.append((key, reading, auto_sandhi, priority, row_value, hanri))
-
-    records.sort(key=lambda item: (-len(item[0]), item[0], item[2], item[3], item[4], item[5], item[1]))
-
-    items: list[tuple[str, str, int]] = []
-    seen_keys: set[str] = set()
-    for key, reading, _auto_sandhi, priority, _row_value, _hanri in records:
-        if key not in seen_keys:
-            items.append((key, reading, priority))
-            seen_keys.add(key)
-
-    return items
+            if not entry.get('auto_sandhi') and field_is_plain_hanri_key(entry.get('hanri','')):
+                records.setdefault(dictionary_ranking_api().source_id(entry),entry)
+    return sorted(records.values(),key=dictionary_ranking_api().canonical_key)
 
 
 def audio_hanri_run_end(text: str, index: int) -> int:
@@ -2465,48 +2410,11 @@ def audio_hanri_run_end(text: str, index: int) -> int:
     return end
 
 
-def priority_audio_hanri_match(text: str, index: int) -> tuple[str, str] | None:
+def static_audio_hanri_match(text: str, index: int) -> tuple[str, str] | None:
     if index >= len(text) or not is_hanri_char(text[index]):
         return None
-
-    run_end = audio_hanri_run_end(text, index)
-    records = AUDIO_HANRI_PRIORITY_INDEX
-    memo: dict[int, tuple[tuple[int, int, int], tuple[str, str] | None]] = {}
-
-    def best_at(pos: int) -> tuple[tuple[int, int, int], tuple[str, str] | None]:
-        if pos >= run_end:
-            return (0, 0, 0), None
-        if pos in memo:
-            return memo[pos]
-
-        best_score = (1_000_000, 1_000_000, 1_000_000)
-        best_first: tuple[str, str] | None = None
-
-        for key, reading, priority in records:
-            if not key or contains_apostrophe_boundary(key):
-                continue
-            if not text.startswith(key, pos):
-                continue
-            after = pos + len(key)
-            if after > run_end:
-                continue
-            rest_score, _rest_first = best_at(after)
-            score = (rest_score[0], int(priority) + rest_score[1], 1 + rest_score[2])
-            if score < best_score:
-                best_score = score
-                best_first = (key, reading)
-
-        rest_score, _rest_first = best_at(pos + 1)
-        unmatched_score = (1 + rest_score[0], 9999 + rest_score[1], 1 + rest_score[2])
-        if unmatched_score < best_score:
-            best_score = unmatched_score
-            best_first = None
-
-        memo[pos] = (best_score, best_first)
-        return memo[pos]
-
-    _score, first = best_at(index)
-    return first
+    match = dictionary_ranking_api().segment_match(text,index,AUDIO_HANRI_SEGMENT_INDEX,audio_hanri_run_end(text,index))
+    return (match['hanri'],entry_audio_reading(match)) if match else None
 
 def build_audio_reading_index(hanri_dict: dict[str, list[dict]]) -> list[tuple[str, str]]:
     """Map visible Hangul spellings to tone-written readings for audio.
@@ -2580,7 +2488,9 @@ def build_audio_reading_index(hanri_dict: dict[str, list[dict]]) -> list[tuple[s
         add(format_text_tones_for_output(source, True), reading)
         add(format_text_tones_for_output(source, False), reading)
 
-    for base_reading, entries in hanri_dict.items():
+    for base_reading, entries in sorted(hanri_dict.items(), key=lambda item: (
+        dictionary_ranking_api().canonical_key(item[1][0]), item[0],
+    )):
         for entry in entries:
             reading = entry_audio_reading(entry, base_reading)
             written = str(entry.get('reading', base_reading) or base_reading)
@@ -2616,8 +2526,7 @@ def build_audio_reading_index(hanri_dict: dict[str, list[dict]]) -> list[tuple[s
 
     return sorted(
         items,
-        key=lambda item: (len(strip_reading_tones(item[0])), reading_has_tones(item[0])),
-        reverse=True,
+        key=lambda item: (-len(strip_reading_tones(item[0])), -int(reading_has_tones(item[0])), item[0]),
     )
 
 
@@ -2727,7 +2636,7 @@ def is_explicit_apostrophe_tone_override(key: str, reading: str) -> bool:
 
 AUDIO_HANRI_INDEX = build_audio_hanri_index(HANRI_DICT)
 MIXED_AUDIO_HANRI_INDEX = build_mixed_audio_hanri_index(AUDIO_HANRI_INDEX)
-AUDIO_HANRI_PRIORITY_INDEX = build_audio_hanri_priority_index(HANRI_DICT)
+AUDIO_HANRI_SEGMENT_INDEX = build_audio_hanri_segment_index(HANRI_DICT)
 AUDIO_READING_INDEX = build_audio_reading_index(HANRI_DICT)
 AUDIO_READING_INDEX_BY_FIRST = build_audio_reading_index_by_first(AUDIO_READING_INDEX)
 
@@ -3675,7 +3584,7 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
 
         # Hanri conversion first: existing Chinese characters should pronounce
         # through the TSV reading rather than being treated as unknown text.
-        hanri_match = priority_audio_hanri_match(source, i)
+        hanri_match = static_audio_hanri_match(source, i)
         if hanri_match:
             key, reading = hanri_match
             run_parts.append((reading, True, True, post_apostrophe_force_tone3, False))
@@ -5797,7 +5706,7 @@ def visible_text_to_lomari_sandhi_source(text: str) -> str:
             i += len(key)
             continue
 
-        hanri_match = priority_audio_hanri_match(source, i)
+        hanri_match = static_audio_hanri_match(source, i)
         if hanri_match:
             key, reading = hanri_match
             run_parts.append((reading, True, True, post_apostrophe_force_tone3, False))
@@ -7222,7 +7131,8 @@ class HokkienIMEPad:
         registry = destination.with_name('dictionary_entry_id_registry.tsv')
         if not registry.is_file():
             raise FileNotFoundError(f'Repository ID registry not found: {registry}')
-        relative_destinations = [destination.relative_to(repo).as_posix(), registry.relative_to(repo).as_posix()]
+        priorities = destination.with_name('dictionary_priority.tsv')
+        relative_destinations = [p.relative_to(repo).as_posix() for p in (destination, registry, priorities) if p.is_file()]
 
         cls.run_git_command(repo, 'add', '--', *relative_destinations)
         staged = subprocess.run(
@@ -9790,13 +9700,13 @@ class HokkienIMEPad:
         This is used only when Hanri was toggled off, the user edited the
         Hangulised text, and exact restoration is no longer safe.  Auto-generated
         sandhi rows are skipped so "first entry" means the first real TSV row
-        after priority/row sorting.
+        after contextual static ordering.
         """
         items: list[tuple[str, str]] = []
         seen_key: set[str] = set()
 
         for base_reading, entries in HANRI_DICT.items():
-            sorted_entries = sorted(entries, key=lambda e: (e.get('priority', 9999), e.get('row', 9999), e.get('hanri', '')))
+            sorted_entries = dictionary_ranking_api().rank_entries(entries, dictionary_ranking_api().reading_base(entries[0].get('reading', '')))
             for entry in sorted_entries:
                 if entry.get('auto_sandhi'):
                     continue

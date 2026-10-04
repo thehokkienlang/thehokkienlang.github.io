@@ -20,14 +20,17 @@ from dictionary_schema import (
     make_entry_id,
     valid_entry_id,
     valid_legacy_entry_id,
+    PRE_MANDARIN_COLUMNS,
+    is_comment_row,
+    inherited_storage,
 )
 
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_PATH = ROOT / "data" / "hokkien_hanri_dict.tsv"
 DEFAULT_REGISTRY_PATH = ROOT / "data" / "dictionary_entry_id_registry.tsv"
-LEGACY_COLUMNS = DICTIONARY_COLUMNS[:6]
-PRE_SIMPLIFIED_COLUMNS = DICTIONARY_COLUMNS[:7]
+LEGACY_COLUMNS = PRE_MANDARIN_COLUMNS[:6]
+PRE_SIMPLIFIED_COLUMNS = PRE_MANDARIN_COLUMNS[:7]
 
 
 def _serialize(rows: list[list[str]]) -> bytes:
@@ -77,12 +80,12 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
         raise ValueError("TSV is empty")
 
     header = tuple(rows[0])
-    if header not in {LEGACY_COLUMNS, PRE_SIMPLIFIED_COLUMNS, DICTIONARY_COLUMNS}:
-        raise ValueError("Expected the legacy six/seven-column or current eight-column dictionary header")
+    if header not in {LEGACY_COLUMNS, PRE_SIMPLIFIED_COLUMNS, PRE_MANDARIN_COLUMNS, DICTIONARY_COLUMNS}:
+        raise ValueError("Expected a supported historical header or the current nine-column dictionary header")
 
     data_positions = [
         index for index, row in enumerate(rows)
-        if index and row and not row[0].startswith("#")
+        if index and row and not is_comment_row(row, header)
     ]
     expected_fields = len(header)
     for position in data_positions:
@@ -91,7 +94,7 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
     if (
         "entry_id" in header
         and not registry_path.exists()
-        and any(valid_entry_id(rows[position][6]) for position in data_positions)
+        and any(valid_entry_id(dict(zip(header, rows[position])).get("entry_id", "")) for position in data_positions)
     ):
         raise FileNotFoundError(
             f"Dictionary ID registry is required for existing Unicode IDs: {registry_path}"
@@ -105,8 +108,9 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
             base, suffix_text = row[0].rsplit("_", 1)
             next_suffixes[base] = max(next_suffixes[base], int(suffix_text) + 1)
     for position in data_positions:
-        if "entry_id" in header and valid_entry_id(rows[position][6]):
-            base, suffix_text = rows[position][6].rsplit("_", 1)
+        old_id = dict(zip(header, rows[position])).get("entry_id", "")
+        if valid_entry_id(old_id):
+            base, suffix_text = old_id.rsplit("_", 1)
             next_suffixes[base] = max(next_suffixes[base], int(suffix_text) + 1)
 
     def allocate(headword: str) -> str:
@@ -117,13 +121,17 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
 
     migrated = [row[:] for row in rows]
     migrated[0] = list(DICTIONARY_COLUMNS)
+    for position, row in enumerate(rows[1:], 1):
+        if is_comment_row(row, header) and header != DICTIONARY_COLUMNS:
+            comment = dict(zip(header, row))
+            migrated[position] = [comment.get(name, "") for name in DICTIONARY_COLUMNS]
     assigned = 0
     active_ids: set[str] = set()
 
     for position in data_positions:
-        row = rows[position]
-        headword = canonical_entry_headword(row[1])
-        old_id = row[6] if "entry_id" in header else ""
+        row = dict(zip(header, rows[position]))
+        headword = canonical_entry_headword(row["hanri"])
+        old_id = row.get("entry_id", "")
         if old_id and valid_entry_id(old_id):
             if not entry_id_matches_headword(old_id, headword):
                 raise ValueError(f"Data row {position + 1}: entry_id does not match canonical headword {headword!r}")
@@ -140,14 +148,17 @@ def assign_ids(path: Path, registry_path: Path | None = None) -> int:
         if new_id in active_ids:
             raise ValueError(f"Duplicate assigned entry_id {new_id!r}")
         active_ids.add(new_id)
-        simplified = row[7] if "simplified" in header else simplified_headword(row[1])
-        migrated[position] = [*row[:6], new_id, simplified]
+        if "simplified" not in row:
+            row["simplified"] = inherited_storage(simplified_headword(row["hanri"]), row["hanri"])
+        row["entry_id"] = new_id
+        migrated[position] = [row.get(name, "") for name in DICTIONARY_COLUMNS]
 
     # Ordinary allocation retains existing Unicode IDs. An approved pre-release
     # migration may revise them separately; registry-only suffixes stay reserved.
     for position in data_positions:
-        entry_id = migrated[position][6]
-        headword = canonical_entry_headword(migrated[position][1])
+        record = dict(zip(DICTIONARY_COLUMNS, migrated[position]))
+        entry_id = record["entry_id"]
+        headword = canonical_entry_headword(record["hanri"])
         existing = registry_by_id.get(entry_id)
         expected = [entry_id, headword, ""]
         if existing is None:

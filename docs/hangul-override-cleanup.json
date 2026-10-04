@@ -1,0 +1,1314 @@
+{
+  "reason": "User-approved obsolete Hangul overrides with v3.1 Hanri equivalents; separate from static ranking reform",
+  "removedOverrides": [
+    {
+      "old": {
+        "hanri": "쉬ˋ",
+        "simplified": "",
+        "reading": "쉬2",
+        "mandarin_trad": "好; 漂亮",
+        "mandarin_simp": "〃",
+        "english": "nice",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+C26C_00"
+      },
+      "retained": {
+        "hanri": "媠",
+        "simplified": "〃",
+        "reading": "쉬2",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃",
+        "english": "beautiful",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5AA0_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "쟣",
+        "simplified": "",
+        "reading": "쟣",
+        "mandarin_trad": "才",
+        "mandarin_simp": "〃",
+        "english": "then",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+C7E3_00"
+      },
+      "retained": {
+        "hanri": "才",
+        "simplified": "〃",
+        "reading": "쟣",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃",
+        "english": "only; merely; only then",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+624D_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "쟣ˆ니ˉ",
+        "simplified": "",
+        "reading": "쟣1니5",
+        "mandarin_trad": "這麼",
+        "mandarin_simp": "这么",
+        "english": "this; so",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+C7E3_U+B2C8_00"
+      },
+      "retained": {
+        "hanri": "遮邇",
+        "simplified": "遮迩",
+        "reading": "쟣1니5",
+        "mandarin_trad": "這麼",
+        "mandarin_simp": "这么",
+        "english": "this much; to this extent",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+906E_U+9087_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "짇",
+        "simplified": "",
+        "reading": "짇",
+        "mandarin_trad": "這",
+        "mandarin_simp": "这",
+        "english": "this",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+C9C7_00"
+      },
+      "retained": {
+        "hanri": "這",
+        "simplified": "这",
+        "reading": "짇",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "这",
+        "english": "this",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+9019_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "친ˋ채ˋ",
+        "simplified": "",
+        "reading": "친2채2",
+        "mandarin_trad": "隨便",
+        "mandarin_simp": "随便",
+        "english": "anyhow",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+CE5C_U+CC44_00"
+      },
+      "retained": {
+        "hanri": "凊彩",
+        "simplified": "〃",
+        "reading": "친2채2",
+        "mandarin_trad": "隨便",
+        "mandarin_simp": "随便",
+        "english": "any; whichever; casual; careless",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+51CA_U+5F69_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "햫",
+        "simplified": "",
+        "reading": "햫",
+        "mandarin_trad": "那麼",
+        "mandarin_simp": "那么",
+        "english": "so; that (much)",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+D5AB_00"
+      },
+      "retained": {
+        "hanri": "遐",
+        "simplified": "〃",
+        "reading": "햫",
+        "mandarin_trad": "那麼",
+        "mandarin_simp": "那么",
+        "english": "that much; so",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+9050_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "햫ˆ니ˉ",
+        "simplified": "",
+        "reading": "햫1니5",
+        "mandarin_trad": "那麼",
+        "mandarin_simp": "那么",
+        "english": "so; that (much)",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+D5AB_U+B2C8_00"
+      },
+      "retained": {
+        "hanri": "遐邇",
+        "simplified": "遐迩",
+        "reading": "햫1니5",
+        "mandarin_trad": "那麼",
+        "mandarin_simp": "那么",
+        "english": "that much; to that extent",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+9050_U+9087_00"
+      }
+    },
+    {
+      "old": {
+        "hanri": "힏",
+        "simplified": "",
+        "reading": "힏",
+        "mandarin_trad": "那",
+        "mandarin_simp": "〃",
+        "english": "that",
+        "corrected": "",
+        "entry_type": "hangul_override",
+        "entry_id": "U+D78F_00"
+      },
+      "retained": {
+        "hanri": "彼",
+        "simplified": "〃",
+        "reading": "힏",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃",
+        "english": "that",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5F7C_00"
+      }
+    }
+  ],
+  "replacedIs": {
+    "old": {
+      "hanri": "시ˉ",
+      "simplified": "",
+      "reading": "시5",
+      "mandarin_trad": "是",
+      "mandarin_simp": "〃",
+      "english": "is",
+      "corrected": "",
+      "entry_type": "hangul_override",
+      "entry_id": "U+C2DC_00"
+    },
+    "new": {
+      "hanri": "是",
+      "simplified": "〃",
+      "reading": "시5",
+      "mandarin_trad": "〃",
+      "mandarin_simp": "〃",
+      "english": "is",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+662F_00"
+    }
+  },
+  "redirectsCreated": 0,
+  "remainingRows": 2737,
+  "priorityRowsRemoved": 1,
+  "priorityGroups": 73,
+  "priorityRows": 97,
+  "otherHomophonesRetained": [
+    "감2 / 感",
+    "뾔5 / 賣",
+    "애 / 愛",
+    "허5 / 護 / 雨"
+  ],
+  "survivingEntryDerivedChanges": [
+    {
+      "entry_id": "U+9802_U+4E16_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㄷ/tieng1.wav",
+                "unit": "뎽",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si5.wav",
+                "unit": "시",
+                "tone": "5",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㄷ/tieng1.wav",
+              "/public/audio/ㅅ/si5.wav"
+            ],
+            "missing": [],
+            "singapore": {
+              "segments": [
+                {
+                  "file": "/public/audio/ㄷ/tieng4.wav",
+                  "unit": "뎽",
+                  "tone": "4",
+                  "trimStart": false,
+                  "trimEnd": true,
+                  "shortOverlapFinal": false,
+                  "englishClusterHelper": false,
+                  "speed": 1.03
+                },
+                {
+                  "file": "/public/audio/ㅅ/si5.wav",
+                  "unit": "시",
+                  "tone": "5",
+                  "trimStart": true,
+                  "trimEnd": false,
+                  "shortOverlapFinal": false,
+                  "englishClusterHelper": false,
+                  "speed": 1.1
+                }
+              ],
+              "files": [
+                "/public/audio/ㄷ/tieng4.wav",
+                "/public/audio/ㅅ/si5.wav"
+              ],
+              "missing": []
+            }
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㄷ/tieng1.wav",
+                "unit": "뎽",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si3.wav",
+                "unit": "시",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㄷ/tieng1.wav",
+              "/public/audio/ㅅ/si3.wav"
+            ],
+            "missing": [],
+            "singapore": {
+              "segments": [
+                {
+                  "file": "/public/audio/ㄷ/tieng4.wav",
+                  "unit": "뎽",
+                  "tone": "4",
+                  "trimStart": false,
+                  "trimEnd": true,
+                  "shortOverlapFinal": false,
+                  "englishClusterHelper": false,
+                  "speed": 1.03
+                },
+                {
+                  "file": "/public/audio/ㅅ/si3.wav",
+                  "unit": "시",
+                  "tone": "3",
+                  "trimStart": true,
+                  "trimEnd": false,
+                  "shortOverlapFinal": false,
+                  "englishClusterHelper": false,
+                  "speed": 1.1
+                }
+              ],
+              "files": [
+                "/public/audio/ㄷ/tieng4.wav",
+                "/public/audio/ㅅ/si3.wav"
+              ],
+              "missing": []
+            }
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+62DC_U+56DB_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅂ/pai2.wav",
+                "unit": "배",
+                "tone": "2",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si5.wav",
+                "unit": "시",
+                "tone": "5",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅂ/pai2.wav",
+              "/public/audio/ㅅ/si5.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅂ/pai2.wav",
+                "unit": "배",
+                "tone": "2",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si3.wav",
+                "unit": "시",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅂ/pai2.wav",
+              "/public/audio/ㅅ/si3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+56DB_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅅ/si5.wav",
+                "unit": "시",
+                "tone": "5",
+                "trimStart": false,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅅ/si5.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅅ/si3.wav",
+                "unit": "시",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅅ/si3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+98DF_U+918B_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jiah1.wav",
+                "unit": "쟣",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chor3.wav",
+                "unit": "처",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jiah1.wav",
+              "/public/audio/ㅊ/chor3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jiah3.wav",
+                "unit": "쟣",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chor3.wav",
+                "unit": "처",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jiah3.wav",
+              "/public/audio/ㅊ/chor3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+4E2A_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄱ/ko3.wav",
+                "unit": "고",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㄱ/ko3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄱ/ko3.wav",
+                "unit": "고",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㄱ/ko3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+53E5_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄱ/ku3.wav",
+                "unit": "구",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㄱ/ku3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄱ/ku3.wav",
+                "unit": "구",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㄱ/ku3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+68DF_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄷ/tong3.wav",
+                "unit": "덩",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㄷ/tong3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄷ/tong3.wav",
+                "unit": "덩",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㄷ/tong3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+6EF4_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄷ/tih3.wav",
+                "unit": "딯",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㄷ/tih3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㄷ/tih3.wav",
+                "unit": "딯",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㄷ/tih3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+534A_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅂ/poal3.wav",
+                "unit": "봘",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㅂ/poal3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅂ/poal3.wav",
+                "unit": "봘",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㅂ/poal3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+6697_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav"
+            ],
+            "missing": [
+              "땀3"
+            ]
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav"
+            ],
+            "missing": [
+              "땀3"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+96BB_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅈ/jiah3.wav",
+                "unit": "쟣",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㅈ/jiah3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅈ/jiah3.wav",
+                "unit": "쟣",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㅈ/jiah3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+540B_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chun3.wav",
+                "unit": "춘",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㅊ/chun3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chun3.wav",
+                "unit": "춘",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㅊ/chun3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+51FA_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chut3.wav",
+                "unit": "춛",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㅊ/chut3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chut3.wav",
+                "unit": "춛",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㅊ/chut3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+4E00_U+5599_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit1.wav",
+                "unit": "짇",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chui3.wav",
+                "unit": "취",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit1.wav",
+              "/public/audio/ㅊ/chui3.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅈ/jit3.wav",
+                "unit": "짇",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅊ/chui3.wav",
+                "unit": "취",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅈ/jit3.wav",
+              "/public/audio/ㅊ/chui3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+51FA_U+4E16_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅊ/chut1.wav",
+                "unit": "춛",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si5.wav",
+                "unit": "시",
+                "tone": "5",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅊ/chut1.wav",
+              "/public/audio/ㅅ/si5.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅊ/chut1.wav",
+                "unit": "춛",
+                "tone": "1",
+                "trimStart": false,
+                "trimEnd": true,
+                "shortOverlapFinal": true,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              },
+              {
+                "file": "/public/audio/ㅅ/si3.wav",
+                "unit": "시",
+                "tone": "3",
+                "trimStart": true,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.1
+              }
+            ],
+            "files": [
+              "/public/audio/ㅊ/chut1.wav",
+              "/public/audio/ㅅ/si3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    },
+    {
+      "entry_id": "U+0034_00",
+      "changes": {
+        "audio": {
+          "before": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅅ/si5.wav",
+                "unit": "시",
+                "tone": "5",
+                "trimStart": false,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅅ/si5.wav"
+            ],
+            "missing": []
+          },
+          "after": {
+            "segments": [
+              {
+                "file": "/public/audio/ㅅ/si3.wav",
+                "unit": "시",
+                "tone": "3",
+                "trimStart": false,
+                "trimEnd": false,
+                "shortOverlapFinal": false,
+                "englishClusterHelper": false,
+                "speed": 1.0
+              }
+            ],
+            "files": [
+              "/public/audio/ㅅ/si3.wav"
+            ],
+            "missing": []
+          }
+        }
+      }
+    }
+  ],
+  "runtimeChanges": {
+    "unitRoman": {},
+    "rawHangulAudio": {},
+    "jamoLomari": {},
+    "jamoAudio": {}
+  },
+  "desktopAudioLookupChanges": {
+    "햫": {
+      "before": "햫",
+      "after": null
+    },
+    "시": {
+      "before": "시5",
+      "after": null
+    },
+    "햫니": {
+      "before": "햫1니5",
+      "after": null
+    },
+    "힏": {
+      "before": "힏",
+      "after": null
+    },
+    "짇": {
+      "before": "짇",
+      "after": null
+    },
+    "쟣니": {
+      "before": "쟣1니5",
+      "after": null
+    },
+    "쉬": {
+      "before": "쉬2",
+      "after": null
+    },
+    "친채": {
+      "before": "친2채2",
+      "after": null
+    },
+    "쟣": {
+      "before": "쟣",
+      "after": null
+    }
+  }
+}

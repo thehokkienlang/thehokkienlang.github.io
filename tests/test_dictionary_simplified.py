@@ -4,7 +4,7 @@ import csv
 from pathlib import Path
 import unittest
 
-from tools.dictionary_schema import DICTIONARY_COLUMNS
+from tools.dictionary_schema import DICTIONARY_COLUMNS, resolve_dictionary_record
 from tools.simplified_lookup import contains_hanri, non_hanri_text, review_case, simplified_field_errors, simplified_headword
 from tools.tangliengim_collation import row_sort_key
 
@@ -44,10 +44,11 @@ class SimplifiedLookupTests(unittest.TestCase):
     def test_every_source_row_and_sort_key(self):
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as stream:
             rows = [row for row in csv.DictReader(stream, delimiter='\t') if not row['reading'].startswith('#')]
-        self.assertEqual(len(rows), 2745)
-        self.assertEqual(sum(contains_hanri(row['hanri']) for row in rows), 2674)
+        self.assertEqual(len(rows), 2737)
+        self.assertEqual(sum(contains_hanri(row['hanri']) for row in rows), 2675)
         for row in rows:
-            self.assertEqual(simplified_field_errors(row['hanri'], row['simplified']), [], row['entry_id'])
+            resolved = resolve_dictionary_record(row)
+            self.assertEqual(simplified_field_errors(row['hanri'], resolved['simplified']), [], row['entry_id'])
             changed = {**row, 'simplified': 'arbitrary lookup metadata'}
             self.assertEqual(row_sort_key(row, DICTIONARY_COLUMNS), row_sort_key(changed, DICTIONARY_COLUMNS))
 

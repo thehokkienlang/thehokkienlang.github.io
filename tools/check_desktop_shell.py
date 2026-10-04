@@ -89,10 +89,14 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
         ):
             assert pad.confirm_and_save_bracketed_hanri_annotations(converter, formatted)
         with target.open(encoding="utf-8", newline="") as stream:
-            rows = list(csv.reader(stream, delimiter="\t"))
-        assert len(rows) == 1 and rows[0][:6] == ["뎩1걱", "德國", "1", "", "", "lexical"], rows
-        assert rows[0][6] == "U+5FB7_U+570B_00", rows
-        assert len(rows[0]) == 8 and rows[0][7] == "德国", rows
+            reader = csv.DictReader(stream, delimiter="\t")
+            assert tuple(reader.fieldnames) == converter.dictionary_schema_api().DICTIONARY_COLUMNS
+            rows = list(reader)
+        assert len(rows) == 1 and rows[0]['reading'] == '뎩1걱', rows
+        assert rows[0]['hanri'] == '德國' and 'priority' not in rows[0], rows
+        assert rows[0]['entry_id'] == 'U+5FB7_U+570B_00', rows
+        assert rows[0]['simplified'] == '德国', rows
+        assert rows[0]['mandarin_trad'] == rows[0]['mandarin_simp'] == '', rows
         registry = target.with_name("dictionary_entry_id_registry.tsv")
         assert registry.is_file(), registry
         with registry.open("a", encoding="utf-8", newline="") as stream:
@@ -105,9 +109,9 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
         ):
             assert converter.append_hanri_reading_to_tsv("德國", "뎩2걱")
         with target.open(encoding="utf-8", newline="") as stream:
-            rows = list(csv.reader(stream, delimiter="\t"))
-        assert rows[1][6] == "U+5FB7_U+570B_02", rows
-        assert rows[1][7] == "德国", rows
+            rows = list(csv.DictReader(stream, delimiter="\t"))
+        assert rows[1]['entry_id'] == 'U+5FB7_U+570B_02', rows
+        assert rows[1]['simplified'] == '德国', rows
 
 
 def check_repository_sync_pending(shell) -> None:

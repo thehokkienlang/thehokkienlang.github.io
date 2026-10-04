@@ -59,6 +59,7 @@ def main() -> int:
         "sourceSha256": data["sourceSha256"],
         "idRegistrySourceSha256": data["idRegistrySourceSha256"],
         "categorySourceSha256": data["categorySourceSha256"],
+        "prioritySourceSha256": data['prioritySourceSha256'],
         "entries": len(data["entries"]),
         "shared": {
             path.name: hashlib.sha256(path.read_bytes()).hexdigest()

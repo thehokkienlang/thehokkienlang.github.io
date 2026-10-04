@@ -1401,13 +1401,30 @@ def existing_hanri_readings(hanri: str) -> list[str]:
     return readings
 
 
-def dictionary_simplified_headword(hanri: str) -> str:
+def dictionary_tools_path() -> Path:
     repo = Path(os.environ.get('HOKKIEN_GITHUB_REPO_PATH') or source_repo_root())
     if not (repo / 'tools' / 'simplified_lookup.py').is_file():
         repo = Path.home() / 'Documents' / 'GitHub' / 'thehokkienlang.github.io'
     tools_path = str(repo / 'tools')
     if tools_path not in sys.path:
         sys.path.insert(0, tools_path)
+    return repo / 'tools'
+
+
+def dictionary_schema_api():
+    dictionary_tools_path()
+    import dictionary_schema
+    return dictionary_schema
+
+
+def dictionary_ranking_api():
+    dictionary_tools_path()
+    import dictionary_ranking
+    return dictionary_ranking
+
+
+def dictionary_simplified_headword(hanri: str) -> str:
+    dictionary_tools_path()
     from simplified_lookup import simplified_headword
     return simplified_headword(hanri)
 
@@ -1431,7 +1448,16 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
     path.parent.mkdir(parents=True, exist_ok=True)
     needs_newline = path.exists() and path.stat().st_size > 0
     simplified = dictionary_simplified_headword(hanri)
+    schema = dictionary_schema_api()
+    record = dict(hanri=hanri, simplified=schema.inherited_storage(simplified, hanri),
+                  reading=reading, mandarin_trad='', mandarin_simp='', english='',
+                  corrected='', entry_type=entry_type)
+    if path.exists() and path.stat().st_size:
+        with path.open('r', encoding='utf-8-sig', newline='') as existing:
+            if next(csv.reader(existing, delimiter='\t'), None) != list(schema.DICTIONARY_COLUMNS):
+                raise ValueError('Dictionary must be migrated to the current schema before adding readings.')
     entry_id = reserve_dictionary_entry_id(path, hanri)
+    record['entry_id'] = entry_id
     with path.open('a', encoding='utf-8', newline='') as f:
         if needs_newline:
             with path.open('rb') as existing:
@@ -1439,7 +1465,9 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
                 if existing.read(1) != b'\n':
                     f.write('\r\n')
         writer = csv.writer(f, delimiter='\t', lineterminator='\r\n')
-        writer.writerow([reading, hanri, '1', '', '', entry_type, entry_id, simplified])
+        if not needs_newline:
+            writer.writerow(schema.DICTIONARY_COLUMNS)
+        writer.writerow([record[name] for name in schema.DICTIONARY_COLUMNS])
 
     _HANRI_READING_INDEX = None
     _HANRI_READING_KEYS = None
@@ -1627,12 +1655,6 @@ def strip_reading_tones(reading: str) -> str:
         out.append(ch)
     return ''.join(out)
 
-def safe_priority(value: str, default: int = 9999) -> int:
-    try:
-        return int(str(value).strip())
-    except Exception:
-        return default
-
 def field_contains_cjk(text: str) -> bool:
     return any(is_cjk_char(ch) for ch in str(text or ''))
 
@@ -1713,7 +1735,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
 
     index: dict[str, list[dict]] = {}
     mixed_index: dict[str, list[dict]] = {}
-    overrides: dict[str, tuple[str, int, int]] = {}
+    overrides: dict[str, list[dict]] = {}
     for path in hanri_tsv_candidates():
         if not path.exists():
             continue
@@ -1729,22 +1751,13 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             data_rows = rows[1:]
             reading_col = header.index('reading')
             hanri_col = header.index('hanri')
-            priority_col = header.index('priority') if 'priority' in header else None
             corrected_col = header.index('corrected') if 'corrected' in header else None
             entry_type_col = header.index('entry_type') if 'entry_type' in header else None
             entry_id_col = header.index('entry_id') if 'entry_id' in header else None
             simplified_col = header.index('simplified') if 'simplified' in header else None
             row_offset = 2
         else:
-            data_rows = rows
-            reading_col = 0
-            hanri_col = 1
-            priority_col = 2
-            corrected_col = None
-            entry_type_col = None
-            entry_id_col = None
-            simplified_col = None
-            row_offset = 1
+            raise ValueError('Dictionary requires the current named-column schema.')
 
         for row_number, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
@@ -1752,7 +1765,10 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
-            simplified = row[simplified_col] if simplified_col is not None and len(row) > simplified_col else ''
+            metadata = dictionary_schema_api().resolve_dictionary_record(dict(zip(header, row)) if has_header else {
+                'hanri': hanri, 'simplified': '',
+            })
+            simplified = metadata.get('simplified', '')
             if not reading_cell or not hanri:
                 continue
 
@@ -1761,22 +1777,21 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             if reading and reading[0].isdigit() and corrected:
                 continue
 
-            priority = safe_priority(row[priority_col] if priority_col is not None and len(row) > priority_col else '')
             override_key = hangul_override_key(hanri)
             override_reading = corrected or reading
-            if override_key and override_reading:
-                existing = overrides.get(override_key)
-                if existing is None or (priority, row_number) < (existing[1], existing[2]):
-                    overrides[override_key] = (override_reading, priority, row_number)
-
             entry = {
                 'reading': corrected or reading,
-                'priority': priority,
+                'hanri': hanri,
+                'raw': metadata,
                 'row': row_number,
                 'entry_type': entry_type,
                 'entry_id': entry_id,
                 'simplified': simplified,
+                'mandarin_trad': metadata.get('mandarin_trad', ''),
+                'mandarin_simp': metadata.get('mandarin_simp', ''),
             }
+            if override_key and override_reading:
+                overrides.setdefault(override_key, []).append(entry)
 
             if field_is_mixed_hanri_key(hanri):
                 mixed_index.setdefault(hanri, []).append(entry)
@@ -1789,17 +1804,20 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
 
         break
 
-    for entries in index.values():
-        entries.sort(key=lambda item: (item['priority'], item['row'], item['reading']))
-    for entries in mixed_index.values():
-        entries.sort(key=lambda item: (item['priority'], item['row'], item['reading']))
+    ranking = dictionary_ranking_api()
+    all_entries = [e for groups in (index,mixed_index,overrides) for values in groups.values() for e in values]
+    if all_entries:
+        ranking.annotate_entries(all_entries,path.with_name('dictionary_priority.tsv'),ranking.read_records(path))
+    for groups in (index,mixed_index):
+        for key, entries in groups.items():
+            groups[key] = ranking.rank_entries(entries,key)
 
     _HANRI_READING_INDEX = index
-    _HANRI_READING_KEYS = sorted(index, key=len, reverse=True)
+    _HANRI_READING_KEYS = sorted(index, key=lambda key:(-len(key),key))
     _MIXED_HANRI_READING_INDEX = mixed_index
-    _MIXED_HANRI_READING_KEYS = sorted(mixed_index, key=len, reverse=True)
-    _HANGUL_OVERRIDE_INDEX = {key: value[0] for key, value in overrides.items()}
-    _HANGUL_OVERRIDE_KEYS = sorted(_HANGUL_OVERRIDE_INDEX, key=len, reverse=True)
+    _MIXED_HANRI_READING_KEYS = sorted(mixed_index, key=lambda key:(-len(key),key))
+    _HANGUL_OVERRIDE_INDEX = {key: ranking.rank_entries(value,key)[0]['reading'] for key,value in overrides.items()}
+    _HANGUL_OVERRIDE_KEYS = sorted(_HANGUL_OVERRIDE_INDEX, key=lambda key:(-len(key),key))
     return _HANRI_READING_INDEX
 
 def apply_hangul_overrides_from_tsv(text: str) -> str:
@@ -1876,64 +1894,13 @@ def cjk_run_end(text: str, index: int) -> int:
 
 
 def tsv_hanri_segment_for_run(text: str, index: int) -> tuple[str, str] | None:
-    """Choose the best TSV-backed first Hanri segment for the current CJK run.
-
-    Scoring is phrase-aware rather than purely greedy: prefer segmentations that
-    cover more Hanri characters, then lower summed TSV priority, then fewer
-    segments. This lets 用 + 心肝 beat 用心 + unknown 肝 when the TSV priority says
-    心肝 is the better phrase.
-    """
+    """Resolve Hanri segmentation through the shared static ranking engine."""
     readings = load_hanri_reading_index()
-    keys = _HANRI_READING_KEYS or []
     if index >= len(text) or not is_cjk_char(text[index]):
         return None
-
-    run_end = cjk_run_end(text, index)
-    memo: dict[int, tuple[tuple[int, int, int], tuple[str, str] | None]] = {}
-
-    def best_at(pos: int) -> tuple[tuple[int, int, int], tuple[str, str] | None]:
-        if pos >= run_end:
-            return (0, 0, 0), None
-        if pos in memo:
-            return memo[pos]
-
-        best_score = (1_000_000, 1_000_000, 1_000_000)
-        best_first: tuple[str, str] | None = None
-
-        for hanri in keys:
-            if not hanri or not text.startswith(hanri, pos):
-                continue
-            after = pos + len(hanri)
-            if after > run_end:
-                continue
-            entries = readings.get(hanri) or []
-            if not entries:
-                continue
-            reading = entries[0].get('reading', '')
-            if not reading:
-                continue
-
-            rest_score, _rest_first = best_at(after)
-            priority = int(entries[0].get('priority', 9999))
-            score = (rest_score[0], priority + rest_score[1], 1 + rest_score[2])
-            if score < best_score:
-                best_score = score
-                best_first = (hanri, reading)
-
-        # Allow an unmatched Hanri character so a partly-covered run can still
-        # be scored. A complete TSV cover always wins because unmatched count is
-        # the first score component.
-        rest_score, _rest_first = best_at(pos + 1)
-        unmatched_score = (1 + rest_score[0], 9999 + rest_score[1], 1 + rest_score[2])
-        if unmatched_score < best_score:
-            best_score = unmatched_score
-            best_first = None
-
-        memo[pos] = (best_score, best_first)
-        return memo[pos]
-
-    _score, first = best_at(index)
-    return first
+    entries = [entry for group in readings.values() for entry in group]
+    match = dictionary_ranking_api().segment_match(text, index, entries, cjk_run_end(text,index))
+    return (match['hanri'],match['reading']) if match else None
 
 
 def tsv_hanri_match(text: str, index: int) -> tuple[str, str] | None:

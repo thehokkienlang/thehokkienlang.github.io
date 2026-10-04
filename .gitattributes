@@ -1,3 +1,4 @@
 # These canonical TSVs retain their validated CRLF bytes on every platform.
 data/hokkien_hanri_dict.tsv -text whitespace=-blank-at-eol,cr-at-eol
 data/dictionary_entry_id_registry.tsv -text whitespace=-blank-at-eol,cr-at-eol
+data/dictionary_priority.tsv -text whitespace=-blank-at-eol,cr-at-eol

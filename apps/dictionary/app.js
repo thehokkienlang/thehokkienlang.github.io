@@ -81,14 +81,15 @@ function groupEntries(entries) {
       byHeadwordReading.set(key, {
         hanri: headword,
         kind: entry.kind,
-        priority: entry.priority,
-        row: entry.row,
+        canonicalEntry: entry,
         readings: [],
         categories: [],
         search: {
           hanri: normalizeText(headword),
           simplified: normalizeText(ImeCore.stripLegacyInlineToneMarks(entry.simplified || "")),
           simplifiedRaw: normalizeText(entry.simplified || ""),
+          mandarinTrad: "",
+          mandarinSimp: "",
           reading: "",
           readingBase: "",
           lomari: "",
@@ -100,15 +101,14 @@ function groupEntries(entries) {
     }
 
     const group = byHeadwordReading.get(key);
-    group.priority = Math.min(group.priority, entry.priority);
-    group.row = Math.min(group.row, entry.row);
+    if (ImeCore.compareCanonicalEntries(entry,group.canonicalEntry)<0) group.canonicalEntry = entry;
     group.readings.push(entry);
   }
 
   const groups = [...byHeadwordReading.values()];
   for (const group of groups) {
     group.readings.sort((a, b) =>
-      a.priority - b.priority || a.row - b.row || a.reading.localeCompare(b.reading)
+      ImeCore.compareCanonicalEntries(a,b)
     );
     group.categories = [...new Set(group.readings.flatMap((item) => item.categories || []))];
     group.search.reading = normalizeText(group.readings.map((item) => item.reading).join(" "));
@@ -116,10 +116,14 @@ function groupEntries(entries) {
     group.search.lomari = normalizeText(group.readings.map((item) => item.lomari).join(" "));
     group.search.lomariAliases = normalizeLomariSearchAliases(group.readings.map((item) => item.lomari).join(" "));
     group.search.english = normalizeEnglishSearch(group.readings.map((item) => item.english || "").join(" "));
+    group.search.mandarinTrad = normalizeText(group.readings.map((item) => item.mandarin_trad || "").join(" "));
+    group.search.mandarinSimp = normalizeText(group.readings.map((item) => item.mandarin_simp || "").join(" "));
     group.search.all = [
       group.search.hanri,
       group.search.simplified,
       group.search.simplifiedRaw,
+      group.search.mandarinTrad,
+      group.search.mandarinSimp,
       group.search.reading,
       group.search.readingBase,
       group.search.lomari,
@@ -129,7 +133,7 @@ function groupEntries(entries) {
     ].join(" ");
   }
 
-  return groups.sort((a, b) => a.priority - b.priority || a.row - b.row || a.hanri.localeCompare(b.hanri));
+  return groups.sort((a, b) => ImeCore.compareCanonicalEntries(a.canonicalEntry,b.canonicalEntry));
 }
 
 function scoreField(value, query, boost) {
@@ -149,6 +153,8 @@ function scoreGroup(group, queries, mode) {
     { name: "hanri", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "simplified", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "simplifiedRaw", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "mandarinTrad", boost: 0 },
+    { name: "mandarinSimp", boost: 0 },
     { name: "reading", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "readingBase", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "lomari", boost: mode === "lomari" ? 6 : 0 },
@@ -181,9 +187,7 @@ function searchGroups() {
     .filter((item) => item.score > 0)
     .sort((a, b) =>
       b.score - a.score ||
-      a.group.priority - b.group.priority ||
-      a.group.row - b.group.row ||
-      a.group.hanri.localeCompare(b.group.hanri)
+      ImeCore.compareCanonicalEntries(a.group.canonicalEntry,b.group.canonicalEntry)
     );
 
   const total = matches.length;

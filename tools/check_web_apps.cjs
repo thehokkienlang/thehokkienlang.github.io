@@ -162,6 +162,21 @@ async function loadApp(route, script) {
     return entry && searchGroups().shown.some(group => group.readings.some(reading => reading.id === entry.id))
       && entry.hanri === '台灣';
   })()`, dictionary.context), '台湾 must find and display canonical 台灣');
+  assert.ok(vm.runInContext(`(() => {
+    const cases = [['自己', '家己'], ['今天', '今仔日'], ['這裡', '쟈ˆ'], ['这里', '쟈ˆ'],
+      ['計較', '計較'], ['计较', '計較'], ['繼續', '繼續'], ['继续', '繼續'],
+      ['鑰匙', '鎖匙'], ['钥匙', '鎖匙'], ['去年', '舊年'],
+      ['彎腰', '揞腰'], ['弯腰', '揞腰'], ['爆香', '芡芳'], ['剛剛', '今仔'], ['刚刚', '今仔']];
+    return cases.every(([query, headword]) => {
+      searchInput.value = query;
+      return searchGroups().shown.some(group => group.hanri === headword);
+    }) && state.entries.every(entry => ![entry.simplified, entry.mandarin_trad, entry.mandarin_simp].includes('〃'));
+  })()`, dictionary.context), 'Mandarin Traditional/Simplified queries must find existing Hokkien entries without exposing ditto');
+  assert.ok(vm.runInContext(`(() => {
+    searchInput.value = 'kilometre';
+    return searchGroups().shown.some(group => group.hanri === '公里'
+      && group.readings.some(entry => entry.id === 'U+516C_U+91CC_00' && entry.english === 'kilometre'));
+  })()`, dictionary.context), 'Corrected whole-word English must search the existing 公里 entry');
   vm.runInContext("searchInput.value = ''", dictionary.context);
   assert.ok(
     vm.runInContext(`(() => {
@@ -427,9 +442,9 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
-      const citation = lomariRenderer.resolvedHangulToneSpans('시');
-      const sandhi = lomariRenderer.resolvedHangulToneSpans('시뎋');
-      return citation[0]?.reading === '시5' && sandhi[0]?.reading === '시3';
+      const citation = lomariRenderer.resolvedHangulToneSpans('릐');
+      const sandhi = lomariRenderer.resolvedHangulToneSpans('릐뎋');
+      return citation[0]?.reading === '릐2' && sandhi[0]?.reading === '릐1';
     })()`, context),
     'Floating Hangul tones must follow the same resolved citation/sandhi state as Lomari'
   );
@@ -892,7 +907,7 @@ async function loadApp(route, script) {
   assert.equal(elements.get('#lomariPreview').textContent, taipeiLomari, 'Singapore must not alter the Lomari preview');
   vm.runInContext('imeController.clear()', context);
   assert.equal(elements.get('#lomariPreview').textContent, '', 'Clear must empty the Lomari preview');
-  for (const [input, tones] of [['ㅏ', '1'], ['ㄱ', '5,1'], ['시', '5'], ['시4', '4']]) {
+  for (const [input, tones] of [['ㅏ', '1'], ['ㄱ', '5,1'], ['시', '3'], ['是', '5'], ['시4', '4']]) {
     const plan = vm.runInContext(`audioPlanFromText(${JSON.stringify(input)})`, context);
     assert.equal(plan.segments.map(segment => segment.tone).join(','), tones, `${input}: Local audio reading`);
     assert.equal(plan.missing.join(','), '', `${input}: no false missing-audio warning`);

@@ -14,7 +14,6 @@ const objectDigest = value => digest(JSON.stringify(value));
 
 function stableEntry(entry) {
   return {
-    row: entry.row,
     kind: entry.kind,
     active: entry.active,
     hanri: entry.hanri,
@@ -26,12 +25,10 @@ function stableEntry(entry) {
     englishKey: entry.englishKey,
     categories: entry.categories,
     audio: entry.audio,
-    priority: entry.priority,
     form: entry.form,
     raw: {
       reading: entry.raw.reading,
       hanri: entry.raw.hanri,
-      priority: entry.raw.priority,
       corrected: entry.raw.corrected,
       english: entry.raw.english,
     },
@@ -86,7 +83,7 @@ function snapshot(data) {
   }
 
   return {
-    formatVersion: 4,
+    formatVersion: 6,
     provenance: {
       sourceSha256: data.sourceSha256,
       categorySourceSha256: data.categorySourceSha256,
@@ -105,6 +102,11 @@ function snapshot(data) {
       runtime: objectDigest(data.runtime),
       counts: objectDigest(data.counts),
       skippedRows: objectDigest(data.skippedRows),
+      lookupMetadata: objectDigest(data.entries.map(entry => ({
+        id: entry.id, simplified: entry.simplified,
+        mandarin_trad: entry.mandarin_trad, mandarin_simp: entry.mandarin_simp,
+      }))),
+      staticRanking: objectDigest(data.entries.map(entry => ({id:entry.id,canonicalKey:entry.canonicalKey,staticRanks:entry.staticRanks,staticOrder:entry.staticOrder}))),
     },
     candidateOrder,
     visibleMenuOrder,
@@ -127,11 +129,40 @@ function main() {
     [data.source, data.sourceSha256],
     [data.idRegistrySource, data.idRegistrySourceSha256],
     [data.categorySource, data.categorySourceSha256],
+    [data.prioritySource, data.prioritySourceSha256],
   ]) {
     assert.equal(digest(fs.readFileSync(path.join(root, source))), hash,
       `Generated JSON is stale for ${source}; rebuild it first`);
   }
   const actual = snapshot(data);
+  const beforeIndex = process.argv.indexOf('--compare-before');
+  if (beforeIndex !== -1) {
+    const before = JSON.parse(fs.readFileSync(process.argv[beforeIndex + 1], 'utf8'));
+    const previous = snapshot(before);
+    for (const name of ['entries', 'entryIdentity', 'categories', 'runtime', 'counts', 'skippedRows']) {
+      assert.equal(actual.jsonSections[name], previous.jsonSections[name], `Unrelated migration regression: ${name}`);
+    }
+    for (const [name, index] of Object.entries(before.indexes)) {
+      if (name === 'byMandarinTrad' || name === 'byMandarinSimp') {
+        for (const [key, ids] of Object.entries(index)) {
+          const previousIds = new Set(ids);
+          assert.deepEqual(data.indexes[name][key]?.filter(id => previousIds.has(id)), ids,
+            `Existing Mandarin mappings lost or reordered: ${name} ${key}`);
+        }
+      } else {
+        assert.deepEqual(data.indexes[name], index, `Existing lookup index changed: ${name}`);
+      }
+    }
+    for (const [i, entry] of before.entries.entries()) {
+      assert.equal(data.entries[i].simplified, entry.simplified, 'Hokkien Simplified changed');
+      for (const name of ['mandarin_trad', 'mandarin_simp']) {
+        if (entry[name]) assert.equal(data.entries[i][name], entry[name], `Populated Mandarin value changed: ${entry.id}`);
+      }
+    }
+    assert.equal(firstDifference(previous.candidateOrder, actual.candidateOrder), '', 'Candidate order changed');
+    assert.equal(firstDifference(previous.visibleMenuOrder, actual.visibleMenuOrder), '', 'Visible candidate order changed');
+    console.log('Pre-migration lexical, identity, lookup, audio/runtime and candidate snapshots match.');
+  }
   if (capture) {
     fs.mkdirSync(path.dirname(fixturePath), { recursive: true });
     fs.writeFileSync(fixturePath, JSON.stringify(actual, null, 2) + '\n');
@@ -154,7 +185,7 @@ function main() {
     assert.equal(difference, '', `${section} changed ${difference}`);
   }
   if (expected.formatVersion !== actual.formatVersion) {
-    throw new Error('Zero-based ID migration preserved behavior; recapture the baseline to record permanent IDs');
+    throw new Error('Baseline schema changed; verify the migration before capturing the new metadata baseline');
   }
   console.log(`Baseline matched: ${actual.candidateOrder.length} candidate keys, ${data.entries.length} JSON entries.`);
 }

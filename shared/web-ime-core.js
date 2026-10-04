@@ -607,6 +607,66 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
+  function compareCanonicalValue(left, right) {
+    if (Array.isArray(left) && Array.isArray(right)) {
+      for (let i = 0; i < Math.min(left.length, right.length); i++) {
+        const difference = compareCanonicalValue(left[i], right[i]);
+        if (difference) return difference;
+      }
+      return left.length - right.length;
+    }
+    return left < right ? -1 : left > right ? 1 : 0;
+  }
+
+  function compareCanonicalEntries(left, right) {
+    const key = entry => entry.canonicalKey || [
+      ["hangul_override", "lexical", "correction_alias", "number_pronunciation"].indexOf(entry.entryType || "lexical"),
+      [...(entry.raw?.reading || entry.reading || "")].map(c => c.codePointAt(0)),
+      [...(entry.raw?.hanri || entry.hanri || "")].map(c => c.codePointAt(0)),
+      entry.raw?.entry_id || entry.id || "",
+    ];
+    return compareCanonicalValue(key(left), key(right)) ||
+      Number(Boolean(left.autoSandhi)) - Number(Boolean(right.autoSandhi));
+  }
+
+  function rankingLookupKey(value) {
+    return normalizeText(value).normalize("NFC");
+  }
+
+  function sourceEntryId(entry) {
+    return entry.raw?.entry_id || entry.entry_id || String(entry.id || "").replace(/-sandhi$/, "");
+  }
+
+  function rankEntries(entries, key, presorted = false) {
+    const normalized = rankingLookupKey(key);
+    const ordered = presorted ? [...entries] : [...entries].sort(compareCanonicalEntries);
+    if (!presorted && ordered.some(e => e.staticOrder?.[normalized] !== undefined)) {
+      return ordered.sort((a, b) =>
+        (a.staticOrder?.[normalized] ?? Number.MAX_SAFE_INTEGER) -
+        (b.staticOrder?.[normalized] ?? Number.MAX_SAFE_INTEGER) || compareCanonicalEntries(a, b));
+    }
+    const ids = [...new Set(ordered.map(sourceEntryId))];
+    const pins = new Map();
+    for (const entry of ordered) {
+      const rank = entry.staticRanks?.[normalized];
+      if (rank !== undefined) pins.set(sourceEntryId(entry), rank);
+    }
+    const slots = Array(ids.length).fill(null);
+    for (const [id, rank] of [...pins].sort((a, b) => a[1] - b[1])) {
+      if (!Number.isInteger(rank) || rank < 1 || rank > slots.length) {
+        throw new Error(`${normalized}: absolute rank ${rank} is outside the complete candidate group`);
+      }
+      const position = rank - 1;
+      if (slots[position] !== null) throw new Error(`${normalized}: conflicting absolute rank ${rank}`);
+      slots[position] = id;
+    }
+    const remaining = ids.filter(id => !pins.has(id));
+    let cursor = 0;
+    const positions = new Map(slots.map((id, i) => [id === null ? remaining[cursor++] : id, i]));
+    return ordered.sort((a, b) => positions.get(sourceEntryId(a)) - positions.get(sourceEntryId(b)) ||
+      Number(Boolean(a.autoSandhi)) - Number(Boolean(b.autoSandhi)));
+  }
+
   function buildReadingCandidateMap(entries) {
     const byReading = new Map();
     for (const entry of entries.filter(searchableEntry)) {
@@ -622,10 +682,8 @@ const TangliengimImeCore = (() => {
       }
     }
 
-    for (const candidates of byReading.values()) {
-      candidates.sort((a, b) =>
-        a.priority - b.priority || a.row - b.row || a.hanri.localeCompare(b.hanri)
-      );
+    for (const [key, candidates] of byReading) {
+      byReading.set(key, rankEntries(candidates, key));
     }
     return byReading;
   }
@@ -691,8 +749,7 @@ const TangliengimImeCore = (() => {
       .filter((entry) => entry.hanri && entry.kind !== "hangul_override")
       .sort((a, b) =>
         [...b.hanri].length - [...a.hanri].length ||
-        a.priority - b.priority ||
-        a.row - b.row
+        compareCanonicalEntries(a, b)
       );
     const mixedHanriEntries = hanriEntries.filter((entry) => entry.kind === "mixed_hanri");
     const plainHanriByFirst = new Map();
@@ -721,15 +778,17 @@ const TangliengimImeCore = (() => {
       if (entry.kind !== "hangul_override") continue;
       const visibleKey = TangliengimHangulIme.normalizeReadingBase(entry.readingBase).normalize("NFC");
       const key = normalizeText(visibleKey);
-      if (key && !hangulOverrides.has(key)) {
-        hangulOverrides.set(key, entry);
-        hangulOverrideKeys.push(visibleKey);
+      if (key) {
+        const previous = hangulOverrides.get(key);
+        hangulOverrides.set(key, previous ? rankEntries([previous, entry], visibleKey)[0] : entry);
+        if (!previous) hangulOverrideKeys.push(visibleKey);
       }
     }
 
     hangulOverrideKeys.sort((a, b) => [...b].length - [...a].length || b.length - a.length);
     for (const candidates of exactReadingEntries.values()) {
-      candidates.sort((a, b) => a.priority - b.priority || a.row - b.row);
+      candidates.splice(0, candidates.length, ...rankEntries(candidates,
+        TangliengimHangulIme.normalizeReadingBase(candidates[0]?.reading || "")));
     }
 
     function compareScore(left, right) {
@@ -739,7 +798,7 @@ const TangliengimImeCore = (() => {
       return 0;
     }
 
-    function priorityHanriMatch(text, index, maximumEnd = text.length) {
+    function contextualHanriMatch(text, index, maximumEnd = text.length) {
       const cacheKey = `${text}\u0000${index}\u0000${maximumEnd}`;
       if (hanriMatchCache.has(cacheKey)) return hanriMatchCache.get(cacheKey);
 
@@ -753,29 +812,41 @@ const TangliengimImeCore = (() => {
       runEnd = Math.min(runEnd, maximumEnd);
       const memo = new Map();
       function bestAt(position) {
-        if (position >= runEnd) return { score: [0, 0, 0], first: null };
+        if (position >= runEnd) return { score: [0, 0], first: null };
         if (memo.has(position)) return memo.get(position);
 
-        let best = { score: [1_000_000, 1_000_000, 1_000_000], first: null };
+        const choices = [];
         const currentChar = String.fromCodePoint(text.codePointAt(position));
         for (const entry of plainHanriByFirst.get(currentChar) || []) {
           const key = String(entry.hanri || "");
           if (!key || !text.startsWith(key, position) || position + key.length > runEnd) continue;
           const rest = bestAt(position + key.length);
           const candidate = {
-            score: [rest.score[0], Number(entry.priority) + rest.score[1], 1 + rest.score[2]],
+            score: [rest.score[0], 1 + rest.score[1]],
             first: entry,
           };
-          if (compareScore(candidate.score, best.score) < 0) best = candidate;
+          choices.push(candidate);
         }
 
         const char = String.fromCodePoint(text.codePointAt(position));
         const rest = bestAt(position + char.length);
         const unmatched = {
-          score: [1 + rest.score[0], 9999 + rest.score[1], 1 + rest.score[2]],
+          score: [1 + rest.score[0], 1 + rest.score[1]],
           first: null,
         };
-        if (compareScore(unmatched.score, best.score) < 0) best = unmatched;
+        choices.sort((a, b) => compareScore(a.score, b.score) ||
+          [...b.first.hanri].length - [...a.first.hanri].length || compareCanonicalEntries(a.first, b.first));
+        const minimumUnmatched = choices[0]?.score[0];
+        for (let i = choices.length - 1; i >= 0; i--) {
+          if (choices[i].score[0] !== minimumUnmatched) choices.splice(i, 1);
+        }
+        let best = choices[0] || unmatched;
+        const key = rankingLookupKey(text.slice(position, runEnd));
+        if (choices.some(item => item.first.staticRanks?.[key] !== undefined)) {
+          const first = rankEntries(choices.map(item => item.first), key, true)[0];
+          best = choices.find(item => item.first === first);
+        }
+        if (unmatched.score[0] < best.score[0]) best = unmatched;
         memo.set(position, best);
         return best;
       }
@@ -787,12 +858,11 @@ const TangliengimImeCore = (() => {
     }
 
     function findHanriEntry(text, index = 0, maximumEnd = text.length) {
-      for (const entry of mixedHanriEntries) {
-        if (text.startsWith(entry.hanri, index) && index + entry.hanri.length <= maximumEnd) return entry;
-      }
+      const mixed = mixedHanriEntries.filter(entry => text.startsWith(entry.hanri, index) && index + entry.hanri.length <= maximumEnd);
+      if (mixed.length) return rankEntries(mixed, text.slice(index, maximumEnd), true)[0];
       const code = text.codePointAt(index);
       const char = code === undefined ? "" : String.fromCodePoint(code);
-      return isHanriChar(char) ? priorityHanriMatch(text, index, maximumEnd) : null;
+      return isHanriChar(char) ? contextualHanriMatch(text, index, maximumEnd) : null;
     }
 
     function findHangulOverride(reading) {
@@ -1926,6 +1996,9 @@ const TangliengimImeCore = (() => {
 
   return {
     buildReadingCandidateMap,
+    compareCanonicalEntries,
+    rankEntries,
+    rankingLookupKey,
     citationToTaipeiSandhiTone,
     createCandidatePopupPositioner,
     createDictionaryIndex,

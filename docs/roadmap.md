@@ -33,6 +33,11 @@ Genesis 3.1 consolidation is recorded in
 v3.1 regression snapshot is the starting reference for Exodus I–IV, which
 remain unimplemented.
 
+The Pre-Exodus sparse static-priority reform is the new static foundation:
+the main dictionary has no ranking column; contextual exceptions live in
+`data/dictionary_priority.tsv`. Its reviewed report is
+[`static-priority-migration.json`](static-priority-migration.json).
+
 1. **Exodus I — Adaptive ranking**
    Track explicit candidate selections by stable `entry_id` and use locally
    persisted preferences to adjust ordering. Do not modify the TSV.

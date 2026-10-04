@@ -7,6 +7,7 @@ from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
+from dictionary_schema import DICTIONARY_COLUMNS
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "_site"
@@ -94,8 +95,8 @@ def main():
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
     data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
-    assert data["schemaVersion"] == 8
-    assert data["columns"] == ["reading", "hanri", "priority", "corrected", "english", "entry_type", "entry_id", "simplified"]
+    assert data["schemaVersion"] == 10
+    assert data["columns"] == list(DICTIONARY_COLUMNS)
     assert all(
         entry["entryType"] == entry["raw"]["entry_type"]
         for entry in data["entries"]
@@ -131,6 +132,9 @@ def main():
     assert data["sourceSha256"] == digest, "Published JSON is out of sync with the TSV"
     registry_digest = hashlib.sha256((ROOT / "data/dictionary_entry_id_registry.tsv").read_bytes()).hexdigest()
     assert data["idRegistrySourceSha256"] == registry_digest, "Published JSON is out of sync with the ID registry"
+    priority_digest = hashlib.sha256((ROOT / 'data/dictionary_priority.tsv').read_bytes()).hexdigest()
+    assert data['prioritySourceSha256'] == priority_digest, 'Published static overrides are stale'
+    assert all('priority' not in entry and 'priority' not in entry['raw'] for entry in data['entries'])
     category_digest = hashlib.sha256((ROOT / "data/dictionary_categories.tsv").read_bytes()).hexdigest()
     assert data["categorySourceSha256"] == category_digest, "Published JSON is out of sync with category data"
     assert data["entries"], "Empty dictionary"

@@ -1,0 +1,1391 @@
+{
+  "merged": [
+    {
+      "entry_id": "U+5FA6_00",
+      "hanri": "徦",
+      "reading": "갛",
+      "before": {
+        "english": "to the extent",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "to the extent",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "to the extent",
+        "mandarin_trad": "得",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://language.moe.gov.tw/files/people_files/700iongji_1031222_1.pdf"
+    },
+    {
+      "entry_id": "U+72E1_U+5236_00",
+      "hanri": "狡制",
+      "reading": "ᄀᅷ1제",
+      "before": {
+        "english": "crafty; cunning; control; system",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "crafty; cunning; control; system",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "fussy; contrary; awkward",
+        "mandarin_trad": "刁鑽; 古怪; 彆扭",
+        "mandarin_simp": "刁钻; 古怪; 别扭"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://itaigi.tw/k/古怪/"
+    },
+    {
+      "entry_id": "U+639B_U+610F_00",
+      "hanri": "掛意",
+      "reading": "과2이",
+      "before": {
+        "english": "meaning; intention",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "meaning; intention",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "worry; be concerned",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "挂意"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/掛意"
+    },
+    {
+      "entry_id": "U+83C5_U+8292_00",
+      "hanri": "菅芒",
+      "reading": "괄5빵4",
+      "before": {
+        "english": "cogon grass; awn; miscanthus",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "cogon grass; awn; miscanthus",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "silvergrass; miscanthus grass",
+        "mandarin_trad": "芒草",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/8911/"
+    },
+    {
+      "entry_id": "U+91D1_U+91D1_00",
+      "hanri": "金金",
+      "reading": "김5김1",
+      "before": {
+        "english": "gold",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "gold",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "wide-eyed; with eyes wide open",
+        "mandarin_trad": "睜大眼睛",
+        "mandarin_simp": "睁大眼睛"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/und-hani/su/4565/"
+    },
+    {
+      "entry_id": "U+903D_00",
+      "hanri": "逽",
+      "reading": "나2",
+      "before": {
+        "english": "as; like; as if; while; increasingly",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "as; like; as if; while",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "as; like; as if; while",
+        "mandarin_trad": "像; 如同; 一邊",
+        "mandarin_simp": "像; 如同; 一边"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/逽"
+    },
+    {
+      "entry_id": "U+89F8_U+7E8F_00",
+      "hanri": "觸纏",
+      "reading": "닥1딜4",
+      "before": {
+        "english": "touch; offend; entangle",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "touch; offend; entangle",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "difficult to deal with; troublesome; pester",
+        "mandarin_trad": "難纏; 糾纏",
+        "mandarin_simp": "难缠; 纠缠"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/觸纏"
+    },
+    {
+      "entry_id": "U+89F8_U+820C_00",
+      "hanri": "觸舌",
+      "reading": "닥1짛1",
+      "before": {
+        "english": "tongue",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "tongue",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "click the tongue (in admiration)",
+        "mandarin_trad": "咂舌",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/觸舌"
+    },
+    {
+      "entry_id": "U+4ECA_U+4ED4_00",
+      "hanri": "今仔",
+      "reading": "달5아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "just; just now",
+        "mandarin_trad": "剛剛",
+        "mandarin_simp": "刚刚"
+      },
+      "reason": "Reading 달5아2 matches taⁿ-á (just now), not kin-á (today); removed the suffix-only gloss.",
+      "source": "https://en.wiktionary.org/wiki/今仔"
+    },
+    {
+      "entry_id": "U+6FB9_00",
+      "hanri": "澹",
+      "reading": "담4",
+      "before": {
+        "english": "calm; watery",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "calm; watery",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "wet; damp",
+        "mandarin_trad": "濕; 潮濕",
+        "mandarin_simp": "湿; 潮湿"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/澹"
+    },
+    {
+      "entry_id": "U+6C93_U+6C93_U+4ED4_00",
+      "hanri": "沓沓仔",
+      "reading": "ᄃᅷᇂᄃᅷᇂ아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "慢慢地",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "slowly",
+        "mandarin_trad": "慢慢地",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/沓沓仔"
+    },
+    {
+      "entry_id": "U+64CB_U+606C_00",
+      "hanri": "擋恬",
+      "reading": "덩2댬5",
+      "before": {
+        "english": "block; stop; quiet; calm",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "block; stop; quiet; calm",
+        "mandarin_trad": "停下",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "stop; come to a halt",
+        "mandarin_trad": "停下",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+7576_U+958B_00",
+      "hanri": "當開",
+      "reading": "덩5캐1",
+      "before": {
+        "english": "bloom",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "bloom",
+        "mandarin_trad": "正開",
+        "mandarin_simp": "正开"
+      },
+      "after": {
+        "english": "be in bloom",
+        "mandarin_trad": "正在開花",
+        "mandarin_simp": "正在开花"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+7576_U+958B_01",
+      "hanri": "當開",
+      "reading": "등5캐1",
+      "before": {
+        "english": "bloom",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "bloom",
+        "mandarin_trad": "正開",
+        "mandarin_simp": "正开"
+      },
+      "after": {
+        "english": "be in bloom",
+        "mandarin_trad": "正在開花",
+        "mandarin_simp": "正在开花"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+843D_U+6F06_00",
+      "hanri": "落漆",
+      "reading": "락1찯",
+      "before": {
+        "english": "fall; drop",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "fall; drop",
+        "mandarin_trad": "掉漆",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "paint peeling off; make a fool of oneself",
+        "mandarin_trad": "掉漆; 出糗",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/落漆"
+    },
+    {
+      "entry_id": "U+9732_U+87BA_00",
+      "hanri": "露螺",
+      "reading": "러레4",
+      "before": {
+        "english": "dew; expose",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "dew; expose",
+        "mandarin_trad": "勞力士",
+        "mandarin_simp": "劳力士"
+      },
+      "after": {
+        "english": "Rolex (watch)",
+        "mandarin_trad": "勞力士",
+        "mandarin_simp": "劳力士"
+      },
+      "reason": "Preserved your explicit Rolex sense rather than replacing it with the other snail sense.",
+      "source": "https://en.wiktionary.org/wiki/露螺"
+    },
+    {
+      "entry_id": "U+6AF3_U+4ED4_00",
+      "hanri": "櫳仔",
+      "reading": "렁아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "監牢",
+        "mandarin_simp": "監牢"
+      },
+      "after": {
+        "english": "prison; jail",
+        "mandarin_trad": "監牢",
+        "mandarin_simp": "监牢"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/櫳仔"
+    },
+    {
+      "entry_id": "U+843D_U+5857_U+6642_00",
+      "hanri": "落塗時",
+      "reading": "롷터시4",
+      "before": {
+        "english": "fall; drop; time",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "fall; drop; time",
+        "mandarin_trad": "落地時",
+        "mandarin_simp": "落地時"
+      },
+      "after": {
+        "english": "when landing; on reaching the ground",
+        "mandarin_trad": "落地時",
+        "mandarin_simp": "落地时"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+6797_U+7530_00",
+      "hanri": "林田",
+      "reading": "림뎬4",
+      "before": {
+        "english": "forest; surname; field",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "Japanese surname Hayashida",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "Japanese surname Hayashida",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/林田"
+    },
+    {
+      "entry_id": "U+8FA6_U+516C_U+4F19_00",
+      "hanri": "辦公伙",
+      "reading": "반겅5훼2",
+      "before": {
+        "english": "male",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "playing house",
+        "mandarin_trad": "扮家家酒",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "playing house",
+        "mandarin_trad": "扮家家酒",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+83DD_00",
+      "hanri": "菝",
+      "reading": "받1",
+      "before": {
+        "english": "smilax",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "guava",
+        "mandarin_trad": "番石榴; 芭樂",
+        "mandarin_simp": "番石榴; 芭乐"
+      },
+      "after": {
+        "english": "guava",
+        "mandarin_trad": "番石榴; 芭樂",
+        "mandarin_simp": "番石榴; 芭乐"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/菝"
+    },
+    {
+      "entry_id": "U+83DD_U+4ED4_00",
+      "hanri": "菝仔",
+      "reading": "받아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "guava",
+        "mandarin_trad": "番石榴; 芭樂",
+        "mandarin_simp": "番石榴; 芭乐"
+      },
+      "after": {
+        "english": "guava",
+        "mandarin_trad": "番石榴; 芭樂",
+        "mandarin_simp": "番石榴; 芭乐"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/菝仔"
+    },
+    {
+      "entry_id": "U+9589_U+601D_00",
+      "hanri": "閉思",
+      "reading": "비2수",
+      "before": {
+        "english": "close; shut; think; miss",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "shy",
+        "mandarin_trad": "害羞",
+        "mandarin_simp": "害羞"
+      },
+      "after": {
+        "english": "shy",
+        "mandarin_trad": "害羞",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/閉思"
+    },
+    {
+      "entry_id": "U+8FF7_U+984C_00",
+      "hanri": "迷題",
+      "reading": "뻬되4",
+      "before": {
+        "english": "riddle; puzzle",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "riddle; puzzle",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "riddle; puzzle",
+        "mandarin_trad": "謎題",
+        "mandarin_simp": "谜题"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+BF40_U+5F69_U+5DE5_00",
+      "hanri": "뽀彩工",
+      "reading": "뽀채1강1",
+      "before": {
+        "english": "not work",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "meaningless",
+        "mandarin_trad": "沒意思",
+        "mandarin_simp": "没意思"
+      },
+      "after": {
+        "english": "pointless; meaningless",
+        "mandarin_trad": "沒意思",
+        "mandarin_simp": "没意思"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+4E0A_U+611B_00",
+      "hanri": "上愛",
+      "reading": "셩애",
+      "before": {
+        "english": "above; on; love; want",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "above; on; love; want",
+        "mandarin_trad": "最愛",
+        "mandarin_simp": "最爱"
+      },
+      "after": {
+        "english": "love most; favourite",
+        "mandarin_trad": "最愛",
+        "mandarin_simp": "最爱"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+715E_00",
+      "hanri": "煞",
+      "reading": "쇃",
+      "before": {
+        "english": "finish; suddenly",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "finish; suddenly",
+        "mandarin_trad": "停",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "stop; finish; unexpectedly",
+        "mandarin_trad": "停; 結束; 竟然",
+        "mandarin_simp": "停; 结束; 竟然"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/煞"
+    },
+    {
+      "entry_id": "U+76F8_U+4F28_00",
+      "hanri": "相伨",
+      "reading": "쇼5틴5",
+      "before": {
+        "english": "mutual; appearance",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "mutual; appearance",
+        "mandarin_trad": "相挺; 互助",
+        "mandarin_simp": "相挺; 互助"
+      },
+      "after": {
+        "english": "support each other; help one another",
+        "mandarin_trad": "相挺; 互助",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+6B7B_U+6B7B_00",
+      "hanri": "死死",
+      "reading": "시1시2",
+      "before": {
+        "english": "die",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "die",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "firmly; tightly; resolutely",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/死死"
+    },
+    {
+      "entry_id": "U+63DE_U+8170_00",
+      "hanri": "揞腰",
+      "reading": "알2요1",
+      "before": {
+        "english": "cover; hide; waist",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "cover; hide; waist",
+        "mandarin_trad": "插腰",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "stoop; bend over; bow slightly",
+        "mandarin_trad": "彎腰",
+        "mandarin_simp": "弯腰"
+      },
+      "reason": "The attested àⁿ-io sense is bend over; 插腰 described a different action.",
+      "source": "https://en.wiktionary.org/wiki/揞腰"
+    },
+    {
+      "entry_id": "U+9837_U+9838_00",
+      "hanri": "頷頸",
+      "reading": "암군2",
+      "before": {
+        "english": "chin; nod; neck",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "chin; nod; neck",
+        "mandarin_trad": "頸項",
+        "mandarin_simp": "颈项"
+      },
+      "after": {
+        "english": "neck",
+        "mandarin_trad": "頸項",
+        "mandarin_simp": "颈项"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/頷頸"
+    },
+    {
+      "entry_id": "U+67B5_U+9B3C_00",
+      "hanri": "枵鬼",
+      "reading": "ᄋᆤ5귀2",
+      "before": {
+        "english": "ghost",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "ghost",
+        "mandarin_trad": "餓鬼",
+        "mandarin_simp": "饿鬼"
+      },
+      "after": {
+        "english": "hungry person; glutton",
+        "mandarin_trad": "餓鬼",
+        "mandarin_simp": "饿鬼"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/枵鬼"
+    },
+    {
+      "entry_id": "U+70CF_U+767D_U+7121_U+5E38_00",
+      "hanri": "烏白無常",
+      "reading": "어5벻뿌셩4",
+      "before": {
+        "english": "black; white; not have; no; usual",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "black; white; not have; no; usual",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "Black and White Impermanence (underworld deities)",
+        "mandarin_trad": "黑白無常",
+        "mandarin_simp": "黑白无常"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/黑白無常"
+    },
+    {
+      "entry_id": "U+70CF_U+7D17_00",
+      "hanri": "烏紗",
+      "reading": "어5세1",
+      "before": {
+        "english": "black",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "black",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "official's hat; official position (figurative)",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "乌纱"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/烏紗"
+    },
+    {
+      "entry_id": "U+96B1_U+75C0_U+6A4B_00",
+      "hanri": "隱痀橋",
+      "reading": "운1구5교4",
+      "before": {
+        "english": "hide; hidden; hunchback; bridge",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "hide; hidden; hunchback; bridge",
+        "mandarin_trad": "拱橋",
+        "mandarin_simp": "拱桥"
+      },
+      "after": {
+        "english": "arched bridge",
+        "mandarin_trad": "拱橋",
+        "mandarin_simp": "拱桥"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+6709_U+60C5_U+773E_U+751F_00",
+      "hanri": "有情眾生",
+      "reading": "유1졩졍2솅1",
+      "before": {
+        "english": "have; feeling; affection; life; give birth",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "have; feeling; affection; life; give birth",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "sentient beings (Buddhism)",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "有情众生"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+8D70_U+63E3_00",
+      "hanri": "走揣",
+      "reading": "ᄌᅷ1췌5",
+      "before": {
+        "english": "run; leave",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "run; leave",
+        "mandarin_trad": "四處尋找",
+        "mandarin_simp": "四处寻找"
+      },
+      "after": {
+        "english": "search everywhere; go looking for",
+        "mandarin_trad": "四處尋找",
+        "mandarin_simp": "四处寻找"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/走揣"
+    },
+    {
+      "entry_id": "U+8D70_U+53BB_00",
+      "hanri": "走去",
+      "reading": "ᄌᅷ1킈",
+      "before": {
+        "english": "go",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "go",
+        "mandarin_trad": "跑去",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "run over to; run to",
+        "mandarin_trad": "跑去",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/走去"
+    },
+    {
+      "entry_id": "U+5728_U+5BA4_00",
+      "hanri": "在室",
+      "reading": "재셱",
+      "before": {
+        "english": "exist; at; room; chamber",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "virgin",
+        "mandarin_trad": "處女; 處男",
+        "mandarin_simp": "处女; 处男"
+      },
+      "after": {
+        "english": "virgin",
+        "mandarin_trad": "處女; 處男",
+        "mandarin_simp": "处女; 处男"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+5C16_U+982D_U+B610_U+B514_00",
+      "hanri": "尖頭또디ˆ",
+      "reading": "쟘5ᄐᅷ또디1",
+      "before": {
+        "english": "pointed head",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "baguette",
+        "mandarin_trad": "法棍",
+        "mandarin_simp": "法棍"
+      },
+      "after": {
+        "english": "baguette",
+        "mandarin_trad": "法棍",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+98DF_U+529B_00",
+      "hanri": "食力",
+      "reading": "쟣랃1",
+      "before": {
+        "english": "eat",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "eat",
+        "mandarin_trad": "糟了; 吃力",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "strenuous; exhausting; in trouble (colloquial)",
+        "mandarin_trad": "糟了; 吃力",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/食力; https://en.wiktionary.org/wiki/jialat"
+    },
+    {
+      "entry_id": "U+98DF_U+98A8_00",
+      "hanri": "食風",
+      "reading": "쟣헝1",
+      "before": {
+        "english": "eat; wind",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "relax; take a vacation",
+        "mandarin_trad": "休閒; 兜風",
+        "mandarin_simp": "休闲; 兜风"
+      },
+      "after": {
+        "english": "relax; take a vacation",
+        "mandarin_trad": "休閒; 兜風",
+        "mandarin_simp": "休闲; 兜风"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/食風"
+    },
+    {
+      "entry_id": "U+7E12_00",
+      "hanri": "縒",
+      "reading": "좧1",
+      "before": {
+        "english": "wrong; uneven",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "wrong; error",
+        "mandarin_trad": "偏差; 偏誤",
+        "mandarin_simp": "偏差; 偏误"
+      },
+      "after": {
+        "english": "difference; error; deviate from the intended form",
+        "mandarin_trad": "偏差; 偏誤",
+        "mandarin_simp": "偏差; 偏误"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/縒"
+    },
+    {
+      "entry_id": "U+63D2_U+8349_00",
+      "hanri": "插草",
+      "reading": "챃1ᄎᅷ2",
+      "before": {
+        "english": "insert",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "camouflage (military)",
+        "mandarin_trad": "迷彩; 偽裝",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "camouflage (military)",
+        "mandarin_trad": "迷彩; 偽裝",
+        "mandarin_simp": "迷彩; 伪装"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+665F_U+990A_00",
+      "hanri": "晟養",
+      "reading": "챨영2",
+      "before": {
+        "english": "bright; flourishing; raise; nourish",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "raise; nourish",
+        "mandarin_trad": "養大",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "raise; bring up",
+        "mandarin_trad": "養大",
+        "mandarin_simp": "养大"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+5275_U+6CBB_00",
+      "hanri": "創治",
+      "reading": "청2디5",
+      "before": {
+        "english": "create; wound; govern; treat",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "to bully",
+        "mandarin_trad": "捉弄; 欺負 ",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "bully; tease; play tricks on",
+        "mandarin_trad": "捉弄; 欺負",
+        "mandarin_simp": "捉弄; 欺负"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/創治"
+    },
+    {
+      "entry_id": "U+51FA_U+696D_00",
+      "hanri": "出業",
+      "reading": "춛1꺕1",
+      "before": {
+        "english": "go out; produce; work; karma",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "graduate",
+        "mandarin_trad": "畢業",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "graduate",
+        "mandarin_trad": "畢業",
+        "mandarin_simp": "毕业"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/出業"
+    },
+    {
+      "entry_id": "U+59FC_U+4ED4_00",
+      "hanri": "姼仔",
+      "reading": "칟1아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "girlfriend (colloquial)",
+        "mandarin_trad": "馬子",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "girlfriend (colloquial)",
+        "mandarin_trad": "馬子",
+        "mandarin_simp": "马子"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/姼仔"
+    },
+    {
+      "entry_id": "U+82A1_U+82B3_00",
+      "hanri": "芡芳",
+      "reading": "켼2팡1",
+      "before": {
+        "english": "thickening starch; fragrant",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "thickening starch; fragrant",
+        "mandarin_trad": "勾芡",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "fry aromatics to release their fragrance",
+        "mandarin_trad": "爆香",
+        "mandarin_simp": "〃"
+      },
+      "reason": "MOE defines frying aromatics to release fragrance (爆香), not starch thickening (勾芡).",
+      "source": "https://pedia.cloud.edu.tw/Entry/Detail/?search=芡芳&title=芡芳"
+    },
+    {
+      "entry_id": "U+6C23_U+8EAB_U+60F1_U+547D_00",
+      "hanri": "氣身惱命",
+      "reading": "키2신5로1먀5",
+      "before": {
+        "english": "body; life; fate",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "body; life; fate",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "furious; extremely angry",
+        "mandarin_trad": "氣憤; 怒不可遏",
+        "mandarin_simp": "气愤; 怒不可遏"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/6171/"
+    },
+    {
+      "entry_id": "U+982D_U+5599_00",
+      "hanri": "頭喙",
+      "reading": "ᄐᅷ취",
+      "before": {
+        "english": "head",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "headcount",
+        "mandarin_trad": "人頭",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "headcount",
+        "mandarin_trad": "人頭",
+        "mandarin_simp": "人头"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/頭喙"
+    },
+    {
+      "entry_id": "U+6311_U+5DE5_00",
+      "hanri": "挑工",
+      "reading": "ᄐᆤ5강1",
+      "before": {
+        "english": "work",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "specific; meticulous",
+        "mandarin_trad": "專門; 特意",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "specially; deliberately; on purpose",
+        "mandarin_trad": "專門; 特意",
+        "mandarin_simp": "专门; 特意"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://zh.wiktionary.org/zh-hant/刁工"
+    },
+    {
+      "entry_id": "U+985B_U+8E31_00",
+      "hanri": "顛踱",
+      "reading": "톈5톻1",
+      "before": {
+        "english": "top; crazy; pace; walk",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "to mess around",
+        "mandarin_trad": "吊兒郎當; 不正經",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "to mess around",
+        "mandarin_trad": "吊兒郎當; 不正經",
+        "mandarin_simp": "吊儿郎当; 不正经"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/顛踱"
+    },
+    {
+      "entry_id": "U+62D6_U+4ED4_00",
+      "hanri": "拖仔",
+      "reading": "톼5아2",
+      "before": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "diminutive suffix",
+        "mandarin_trad": "拖鞋",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "slippers",
+        "mandarin_trad": "拖鞋",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/拖仔"
+    },
+    {
+      "entry_id": "U+69CC_U+69CC_00",
+      "hanri": "槌槌",
+      "reading": "튀튀4",
+      "before": {
+        "english": "hammer; beat",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "hammer; beat",
+        "mandarin_trad": "笨笨",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "stupid; foolish",
+        "mandarin_trad": "笨笨",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/槌槌"
+    },
+    {
+      "entry_id": "U+98C4_U+6487_00",
+      "hanri": "飄撇",
+      "reading": "ᄑᆤ5폗",
+      "before": {
+        "english": "float; flutter; cast aside; skim",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "float; flutter; cast aside; skim",
+        "mandarin_trad": "瀟灑",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "stylish; charming; carefree",
+        "mandarin_trad": "瀟灑",
+        "mandarin_simp": "潇洒"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/飄撇"
+    },
+    {
+      "entry_id": "U+8B40_U+53EB_00",
+      "hanri": "譀叫",
+      "reading": "함2교",
+      "before": {
+        "english": "call",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "shout; call",
+        "mandarin_trad": "叫喊",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "shout; call",
+        "mandarin_trad": "叫喊",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+597D_U+6C34_00",
+      "hanri": "好水",
+      "reading": "호1쥐2",
+      "before": {
+        "english": "good; water",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "nice water",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "good water",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    },
+    {
+      "entry_id": "U+53CD_U+80CC_00",
+      "hanri": "反背",
+      "reading": "환1붸5",
+      "before": {
+        "english": "opposite; turn against; back; betray",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "opposite; turn against; back; betray",
+        "mandarin_trad": "反叛",
+        "mandarin_simp": ""
+      },
+      "after": {
+        "english": "betray; go against",
+        "mandarin_trad": "反叛",
+        "mandarin_simp": "〃"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": "https://en.wiktionary.org/wiki/反背"
+    },
+    {
+      "entry_id": "U+706B_U+738B_U+723A_00",
+      "hanri": "火王爺",
+      "reading": "훼1엉야4",
+      "before": {
+        "english": "fire; king",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "user_values": {
+        "english": "fire; king",
+        "mandarin_trad": "火王爺",
+        "mandarin_simp": "火王爷"
+      },
+      "after": {
+        "english": "Fire King (deity)",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "火王爷"
+      },
+      "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
+      "source": ""
+    }
+  ],
+  "remaining": [
+    {
+      "entry_id": "U+B38B_00",
+      "hanri": "뎋",
+      "reason": "Need a usage example identifying the aspect/continuation function; no gloss guessed."
+    },
+    {
+      "entry_id": "U+2019_U+B434_00",
+      "hanri": "’됴",
+      "reason": "Need a usage example identifying this attached grammatical form."
+    },
+    {
+      "entry_id": "U+2019_U+B44F_00",
+      "hanri": "’둏",
+      "reason": "Need a usage example identifying this attached grammatical form."
+    },
+    {
+      "entry_id": "U+2019_U+B798_00",
+      "hanri": "’래",
+      "reason": "Need a usage example distinguishing attached directional/aspectual use."
+    },
+    {
+      "entry_id": "U+2019_U+D088_00",
+      "hanri": "’킈",
+      "reason": "Need a usage example distinguishing attached directional/aspectual use."
+    },
+    {
+      "entry_id": "U+632D_00",
+      "hanri": "挭",
+      "reason": "Reading 곙5 may involve supporting/propping or obstruction. Please give a sentence; block/choke alone is not enough."
+    },
+    {
+      "entry_id": "U+7344_U+57CE_00",
+      "hanri": "獄城",
+      "reason": "Please identify prison, an infernal city, or a specific religious name; component glosses do not establish the referent."
+    },
+    {
+      "entry_id": "U+5169_U+89D2_00",
+      "hanri": "兩角",
+      "reason": "Please clarify currency (two jiao), two corners, or another sense; two/both does not settle this."
+    },
+    {
+      "entry_id": "U+4EBA_U+9858_00",
+      "hanri": "人願",
+      "reason": "Your Mandarin ditto is retained, but the whole-word English meaning is still unspecified. Please explain 人願."
+    },
+    {
+      "entry_id": "U+5317_U+9670_U+9146_U+90FD_00",
+      "hanri": "北陰酆都",
+      "reason": "Your Mandarin ditto is retained. Please clarify whether this denotes a place or an abbreviated deity/title."
+    },
+    {
+      "entry_id": "U+7C73_U+7C89_U+7CBF_00",
+      "hanri": "米粉粿",
+      "reason": "Please clarify whether bee hoon kueh is a rice-flour cake/noodle dish or mee hoon kueh (wheat-flour noodle soup). Do not change the headword without confirmation."
+    },
+    {
+      "entry_id": "U+87EE_00",
+      "hanri": "蟮",
+      "reason": "User clarified: 蟮 has no standalone lexical meaning; gecko belongs to 蟮蟲. Decide whether to retain a bound component or add/change to the full headword before assigning semantic glosses. Not merged as gecko."
+    },
+    {
+      "entry_id": "U+5FC3_U+72C2_00",
+      "hanri": "心狂",
+      "reason": "Your Mandarin ditto is retained. Please distinguish panic/agitation, mental derangement, or another intended sense."
+    }
+  ]
+}

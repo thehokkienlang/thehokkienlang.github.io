@@ -6,6 +6,7 @@ import io
 from pathlib import Path
 
 from simplified_lookup import contains_hanri, review_case, simplified_field_errors, simplified_headword
+from dictionary_schema import DICTIONARY_COLUMNS, inherited_storage, is_comment_record
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -16,18 +17,19 @@ def populate(path: Path, report: Path) -> dict:
     columns = original[0]
     if "simplified" in columns:
         raise ValueError("Simplified column already exists; this migration must not overwrite manual edits")
-    rows = [columns + ["simplified"]]
+    rows = [list(DICTIONARY_COLUMNS)]
     reviews = []
     counts = dict(total=0, hanri=0, pure_hangul=0, other_empty=0, different=0, identical=0, review=0)
     for row in original[1:]:
-        if row[0].startswith("#"):
-            rows.append(row[:])
-            continue
         record = dict(zip(columns, row))
+        if is_comment_record(record):
+            rows.append([record.get(name, '') for name in DICTIONARY_COLUMNS])
+            continue
         headword = record["hanri"]
         simplified = simplified_headword(headword)
         assert not simplified_field_errors(headword, simplified)
-        rows.append(row + [simplified])
+        record['simplified'] = inherited_storage(simplified, headword)
+        rows.append([record.get(name, '') for name in DICTIONARY_COLUMNS])
         counts["total"] += 1
         if contains_hanri(headword):
             counts["hanri"] += 1
@@ -40,7 +42,7 @@ def populate(path: Path, report: Path) -> dict:
         if review:
             alternatives, reason = review
             reviews.append([record["entry_id"], headword, simplified, "; ".join(alternatives), reason])
-    assert all(new[:-1] == old for old, new in zip(original[1:], rows[1:]) if not old[0].startswith("#"))
+    assert all(all(dict(zip(DICTIONARY_COLUMNS, new)).get(name, '') == value for name, value in zip(columns, old)) for old, new in zip(original[1:], rows[1:]))
     output = io.StringIO(newline="")
     csv.writer(output, delimiter="\t", lineterminator="\r\n").writerows(rows)
     path.write_bytes(output.getvalue().encode("utf-8"))

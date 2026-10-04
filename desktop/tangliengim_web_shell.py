@@ -301,7 +301,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def tsv_sync_pending(self) -> bool:
         if not (self.repo_root / ".git").exists():
             return False
-        paths = ["data/hokkien_hanri_dict.tsv", "data/dictionary_entry_id_registry.tsv"]
+        paths = ["data/hokkien_hanri_dict.tsv", "data/dictionary_entry_id_registry.tsv", "data/dictionary_priority.tsv"]
         command = ["git", "-c", f"safe.directory={self.repo_root.as_posix()}", "-C", str(self.repo_root)]
         options = {
             "capture_output": True, "text": True, "encoding": "utf-8",
