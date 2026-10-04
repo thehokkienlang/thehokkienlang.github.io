@@ -73,12 +73,12 @@ def main() -> int:
     for relative in JAVASCRIPT_FILES:
         run(f"JavaScript syntax: {relative}", "node", "--check", relative)
     run("Dictionary TSV schema", sys.executable, "-X", "utf8", "tools/validate_dictionary_tsv.py")
-    run("Dictionary collation and audio portability", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
-        "-s", "tests", "-p", "test_dictionary_*.py")
     if args.source_only:
         run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
     else:
         run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
+    run("Dictionary collation and audio portability", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
+        "-s", "tests", "-p", "test_dictionary_*.py")
     run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
     run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     run('Static priority and reading defaults', 'node', 'tools/check_static_ranking.cjs')
