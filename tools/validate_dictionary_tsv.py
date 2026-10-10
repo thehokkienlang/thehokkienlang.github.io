@@ -192,6 +192,13 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
         return errors
 
     errors.extend(validate_registry(registry_path or path.with_name("dictionary_entry_id_registry.tsv"), active_ids))
+    category_path = path.with_name('dictionary_categories.tsv')
+    if category_path.is_file() or path.resolve() == DEFAULT_PATH.resolve():
+        from dictionary_references import load_categories
+        try:
+            load_categories(category_path, data_rows)
+        except (ValueError, UnicodeError, csv.Error, OSError) as exc:
+            errors.append(str(exc))
     if not errors:
         try:
             load_priority(path.with_name('dictionary_priority.tsv'), data_rows)

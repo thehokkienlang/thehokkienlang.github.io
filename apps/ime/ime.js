@@ -355,6 +355,7 @@ async function loadDictionary() {
       throw new Error(`HTTP ${response.status}`);
     }
     const data = await response.json();
+    await imeController.preferences.ready;
     setEntries(data.entries || []);
     state.unitRoman = new Map(Object.entries(data.runtime?.unitRoman || {}));
     state.rawHangulAudio = new Map(Object.entries(data.runtime?.rawHangulAudio || {}));

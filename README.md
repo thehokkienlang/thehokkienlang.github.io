@@ -43,9 +43,6 @@ Use Python 3.10 or later with Tkinter available, and Node.js for validation.
 On Ubuntu, install `python3-tk` alongside Python.
 
 ```sh
-python tools/build_site.py
-python tools/check_site.py
-node tools/check_web_apps.cjs
 python tools/check_release.py
 python -m http.server 8000 --directory _site
 ```
@@ -53,6 +50,14 @@ python -m http.server 8000 --directory _site
 Open `http://localhost:8000/dictionary/` or `http://localhost:8000/ime/`.
 Preview the built `_site`; the source `apps/` folders are not the public URLs.
 No Python source or raw TSV is copied into the published site.
+
+The full release gate validates source/schema, canonical order, IDs/references,
+static/adaptive ranking and integration, and rebuilds/checks the site. For portable
+source-only CI checks use `python tools/check_release.py --source-only`.
+See [the production data contract](docs/dictionary-tsv-schema.md) for the complete
+maintenance workflow, and [Exodus IV readiness](docs/exodus-iv-readiness.md) for
+the final consolidation audit. Generated JSON and personal preference files are
+not independent dictionary sources.
 
 The desktop application can be launched from this checkout with:
 

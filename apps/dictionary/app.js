@@ -596,6 +596,7 @@ async function loadDictionary() {
       throw new Error(`HTTP ${response.status}`);
     }
     const data = await response.json();
+    await searchImeController.preferences.ready;
     state.entries = data.entries || [];
     state.dictionaryIndex = createDictionaryIndex(state.entries);
     state.categories = data.categories || [];

@@ -26,6 +26,13 @@ DITTO = "〃"
 INHERITED_FIELDS = {"simplified": "hanri", "mandarin_trad": "hanri", "mandarin_simp": "mandarin_trad"}
 
 
+def require_dictionary_header(header) -> tuple[str, ...]:
+    """Reject obsolete production layouts; explicit migration tools are separate."""
+    if tuple(header or ()) != DICTIONARY_COLUMNS:
+        raise ValueError("Dictionary header must be: " + "\t".join(DICTIONARY_COLUMNS))
+    return DICTIONARY_COLUMNS
+
+
 def is_comment_record(record) -> bool:
     return any(str(record.get(name, "")).startswith("#") for name in ("reading", "hanri"))
 

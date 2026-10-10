@@ -13,6 +13,7 @@ from pathlib import Path
 from tangliengim_collation import row_sort_key
 from validate_dictionary_tsv import DEFAULT_PATH, EXPECTED_HEADER, validate
 from dictionary_schema import is_comment_row
+from tangliengim_collation import out_of_order_pairs
 
 
 def _serialize(rows: list[list[str]]) -> bytes:
@@ -21,7 +22,7 @@ def _serialize(rows: list[list[str]]) -> bytes:
     return output.getvalue().encode("utf-8")
 
 
-def sort_tsv(path: Path) -> int:
+def sort_tsv(path: Path, *, check: bool = False) -> int:
     errors = validate(path)
     if errors:
         raise ValueError("Refusing to sort an invalid TSV: " + "; ".join(errors))
@@ -33,6 +34,12 @@ def sort_tsv(path: Path) -> int:
 
     positions = [index for index, row in enumerate(rows) if index and not is_comment_row(row, EXPECTED_HEADER)]
     items = [(index, rows[index]) for index in positions]
+    if check:
+        inversions = out_of_order_pairs([dict(zip(EXPECTED_HEADER, row)) for _index, row in items], EXPECTED_HEADER)
+        if inversions:
+            raise ValueError(f'TSV is not canonical: {inversions} adjacent inversions; run the sorter explicitly')
+        print(f'Canonical order verified: {len(items)} entries; no file change')
+        return 0
     ordered = sorted(
         items,
         key=lambda item: row_sort_key(dict(zip(EXPECTED_HEADER, item[1])), EXPECTED_HEADER),
@@ -67,8 +74,9 @@ def sort_tsv(path: Path) -> int:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("path", nargs="?", type=Path, default=DEFAULT_PATH)
+    parser.add_argument("--check", action="store_true", help="Verify canonical order without writing any file.")
     args = parser.parse_args()
-    sort_tsv(args.path)
+    sort_tsv(args.path, check=args.check)
     return 0
 
 

@@ -1,0 +1,20 @@
+{
+  "seed": 3102,
+  "adversarial_cases": 160,
+  "ids": ["A", "B", "C", "D", "E"],
+  "malformed": [null, [], 5, "bad", {}, {"version": 2, "selections": {}}, {"version": true, "selections": {}}, {"version": 1, "selections": []}, {"version": 1, "selections": null}],
+  "mixed": {"version": 1, "selections": {"x": {"A": 3, "B": "4", "C": -1, "D": 1.5, "E": 999, "stale": 8}, "empty": {}, "array": [1], "null": null, "zero": {"A": 0}, "": {"A": 1}, "'x": {"A": 2}, "__proto__": {"A": 1}}},
+  "sanitized": {"version": 1, "selections": {"x": {"A": 3, "E": 255}, "__proto__": {"A": 1}}},
+  "integral_numbers": {"version": 1.0, "selections": {"x": {"A": 1.0, "B": 1e100, "C": 1.5}}},
+  "integral_expected": {"version": 1, "selections": {"x": {"A": 1, "B": 255}}},
+  "contexts": ["앚", "ᄋᅷ", "시", "시5", "’시", "시!", "alias", "canonical", "家己", "𠮷", "ᅟᆤ"],
+  "mutation": [
+    {"name": "new static position", "entries": [{"id":"C"},{"id":"A"},{"id":"B"}], "expected":["C","B","A"]},
+    {"name": "insert ahead", "entries": [{"id":"D"},{"id":"A"},{"id":"B"},{"id":"C"}], "expected":["D","B","A","C"]},
+    {"name": "insert behind", "entries": [{"id":"A"},{"id":"B"},{"id":"C"},{"id":"D"}], "expected":["B","A","C","D"]},
+    {"name": "entry disappears", "entries": [{"id":"A"},{"id":"C"}], "expected":["A","C"]},
+    {"name": "same display separate identity", "entries": [{"id":"A","hanri":"家"},{"id":"B","hanri":"家"}], "expected":["B","A"]},
+    {"name": "inactive barrier", "entries": [{"id":"A"},{"id":"stale"},{"id":"B"}], "expected":["A","stale","B"]},
+    {"name": "sandhi barrier", "entries": [{"id":"A"},{"id":"C-sandhi","autoSandhi":true},{"id":"B"}], "expected":["A","C-sandhi","B"]}
+  ]
+}

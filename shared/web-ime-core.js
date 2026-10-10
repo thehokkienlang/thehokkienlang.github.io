@@ -637,6 +637,17 @@ const TangliengimImeCore = (() => {
     return entry.raw?.entry_id || entry.entry_id || String(entry.id || "").replace(/-sandhi$/, "");
   }
 
+  function sameCandidateRecord(left, right) {
+    const leftId = sourceEntryId(left || {});
+    const rightId = sourceEntryId(right || {});
+    if (leftId || rightId) {
+      return Boolean(leftId && leftId === rightId) &&
+        Boolean(left?.autoSandhi) === Boolean(right?.autoSandhi);
+    }
+    // Anonymous fallback options describe output, not dictionary records.
+    return left?.hanri === right?.hanri && left?.reading === right?.reading;
+  }
+
   function rankEntries(entries, key, presorted = false) {
     const normalized = rankingLookupKey(key);
     const ordered = presorted ? [...entries] : [...entries].sort(compareCanonicalEntries);
@@ -665,6 +676,198 @@ const TangliengimImeCore = (() => {
     const positions = new Map(slots.map((id, i) => [id === null ? remaining[cursor++] : id, i]));
     return ordered.sort((a, b) => positions.get(sourceEntryId(a)) - positions.get(sourceEntryId(b)) ||
       Number(Boolean(a.autoSandhi)) - Number(Boolean(b.autoSandhi)));
+  }
+
+  const MAX_SELECTION_COUNT = 255;
+  const PREFERENCE_STORAGE_KEY = "tangliengim.candidatePreferences.v1";
+
+  function adaptiveLookupKey(value) {
+    // Preserve tone, punctuation and unresolved shorthand/alias distinctions.
+    return TangliengimHangulIme.normalizeReadingToneKey(normalizeApostrophes(String(value || "")))
+      .normalize("NFC");
+  }
+
+  function adaptiveScore(staticIndex, selectionCount) {
+    return staticIndex * 2 - selectionCount;
+  }
+
+  function sanitizeCandidatePreferences(payload, activeIds) {
+    const selections = Object.create(null);
+    const object = value => value !== null && typeof value === "object" && !Array.isArray(value);
+    if (!object(payload) || payload.version !== 1 || !object(payload.selections)) return { version: 1, selections };
+    for (const [key, values] of Object.entries(payload.selections)) {
+      if (!key || key !== adaptiveLookupKey(key) || !object(values)) continue;
+      const valid = Object.create(null);
+      for (const [id, count] of Object.entries(values)) {
+        if (activeIds.has(id) && Number.isInteger(count) && count > 0) valid[id] = Math.min(count, MAX_SELECTION_COUNT);
+      }
+      if (Object.keys(valid).length) selections[key] = valid;
+    }
+    return { version: 1, selections };
+  }
+
+  function createCandidatePreferences({ activeIds = [], backend = null } = {}) {
+    let active = new Set(activeIds);
+    let loadedPayload = null;
+    let base = Object.create(null);
+    let deltas = Object.create(null);
+    let resetPending = false;
+    let epoch = 0;
+    let backendQueue = Promise.resolve();
+    const unread = Symbol("unread");
+    let observedRaw = unread;
+    let storage;
+    try { storage = window.localStorage; } catch {}
+    backend ||= window.TangliengimCandidatePreferenceBackend || null;
+
+    function accept(payload) {
+      loadedPayload = payload;
+      base = sanitizeCandidatePreferences(payload, active).selections;
+    }
+    function refresh() {
+      if (backend || !storage) return false;
+      try {
+        const raw = storage.getItem(PREFERENCE_STORAGE_KEY);
+        if (raw === observedRaw) return true;
+        let payload = null;
+        try { payload = JSON.parse(raw || "null"); } catch {}
+        const externalReset = raw === null || (payload?.version === 1 && payload.selections &&
+          !Array.isArray(payload.selections) && typeof payload.selections === "object" &&
+          Object.keys(payload.selections).length === 0);
+        if (observedRaw !== unread && externalReset && !resetPending) deltas = Object.create(null);
+        observedRaw = raw;
+        accept(payload);
+        return true;
+      } catch { return false; }
+    }
+    function materialize() {
+      const result = sanitizeCandidatePreferences(resetPending ? null : { version: 1, selections: base }, active);
+      for (const [key, values] of Object.entries(deltas)) {
+        const group = result.selections[key] ||= Object.create(null);
+        for (const [id, amount] of Object.entries(values)) {
+          if (active.has(id)) group[id] = Math.min(MAX_SELECTION_COUNT, (group[id] || 0) + amount);
+        }
+      }
+      return sanitizeCandidatePreferences(result, active);
+    }
+    function snapshot() { refresh(); return materialize(); }
+    function persist() {
+      // Read-modify-write against the latest disk state, not a cached tab snapshot.
+      if (!refresh()) return;
+      try {
+        const payload = materialize();
+        const raw = JSON.stringify(payload);
+        if (!storage || typeof raw !== "string") return;
+        storage.setItem(PREFERENCE_STORAGE_KEY, raw);
+        observedRaw = raw;
+        accept(payload);
+        deltas = Object.create(null);
+        resetPending = false;
+      } catch {}
+    }
+    function count(key, id) { return snapshot().selections[adaptiveLookupKey(key)]?.[id] || 0; }
+    function consumeDelta(key, id) {
+      const group = deltas[key];
+      if (!group) return;
+      group[id] = Math.max(0, (group[id] || 0) - 1);
+      if (!group[id]) delete group[id];
+      if (!Object.keys(group).length) delete deltas[key];
+    }
+    function enqueue(operation, complete) {
+      backendQueue = backendQueue.catch(() => {}).then(operation).then(complete).catch(() => {});
+      return backendQueue;
+    }
+    function rank(candidates, key) {
+      const counts = snapshot().selections[adaptiveLookupKey(key)] || {};
+      const result = [...candidates];
+      const classify = candidate => {
+        const entry = candidate.entry;
+        if (entry.generatedCandidate || !active.has(sourceEntryId(entry))) return null;
+        return entry.autoSandhi || entry.auto_sandhi ? "generated" : "source";
+      };
+      // Immutable choices and class transitions are barriers. Generated variants
+      // cannot cross their source, and legacy fallback slots stay exactly intact.
+      for (let start = 0; start < result.length;) {
+        const kind = classify(result[start]);
+        if (kind === null) { start += 1; continue; }
+        let end = start + 1;
+        while (end < result.length && classify(result[end]) === kind) end += 1;
+        const ordered = result.slice(start, end).map((candidate, offset) => ({
+          candidate, index: start + offset,
+          score: adaptiveScore(start + offset, counts[sourceEntryId(candidate.entry)] || 0),
+        })).sort((a, b) => a.score - b.score || a.index - b.index);
+        result.splice(start, end - start, ...ordered.map(item => item.candidate));
+        start = end;
+      }
+      return result;
+    }
+    const api = {
+      snapshot, count, rank,
+      setActiveIds(ids) { active = new Set(ids); accept(loadedPayload); },
+      record(key, id) {
+        if (typeof key !== "string" || typeof id !== "string") return;
+        key = adaptiveLookupKey(key);
+        if (!key || !active.has(id)) return;
+        refresh();
+        if (count(key, id) >= MAX_SELECTION_COUNT) { if (!backend) persist(); return; }
+        const values = deltas[key] ||= Object.create(null);
+        values[id] = Math.min(MAX_SELECTION_COUNT, (values[id] || 0) + 1);
+        if (backend) {
+          const generation = epoch;
+          enqueue(async () => {
+            try {
+              if (resetPending) { await backend.reset(); resetPending = false; }
+              return await backend.record(key, id);
+            } catch { return null; }
+          }, result => {
+            if (generation !== epoch) return;
+            if (resetPending && !result) return;
+            consumeDelta(key, id);
+            if (result?.preferences) accept(result.preferences);
+            else {
+              const group = base[key] ||= Object.create(null);
+              group[id] = Math.min(MAX_SELECTION_COUNT, (group[id] || 0) + 1);
+              loadedPayload = { version: 1, selections: base };
+            }
+          });
+        }
+        else persist();
+      },
+      reset() {
+        epoch += 1;
+        base = Object.create(null);
+        loadedPayload = null;
+        deltas = Object.create(null);
+        resetPending = true;
+        if (backend) {
+          const generation = epoch;
+          enqueue(() => backend.reset(), result => {
+            if (generation !== epoch) return;
+            accept(result?.preferences || null);
+            resetPending = false;
+          });
+        }
+        else persist();
+      },
+      reload() {
+        if (!backend) { refresh(); return Promise.resolve(); }
+        const generation = epoch;
+        return enqueue(() => backend.load(), payload => { if (generation === epoch) accept(payload); });
+      },
+      settled: () => backendQueue,
+    };
+    if (backend) {
+      api.ready = api.reload();
+    } else {
+      refresh();
+      if (typeof window.addEventListener === "function") {
+        window.addEventListener("storage", event => {
+          if (event.key === PREFERENCE_STORAGE_KEY || event.key === null) refresh();
+        });
+      }
+      api.ready = Promise.resolve();
+    }
+    return api;
   }
 
   function buildReadingCandidateMap(entries) {
@@ -1008,6 +1211,7 @@ const TangliengimImeCore = (() => {
       enterBehavior = "none",
       candidateLimit = 9,
       recomposeNativeKoreanInput = false,
+      preferences = null,
     }) {
       this.control = control;
       this.candidateContainer = candidateContainer;
@@ -1018,6 +1222,10 @@ const TangliengimImeCore = (() => {
       this.candidateLimit = candidateLimit;
       this.recomposeNativeKoreanInput = Boolean(recomposeNativeKoreanInput);
       this.dictionaryIndex = dictionaryIndex;
+      this.preferences = preferences || createCandidatePreferences({
+        activeIds: entries.filter(entry => entry.active !== false).map(sourceEntryId),
+      });
+      this.candidateSelectionExplicit = false;
       this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries);
       this.composer = new TangliengimHangulIme.Composer({
         shouldAutocorrectEToYe: (reading) => {
@@ -1048,6 +1256,9 @@ const TangliengimImeCore = (() => {
       control.addEventListener("keydown", this.handleKeydown);
       control.addEventListener("beforeinput", this.handleBeforeInput);
       control.addEventListener("input", this.handleInput);
+      control.addEventListener("focus", () => {
+        this.preferences.reload().then(() => this.renderCandidates());
+      });
       control.addEventListener("click", this.handleCursorChange);
       control.addEventListener("keyup", this.handleCursorChange);
       document.addEventListener("pointerdown", this.handleDocumentPointerDown);
@@ -1064,6 +1275,7 @@ const TangliengimImeCore = (() => {
     }
 
     setEntries(entries, dictionaryIndex = null) {
+      this.preferences.setActiveIds((entries || []).filter(entry => entry.active !== false).map(sourceEntryId));
       this.dictionaryIndex = dictionaryIndex;
       this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries || []);
       this.renderCandidates();
@@ -1194,6 +1406,7 @@ const TangliengimImeCore = (() => {
         hanri,
         reading,
         autoSandhi: Boolean(entry?.autoSandhi),
+        ...(sourceEntryId(entry || {}) ? { entryId: sourceEntryId(entry) } : {}),
       }));
     }
 
@@ -1213,12 +1426,15 @@ const TangliengimImeCore = (() => {
 
     getRememberedHangulReadings(text = this.control.value) {
       this.syncRememberedReadings(text);
-      return this.rememberedHangulReadings.map(({ start, end, hangul, reading, explicit }) => ({
+      return this.rememberedHangulReadings.map(({ start, end, hangul, reading, explicit, entry }) => ({
         start,
         end,
         hangul,
         reading,
         explicit: Boolean(explicit),
+        ...(sourceEntryId(entry || {}) ? {
+          entryId: sourceEntryId(entry), autoSandhi: Boolean(entry?.autoSandhi),
+        } : {}),
       }));
     }
 
@@ -1408,12 +1624,12 @@ const TangliengimImeCore = (() => {
         if (["ArrowUp", "ArrowDown", "Tab"].includes(event.key)) {
           event.preventDefault();
           const backwards = event.key === "ArrowUp" || (event.key === "Tab" && event.shiftKey);
-          this.setCandidateIndex(this.activeCandidateIndex + (backwards ? -1 : 1));
+          this.setCandidateIndex(this.activeCandidateIndex + (backwards ? -1 : 1), true);
           return;
         }
         if (event.key === "Enter") {
           event.preventDefault();
-          this.applyCandidate(this.activeCandidates[this.activeCandidateIndex]);
+          this.applyCandidate(this.activeCandidates[this.activeCandidateIndex], this.candidateSelectionExplicit);
           return;
         }
       }
@@ -1424,6 +1640,7 @@ const TangliengimImeCore = (() => {
       }
 
       event.preventDefault();
+      this.candidateSelectionExplicit = false;
       this.syncComposerFromControl();
       this.replaceSelectionBeforeImeKey();
 
@@ -1453,6 +1670,7 @@ const TangliengimImeCore = (() => {
     }
 
     handleBeforeInput(event) {
+      this.candidateSelectionExplicit = false;
       if (
         this.recomposeNativeKoreanInput &&
         this.nativeCompositionActive &&
@@ -1503,6 +1721,7 @@ const TangliengimImeCore = (() => {
 
     handleInput(event) {
       if (this.internalUpdate) return;
+      this.candidateSelectionExplicit = false;
       if (this.nativeCompositionActive) return;
       const imeEnabled = this.isEnabled();
       const normalizeInput = (value) => {
@@ -1657,6 +1876,7 @@ const TangliengimImeCore = (() => {
     }
 
     handleCompositionStart() {
+      this.candidateSelectionExplicit = false;
       if (!this.recomposeNativeKoreanInput || !this.isEnabled()) return;
       this.syncComposerFromControl();
       this.nativeComposition = {
@@ -1807,6 +2027,7 @@ const TangliengimImeCore = (() => {
             : entry.hanri;
           found.push({
             entry,
+            lookupKey: adaptiveLookupKey(this.typedCandidateForm(start, range.end)),
             start: candidateReplacementStart(range.text, start, replacement),
             end: range.end,
             length: suffix.length,
@@ -1837,10 +2058,10 @@ const TangliengimImeCore = (() => {
           seen.add(key);
           return true;
         });
-      return uniqueCandidates
-        .sort((left, right) =>
+      const staticCandidates = uniqueCandidates.sort((left, right) =>
           Number(Boolean(left.entry.generatedCandidate)) - Number(Boolean(right.entry.generatedCandidate))
-        )
+        );
+      return this.preferences.rank(staticCandidates, staticCandidates[0]?.lookupKey || "")
         .slice(0, this.candidateLimit);
     }
 
@@ -1852,6 +2073,7 @@ const TangliengimImeCore = (() => {
 
       if (!this.isEnabled()) {
         this.activeCandidates = [];
+        this.candidateSelectionExplicit = false;
         this.renderedCandidateContext = null;
         this.candidateContainer.hidden = true;
         this.onCandidatesChanged(this);
@@ -1859,8 +2081,10 @@ const TangliengimImeCore = (() => {
       }
 
       const context = this.candidateContextKey();
+      if (previousContext !== context) this.candidateSelectionExplicit = false;
       if (this.unresolvedCandidateContext !== context) {
         this.activeCandidates = [];
+        this.candidateSelectionExplicit = false;
         this.activeCandidateIndex = 0;
         this.renderedCandidateContext = context;
         this.candidateContainer.hidden = true;
@@ -1875,9 +2099,10 @@ const TangliengimImeCore = (() => {
       if (range && previousContext === context && previousSelection) {
         const selected = this.activeCandidates.findIndex(
           ({ entry, start, end }) => start === previousSelection.start && end === previousSelection.end &&
-            entry.hanri === previousSelection.entry.hanri && entry.reading === previousSelection.entry.reading
+            sameCandidateRecord(entry, previousSelection.entry)
         );
         if (selected >= 0) this.activeCandidateIndex = selected;
+        else this.candidateSelectionExplicit = false;
       } else if (range) {
         const remembered = this.rememberedHangulReadings.find(
           (span) => span.start === range.start && span.end === range.end
@@ -1885,13 +2110,14 @@ const TangliengimImeCore = (() => {
         if (remembered && !remembered.explicit) {
           const selected = this.activeCandidates.findIndex(
             ({ entry, start, end }) => start === range.start && end === range.end &&
-              entry.reading === remembered.reading
+              sameCandidateRecord(entry, remembered.entry)
           );
           if (selected >= 0) this.activeCandidateIndex = selected;
         }
       }
       this.candidateContainer.hidden = !this.activeCandidates.length;
       if (!this.activeCandidates.length) {
+        this.candidateSelectionExplicit = false;
         this.onCandidatesChanged(this);
         return;
       }
@@ -1930,7 +2156,7 @@ const TangliengimImeCore = (() => {
         }
         button.addEventListener("mousedown", (event) => event.preventDefault());
         button.addEventListener("mouseenter", () => this.setCandidateIndex(index));
-        button.addEventListener("click", () => this.applyCandidate(candidate));
+        button.addEventListener("click", () => this.applyCandidate(candidate, true));
         this.candidateContainer.append(button);
       }
       this.onCandidatesChanged(this);
@@ -1941,6 +2167,7 @@ const TangliengimImeCore = (() => {
     }
 
     dismissCandidates(refocus = true) {
+      this.candidateSelectionExplicit = false;
       this.unresolvedCandidateContext = null;
       this.activeCandidates = [];
       this.activeCandidateIndex = 0;
@@ -1951,8 +2178,9 @@ const TangliengimImeCore = (() => {
       if (refocus) this.control.focus();
     }
 
-    setCandidateIndex(index) {
+    setCandidateIndex(index, explicit = false) {
       if (!this.activeCandidates.length) return;
+      if (explicit) this.candidateSelectionExplicit = true;
       this.activeCandidateIndex = (index + this.activeCandidates.length) % this.activeCandidates.length;
       for (const [candidateIndex, button] of [...this.candidateContainer.children].entries()) {
         const selected = candidateIndex === this.activeCandidateIndex;
@@ -1964,7 +2192,21 @@ const TangliengimImeCore = (() => {
       }
     }
 
-    applyCandidate(candidate) {
+    applyCandidate(candidate, explicit = false) {
+      if (!candidate || !this.activeCandidates.includes(candidate)) return;
+      if (this.applyingCandidate) return;
+      this.applyingCandidate = true;
+      try {
+        this.commitCandidateSelection(candidate, explicit);
+      } finally {
+        this.applyingCandidate = false;
+      }
+    }
+
+    commitCandidateSelection(candidate, explicit) {
+      if (explicit && !candidate.entry.generatedCandidate) {
+        this.preferences.record(candidate.lookupKey, sourceEntryId(candidate.entry));
+      }
       const text = this.control.value;
       const isHangul = ["hangul_override", "hangul_plain"].includes(candidate.entry.kind);
       const replacement = isHangul
@@ -1995,6 +2237,12 @@ const TangliengimImeCore = (() => {
   }
 
   return {
+    MAX_SELECTION_COUNT,
+    PREFERENCE_STORAGE_KEY,
+    adaptiveLookupKey,
+    adaptiveScore,
+    createCandidatePreferences,
+    sanitizeCandidatePreferences,
     buildReadingCandidateMap,
     compareCanonicalEntries,
     rankEntries,

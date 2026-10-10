@@ -73,6 +73,7 @@ def main() -> int:
     for relative in JAVASCRIPT_FILES:
         run(f"JavaScript syntax: {relative}", "node", "--check", relative)
     run("Dictionary TSV schema", sys.executable, "-X", "utf8", "tools/validate_dictionary_tsv.py")
+    run("Canonical source order (read-only)", sys.executable, "-X", "utf8", "tools/sort_dictionary_tsv.py", "--check")
     if args.source_only:
         run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
     else:
@@ -80,9 +81,15 @@ def main() -> int:
     run("Dictionary collation and audio portability", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
         "-s", "tests", "-p", "test_dictionary_*.py")
     run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
-    run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
+    run("Stable-ID structural references", "node", "tools/check_entry_references.cjs")
+    if args.source_only:
+        run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     run('Static priority and reading defaults', 'node', 'tools/check_static_ranking.cjs')
     run('Static Desktop ranking and row independence',sys.executable,'-X','utf8','tools/check_static_desktop.py')
+    run('Adaptive Web candidate learning', 'node', 'tools/check_adaptive_ranking.cjs')
+    run('Adaptive Local/Desktop candidate learning', sys.executable, '-X', 'utf8', 'tools/check_adaptive_desktop.py')
+    run('Adaptive Web safeguards', 'node', 'tools/check_adaptive_safeguards.cjs')
+    run('Adaptive Local/Desktop safeguards', sys.executable, '-X', 'utf8', 'tools/check_adaptive_safeguards.py')
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()

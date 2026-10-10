@@ -1,114 +1,321 @@
-# Dictionary TSV schema
+# Tangliengim dictionary production contract
 
-`data/hokkien_hanri_dict.tsv` is UTF-8, NFC-normalized, CRLF-terminated TSV with nine columns in this exact order:
+## 1. Scope
+
+This is the authoritative current schema and maintenance reference after Exodus
+IV. Migration reports describe their historical checkpoints, not competing
+current schemas. This consolidation changes no lexical data, IDs, collation,
+ranking formula, pronunciation or audio. IDs remain pre-release: Exodus IV does
+not declare them publicly frozen.
+
+Verified snapshot: 2,737 source records; 2,727 runtime-active source records;
+2,705 generated sandhi views; 5,442 total JSON records. The ten source records
+excluded from ordinary candidates are number pronunciations, not missing data.
+These counts describe this checkpoint and are not schema limits.
+
+## 2. Source-of-truth files
+
+| File | Responsibility |
+| --- | --- |
+| `data/hokkien_hanri_dict.tsv` | Canonical lexical forms, readings, search metadata, source roles and stable IDs. |
+| `data/dictionary_priority.tsv` | Sparse contextual static-order exceptions; not a second dictionary. |
+| `data/dictionary_entry_id_registry.tsv` | ID allocation ledger, including reserved suffixes not currently in the dictionary. |
+| `data/dictionary_categories.tsv` | Curated memberships of exact source records. |
+| `desktop/`, `shared/`, `public/audio/` | Shared input/pronunciation implementations and original audio assets, not another lexical dictionary. |
+
+`public/data/*.json` and `_site/` are generated. Do not edit them to correct an
+entry. Local/Desktop consumes the same repository TSV/ledger; there is no second
+maintained Local TSV. Browser JSON, Python lookup maps and search indexes are
+derived views. Per-user learned preferences are separate runtime state.
+
+## 3. Main dictionary schema
+
+UTF-8 without BOM, NFC, CRLF, final newline, nine fields in this exact order:
 
 ```text
 hanri simplified reading mandarin_trad mandarin_simp english corrected entry_type entry_id
 ```
 
-The source header separates these names with tabs, not spaces.
+The actual header uses tabs. Comment/section rows begin with `#` in `hanri` or
+`reading`, have the same field count, and retain their positions during sorting.
+No whitespace padding, malformed field counts, or blank physical records.
 
-| Column | Meaning |
+| Field | Meaning and blanks | Role/effects |
+| --- | --- | --- |
+| `hanri` | Required canonical Hokkien form; may contain Hanri, mixed scripts, pure Hangul or a numeric key. | Linguistic headword; supplies the identity namespace and display/search text; canonical tie-breaker. |
+| `simplified` | Simplified-script form of that same Hokkien form; required for Hanri-containing forms, blank without Hanri; permits `〃`. | Linguistic search metadata only; not identity, ranking or pronunciation. |
+| `reading` | Required Tangliengim reading/input, citation-tone digits and optional trailing correction `*`; digit key for number rows. | Linguistic input/search and pronunciation; contributes to canonical ordering, not an ID ordinal. |
+| `mandarin_trad` | Optional concise Traditional Mandarin semantic equivalent; blank if unavailable/unspecified; permits `〃`. | Semantic search only, never another Hokkien headword, ID or candidate prior. |
+| `mandarin_simp` | Optional Simplified form of that Mandarin equivalent; requires a corresponding Traditional value; permits `〃`. | Semantic search only; distinct from Hokkien `simplified`. |
+| `english` | Optional English gloss; blank if unavailable/unspecified. | Semantic display/search only, not ranking/identity. |
+| `corrected` | Hangul correction/override reading; required for correction aliases and number pronunciations, normally blank on lexical rows. | Linguistic input/pronunciation relationship; canonical tie-breaker, not independent identity. |
+| `entry_type` | Required value from the four roles below. | Technical classification/ordering; not a translation or ID namespace. |
+| `entry_id` | Required unique Unicode-derived source-record ID. | Authoritative identity/reference; final deterministic tie-breaker, not user-entered search text. |
+
+Different readings, polysemy and legitimate homophones may be separate records.
+Do not merge records just because display strings or readings overlap. Existing
+legacy tone symbols are parsed by shared tone normalization; Exodus IV does not
+rewrite their linguistic source content. New tone-bearing readings use the
+existing writer normalization. Multiple semantic equivalents use `; `.
+
+## 4. Special values and inheritance
+
+`〃` is source storage shorthand, valid only as an entire cell in:
+
+| Field containing `〃` | Resolved source |
 | --- | --- |
-| `hanri` | Hanri headword or a Hangul-only override key. |
-| `simplified` | Simplified-script form of the same Hokkien headword; required on Hanri-containing rows, blank without Hanri. `〃` inherits `hanri`. |
-| `reading` | Input Hangul reading, including tone digits and an optional trailing `*` for a nonstandard spelling. |
-| `mandarin_trad` | Optional Traditional Mandarin semantic equivalent, not a Hokkien headword. `〃` inherits `hanri` when semantically identical. |
-| `mandarin_simp` | Simplified form of the same Mandarin semantic equivalent. `〃` inherits resolved `mandarin_trad`. |
-| `english` | Optional English gloss. |
-| `corrected` | Target Hangul reading for a `*` correction alias, or a hidden pronunciation for a numeric key. |
-| `entry_type` | Required semantic row role, defined below. |
-| `entry_id` | Unicode-derived identity for this source row, in the form `U+XXXX[_U+XXXX...]_NN`. IDs are still pre-release. |
+| `simplified` | `hanri` |
+| `mandarin_trad` | `hanri` |
+| `mandarin_simp` | Already-resolved `mandarin_trad` |
 
-`hanri` remains the canonical display and identity source. `simplified` is search
-metadata only: it does not change IDs, priorities, candidates, pronunciation, or
-canonical TSV ordering. Mixed aliases preserve every non-Hanri code point
-(Hangul, tone symbols, punctuation, digits, Latin text, and symbols) exactly.
-Identical nonempty Traditional/Simplified Hokkien spellings use `〃` on Hanri rows.
-Unmapped rare Hanri are retained. The sorter excludes all three lookup fields from
-its ordering; stable `entry_id` is the final tie-breaker, never a gloss or source row.
+The source must be nonempty. Blank is unavailable, inapplicable or intentionally
+unspecified; it is never implicit inheritance. Pure-Hangul Hokkien forms normally
+have blank `simplified`, not `〃`. Other fields and embedded ditto marks are invalid.
 
-### Mandarin semantics and inheritance
+`家己 / 〃 / 自己 / 〃` resolves to Hokkien `家己` and Mandarin `自己` in both
+scripts. `世界 / 〃 / 〃 / 〃` resolves all three lookup fields to `世界`.
+`tools/dictionary_schema.py` resolves these rules centrally for builders and
+Python loaders. Runtime fields, including generated `raw` metadata, contain
+resolved strings; indexes never contain `〃`. Frontends do not translate it.
 
-`simplified` converts the Hokkien written form; `mandarin_simp` converts the Mandarin
-meaning. For example, `家己 | 〃 | 自己 | 〃` resolves to Hokkien `家己` in both
-scripts and Mandarin `自己` in both scripts. `世界 | 〃 | 〃 | 〃` resolves all
-lookup fields to `世界`.
+The Simplified-Hokkien converter processes contiguous Hanri spans with the pinned
+vendored OpenCC `tw2s` subset, preserving non-Hanri content exactly. If the entire
+nonempty result equals the headword, store `〃`. This is script conversion, not
+Mandarin translation. Uncertain meanings remain blank and in the review report;
+validation must not invent translations.
 
-The exact source-only rules are:
+## 5. Entry types
 
-- `simplified = 〃` inherits `hanri`.
-- `mandarin_trad = 〃` inherits `hanri`.
-- `mandarin_simp = 〃` inherits the **resolved** `mandarin_trad`.
+| Type | Current count | Runtime treatment |
+| --- | ---: | --- |
+| `hangul_override` | 52 | Pure-Hangul input/default-reading overrides, including applicable apostrophe prefixes; active and searchable in the existing Hangul path. |
+| `lexical` | 2,666 | Ordinary Hanri or mixed Hanri-Hangul lexical records; active search/candidate sources. |
+| `correction_alias` | 9 | Nonstandard `reading` ending in `*` with `corrected`; active correction lookup, not an extra displayed canonical lexical result. Includes the existing Hangul-only alias. |
+| `number_pronunciation` | 10 | Digit input keys with corrected pronunciations; retained in JSON as inactive ordinary entries and loaded separately by the number-pronunciation engine. |
 
-Blank means unavailable, inapplicable or intentionally unspecified, never implicit
-inheritance. A pure-Hangul headword normally has blank `simplified`. An inheritance
-source must be nonempty. `〃` is forbidden in other fields and inside longer values.
-The shared `tools/dictionary_schema.py` resolver runs before Web JSON building and
-Local/Desktop loading. Runtime fields and indexes contain real strings, never `〃`.
+Every type requires an ID. JSON `kind` is a separate display/runtime structural
+classification (`plain_hanri`, `mixed_hanri`, `hangul_override`, `numeric_override`),
+not another source taxonomy. Generated candidates inherit their source role.
+An unfamiliar row requiring a new role needs review, not an invented classification.
 
-Mandarin metadata cannot create entries or IDs, change canonical spelling, row
-order, IME candidates, priority, pronunciation, tones, sandhi, Lomari or audio.
-Dictionary search adds these fields as alternate lookup paths to existing IDs.
-Distinct senses use the existing `; ` separator. Uncertain meanings remain blank:
-see [the complete review list](mandarin-lookup-review.md). Validation checks structure,
-inheritance and NFC; it neither translates nor silently repairs uncertain semantics.
-New Local IME readings leave both Mandarin fields blank for subsequent review.
+## 6. Stable entry IDs and permanence
 
-The Local writer generates this field using the pinned, vendored OpenCC `tw2s`
-converter; it requires no extra installation. Phrase conversion applies only to
-contiguous Hanri spans. Existing manually reviewed aliases are preserved when
-IDs are allocated or the TSV is sorted. Review the populated choices in
-[`simplified-lookup-review.md`](simplified-lookup-review.md). Unlikely secondary glyphs
-and Traditional 著 alternatives to Simplified 着 are not review cases.
-The generated JSON (schema 10) retains resolved lookup metadata on each existing entry and adds
-`indexes.bySimplified`, `indexes.byMandarinTrad` and `indexes.byMandarinSimp`; Dictionary searches score Hokkien Simplified like canonical Hanri and
-continue displaying the canonical headword. No additional lexical rows are made.
+`U+XXXX[_U+XXXX...]_NN` encodes the canonical identity headword: stored `hanri`
+with the existing nine inline tone annotations removed, then NFC-normalized.
+Each code point is uppercase hexadecimal, at least four digits. The ordinal
+has at least two digits, with no maximum of 99.
 
-`entry_id` belongs to a real dictionary row, not its current position. Ordinary editing and sorting do not renumber IDs. An approved pre-release identity migration may change an ID directly. The base encodes every NFC-normalized Unicode code point in the identity headword with uppercase hexadecimal notation. The first entry for a headword receives `_00`, the first additional entry `_01`, and so on without a two-digit maximum. For example, the base `行` entry uses `U+884C_00`, while `食飽` uses `U+98DF_U+98FD_00`. `_00` is a real TSV entry, never a synthetic headword group.
+`_00` is a real base entry, not a container. `_01`, `_02`, etc. are distinct
+additional records. IDs survive sorting and edits to glosses/search metadata;
+normal builds/sorts never allocate or renumber them. New allocation uses the
+next suffix after every ID already reserved for that headword, not source position
+or only surviving rows. Deleted suffixes are not automatically reused, and a
+deleted `_00` does not cause surviving entries to be renumbered.
 
-The identity headword is the stored `hanri` value after removing the nine legacy inline tone glyphs and normalizing to NFC. This is the same headword users see: Hangul-only overrides use Hangul code points, mixed entries retain their literal script sequence, number pronunciations use their digit, and the `리1호2*` correction alias identifies by its displayed `릐호` headword. Stored/displayed text is not rewritten during ID generation.
+The ledger header is `entry_id canonical_headword redirect_entry_id` (tabs).
+Currently it contains 2,741 assignments: 2,737 current records and four
+registry-only reservations (`U+B098_00`, `U+B3C4_U+C704_00`, `U+B990_U+D638_00`,
+`U+B990_U+D638_01`). Every current ID must agree with its ledger headword.
+All redirect cells are empty; no active `tlg-...` identifiers remain.
 
-Existing IDs survive changes to gloss, static overrides, type, and physical order. Before public release, an approved canonical-headword or ordinal change updates the TSV ID and registry directly; unpublished former IDs need no alias, redirect, or tombstone. The future public path is derived from the same stored ID through `entry_public_path`: `U+5BB6_U+5DF1_00` maps to `/dictionary/家己/`, while `U+5BB6_U+5DF1_01` maps to `/dictionary/家己/01/`. URLs are percent-encoded in code; these examples show their decoded form. There is no separate URL ordinal field. Dictionary entry-page routing is not implemented yet.
+Before explicit public freeze, approved identity migrations can update IDs and
+ledger directly without preserving unpublished history. This is not permission
+to casually renumber normal edits. After explicit freeze/public release, IDs
+must remain permanent; compatibility for changed/deleted public identifiers
+requires an explicitly approved policy/implementation. The reserved redirect
+column is not a currently supported public routing mechanism. Do not invent
+redirects or declare a freeze during ordinary maintenance.
 
-`data/dictionary_entry_id_registry.tsv` is the allocation ledger. It has `entry_id`, `canonical_headword`, and a reserved `redirect_entry_id` column, which stays empty before public ID release. The current registry contains active Unicode IDs only: the old `tlg-...` development IDs and unpublished migration redirects have been removed. Normal new-entry allocation uses the next suffix already recorded for that headword. Approved pre-release migrations may revise IDs and remove obsolete registry records directly. After public IDs are frozen, redirects and retired suffixes can be retained for compatibility. New Local IME entries reserve the next suffix directly in the repository registry before appending the repository TSV row. Sync TSV commits and pushes the dictionary, ID registry and sparse priority file, without transferring separate copies.
+One shared identity parser drives IDs and future URLs:
+`U+5BB6_U+5DF1_00` maps to `/dictionary/家己/`; `_01` maps to
+`/dictionary/家己/01/`. `entry_public_path` percent-encodes the headword and derives
+the ordinal from the ID. There is no separate URL number or stored URL field.
+Human-readable entry routing is not implemented. `/00/` is not the intended
+canonical base URL. Existing dictionaries must retain their allocation ledger;
+writers refuse to reconstruct a missing ledger from surviving rows.
 
-An existing dictionary must retain its registry. Writers refuse to regenerate a missing ledger from active rows, because that could change allocations made during normal editing. A brand-new empty dictionary can create its initial registry.
+## 7. Canonical sorting
 
-The four `entry_type` values are:
+`tools/tangliengim_collation.py` and `tools/sort_dictionary_tsv.py` file records by
+`hangul_override`, `lexical`, `correction_alias`, `number_pronunciation`, then
+reading, stored Hanri code points, corrected reading, stable ID.
 
-| Value | Use |
-| --- | --- |
-| `lexical` | An ordinary entry whose `hanri` contains CJK characters, including mixed Hanri-Hangul headwords. Multiple readings of the same headword remain separate rows. |
-| `correction_alias` | A nonstandard `reading` ending in `*` with a nonempty `corrected` reading. This type also covers the existing alias whose headword is Hangul-only. Its canonical reading is a separate entry. |
-| `hangul_override` | A Hangul-only `hanri` key supplying an explicit reading or tone for that input. A leading typographic apostrophe is allowed. |
-| `number_pronunciation` | A numeric input key beginning with an Arabic digit and a nonempty `corrected` Hangul pronunciation. The desktop number loader handles these rows separately. |
+Reading comparison is initial, vowel, final, next syllable; tones break ties
+after the whole syllabic spelling, then exact normalized spelling. Inventories:
 
-The four types describe source rows. Auto-generated sandhi candidates inherit their source row's `entryType` and derive their runtime ID from the source `entry_id`, but have no TSV row of their own. JSON `kind` remains a separate structural classification (`plain_hanri`, `mixed_hanri`, `hangul_override`, or `numeric_override`) used by the current web interfaces. `entryType` itself does not change candidate eligibility. Physical source row numbers are diagnostic only and never rank candidates. Static ranking uses canonical source keys plus contextual overrides; see [the ranking model](candidate-ranking-model.md).
+- Initial: `ㄱ ㄲ ㄴ ㄷ ㄸ ㄹ ㅁ ㅂ ㅃ ㅅ ㅇ ㅈ ㅉ ㅊ ㅋ ㅌ ㅍ ㅎ ㆆ`.
+- Vowel: `ㅏ ᅟᅷ ㅐ ㅑ ᅟᆤ ㅓ ㅔ ㅕ ㅖ ㅗ ㅘ ㅙ ㅚ ㅛ ㅜ ㅞ ㅟ ㅠ ㅡ ᅟힻ ㅢ ㅣ`.
+- Final: open first, then `ㄱ ㄴ ㄷ ㄹ ㅀ ㅁ ㅂ ㅇ ㅎ`.
 
-The canonical physical order groups `hangul_override`, `lexical`, `correction_alias`, then `number_pronunciation`. Within each group, readings sort syllable by syllable: initial, vowel, final, next syllable. Tone comes after the complete syllabic spelling. Hanri, corrected reading and stable `entry_id` resolve later ties. Glosses and lookup metadata are excluded. Unsorted TSV files remain valid and rank identically; the validator prints a maintenance notice.
+Display filler `ᅟ` is not a vowel identity; special vowels use `ᅷ`, `ᆤ`, `ힻ`
+internally. Unknown retained legacy characters receive deterministic fallback
+positions, not rewritten spelling. Sorting preserves row contents and comment
+positions, and is byte-idempotent. Search metadata and glosses are excluded.
+Source position is neither identity nor ranking state. The validator may issue
+an unsorted maintenance notice, but the release gate requires canonical order
+with the read-only sorter `--check`.
 
-The initial order is `ㄱ ㄲ ㄴ ㄷ ㄸ ㄹ ㅁ ㅂ ㅃ ㅅ ㅇ ㅈ ㅉ ㅊ ㅋ ㅌ ㅍ ㅎ ㆆ`.
+## 8. Static candidate priority
 
-The vowel order is `ㅏ ᅟᅷ ㅐ ㅑ ᅟᆤ ㅓ ㅔ ㅕ ㅖ ㅗ ㅘ ㅙ ㅚ ㅛ ㅜ ㅞ ㅟ ㅠ ㅡ ᅟힻ ㅢ ㅣ`.
+`data/dictionary_priority.tsv` has four tab-separated fields:
+`lookup_key entry entry_id rank`. Its 97 current rows are sparse manual
+exceptions. `lookup_key` is a normalized context, `entry_id` identifies one
+eligible source, `entry` must match its stored Hanri as a checked informational
+label, and `rank` is a positive one-based absolute slot in the complete group.
+Unspecified sources fill remaining slots in deterministic canonical order.
+Filtering does not reinterpret these full-group slots.
 
-The sorter uses open syllables first, followed by the explicit Tangliengim final order `ㄱ ㄴ ㄷ ㄹ ㅀ ㅁ ㅂ ㅇ ㅎ`. Obsolete finals `ㅅ` and `ㅊ` are not in this table. Unrecognized legacy characters receive a deterministic fallback rank; sorting never edits their spelling.
+Shared `tools/dictionary_ranking.py` validates eligibility, ID/label integrity,
+duplicate context/ID relationships, conflicting slots and out-of-range ranks.
+Source identities precede their own generated variants; anonymous/toneless
+fallbacks remain subject to the existing class boundaries. Row order never
+supplies hidden priority. Default pronunciation, segmentation, search, Lomari
+and audio use static rules, not personal learning.
 
-The shared comparator lives in `tools/tangliengim_collation.py`. To sort manually, run:
+## 9. Adaptive per-user ranking
 
-```sh
-python tools/sort_dictionary_tsv.py
+Within protected eligible candidate classes, identity is normalized lookup
+context plus source `entry_id`. The established lower-is-better score is:
+
+```text
+static_index * 2 - selection_count
 ```
 
-The sorter retains the header, comments, every data row, UTF-8, NFC, and CRLF line endings. It does nothing when the file is already canonical. The local IME can continue appending rows; sorting is a separate maintenance action.
+Counts saturate at 255, with no decay. Existing deterministic static order
+breaks ties. Only explicit eligible selection learns: menu display, default
+commit, navigation, dismissal, anonymous/generated fallback and dictionary
+search do not train a source. Explicit source-backed sandhi selections train
+their existing source ID. Generated views retain existing source/variant
+constraints; distinct source IDs do not share statistics accidentally.
 
-The initial Task 5c sort moved 2,746 of 2,749 data rows. It reordered 140 reading-key candidate lists and changed 26 tied Hanri default readings. Six menus for standard spellings now select their canonical row ahead of an equivalent correction alias; the starred alias spellings remain searchable. No row content, full candidate-list membership, priority, Hangul override winner, category, or audio/Lomari runtime data changed. Genesis 3.1 subsequently refreshed `tests/fixtures/dictionary-baseline.json` to the reviewed v3.1 state; see [the consolidation report](genesis-3.1-consolidation.md).
+Web storage: `tangliengim.candidatePreferences.v1` in localStorage. Local/Desktop
+and classic Pad share a stable per-user file via `tools/candidate_preferences.py`:
+on Windows `%LOCALAPPDATA%/Tangliengim/candidate-preferences-v1.json`, on other
+platforms the corresponding user data root. A localhost port change does not
+discard Desktop preferences. The version-1 payload contains `selections` keyed
+by context and ID. Malformed/stale data and storage failures fail safely;
+atomic writes, concurrent updates, resets and duplicate commit receipts are
+covered by Exodus II. Clear preferences to restore cold-start order without
+editing any source file. Never commit/sync this per-user state to the dictionary.
+See [ranking detail](candidate-ranking-model.md) for the exact learning triggers.
 
-New rows written through the local IME include both `entry_type` and a newly reserved Unicode `entry_id`. Manual additions must also reserve the next never-used suffix in the registry; do not derive it from row position or only from currently active rows. Validate and rebuild from the repository root:
+## 10. Structural references and categories
 
-```sh
-python tools/validate_dictionary_tsv.py
-python tools/build_dictionary_json.py
+Anything meaning "this exact dictionary record" uses `entry_id`. Human-readable
+labels may accompany it but cannot substitute for identity. Categories have
+`category label entry entry_id`: one row is one explicit active source membership.
+The current 178 memberships are food 103 and place-names 75; the latter includes
+one correction alias, yielding 74 visible lexical results. Historically 174
+headword memberships expanded into these 178 exact relationships. Distinct
+readings need separate rows; adding a same-headword record does not add it to a
+category automatically. Reject unknown/inactive IDs, stale labels and duplicates.
+
+Correction relationships contain source alias/canonical IDs; ambiguous targets
+fail rather than taking the first. Selected readings retain source ID plus
+variant and committed-text span snapshots through menu recovery/HTML bridges;
+unknown IDs do not fall back to headword guesses. Custom pronunciation snapshots
+may remain anonymous. Search keys, display text, orthographic/grammatical literals,
+reading transformations, punctuation, recorded content and input-span matching
+remain legitimate strings. Stable identity does not mean "remove all Hanri
+strings from code". See [the historical reference audit](exodus-iii-reference-migration.md).
+
+## 11. Generated/runtime data and versioning
+
+`tools/build_dictionary_json.py` produces `public/data/hokkien-hanri-dict.json`
+from the main TSV, ledger, priority/category files, shared Python pronunciation
+engine and audio inventory. Source IDs stay intact. Generated sandhi views use
+runtime `id = source entry_id + '-sandhi'`; `raw.entry_id` stays the permanent
+source ID. These views have no allocated ledger/TSV records. Fallback candidates
+are transient, not independently permanent dictionary entries.
+
+Ten number source objects remain `active: false` because digit/corrected
+pronunciations are handled separately, leaving 2,727 active sources. Adding 2,705
+active sandhi views to all 2,737 source objects yields 5,442 JSON entries.
+Generated `raw` metadata is resolved, not a source TSV copy for manual editing.
+`runtime` contains shared pronunciation/audio lookup metadata. Build metadata
+records source checksums; `build_site.py` rebuilds data, versions assets by
+content and constructs `_site` for `/ime/` and `/dictionary/` together.
+
+JSON already has centralized `schemaVersion = 10`; preserve it because Exodus IV
+does not change the generated structure. The main TSV exact-header contract is
+defined by `DICTIONARY_COLUMNS`, not a new per-row version column. Preference
+version 1 is independent from dictionary schema 10. A clean build needs source
+data, Python with Tkinter, Node and audio assets, not old generated JSON.
+
+## 12. Search indexes and consumers
+
+Hanri, Hokkien Simplified, Hangul/reading (including existing Lomari matching),
+Mandarin Traditional, Mandarin Simplified and English find existing records.
+Strings are lookup values, not record IDs. Search ranking/relevance is distinct
+from adaptive candidate ranking. Output displays the canonical Hokkien entry
+and retains its source identity; semantic metadata creates no new records.
+Browser apps consume generated indexes, Python loaders use the same named
+columns/resolver, and the Local web shell serves shared browser code with local
+HTML/TSV extensions. The supported classic Pad reads the same repository data.
+
+## 13. Validation and release checks
+
+`validate_dictionary_tsv.py` checks header/arity, UTF-8/NFC/CRLF, whitespace,
+required values, inheritance, script metadata, entry roles/IDs, ledger agreement,
+sparse priority and category references. The builder additionally verifies
+runtime role classification and correction targets. These focused checks share
+schema/reference helpers; there is no competing frontend ditto parser.
+
+Normal full gate: `python tools/check_release.py`. It checks syntax, source
+validation and read-only canonical order, rebuilds the site, runs dictionary
+tests/baseline, stable references, static/reversed-row ordering, adaptive learning
+and safeguards, Desktop bridge, PCM/legacy parity, site integrity and built Web
+apps. Each full gate runs Web integration once against the built site; source-only
+mode runs it once against rebuilt source data. No baseline is refreshed silently.
+
+Portable/CI source gate: `python tools/check_release.py --source-only` rebuilds
+runtime JSON but not `_site`. CI separately checks its actual built site.
+Optional deep audits include exhaustive WAV coverage/duration analysis, live
+mobile-device composition checks, linguistic review and deliberate baseline
+capture after approved semantic changes. They are not automatic lexical repairs.
+
+## 14. Production editing workflow
+
+1. Edit the repository main TSV, never generated JSON. Preserve existing IDs.
+   Local "add reading" writes all nine fields, reserves a new ID in the ledger,
+   converts only Hokkien Simplified, and leaves unknown gloss/Mandarin cells blank.
+2. For manual new rows, leave `entry_id` blank temporarily and run
+   `python tools/assign_dictionary_entry_ids.py`. It allocates the next reserved
+   suffix and synchronizes the ledger; normal allocation does not regenerate IDs.
+3. Edit only deliberate static exceptions in `dictionary_priority.tsv`, and add
+   exact category memberships in `dictionary_categories.tsv`. Keep their checked
+   informational labels synchronized after approved headword changes.
+4. Run `python tools/sort_dictionary_tsv.py` as a separate maintenance action;
+   Local appends do not implicitly reorder the dictionary.
+5. Run `python tools/check_release.py` to validate and rebuild everything.
+   Investigate failures instead of hand-editing JSON or refreshing baselines.
+6. Inspect the diff, then commit/push only when requested. Local Sync TSV publishes
+   repository dictionary/ledger/priority changes; it does not transfer a second
+   Local TSV or publish personal preference statistics.
+
+Normal additions require no ranking points, URL fields, personal scores or
+duplicate Unicode identity metadata. Keep linguistic uncertainty in the existing
+review workflow, not TODO/question-mark translations in source cells.
+
+## 15. Compatibility policy and architecture summary
+
+Production readers require the exact current named header. Headerless positional
+Local editor parsing and unreachable headerless metadata branches were removed.
+Intentional six/seven/eight-column import support remains isolated in
+`assign_dictionary_entry_ids.py` and covered by migration tests. Its old
+`tlg-...` recognition is import-only, not an active identity/redirect system.
+The Task 6e zero-base and Simplified/Mandarin migration tools remain explicit
+historical tools, not runtime loaders or automatic new-entry translators.
+The small missing/invalid-file classic fallback and built-in numeric defaults
+remain diagnostic/offline resilience, not supported old production schemas.
+
+```text
+SOURCE DICTIONARY -> lexical/search data + stable source IDs
+STATIC PRIORITY -> sparse human-curated contextual overrides
+STRUCTURAL REFERENCES -> exact stable source IDs
+BUILD -> validated generated/runtime dictionary and shared site
+SEARCH -> linguistic strings resolve to stable records
+USER ADAPTATION -> local (lookup context, entry_id) state over static ranking
 ```
 
-If a new row does not fit one of these roles, leave its classification for review rather than labeling it `lexical` by default.
+For the final verification/checkpoint, see [Exodus IV readiness](exodus-iv-readiness.md).

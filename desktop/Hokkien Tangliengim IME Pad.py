@@ -133,6 +133,23 @@ def dictionary_ranking_api():
     return dictionary_ranking
 
 
+def candidate_preferences_api():
+    dictionary_schema_api()
+    import candidate_preferences
+    return candidate_preferences
+
+
+def selected_record_reference(raw: dict, records: dict[str, dict]) -> dict:
+    """Validate supplied record identity; literal pronunciation spans have no ID."""
+    if 'entryId' not in raw:
+        return {}
+    dictionary_schema_api()
+    from dictionary_references import require_record
+    identity = raw['entryId']
+    require_record(records, identity)
+    return {'entry_id': identity}
+
+
 def hanri_tsv_path_candidates() -> list[Path]:
     """Use the repository dictionary, never a separate adjacent TSV copy."""
     env_path = os.environ.get('HOKKIEN_HANRI_DICT_PATH')
@@ -1350,8 +1367,8 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
     """
     Load Hanri candidates from a TSV file.
 
-    Recommended TSV columns:
-        named lexical fields (no ranking columns)
+    Require the nine named columns in tools.dictionary_schema.DICTIONARY_COLUMNS.
+    See docs/dictionary-tsv-schema.md; ranking overrides live in a separate TSV.
 
     If reading ends in *, it is treated as a wrong/non-standard spelling.
     The corrected column can then store the standard Hangul spelling shown on
@@ -1361,11 +1378,8 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
     automatically generates the corresponding sandhi tone (變).
 
     Tones are written directly in the reading column, not in a separate tone
-    column:
-        랑4      人      1
-        랑5      弄      2
-        세2개    世界    1
-        활5히2   歡喜    1
+    column. Optional gloss/search fields may be blank, but every source record
+    requires its structural entry_type and permanent entry_id.
 
     The program stores these under their tone-stripped base readings.  Therefore
     plain 랑 shows the TSV citation candidates, while 랑4 shows only citation 人 and generated 랑3/랑 can show the sandhi form when typed explicitly.
@@ -1389,21 +1403,14 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
         if not rows:
             raise ValueError('TSV has no valid rows.')
 
-        first = [cell.strip().lower() for cell in rows[0]]
-        has_header = 'reading' in first and 'hanri' in first
-
-        if has_header:
-            header = first
-            data_rows = rows[1:]
-            reading_col = header.index('reading')
-            hanri_col = header.index('hanri')
-            corrected_col = header.index('corrected') if 'corrected' in header else None
-            entry_type_col = header.index('entry_type') if 'entry_type' in header else None
-            entry_id_col = header.index('entry_id') if 'entry_id' in header else None
-            simplified_col = header.index('simplified') if 'simplified' in header else None
-            row_offset = 2
-        else:
-            raise ValueError('Dictionary requires the current named-column schema.')
+        header = dictionary_schema_api().require_dictionary_header(rows[0])
+        data_rows = rows[1:]
+        reading_col = header.index('reading')
+        hanri_col = header.index('hanri')
+        corrected_col = header.index('corrected')
+        entry_type_col = header.index('entry_type')
+        entry_id_col = header.index('entry_id')
+        row_offset = 2
 
         for offset, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
@@ -1412,7 +1419,7 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
             metadata = dictionary_schema_api().resolve_dictionary_record(
-                dict(zip(header, row)) if has_header else {'hanri': hanri, 'simplified': ''}
+                dict(zip(header, row))
             )
 
             if not reading_cell or not hanri:
@@ -1605,14 +1612,9 @@ def load_literal_digit_pronunciations(
         )
         return defaults, contexts, patterns
 
-    first = [cell.strip().lower() for cell in rows[0]]
-    has_header = 'reading' in first and 'corrected' in first
-    if has_header:
-        header = first
-        data_rows = rows[1:]
-        reading_col = header.index('reading')
-        corrected_col = header.index('corrected')
-    else:
+    try:
+        header = dictionary_schema_api().require_dictionary_header(rows[0])
+    except ValueError:
         patterns = sorted(
             ((key, reading, numeric_key_digit_prefix_len(key)) for key, reading in pattern_map.items()),
             key=lambda item: (len(item[0]), item[2]),
@@ -1620,6 +1622,9 @@ def load_literal_digit_pronunciations(
         )
         return defaults, contexts, patterns
 
+    data_rows = rows[1:]
+    reading_col = header.index('reading')
+    corrected_col = header.index('corrected')
     for row in data_rows:
         reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
         corrected_cell = row[corrected_col].strip() if len(row) > corrected_col else ''
@@ -8964,12 +8969,13 @@ class HokkienIMEPad:
                 'hanri': hanri,
                 'reading': reading,
                 'auto_sandhi': bool(span.get('auto_sandhi')),
+                **({'entry_id': span['entry_id']} if 'entry_id' in span else {}),
             })
 
         self.hanri_instance_readings = sorted(updated, key=lambda item: (item['start'], item['end']))
         self.hanri_instance_text_snapshot = current
 
-    def remember_hanri_instance_reading(self, start: int, hanri: str, reading: str, auto_sandhi: bool = False) -> None:
+    def remember_hanri_instance_reading(self, start: int, hanri: str, reading: str, auto_sandhi: bool = False, entry_id: str | None = None) -> None:
         """Remember the exact reading used for this visible Hanri span."""
         hanri = str(hanri or '')
         reading = normalize_tone_symbols_to_digits(str(reading or ''))
@@ -8990,6 +8996,7 @@ class HokkienIMEPad:
             'hanri': hanri,
             'reading': reading,
             'auto_sandhi': bool(auto_sandhi),
+            **({'entry_id': entry_id} if entry_id else {}),
         })
         self.hanri_instance_readings.sort(key=lambda item: (item['start'], item['end']))
         self.hanri_instance_text_snapshot = current
@@ -9977,7 +9984,7 @@ class HokkienIMEPad:
             detail += f' ({form})'
         return f'  {detail}'
 
-    def _candidate_choices_from_entries(self, base_reading: str, entries: list[dict], typed_form: str = '') -> tuple[list[str], list[str], list[str | None], list[bool]]:
+    def _candidate_choices_from_entries(self, base_reading: str, entries: list[dict], typed_form: str = '', *, with_sources: bool = False) -> tuple:
         """Build candidate choices.
 
         Ordering rule for tone variants:
@@ -10028,17 +10035,19 @@ class HokkienIMEPad:
         labels: list[str] = []
         choice_readings: list[str | None] = []
         choice_auto_sandhi: list[bool] = []
+        choice_entries: list[dict | None] = []
         seen_choice_values: set[str] = set()
         seen_label_candidates = set()
         pure_readings: list[str] = []
 
-        def add_choice(value: str, label_text: str | None = None, reading: str | None = None, auto_sandhi: bool = False) -> None:
+        def add_choice(value: str, label_text: str | None = None, reading: str | None = None, auto_sandhi: bool = False, source: dict | None = None) -> None:
             if not value or value in seen_choice_values:
                 return
             seen_choice_values.add(value)
             choices.append(value)
             choice_readings.append(reading)
             choice_auto_sandhi.append(bool(auto_sandhi))
+            choice_entries.append(source)
             labels.append(f'{len(labels) + 1}  {label_text if label_text is not None else value}')
 
         def tone_variants(value: str) -> list[str]:
@@ -10116,14 +10125,14 @@ class HokkienIMEPad:
                         and reading_detail_toned != variant
                     ):
                         label_text = f'{variant}  {reading_detail_toned}'
-                    add_choice(variant, label_text, commit_reading_value, commit_auto_sandhi)
+                    add_choice(variant, label_text, commit_reading_value, commit_auto_sandhi, entry)
                 else:
                     detail = self.format_entry_label_detail(entry, base_reading)
                     dedupe_key = (variant, entry.get('reading', base_reading), entry.get('form', ''), detail)
                     if dedupe_key in seen_label_candidates:
                         continue
                     seen_label_candidates.add(dedupe_key)
-                    add_choice(variant, f'{variant}{detail}', commit_reading_value, commit_auto_sandhi)
+                    add_choice(variant, f'{variant}{detail}', commit_reading_value, commit_auto_sandhi, entry)
 
         # Pure Hangul ordering follows the user's input too:
         # - toneless input: typed/base toneless form first, then toned TSV reading(s)
@@ -10138,7 +10147,8 @@ class HokkienIMEPad:
             for reading in pure_readings:
                 add_pure_hangul_variants(reading)
 
-        return choices, labels, choice_readings, choice_auto_sandhi
+        result = (choices, labels, choice_readings, choice_auto_sandhi)
+        return (*result, choice_entries) if with_sources else result
 
     def with_lomari_key_style_alternate_candidates(self, candidate: dict | None) -> dict | None:
         """Add POJ/Tai-lo ambiguous oe/ue Hanri candidates to a Lomari menu."""
@@ -10168,6 +10178,7 @@ class HokkienIMEPad:
         merged_labels: list[str] = []
         merged_readings: list[str | None] = []
         merged_auto_sandhi: list[bool] = []
+        merged_entries: list[dict | None] = []
         seen_choices: set[str] = set()
 
         def add_menu_items(
@@ -10175,10 +10186,12 @@ class HokkienIMEPad:
             labels: list[str],
             readings: list[str | None] | None = None,
             auto_sandhi_flags: list[bool] | None = None,
+            source_entries: list[dict | None] | None = None,
         ) -> None:
             readings = readings or [None] * len(choices)
             auto_sandhi_flags = auto_sandhi_flags or [False] * len(choices)
-            for choice, label, reading, auto_sandhi in zip(choices, labels, readings, auto_sandhi_flags):
+            source_entries = source_entries or [None] * len(choices)
+            for choice, label, reading, auto_sandhi, source in zip(choices, labels, readings, auto_sandhi_flags, source_entries):
                 if not choice or choice in seen_choices:
                     continue
                 seen_choices.add(choice)
@@ -10186,6 +10199,7 @@ class HokkienIMEPad:
                 merged_choices.append(choice)
                 merged_readings.append(reading)
                 merged_auto_sandhi.append(bool(auto_sandhi))
+                merged_entries.append(source)
                 merged_labels.append(f'{len(merged_labels) + 1}  {label_detail}')
 
         if same_span_candidate is not None:
@@ -10194,6 +10208,7 @@ class HokkienIMEPad:
                 same_span_candidate.get('labels', []),
                 same_span_candidate.get('choice_readings', []),
                 same_span_candidate.get('choice_auto_sandhi', []),
+                same_span_candidate.get('choice_entries', []),
             )
         else:
             default_display = self.format_hangul_output(default_text)
@@ -10204,12 +10219,13 @@ class HokkienIMEPad:
             entries = HANRI_DICT.get(base_reading)
             if not entries:
                 return
-            alt_choices, alt_labels, alt_readings, alt_auto_sandhi = self._candidate_choices_from_entries(
+            alt_choices, alt_labels, alt_readings, alt_auto_sandhi, alt_entries = self._candidate_choices_from_entries(
                 base_reading,
                 entries,
                 typed_form=alternate_text,
+                with_sources=True,
             )
-            add_menu_items(alt_choices, alt_labels, alt_readings, alt_auto_sandhi)
+            add_menu_items(alt_choices, alt_labels, alt_readings, alt_auto_sandhi, alt_entries)
 
         for alternate_text in lomari_loose_candidate_alternate_texts(
             self.lomari_raw,
@@ -10243,6 +10259,7 @@ class HokkienIMEPad:
             'labels': merged_labels,
             'choice_readings': merged_readings,
             'choice_auto_sandhi': merged_auto_sandhi,
+            'choice_entries': merged_entries,
         }
 
     def suppress_current_hanri_candidate_once(self) -> None:
@@ -10339,7 +10356,7 @@ class HokkienIMEPad:
             return i + 1
 
         def build_candidate(prefix: str, matched_typed_form: str, base_reading: str, entries: list[dict]) -> dict:
-            choices, labels, choice_readings, choice_auto_sandhi = self._candidate_choices_from_entries(base_reading, entries, typed_form=matched_typed_form)
+            choices, labels, choice_readings, choice_auto_sandhi, choice_entries = self._candidate_choices_from_entries(base_reading, entries, typed_form=matched_typed_form, with_sources=True)
             # Even if every matching TSV hanri field is Hangul-only,
             # keep the menu open and show only the pure-Hangul fallback.
             # This lets TSV rows support lookup/prediction without showing
@@ -10353,6 +10370,7 @@ class HokkienIMEPad:
                 'labels': labels,
                 'choice_readings': choice_readings,
                 'choice_auto_sandhi': choice_auto_sandhi,
+                'choice_entries': choice_entries,
             }
 
         best_exact: tuple[tuple[int, int, int], dict] | None = None
@@ -10471,8 +10489,9 @@ class HokkienIMEPad:
             labels = []
             choice_readings: list[str | None] = []
             choice_auto_sandhi: list[bool] = []
+            choice_entries: list[dict | None] = []
 
-            def add_predictive_choice(value: str, label_text: str | None = None, reading: str | None = None, auto_sandhi: bool = False) -> None:
+            def add_predictive_choice(value: str, label_text: str | None = None, reading: str | None = None, auto_sandhi: bool = False, source: dict | None = None) -> None:
                 """Add one predictive candidate, de-duplicating by committed output.
 
                 Predictive lookup can reach the same visible candidate through
@@ -10487,6 +10506,7 @@ class HokkienIMEPad:
                 choices.append(value)
                 choice_readings.append(reading)
                 choice_auto_sandhi.append(bool(auto_sandhi))
+                choice_entries.append(source)
                 labels.append(f'{len(labels) + 1}  {label_text if label_text is not None else value}')
 
             def add_pure_hangul_choice(value: str) -> None:
@@ -10540,7 +10560,7 @@ class HokkienIMEPad:
                         if dedupe_key in seen_candidates:
                             continue
                         seen_candidates.add(dedupe_key)
-                        add_predictive_choice(variant, f'{variant}{detail}', entry.get('reading', reading), bool(entry.get('auto_sandhi')))
+                        add_predictive_choice(variant, f'{variant}{detail}', entry.get('reading', reading), bool(entry.get('auto_sandhi')), entry)
                     continue
 
                 has_hanri_tone_variants = len(variants) > 1
@@ -10564,7 +10584,7 @@ class HokkienIMEPad:
                     if dedupe_key in seen_candidates:
                         continue
                     seen_candidates.add(dedupe_key)
-                    add_predictive_choice(variant, label_text, reading_value, bool(entry.get('auto_sandhi')))
+                    add_predictive_choice(variant, label_text, reading_value, bool(entry.get('auto_sandhi')), entry)
 
             # Final alternative keeps exactly what the user has typed so far.
             # This is still shown even when all TSV hanri fields for this match are
@@ -10581,6 +10601,7 @@ class HokkienIMEPad:
                 'labels': labels,
                 'choice_readings': choice_readings,
                 'choice_auto_sandhi': choice_auto_sandhi,
+                'choice_entries': choice_entries,
             }
             predictive_score = match_score(matched_text, 5)
 
@@ -10618,6 +10639,26 @@ class HokkienIMEPad:
             self.close_candidate_popup()
             return False
 
+        candidate = self.adapt_candidate_menu(candidate)
+
+        def choice_identity(menu: dict, index: int) -> tuple:
+            sources = menu.get('choice_entries', [])
+            source = sources[index] if index < len(sources) else None
+            flags = menu.get('choice_auto_sandhi', [])
+            variant = bool(flags[index]) if index < len(flags) else False
+            identity = dictionary_ranking_api().source_id(source) if source else ''
+            if identity:
+                return ('record', identity, variant)
+            readings = menu.get('choice_readings', [])
+            return ('output', menu['choices'][index], readings[index] if index < len(readings) else None)
+
+        same_context = bool(self.candidate and all(
+            self.candidate.get(field) == candidate.get(field)
+            for field in ('prefix', 'suffix', 'reading', 'matched_text')
+        ))
+        previous_identity = (choice_identity(self.candidate, self.candidate_index)
+                             if same_context else None)
+
         # Do not recreate the same popup repeatedly.
         if (
             self.candidate
@@ -10627,13 +10668,47 @@ class HokkienIMEPad:
             and self.candidate.get('labels') == candidate.get('labels')
             and self.candidate.get('choice_readings') == candidate.get('choice_readings')
             and self.candidate.get('choice_auto_sandhi') == candidate.get('choice_auto_sandhi')
+            and [choice_identity(self.candidate, index) for index in range(len(self.candidate['choices']))]
+            == [choice_identity(candidate, index) for index in range(len(candidate['choices']))]
         ):
             return True
 
+        selected = next((index for index in range(len(candidate['choices']))
+                         if choice_identity(candidate, index) == previous_identity), None)
         self.candidate = candidate
-        self.candidate_index = 0
+        self.candidate_index = selected if selected is not None else 0
+        if selected is None:
+            self.candidate_selection_explicit = False
         self.show_candidate_popup()
         return True
+
+    def candidate_preference_store(self):
+        if (not hasattr(self, '_candidate_preference_store') or
+                getattr(self, '_candidate_preference_dictionary', HANRI_DICT) is not HANRI_DICT):
+            api = candidate_preferences_api()
+            source = next((path for path in hanri_tsv_path_candidates() if path.is_file()), None)
+            active = api.active_ids_from_tsv(source) if source else set()
+            self._candidate_preference_store = api.FilePreferenceStore(active)
+            self._candidate_preference_dictionary = HANRI_DICT
+        return self._candidate_preference_store
+
+    def adapt_candidate_menu(self, candidate: dict) -> dict:
+        api = candidate_preferences_api()
+        before = self.composer.text()[:self.composer.display_cursor_pos()]
+        raw = before[len(candidate.get('prefix', '')):]
+        if self.input_mode.get() == 'lomari' and self.lomari_raw:
+            raw = 'lomari:' + self.lomari_raw
+        key = api.lookup_key(normalize_tone_symbols_to_digits(raw))
+        sources = candidate.get('choice_entries', [None] * len(candidate['choices']))
+        items = [{'entry': source or {'generatedCandidate': True}, 'index': index}
+                 for index, source in enumerate(sources)]
+        ordered = self.candidate_preference_store().rank(items, key)
+        result = dict(candidate, lookup_key=key)
+        for field in ('choices', 'labels', 'choice_readings', 'choice_auto_sandhi', 'choice_entries'):
+            if field in candidate:
+                result[field] = [candidate[field][item['index']] for item in ordered]
+        result['labels'] = [f'{index + 1}  {label.split("  ", 1)[-1]}' for index, label in enumerate(result['labels'])]
+        return result
 
     def show_candidate_popup(self) -> None:
         self.close_candidate_popup(destroy_candidate=False)
@@ -10706,6 +10781,7 @@ class HokkienIMEPad:
         if destroy_candidate:
             self.candidate = None
             self.candidate_index = 0
+            self.candidate_selection_explicit = False
 
     def refresh_candidate_popup_text(self) -> None:
         if not self.candidate or self.candidate_listbox is None:
@@ -10749,14 +10825,28 @@ class HokkienIMEPad:
         if not self.candidate:
             return
         self.candidate_index = index % len(self.candidate['choices'])
+        self.candidate_selection_explicit = True
         self.refresh_candidate_popup_text()
 
-    def commit_candidate(self, index: int | None = None) -> None:
+    def commit_candidate(self, index: int | None = None, *, explicit: bool = False) -> None:
+        if not self.candidate or getattr(self, '_candidate_commit_in_progress', False):
+            return
+        self._candidate_commit_in_progress = True
+        try:
+            self.commit_candidate_selection(index, explicit=explicit)
+        finally:
+            self._candidate_commit_in_progress = False
+
+    def commit_candidate_selection(self, index: int | None = None, *, explicit: bool = False) -> None:
         if not self.candidate:
             return
         if index is None:
             index = self.candidate_index
         choice = self.candidate['choices'][index]
+        sources = self.candidate.get('choice_entries', [])
+        source = sources[index] if index < len(sources) else None
+        if source and (explicit or getattr(self, 'candidate_selection_explicit', False)):
+            self.candidate_preference_store().record(self.candidate.get('lookup_key', ''), dictionary_ranking_api().source_id(source))
         choice_readings = self.candidate.get('choice_readings', [])
         choice_reading = choice_readings[index] if index < len(choice_readings) else None
         choice_auto_sandhi_flags = self.candidate.get('choice_auto_sandhi', [])
@@ -10776,7 +10866,10 @@ class HokkienIMEPad:
         self.composer.cursor_pos = len(replacement)
         self.composer.initial = self.composer.medial = self.composer.final = ''
         if choice_reading and field_is_plain_hanri(choice):
-            self.remember_hanri_instance_reading(len(prefix), choice, choice_reading, auto_sandhi=choice_auto_sandhi)
+            self.remember_hanri_instance_reading(
+                len(prefix), choice, choice_reading, auto_sandhi=choice_auto_sandhi,
+                entry_id=dictionary_ranking_api().source_id(source) if source else None,
+            )
         else:
             self.sync_hanri_instance_readings()
         self.key_history = []
@@ -10802,7 +10895,7 @@ class HokkienIMEPad:
             except Exception:
                 line = self.candidate_index
             line = max(0, min(line, len(self.candidate['choices']) - 1))
-            self.commit_candidate(line)
+            self.commit_candidate(line, explicit=True)
             self.render()
             self.text.focus_set()
         return 'break'
@@ -12676,9 +12769,16 @@ def run_desktop_html_bridge() -> None:
         app.composer.e_to_ye_autocorrect_enabled = app.e_to_ye_autocorrect_on.get
         app.hanri_instance_readings = []
         app.hangul_instance_readings = []
+        dictionary_schema_api()
+        from dictionary_references import record_index
+        source = next((path for path in hanri_tsv_path_candidates() if path.is_file()), None)
+        if source is None:
+            raise FileNotFoundError('Dictionary TSV not found for selected-record references.')
+        records = record_index(dictionary_ranking_api().read_records(source))
         for raw in payload.get('rememberedReadings') or []:
             if not isinstance(raw, dict):
                 continue
+            reference = selected_record_reference(raw, records)
             try:
                 start = int(raw.get('start', -1))
                 end = int(raw.get('end', -1))
@@ -12694,11 +12794,13 @@ def run_desktop_html_bridge() -> None:
                 'hanri': hanri,
                 'reading': reading,
                 'auto_sandhi': bool(raw.get('autoSandhi')),
+                **reference,
             })
         app.hanri_instance_text_snapshot = content
         for raw in payload.get('rememberedHangulReadings') or []:
             if not isinstance(raw, dict):
                 continue
+            reference = selected_record_reference(raw, records)
             try:
                 start = int(raw.get('start', -1))
                 end = int(raw.get('end', -1))
@@ -12713,6 +12815,8 @@ def run_desktop_html_bridge() -> None:
                 'end': end,
                 'hangul': hangul,
                 'reading': reading,
+                'auto_sandhi': bool(raw.get('autoSandhi')),
+                **reference,
             })
         app.html_style.set(style)
 

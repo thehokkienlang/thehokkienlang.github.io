@@ -1351,11 +1351,10 @@ def hanri_reading_entry_exists(hanri: str, reading: str) -> bool:
             rows = [row for row in csv.reader(f, delimiter='\t') if any(cell.strip() for cell in row)]
         if not rows:
             continue
-        header = [cell.strip().lower() for cell in rows[0]]
-        has_header = 'reading' in header and 'hanri' in header
-        reading_col = header.index('reading') if has_header else 0
-        hanri_col = header.index('hanri') if has_header else 1
-        data_rows = rows[1:] if has_header else rows
+        header = dictionary_schema_api().require_dictionary_header(rows[0])
+        reading_col = header.index('reading')
+        hanri_col = header.index('hanri')
+        data_rows = rows[1:]
         for row in data_rows:
             row_reading = row[reading_col].strip() if len(row) > reading_col else ''
             row_hanri = row[hanri_col].strip() if len(row) > hanri_col else ''
@@ -1383,11 +1382,10 @@ def existing_hanri_readings(hanri: str) -> list[str]:
             rows = [row for row in csv.reader(f, delimiter='\t') if any(cell.strip() for cell in row)]
         if not rows:
             continue
-        header = [cell.strip().lower() for cell in rows[0]]
-        has_header = 'reading' in header and 'hanri' in header
-        reading_col = header.index('reading') if has_header else 0
-        hanri_col = header.index('hanri') if has_header else 1
-        data_rows = rows[1:] if has_header else rows
+        header = dictionary_schema_api().require_dictionary_header(rows[0])
+        reading_col = header.index('reading')
+        hanri_col = header.index('hanri')
+        data_rows = rows[1:]
         for row in data_rows:
             row_reading = row[reading_col].strip() if len(row) > reading_col else ''
             row_hanri = row[hanri_col].strip() if len(row) > hanri_col else ''
@@ -1745,19 +1743,14 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
         if not rows:
             continue
 
-        header = [cell.strip().lower() for cell in rows[0]]
-        has_header = 'reading' in header and 'hanri' in header
-        if has_header:
-            data_rows = rows[1:]
-            reading_col = header.index('reading')
-            hanri_col = header.index('hanri')
-            corrected_col = header.index('corrected') if 'corrected' in header else None
-            entry_type_col = header.index('entry_type') if 'entry_type' in header else None
-            entry_id_col = header.index('entry_id') if 'entry_id' in header else None
-            simplified_col = header.index('simplified') if 'simplified' in header else None
-            row_offset = 2
-        else:
-            raise ValueError('Dictionary requires the current named-column schema.')
+        header = dictionary_schema_api().require_dictionary_header(rows[0])
+        data_rows = rows[1:]
+        reading_col = header.index('reading')
+        hanri_col = header.index('hanri')
+        corrected_col = header.index('corrected')
+        entry_type_col = header.index('entry_type')
+        entry_id_col = header.index('entry_id')
+        row_offset = 2
 
         for row_number, row in enumerate(data_rows, start=row_offset):
             reading_cell = row[reading_col].strip() if len(row) > reading_col else ''
@@ -1765,9 +1758,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
             corrected_cell = row[corrected_col].strip() if corrected_col is not None and len(row) > corrected_col else ''
             entry_type = row[entry_type_col].strip() if entry_type_col is not None and len(row) > entry_type_col else ''
             entry_id = row[entry_id_col].strip() if entry_id_col is not None and len(row) > entry_id_col else ''
-            metadata = dictionary_schema_api().resolve_dictionary_record(dict(zip(header, row)) if has_header else {
-                'hanri': hanri, 'simplified': '',
-            })
+            metadata = dictionary_schema_api().resolve_dictionary_record(dict(zip(header, row)))
             simplified = metadata.get('simplified', '')
             if not reading_cell or not hanri:
                 continue

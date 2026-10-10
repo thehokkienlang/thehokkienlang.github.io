@@ -17,9 +17,42 @@ import sys
 import threading
 import time
 import webbrowser
+import uuid
+from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
+from candidate_preferences import FilePreferenceStore, active_ids_from_tsv
+
+
+PREFERENCE_SCRIPT = r"""
+(() => {
+  let pending = Promise.resolve();
+  const session = "__PREFERENCE_SESSION__";
+  let selectionIndex = 0;
+  async function request(action, payload) {
+    const response = await fetch('/desktop-api/candidate-preferences' + action, {
+      method: payload ? 'POST' : 'GET', cache: 'no-store',
+      keepalive: Boolean(payload),
+      headers: { 'Content-Type': 'application/json' },
+      ...(payload ? { body: JSON.stringify(payload) } : {}),
+    });
+    if (!response.ok) throw new Error('Preference storage unavailable');
+    return response.json();
+  }
+  function enqueue(action, payload) {
+    pending = pending.catch(() => {}).then(() => request(action, payload));
+    return pending;
+  }
+  window.TangliengimCandidatePreferenceBackend = {
+    load: () => request('', null),
+    record: (lookupKey, entryId) => enqueue('/record', { lookupKey, entryId, selectionId: `${session}:${++selectionIndex}` }),
+    reset: () => enqueue('/reset', {}),
+  };
+})();
+"""
 
 
 DESKTOP_SCRIPT = r"""
@@ -233,6 +266,13 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlsplit(self.path).path
+        if path == '/desktop-api/candidate-preferences':
+            self._send_json(self.server.load_candidate_preferences())
+            return
+        if path == '/desktop/candidate-preferences.js':
+            script = PREFERENCE_SCRIPT.replace('__PREFERENCE_SESSION__', uuid.uuid4().hex)
+            self._send_bytes(script.encode('utf-8'), 'text/javascript; charset=utf-8')
+            return
         if path in {"", "/"}:
             self._redirect("/ime/?desktop=1")
             return
@@ -254,6 +294,12 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         data = target.read_bytes()
+        if target in [self.server.repo_root / 'apps' / app / 'index.html' for app in ('ime', 'dictionary')]:
+            html = data.decode('utf-8').replace(
+                '</head>',
+                '    <script src="/desktop/candidate-preferences.js"></script>\n  </head>',
+            )
+            data = html.encode('utf-8')
         if target == self.server.repo_root / "apps" / "ime" / "index.html":
             html = data.decode("utf-8")
             html = html.replace(
@@ -272,6 +318,12 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             payload = self._read_json()
             if path == "/desktop-api/copy-html":
                 result = self.server.copy_html(payload)
+            elif path == '/desktop-api/candidate-preferences/record':
+                result = self.server.record_candidate_preference(payload)
+            elif path == '/desktop-api/candidate-preferences/reset':
+                with self.server.bridge_lock:
+                    self.server.candidate_preferences.reset()
+                    result = {'ok': True, 'preferences': self.server.candidate_preferences.load()}
             elif path == "/desktop-api/sync-tsv":
                 result = self.server.sync_tsv()
             elif path == "/desktop-api/open-classic":
@@ -293,7 +345,35 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.repo_root = repo_root.resolve()
         self.classic_script = classic_script.resolve()
         self.classic_process: subprocess.Popen | None = None
-        self.bridge_lock = threading.Lock()
+        self.bridge_lock = threading.RLock()
+        self.candidate_preferences = FilePreferenceStore(active_ids_from_tsv(self.local_tsv_path()))
+        self.preference_receipts = OrderedDict()
+
+    def load_candidate_preferences(self) -> dict:
+        with self.bridge_lock:
+            current = active_ids_from_tsv(self.local_tsv_path())
+            self.candidate_preferences.active_ids = current
+            return self.candidate_preferences.load()
+
+    def record_candidate_preference(self, payload: dict) -> dict:
+        key, identity = payload.get('lookupKey'), payload.get('entryId')
+        operation = payload.get('selectionId')
+        if operation is not None and (not isinstance(operation, str) or not operation or len(operation) > 128):
+            raise ValueError('Invalid selection operation')
+        with self.bridge_lock:
+            self.load_candidate_preferences()
+            if operation in self.preference_receipts:
+                previous_key, previous_id, count = self.preference_receipts[operation]
+                if (key, identity) != (previous_key, previous_id):
+                    raise ValueError('Selection operation reused for a different candidate')
+            else:
+                count = self.candidate_preferences.record(key, identity)
+                if operation is not None:
+                    self.preference_receipts[operation] = (key, identity, count)
+                    # Receipts are temporary event deduplication, not learned history.
+                    if len(self.preference_receipts) > 512:
+                        self.preference_receipts.popitem(last=False)
+            return {'ok': True, 'count': count, 'preferences': self.candidate_preferences.load()}
 
     def local_tsv_path(self) -> Path:
         return self.repo_root / "data" / "hokkien_hanri_dict.tsv"

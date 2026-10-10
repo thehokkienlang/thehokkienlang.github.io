@@ -1,5 +1,8 @@
 # Shared Engine Migration
 
+This retains the shared-engine migration history and parity procedures. For the
+current dictionary/ranking/reference contract use [the production schema](dictionary-tsv-schema.md).
+
 ## Ownership
 
 - GitHub owns the shared Tangliengim engine, TSV, audio data, Web IME, Dictionary, shared styling, and parity tests.

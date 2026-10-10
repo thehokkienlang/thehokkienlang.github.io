@@ -1,175 +1,179 @@
-category	label	hanri
-food	Food	鹹
-food	Food	鹹酥雞
-food	Food	糊
-food	Food	고ˉ비ˆ
-food	Food	고ˉ비ˉ店
-food	Food	雞
-food	Food	雞卵
-food	Food	雞肉
-food	Food	粿
-food	Food	鹼粽
-food	Food	鵝肉
-food	Food	牛奶
-food	Food	牛肉
-food	Food	卵
-food	Food	奶
-food	Food	茶
-food	Food	豬肉
-food	Food	甜粿
-food	Food	豆
-food	Food	豆粽
-food	Food	豆腐
-food	Food	豆花
-food	Food	豆花水
-food	Food	綠茶
-food	Food	飲茶
-food	Food	飲酒
-food	Food	飲湯
-food	Food	메ˉ끼ˉ麵
-food	Food	麵
-food	Food	麵囝
-food	Food	麵薄
-food	Food	餅
-food	Food	白糖
-food	Food	白糖粿
-food	Food	便當
-food	Food	飯
-food	Food	肉
-food	Food	肉粽
-food	Food	肉脞
-food	Food	肉脞麵
-food	Food	米粉粿
-food	Food	米粉湯
-food	Food	米粉
-food	Food	米
-food	Food	紅龜粿
-food	Food	紅茶
-food	Food	紅豆
-food	Food	鴨
-food	Food	鴨肉
-food	Food	鹽
-food	Food	烏龍茶
-food	Food	雲吞麵
-food	Food	碗粿
-food	Food	碗
-food	Food	幼麵
-food	Food	粽
-food	Food	食麵
-food	Food	食飯
-food	Food	煮
-food	Food	酒
-food	Food	炒粿條
-food	Food	炒飯
-food	Food	炒米粉
-food	Food	菜
-food	Food	菜頭粿
-food	Food	湯
-food	Food	糖
-food	Food	湯匙
-food	Food	泡麵
-food	Food	泡茶
-food	Food	粉粿
-food	Food	粉
-food	Food	魚
-food	Food	蟳
-food	Food	中晝
-food	Food	果子
-food	Food	蝦
-food	Food	肉乾
-food	Food	燒肉粽
-food	Food	菝仔
-food	Food	早頓
-food	Food	卵仁
-food	Food	蚵仔煎
-food	Food	蚵
-food	Food	蚵仔
-food	Food	好茶
-food	Food	滷肉
-food	Food	滷
-food	Food	滷肉飯
-food	Food	紅燒
-food	Food	薑
-food	Food	蒜
-food	Food	米酒頭仔
-food	Food	煮食
-food	Food	蚶
-food	Food	蚶仔
-food	Food	燒酒蝦
-food	Food	麻油雞
-food	Food	煠
-food	Food	米酒
-food	Food	米酒頭
-place-names	Place names	紅毛橋
-place-names	Place names	安溪
-place-names	Place names	美世界
-place-names	Place names	北京
-place-names	Place names	碧山
-place-names	Place names	文禮
-place-names	Place names	紅山
-place-names	Place names	廣府
-place-names	Place names	彰化
-place-names	Place names	長泰
-place-names	Place names	嘉義
-place-names	Place names	唐山
-place-names	Place names	中國
-place-names	Place names	蔡厝港
-place-names	Place names	東亞
-place-names	Place names	福建
-place-names	Place names	廣東
-place-names	Place names	香港
-place-names	Place names	後港
-place-names	Place names	新竹
-place-names	Place names	印度
-place-names	Place names	日本
-place-names	Place names	晉江
-place-names	Place names	高雄
-place-names	Place names	加東
-place-names	Place names	金門
-place-names	Place names	牛車水
-place-names	Place names	林厝港
-place-names	Place names	龍海
-place-names	Place names	鹿港
-place-names	Place names	馬來西亞
-place-names	Place names	閩東
-place-names	Place names	閩南
-place-names	Place names	艋舺
-place-names	Place names	南洋
-place-names	Place names	屏東
-place-names	Place names	泉州
-place-names	Place names	泉漳
-place-names	Place names	盛港
-place-names	Place names	汕頭
-place-names	Place names	石獅
-place-names	Place names	新加坡
-place-names	Place names	韓國
-place-names	Place names	東南亞
-place-names	Place names	台中
-place-names	Place names	台南
-place-names	Place names	台北
-place-names	Place names	台北市
-place-names	Place names	台北車站
-place-names	Place names	台灣
-place-names	Place names	淡水
-place-names	Place names	淡水河
-place-names	Place names	桃園
-place-names	Place names	潮州
-place-names	Place names	泰國
-place-names	Place names	大巴窯
-place-names	Place names	東京
-place-names	Place names	東寧
-place-names	Place names	英國
-place-names	Place names	美國
-place-names	Place names	越南
-place-names	Place names	西洋
-place-names	Place names	廈門
-place-names	Place names	延平
-place-names	Place names	翔安
-place-names	Place names	油池
-place-names	Place names	宜蘭
-place-names	Place names	義順
-place-names	Place names	永春
-place-names	Place names	雲林
-place-names	Place names	漳浦
-place-names	Place names	漳州
-place-names	Place names	中山
+category	label	entry	entry_id
+food	Food	鹹	U+9E79_00
+food	Food	鹹酥雞	U+9E79_U+9165_U+96DE_00
+food	Food	糊	U+7CCA_00
+food	Food	고ˉ비ˆ	U+ACE0_U+BE44_00
+food	Food	고ˉ비ˉ店	U+ACE0_U+BE44_U+5E97_00
+food	Food	雞	U+96DE_00
+food	Food	雞卵	U+96DE_U+5375_00
+food	Food	雞肉	U+96DE_U+8089_00
+food	Food	粿	U+7CBF_00
+food	Food	鹼粽	U+9E7C_U+7CBD_00
+food	Food	鵝肉	U+9D5D_U+8089_00
+food	Food	牛奶	U+725B_U+5976_00
+food	Food	牛奶	U+725B_U+5976_01
+food	Food	牛肉	U+725B_U+8089_00
+food	Food	卵	U+5375_00
+food	Food	奶	U+5976_00
+food	Food	奶	U+5976_01
+food	Food	茶	U+8336_00
+food	Food	豬肉	U+8C6C_U+8089_00
+food	Food	甜粿	U+751C_U+7CBF_00
+food	Food	豆	U+8C46_00
+food	Food	豆粽	U+8C46_U+7CBD_00
+food	Food	豆腐	U+8C46_U+8150_00
+food	Food	豆花	U+8C46_U+82B1_00
+food	Food	豆花水	U+8C46_U+82B1_U+6C34_00
+food	Food	綠茶	U+7DA0_U+8336_00
+food	Food	飲茶	U+98F2_U+8336_00
+food	Food	飲酒	U+98F2_U+9152_00
+food	Food	飲湯	U+98F2_U+6E6F_00
+food	Food	메ˉ끼ˉ麵	U+BA54_U+B07C_U+9EB5_00
+food	Food	麵	U+9EB5_00
+food	Food	麵囝	U+9EB5_U+56DD_00
+food	Food	麵薄	U+9EB5_U+8584_00
+food	Food	餅	U+9905_00
+food	Food	白糖	U+767D_U+7CD6_00
+food	Food	白糖粿	U+767D_U+7CD6_U+7CBF_00
+food	Food	便當	U+4FBF_U+7576_00
+food	Food	飯	U+98EF_00
+food	Food	肉	U+8089_00
+food	Food	肉粽	U+8089_U+7CBD_00
+food	Food	肉脞	U+8089_U+811E_00
+food	Food	肉脞麵	U+8089_U+811E_U+9EB5_00
+food	Food	米粉粿	U+7C73_U+7C89_U+7CBF_00
+food	Food	米粉湯	U+7C73_U+7C89_U+6E6F_00
+food	Food	米粉	U+7C73_U+7C89_00
+food	Food	米	U+7C73_00
+food	Food	紅龜粿	U+7D05_U+9F9C_U+7CBF_00
+food	Food	紅茶	U+7D05_U+8336_00
+food	Food	紅豆	U+7D05_U+8C46_00
+food	Food	鴨	U+9D28_00
+food	Food	鴨肉	U+9D28_U+8089_00
+food	Food	鹽	U+9E7D_00
+food	Food	烏龍茶	U+70CF_U+9F8D_U+8336_00
+food	Food	雲吞麵	U+96F2_U+541E_U+9EB5_00
+food	Food	碗粿	U+7897_U+7CBF_00
+food	Food	碗	U+7897_00
+food	Food	幼麵	U+5E7C_U+9EB5_00
+food	Food	粽	U+7CBD_00
+food	Food	食麵	U+98DF_U+9EB5_00
+food	Food	食飯	U+98DF_U+98EF_00
+food	Food	煮	U+716E_00
+food	Food	酒	U+9152_00
+food	Food	炒粿條	U+7092_U+7CBF_U+689D_00
+food	Food	炒飯	U+7092_U+98EF_00
+food	Food	炒米粉	U+7092_U+7C73_U+7C89_00
+food	Food	菜	U+83DC_00
+food	Food	菜頭粿	U+83DC_U+982D_U+7CBF_00
+food	Food	湯	U+6E6F_00
+food	Food	糖	U+7CD6_00
+food	Food	湯匙	U+6E6F_U+5319_00
+food	Food	泡麵	U+6CE1_U+9EB5_00
+food	Food	泡茶	U+6CE1_U+8336_00
+food	Food	粉粿	U+7C89_U+7CBF_00
+food	Food	粉	U+7C89_00
+food	Food	魚	U+9B5A_00
+food	Food	蟳	U+87F3_00
+food	Food	中晝	U+4E2D_U+665D_00
+food	Food	果子	U+679C_U+5B50_00
+food	Food	蝦	U+8766_00
+food	Food	肉乾	U+8089_U+4E7E_00
+food	Food	燒肉粽	U+71D2_U+8089_U+7CBD_00
+food	Food	菝仔	U+83DD_U+4ED4_00
+food	Food	早頓	U+65E9_U+9813_00
+food	Food	卵仁	U+5375_U+4EC1_00
+food	Food	蚵仔煎	U+86B5_U+4ED4_U+714E_00
+food	Food	蚵	U+86B5_00
+food	Food	蚵仔	U+86B5_U+4ED4_00
+food	Food	好茶	U+597D_U+8336_00
+food	Food	滷肉	U+6EF7_U+8089_00
+food	Food	滷	U+6EF7_00
+food	Food	滷肉飯	U+6EF7_U+8089_U+98EF_00
+food	Food	紅燒	U+7D05_U+71D2_00
+food	Food	薑	U+8591_00
+food	Food	蒜	U+849C_00
+food	Food	米酒頭仔	U+7C73_U+9152_U+982D_U+4ED4_00
+food	Food	煮食	U+716E_U+98DF_00
+food	Food	蚶	U+86B6_00
+food	Food	蚶仔	U+86B6_U+4ED4_00
+food	Food	燒酒蝦	U+71D2_U+9152_U+8766_00
+food	Food	麻油雞	U+9EBB_U+6CB9_U+96DE_00
+food	Food	煠	U+7160_00
+food	Food	米酒	U+7C73_U+9152_00
+food	Food	米酒頭	U+7C73_U+9152_U+982D_00
+place-names	Place names	紅毛橋	U+7D05_U+6BDB_U+6A4B_00
+place-names	Place names	安溪	U+5B89_U+6EAA_00
+place-names	Place names	美世界	U+7F8E_U+4E16_U+754C_00
+place-names	Place names	北京	U+5317_U+4EAC_00
+place-names	Place names	碧山	U+78A7_U+5C71_00
+place-names	Place names	文禮	U+6587_U+79AE_00
+place-names	Place names	紅山	U+7D05_U+5C71_00
+place-names	Place names	廣府	U+5EE3_U+5E9C_00
+place-names	Place names	彰化	U+5F70_U+5316_00
+place-names	Place names	長泰	U+9577_U+6CF0_00
+place-names	Place names	長泰	U+9577_U+6CF0_01
+place-names	Place names	嘉義	U+5609_U+7FA9_00
+place-names	Place names	唐山	U+5510_U+5C71_00
+place-names	Place names	中國	U+4E2D_U+570B_00
+place-names	Place names	蔡厝港	U+8521_U+539D_U+6E2F_00
+place-names	Place names	東亞	U+6771_U+4E9E_00
+place-names	Place names	福建	U+798F_U+5EFA_00
+place-names	Place names	廣東	U+5EE3_U+6771_00
+place-names	Place names	香港	U+9999_U+6E2F_00
+place-names	Place names	後港	U+5F8C_U+6E2F_00
+place-names	Place names	新竹	U+65B0_U+7AF9_00
+place-names	Place names	印度	U+5370_U+5EA6_00
+place-names	Place names	日本	U+65E5_U+672C_00
+place-names	Place names	晉江	U+6649_U+6C5F_00
+place-names	Place names	高雄	U+9AD8_U+96C4_00
+place-names	Place names	加東	U+52A0_U+6771_00
+place-names	Place names	金門	U+91D1_U+9580_00
+place-names	Place names	牛車水	U+725B_U+8ECA_U+6C34_00
+place-names	Place names	林厝港	U+6797_U+539D_U+6E2F_00
+place-names	Place names	龍海	U+9F8D_U+6D77_00
+place-names	Place names	鹿港	U+9E7F_U+6E2F_00
+place-names	Place names	馬來西亞	U+99AC_U+4F86_U+897F_U+4E9E_00
+place-names	Place names	閩東	U+95A9_U+6771_00
+place-names	Place names	閩南	U+95A9_U+5357_00
+place-names	Place names	艋舺	U+824B_U+823A_00
+place-names	Place names	南洋	U+5357_U+6D0B_00
+place-names	Place names	屏東	U+5C4F_U+6771_00
+place-names	Place names	泉州	U+6CC9_U+5DDE_00
+place-names	Place names	泉漳	U+6CC9_U+6F33_00
+place-names	Place names	盛港	U+76DB_U+6E2F_00
+place-names	Place names	汕頭	U+6C55_U+982D_00
+place-names	Place names	石獅	U+77F3_U+7345_00
+place-names	Place names	新加坡	U+65B0_U+52A0_U+5761_00
+place-names	Place names	新加坡	U+65B0_U+52A0_U+5761_01
+place-names	Place names	韓國	U+97D3_U+570B_00
+place-names	Place names	東南亞	U+6771_U+5357_U+4E9E_00
+place-names	Place names	台中	U+53F0_U+4E2D_00
+place-names	Place names	台南	U+53F0_U+5357_00
+place-names	Place names	台北	U+53F0_U+5317_00
+place-names	Place names	台北市	U+53F0_U+5317_U+5E02_00
+place-names	Place names	台北車站	U+53F0_U+5317_U+8ECA_U+7AD9_00
+place-names	Place names	台灣	U+53F0_U+7063_00
+place-names	Place names	淡水	U+6DE1_U+6C34_00
+place-names	Place names	淡水河	U+6DE1_U+6C34_U+6CB3_00
+place-names	Place names	桃園	U+6843_U+5712_00
+place-names	Place names	潮州	U+6F6E_U+5DDE_00
+place-names	Place names	泰國	U+6CF0_U+570B_00
+place-names	Place names	大巴窯	U+5927_U+5DF4_U+7AAF_00
+place-names	Place names	東京	U+6771_U+4EAC_00
+place-names	Place names	東寧	U+6771_U+5BE7_00
+place-names	Place names	英國	U+82F1_U+570B_00
+place-names	Place names	美國	U+7F8E_U+570B_00
+place-names	Place names	越南	U+8D8A_U+5357_00
+place-names	Place names	西洋	U+897F_U+6D0B_00
+place-names	Place names	廈門	U+5EC8_U+9580_00
+place-names	Place names	延平	U+5EF6_U+5E73_00
+place-names	Place names	翔安	U+7FD4_U+5B89_00
+place-names	Place names	油池	U+6CB9_U+6C60_00
+place-names	Place names	宜蘭	U+5B9C_U+862D_00
+place-names	Place names	義順	U+7FA9_U+9806_00
+place-names	Place names	永春	U+6C38_U+6625_00
+place-names	Place names	雲林	U+96F2_U+6797_00
+place-names	Place names	漳浦	U+6F33_U+6D66_00
+place-names	Place names	漳州	U+6F33_U+5DDE_00
+place-names	Place names	中山	U+4E2D_U+5C71_00

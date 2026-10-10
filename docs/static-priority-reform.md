@@ -1,5 +1,8 @@
 # Pre-Exodus static priority reform
 
+Historical migration report. Its old counts/schema and "no adaptive ranking"
+scope describe that task, not current production. See [the current contract](dictionary-tsv-schema.md).
+
 Completed 2026-10-04. No adaptive ranking, commit or push is included.
 
 ## Migration results

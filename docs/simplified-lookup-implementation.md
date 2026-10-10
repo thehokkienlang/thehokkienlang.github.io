@@ -1,5 +1,8 @@
 # Simplified lookup implementation
 
+Historical Simplified-column migration report; counts and field layout below
+describe that checkpoint. Current reference: [production schema](dictionary-tsv-schema.md).
+
 ## Results
 
 | Measure | Rows |

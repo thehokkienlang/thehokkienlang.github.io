@@ -21,10 +21,12 @@ from dictionary_schema import (
     valid_entry_id,
     resolve_dictionary_record,
     is_comment_record,
+    require_dictionary_header,
 )
 from validate_dictionary_tsv import validate_registry
 from simplified_lookup import simplified_field_errors
 from dictionary_ranking import annotate_entries, canonical_key, read_records
+from dictionary_references import load_categories
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -313,38 +315,6 @@ def append_index(index: dict[str, list[str]], key: str, entry_id: str) -> None:
         index.setdefault(key, []).append(entry_id)
 
 
-def load_categories(path: Path) -> tuple[dict[str, str], dict[str, list[str]]]:
-    labels: dict[str, str] = {}
-    memberships: dict[str, list[str]] = defaultdict(list)
-    seen: set[tuple[str, str]] = set()
-
-    with path.open("r", encoding="utf-8-sig", newline="") as handle:
-        reader = csv.DictReader(handle, delimiter="\t")
-        required = {"category", "label", "hanri"}
-        missing = sorted(required - set(reader.fieldnames or []))
-        if missing:
-            raise ValueError(f"Category TSV is missing required column(s): {', '.join(missing)}")
-
-        for row_number, row in enumerate(reader, start=2):
-            category = str(row.get("category") or "").strip()
-            label = str(row.get("label") or "").strip()
-            hanri = str(row.get("hanri") or "").strip()
-            if not category and not label and not hanri:
-                continue
-            if not category or not label or not hanri:
-                raise ValueError(f"Incomplete category row {row_number}")
-            if category in labels and labels[category] != label:
-                raise ValueError(f"Conflicting labels for category {category!r}")
-            key = (category, hanri)
-            if key in seen:
-                raise ValueError(f"Duplicate category membership at row {row_number}: {category} / {hanri}")
-            seen.add(key)
-            labels[category] = label
-            memberships[hanri].append(category)
-
-    return labels, memberships
-
-
 def build_dictionary(
     tsv_path: Path,
     audio_root: Path = DEFAULT_AUDIO_ROOT,
@@ -356,7 +326,7 @@ def build_dictionary(
     ime = load_ime_module()
     source_bytes = tsv_path.read_bytes()
     registry_path = registry_path or tsv_path.with_name("dictionary_entry_id_registry.tsv")
-    category_labels, category_memberships = load_categories(category_path)
+    category_labels, category_memberships = load_categories(category_path, read_records(tsv_path))
 
     entries: list[dict[str, Any]] = []
     skipped_rows: list[dict[str, Any]] = []
@@ -368,11 +338,7 @@ def build_dictionary(
 
     with tsv_path.open("r", encoding="utf-8-sig", newline="") as handle:
         reader = csv.DictReader(handle, delimiter="\t")
-        fieldnames = [str(name or "").strip() for name in (reader.fieldnames or [])]
-        required = set(DICTIONARY_COLUMNS)
-        missing = sorted(required - set(fieldnames))
-        if missing:
-            raise ValueError(f"TSV is missing required column(s): {', '.join(missing)}")
+        require_dictionary_header(reader.fieldnames)
 
         seen_entry_ids: set[str] = set()
         for row_number, row in enumerate(reader, start=2):
@@ -458,7 +424,7 @@ def build_dictionary(
                 "lomariKey": normalize_for_search(lomari),
                 "english": english,
                 "englishKey": normalize_for_search(english),
-                "categories": list(category_memberships.get(raw_hanri, [])),
+                "categories": list(category_memberships.get(entry_id, [])),
                 "audio": audio,
                 "form": ime.infer_default_form(effective_reading),
                 "raw": {
@@ -516,6 +482,9 @@ def build_dictionary(
                 "reason": "repeated_effective_reading",
             })
         for source_reading, aliases in aliases_by_source.items():
+            if len(canonical) > 1:
+                raise ValueError(f'Ambiguous correction target for {hanri!r} / {reading!r}: '
+                                 + ', '.join(entry['id'] for entry in canonical))
             for alias in aliases:
                 correction_aliases.append({
                     "aliasId": alias["id"],
@@ -572,13 +541,6 @@ def build_dictionary(
     priority_path = tsv_path.with_name('dictionary_priority.tsv')
     annotate_entries(entries, priority_path, read_records(tsv_path))
     entries.sort(key=lambda item: (canonical_key(item), bool(item.get('autoSandhi'))))
-
-    known_headwords = {
-        entry["raw"]["hanri"] for entry in entries if entry["raw"]["hanri"]
-    }
-    unknown_headwords = sorted(set(category_memberships) - known_headwords)
-    if unknown_headwords:
-        raise ValueError(f"Category TSV contains unknown headword(s): {', '.join(unknown_headwords)}")
 
     category_groups: dict[str, set[tuple[str, str]]] = defaultdict(set)
     for entry in entries:

@@ -7,10 +7,10 @@ import unicodedata
 from pathlib import Path
 
 try:
-    from .dictionary_schema import canonical_entry_headword, is_comment_record
+    from .dictionary_schema import DICTIONARY_COLUMNS, canonical_entry_headword, is_comment_record, require_dictionary_header
     from .tangliengim_collation import TYPE_RANK, reading_sort_key
 except ImportError:
-    from dictionary_schema import canonical_entry_headword, is_comment_record
+    from dictionary_schema import DICTIONARY_COLUMNS, canonical_entry_headword, is_comment_record, require_dictionary_header
     from tangliengim_collation import TYPE_RANK, reading_sort_key
 
 PRIORITY_COLUMNS = ("lookup_key", "entry", "entry_id", "rank")
@@ -170,7 +170,15 @@ def load_priority(path: Path, records: list[dict]) -> dict[str, dict[str, int]]:
 
 def read_records(path: Path) -> list[dict]:
     with path.open(encoding='utf-8-sig',newline='') as stream:
-        return [r for r in csv.DictReader(stream,delimiter='\t') if not is_comment_record(r)]
+        reader = csv.DictReader(stream, delimiter='\t', restkey='_extra', restval=None)
+        require_dictionary_header(reader.fieldnames)
+        records = []
+        for row in reader:
+            if '_extra' in row or any(row[name] is None for name in DICTIONARY_COLUMNS):
+                raise ValueError(f'{path}:{reader.line_num}: expected {len(DICTIONARY_COLUMNS)} fields')
+            if not is_comment_record(row):
+                records.append(row)
+        return records
 
 
 def annotate_entries(entries: list[dict], path: Path, records: list[dict]) -> None:

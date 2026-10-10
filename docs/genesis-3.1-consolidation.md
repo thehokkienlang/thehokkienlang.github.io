@@ -1,5 +1,8 @@
 # Genesis 3.1 Consolidation
 
+Historical Genesis checkpoint: counts and phase-status statements below describe
+that migration, not today's architecture. Current reference: [production schema](dictionary-tsv-schema.md).
+
 This checkpoint completes Genesis 3.1C against the current working-tree TSV
 and the published *Tangliengim Orthography v3.1*, especially sections 4.1-4.5.
 It is the data reference for Exodus I–IV; none of those phases is implemented.

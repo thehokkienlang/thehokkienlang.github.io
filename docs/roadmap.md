@@ -1,7 +1,7 @@
-# Remaining Dictionary Tasks
+# Dictionary Phase Roadmap
 
-The next work is planned in this order. Genesis 3.1 prepares and validates the
-v3.1 data migration; Exodus I–IV follow it. Roman-numeral phase labels are
+The completed sequence is recorded below. Genesis 3.1 prepared and validated the
+v3.1 data migration; Exodus I–IV followed it. Roman-numeral phase labels are
 distinct from the completed historical Arabic-numbered tasks.
 
 ## Genesis 3.1
@@ -30,26 +30,31 @@ distinct from the completed historical Arabic-numbered tasks.
 
 Genesis 3.1 consolidation is recorded in
 [`genesis-3.1-consolidation.md`](genesis-3.1-consolidation.md). Its reviewed
-v3.1 regression snapshot is the starting reference for Exodus I–IV, which
-remain unimplemented.
+v3.1 regression snapshot is the starting reference for Exodus I–IV. Exodus I
+through IV are implemented. Exodus III migrated structural references without
+changing that ranking foundation; Exodus IV consolidated the production contract
+and release checks. No further feature phase is initiated by this completion.
 
 The Pre-Exodus sparse static-priority reform is the new static foundation:
 the main dictionary has no ranking column; contextual exceptions live in
 `data/dictionary_priority.tsv`. Its reviewed report is
 [`static-priority-migration.json`](static-priority-migration.json).
 
-1. **Exodus I — Adaptive ranking**
+1. **Exodus I — Adaptive ranking (implemented)**
    Track explicit candidate selections by stable `entry_id` and use locally
    persisted preferences to adjust ordering. Do not modify the TSV.
-2. **Exodus II — Ranking safeguards/tests**
+2. **Exodus II — Ranking safeguards/tests (implemented)**
    Verify fresh-user ordering, gradual promotion, persistence, identity
    isolation, and fallback-candidate constraints.
-3. **Exodus III — Stable-ID reference migration**
+3. **Exodus III — Stable-ID reference migration (implemented)**
    Migrate category and other internal references to stable IDs, preserving
    aliases and existing runtime behaviour.
-4. **Exodus IV — Final schema/documentation**
+   See [`exodus-iii-reference-migration.md`](exodus-iii-reference-migration.md).
+4. **Exodus IV — Final schema/documentation (implemented)**
    Finalize the schema description, editing rules, and supporting documentation
    after the data model has settled.
+   See [`dictionary-tsv-schema.md`](dictionary-tsv-schema.md) and
+   [`exodus-iv-readiness.md`](exodus-iv-readiness.md).
 
 The candidate-ranking design for Exodus I is documented in
 [`candidate-ranking-model.md`](candidate-ranking-model.md).

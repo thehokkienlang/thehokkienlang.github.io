@@ -1,0 +1,12 @@
+[
+  {"name":"cold start","key":"x","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{},"expected":["A","B","C"]},
+  {"name":"one choice","key":"x","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{"x":{"B":1}},"expected":["A","B","C"]},
+  {"name":"static tie","key":"x","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{"x":{"B":2}},"expected":["A","B","C"]},
+  {"name":"promotion","key":"x","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{"x":{"B":3}},"expected":["B","A","C"]},
+  {"name":"context isolation","key":"y","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{"x":{"B":255}},"expected":["A","B","C"]},
+  {"name":"independent homophones","key":"x","ids":["A","B","C"],"entries":[{"id":"A"},{"id":"B"},{"id":"C"}],"counts":{"x":{"A":5,"B":3,"C":10}},"expected":["C","A","B"]},
+  {"name":"fixed toneless fallback","key":"x","ids":["A","B"],"entries":[{"id":"A"},{"id":"B"},{"id":"fallback","generatedCandidate":true}],"counts":{"x":{"B":255,"fallback":255}},"expected":["B","A","fallback"]},
+  {"name":"generated source barrier","key":"x","ids":["A","B"],"entries":[{"id":"A"},{"id":"A-sandhi","autoSandhi":true},{"id":"B"}],"counts":{"x":{"B":255}},"expected":["A","A-sandhi","B"]},
+  {"name":"generated comparable run","key":"x","ids":["A","B"],"entries":[{"id":"A-sandhi","autoSandhi":true},{"id":"B-sandhi","autoSandhi":true}],"counts":{"x":{"B":3}},"expected":["B-sandhi","A-sandhi"]},
+  {"name":"classic prefix fallback barrier","key":"x","ids":["A","B"],"entries":[{"id":"fallback","generatedCandidate":true},{"id":"A"},{"id":"B"}],"counts":{"x":{"B":3}},"expected":["fallback","B","A"]}
+]
