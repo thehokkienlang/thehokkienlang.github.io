@@ -56,3 +56,13 @@ cold-start cases. This is an explicit addition review, not a blind baseline rese
 No legacy-backup file, pronunciation policy, adaptive formula or audio asset is
 modified by this repair. Future lexical edits still require sorting, validation,
 build and an explicit review of affected regression snapshots before release.
+
+## Confirmed pronunciation and meanings
+
+After the rendering repair, the user supplied `셴5` for `𤺪`. The shared
+dictionary adds the lexical entry `U+24EAA_00`; existing entries and identities
+are unchanged. Its English gloss is `tired; weary; bored; fed up`, with Mandarin
+Traditional `疲倦; 厭倦` and Simplified `疲倦; 厌倦`.
+These two senses follow the Ministry of Education's recommended Hokkien words:
+https://language.moe.gov.tw/upload/download/MANDR/700iongji_990915.pdf
+The original verification counts above describe the rendering repair checkpoint.

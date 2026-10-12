@@ -81,6 +81,13 @@ async function loadApp(route, script) {
       && state.entries.find(entry => entry.id === 'U+54EA_U+88E1_00')?.english === 'where';
   })()`, context), `${route} must consume the approved v3.1 forms and active IDs`);
   assert.ok(vm.runInContext(`(() => {
+    const index = TangliengimImeCore.createDictionaryIndex(state.entries);
+    const entry = index.findHanriEntry('𤺪', 0);
+    return entry?.id === 'U+24EAA_00' && entry.reading === '셴5'
+      && entry.english === 'tired; weary; bored; fed up'
+      && [...index.candidatesByReading.values()].some(entries => entries.some(candidate => candidate.id === entry.id));
+  })()`, context), `${route} must resolve supplementary Hanri to the confirmed pronunciation and meanings`);
+  assert.ok(vm.runInContext(`(() => {
     const fragment = TangliengimImeCore.renderToneOverlayMarks('칟토', [
       { start: 0, end: 1, hangul: '칟', reading: '칟1' },
       { start: 1, end: 2, hangul: '토', reading: '토4' },
