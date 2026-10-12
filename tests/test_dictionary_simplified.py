@@ -1,6 +1,7 @@
 """Simplified aliases must preserve canonical identity, text, and ordering."""
 
 import csv
+import json
 from pathlib import Path
 import unittest
 
@@ -44,8 +45,12 @@ class SimplifiedLookupTests(unittest.TestCase):
     def test_every_source_row_and_sort_key(self):
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as stream:
             rows = [row for row in csv.DictReader(stream, delimiter='\t') if not row['reading'].startswith('#')]
-        self.assertEqual(len(rows), 2737)
-        self.assertEqual(sum(contains_hanri(row['hanri']) for row in rows), 2675)
+        data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
+        sources = [entry for entry in data['entries'] if not entry.get('autoSandhi')]
+        self.assertEqual({row['entry_id'] for row in rows}, {entry['id'] for entry in sources})
+        self.assertEqual(len(rows), len(sources))
+        self.assertEqual(sum(contains_hanri(row['hanri']) for row in rows),
+                         sum(entry['kind'] in ('plain_hanri', 'mixed_hanri') for entry in sources))
         for row in rows:
             resolved = resolve_dictionary_record(row)
             self.assertEqual(simplified_field_errors(row['hanri'], resolved['simplified']), [], row['entry_id'])

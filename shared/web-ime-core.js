@@ -1135,7 +1135,7 @@ const TangliengimImeCore = (() => {
     const cursor = control.selectionStart ?? 0;
     mirror.textContent = control.value.slice(0, cursor);
     const marker = document.createElement("span");
-    marker.textContent = control.value.slice(cursor, cursor + 1) || "\u200b";
+    marker.textContent = codePointAtInfo(control.value, cursor)?.char || "\u200b";
     mirror.append(marker);
     document.body.append(mirror);
     const position = {

@@ -1,3 +1,11 @@
+/* Only the missing glyph uses this Source-Han-Sans-based fallback. */
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tangliengim-hanri-fallback-v1.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+24EAA;
+}
+
 .hanri-candidate-menu {
   position: absolute;
   z-index: 30;
@@ -59,7 +67,7 @@
 
 .hanri-candidate-menu .candidate-hanri {
   flex: 0 0 auto;
-  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
   white-space: nowrap;

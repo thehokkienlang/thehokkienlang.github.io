@@ -107,6 +107,27 @@ async function loadApp(route, script) {
     composer.moveRight(); positions.push(composer.displayCursorPos());
     return positions.join(',') === '3,1,0,1,3,4';
   })()`, context), 'Left and Right must cross each complete Hangul syllable in one step');
+  assert.ok(vm.runInContext(`(() => {
+    for (const symbol of ['𤺪', '𩑾', '😀']) {
+      const text = '가' + symbol + '나';
+      const composer = new TangliengimHangulIme.Composer();
+      composer.setText(text);
+      const positions = [];
+      for (let i = 0; i < 3; i++) { composer.moveLeft(); positions.push(composer.displayCursorPos()); }
+      for (let i = 0; i < 3; i++) { composer.moveRight(); positions.push(composer.displayCursorPos()); }
+      if (positions.join(',') !== '3,1,0,1,3,4') return false;
+      composer.setText(symbol);
+      composer.backspace();
+      if (composer.text() !== '' || composer.displayCursorPos() !== 0) return false;
+      composer.setText(symbol, 1);
+      composer.insertLiteral('!');
+      if (composer.text() !== symbol + '!') return false;
+      const partial = TangliengimHangulIme.normalizeAtomicSelection(text, 1, 2);
+      if (partial.join(',') !== '1,3') return false;
+      if (TangliengimHangulIme.normalizeAtomicSelection(text, 2, 2).join(',') !== '3,3') return false;
+    }
+    return true;
+  })()`, context), 'Supplementary Hanri and emoji must not split during navigation, insertion, selection or deletion');
   assert.equal(
     vm.runInContext(`TangliengimWebAudio.legacyPlaybackSegments([
       { tone: '3' }, { tone: '4' }, { tone: '3' }, { tone: '3' },

@@ -246,7 +246,7 @@ h1 {
 }
 
 .search-input.hangul-ime-active {
-  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
 .search-input:focus {
@@ -468,7 +468,7 @@ h1 {
 
 .hanri {
   margin: 0;
-  font-family: "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: clamp(1.5rem, 4vw, 2.2rem);
   font-weight: 800;
   line-height: 1.08;

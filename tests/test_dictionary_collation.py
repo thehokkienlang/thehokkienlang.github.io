@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import subprocess
 import sys
 import tempfile
@@ -153,11 +154,11 @@ class CollationTests(unittest.TestCase):
     def test_complete_dictionary_uses_syllabic_keys(self) -> None:
         with (ROOT / "data/hokkien_hanri_dict.tsv").open(encoding="utf-8", newline="") as handle:
             rows = [row for row in csv.DictReader(handle, delimiter="\t") if not row["reading"].startswith("#")]
-            self.assertEqual(len(rows), 2737)
-        self.assertEqual(Counter(row["entry_type"] for row in rows), {
-            "hangul_override": 52, "lexical": 2666,
-            "correction_alias": 9, "number_pronunciation": 10,
-        })
+        data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
+        sources = [entry for entry in data['entries'] if not entry.get('autoSandhi')]
+        self.assertEqual({row['entry_id'] for row in rows}, {entry['id'] for entry in sources})
+        self.assertEqual(len(rows), len(sources))
+        self.assertEqual(Counter(row['entry_type'] for row in rows), Counter(entry['entryType'] for entry in sources))
         self.assertEqual(out_of_order_pairs(rows, COLUMNS), 0)
         entry_ids = [row["entry_id"] for row in rows]
         self.assertEqual(len(set(entry_ids)), len(entry_ids))

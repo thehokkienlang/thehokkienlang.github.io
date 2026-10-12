@@ -36,7 +36,10 @@ def main():
     audio_defaults={}
     for key,reading in pad.AUDIO_READING_INDEX:
         audio_defaults.setdefault(key,reading)
-    assert audio_defaults==expected['desktopAudioReadingDefaults'],'Hangul audio default changed from pre-reform snapshot'
+    # This historical floor protects every existing default without forbidding
+    # new reading keys from legitimate dictionary additions.
+    for key, reading in expected['desktopAudioReadingDefaults'].items():
+        assert audio_defaults.get(key)==reading,(key,'Hangul audio default changed from pre-reform snapshot',audio_defaults.get(key),reading)
     source=REPO_ROOT/'data/hokkien_hanri_dict.tsv'
     with source.open(encoding='utf-8',newline='') as stream:
         rows=list(csv.reader(stream,delimiter='\t'))

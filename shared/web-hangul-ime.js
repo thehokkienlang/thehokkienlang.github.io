@@ -331,8 +331,15 @@ const TangliengimHangulIme = (() => {
   }
 
   function snapAtomicCursor(text, position) {
-    const bounds = atomicHangulClusterBoundsAt(text, position);
+    const bounds = surrogatePairBoundsAt(text, position) || atomicHangulClusterBoundsAt(text, position);
     return bounds ? bounds[1] : Math.max(0, Math.min(position, text.length));
+  }
+
+  function surrogatePairBoundsAt(text, position) {
+    const before = text.charCodeAt(position - 1);
+    const after = text.charCodeAt(position);
+    return before >= 0xd800 && before <= 0xdbff && after >= 0xdc00 && after <= 0xdfff
+      ? [position - 1, position + 1] : null;
   }
 
   function normalizeAtomicSelection(text, start, end) {
@@ -342,8 +349,8 @@ const TangliengimHangulIme = (() => {
       const cursor = snapAtomicCursor(text, selectionStart);
       return [cursor, cursor];
     }
-    const startBounds = atomicHangulClusterBoundsAt(text, selectionStart);
-    const endBounds = atomicHangulClusterBoundsAt(text, selectionEnd);
+    const startBounds = surrogatePairBoundsAt(text, selectionStart) || atomicHangulClusterBoundsAt(text, selectionStart);
+    const endBounds = surrogatePairBoundsAt(text, selectionEnd) || atomicHangulClusterBoundsAt(text, selectionEnd);
     if (startBounds) selectionStart = startBounds[0];
     if (endBounds) selectionEnd = endBounds[1];
     return [selectionStart, selectionEnd];
@@ -420,6 +427,7 @@ const TangliengimHangulIme = (() => {
     insertLiteral(text) {
       const normalized = normalizeApostrophes(text);
       this.commit();
+      this.clampCursor();
       this.output = `${this.output.slice(0, this.cursorPos)}${normalized}${this.output.slice(this.cursorPos)}`;
       this.cursorPos += normalized.length;
       this.keyHistory = [];
@@ -430,7 +438,7 @@ const TangliengimHangulIme = (() => {
       this.clampCursor();
       if (this.cursorPos > 0) {
         this.cursorPos -= 1;
-        const bounds = atomicHangulClusterBoundsAt(this.output, this.cursorPos);
+        const bounds = surrogatePairBoundsAt(this.output, this.cursorPos) || atomicHangulClusterBoundsAt(this.output, this.cursorPos);
         if (bounds) this.cursorPos = bounds[0];
       }
       this.keyHistory = [];
@@ -442,7 +450,8 @@ const TangliengimHangulIme = (() => {
       if (this.cursorPos < this.output.length) {
         const end = atomicHangulClusterEndAt(this.output, this.cursorPos);
         const bounds = atomicHangulClusterBoundsAt(this.output, this.cursorPos);
-        this.cursorPos = end ?? bounds?.[1] ?? this.cursorPos + 1;
+        const charLength = String.fromCodePoint(this.output.codePointAt(this.cursorPos)).length;
+        this.cursorPos = end ?? bounds?.[1] ?? this.cursorPos + charLength;
       }
       this.keyHistory = [];
     }
@@ -617,6 +626,13 @@ const TangliengimHangulIme = (() => {
       }
       this.clampCursor();
       if (this.cursorPos > 0) {
+        const pair = surrogatePairBoundsAt(this.output, this.cursorPos - 1);
+        if (pair) {
+          this.output = `${this.output.slice(0, pair[0])}${this.output.slice(pair[1])}`;
+          this.cursorPos = pair[0];
+          this.keyHistory = [];
+          return;
+        }
         const cluster = atomicHangulClusterBoundsEndingAt(this.output, this.cursorPos);
         if (cluster) {
           const [start, end] = cluster;
