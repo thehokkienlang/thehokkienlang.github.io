@@ -161,12 +161,11 @@ def audio_for_reading(ime, audio_root: Path, reading: str, audio_mode: str | Non
         try:
             if ime.is_silent_audio_unit(unit, tone):
                 continue
-            paths, labels = ime.resolve_audio_files_for_unit(audio_root, unit, tone)
+            resolved, labels = ime.resolve_audio_parts_for_unit(audio_root, unit, tone)
         except Exception:
-            paths, labels = [], [f"{unit}{tone}"]
+            resolved, labels = [], [f"{unit}{tone}"]
 
-        fallback_parts = ime.split_untoned_hangul_units(unit) if len(paths) > 1 else []
-        for idx, path in enumerate(paths):
+        for idx, (path, segment_unit, segment_tone) in enumerate(resolved):
             try:
                 url = web_path(path)
             except ValueError:
@@ -175,14 +174,12 @@ def audio_for_reading(ime, audio_root: Path, reading: str, audio_mode: str | Non
                 files.append(url)
                 seen_files.add(url)
 
-            segment_unit = fallback_parts[idx] if idx < len(fallback_parts) else unit
-            segment_tone = str(tone if (not fallback_parts or idx == len(paths) - 1) else "3")
             raw_segments.append({
                 "file": url,
                 "unit": segment_unit,
                 "tone": segment_tone,
                 "trimStart": bool(trim_start or idx > 0),
-                "trimEnd": bool(trim_end or idx < len(paths) - 1),
+                "trimEnd": bool(trim_end or idx < len(resolved) - 1),
                 "shortOverlapFinal": bool(ime.audio_unit_has_short_overlap_final(segment_unit)),
                 "englishClusterHelper": bool(english_cluster_reduction),
             })
@@ -222,14 +219,13 @@ def audio_for_unit_tone(ime, audio_root: Path, unit: str, tone: str) -> dict[str
         return {"segments": [], "files": [], "missing": []}
 
     try:
-        paths, missing = ime.resolve_audio_files_for_unit(audio_root, unit, tone)
+        resolved, missing = ime.resolve_audio_parts_for_unit(audio_root, unit, tone)
     except Exception:
-        paths, missing = [], [f"{unit}{tone}"]
+        resolved, missing = [], [f"{unit}{tone}"]
 
-    fallback_parts = ime.split_untoned_hangul_units(unit) if len(paths) > 1 else []
     segments: list[dict[str, Any]] = []
     files: list[str] = []
-    for index, path in enumerate(paths):
+    for index, (path, segment_unit, segment_tone) in enumerate(resolved):
         try:
             url = web_path(path)
         except ValueError:
@@ -237,21 +233,19 @@ def audio_for_unit_tone(ime, audio_root: Path, unit: str, tone: str) -> dict[str
         if url not in files:
             files.append(url)
 
-        segment_unit = fallback_parts[index] if index < len(fallback_parts) else unit
-        segment_tone = tone if (not fallback_parts or index == len(paths) - 1) else "3"
         segments.append({
             "file": url,
             "unit": segment_unit,
             "tone": segment_tone,
             "trimStart": index > 0,
-            "trimEnd": index < len(paths) - 1,
+            "trimEnd": index < len(resolved) - 1,
             "shortOverlapFinal": bool(ime.audio_unit_has_short_overlap_final(segment_unit)),
             "englishClusterHelper": False,
             "speed": (
                 float(ime.AUDIO_TONE4_SPEED_FACTOR)
-                if len(paths) > 1 and segment_tone == "4"
+                if len(resolved) > 1 and segment_tone == "4"
                 else float(ime.AUDIO_MULTI_SYLLABLE_SPEED_FACTOR)
-                if len(paths) > 1
+                if len(resolved) > 1
                 else 1.0
             ),
         })

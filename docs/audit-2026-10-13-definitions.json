@@ -1,0 +1,702 @@
+{
+  "scope": "Task 2 only. Tasks 1, 4, 5 paused.",
+  "corrections": [
+    {
+      "entry_id": "U+4EE3_U+8868_00",
+      "hanri": "代表",
+      "reading": "대ᄇᆤ2",
+      "before": {
+        "english": "generation; replace; surface; express",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "represent; representative",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+65E5_U+5E38_00",
+      "hanri": "日常",
+      "reading": "띧셩4",
+      "before": {
+        "english": "day; sun; usual; constant",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "daily; everyday",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+80FD_U+529B_00",
+      "hanri": "能力",
+      "reading": "롕롁1",
+      "before": {
+        "english": "ability; can; strength; power",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "ability; capability",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+8868_U+6F14_00",
+      "hanri": "表演",
+      "reading": "ᄇᆤ1옌2",
+      "before": {
+        "english": "surface; express; perform; develop",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "perform; performance",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+5E73_U+5B89_00",
+      "hanri": "平安",
+      "reading": "볭안1",
+      "before": {
+        "english": "flat; ordinary; peace; safe",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "safe; peaceful",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+4FDD_U+8B49_00",
+      "hanri": "保證",
+      "reading": "보1졩",
+      "before": {
+        "english": "protect; keep; prove; certificate",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "保证"
+      },
+      "after": {
+        "english": "guarantee; assure",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "保证"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+9762_U+5C0D_00",
+      "hanri": "面對",
+      "reading": "삔뒤",
+      "before": {
+        "english": "face; surface; correct; toward; pair",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "面对"
+      },
+      "after": {
+        "english": "face; confront",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "面对"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+660E_U+4ED4_U+8F09_00",
+      "hanri": "明仔載",
+      "reading": "삔아1재",
+      "before": {
+        "english": "bright; clear; diminutive suffix",
+        "mandarin_trad": "明天",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "tomorrow",
+        "mandarin_trad": "明天",
+        "mandarin_simp": "〃"
+      },
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/4208/",
+      "basis": "MOE whole-word definition"
+    },
+    {
+      "entry_id": "U+6D88_U+606F_00",
+      "hanri": "消息",
+      "reading": "ᄉᆤ5싣",
+      "before": {
+        "english": "disappear; remove; rest; breath",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "news; information",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6D88_U+9063_00",
+      "hanri": "消遣",
+      "reading": "ᄉᆤ5켼2",
+      "before": {
+        "english": "disappear; remove; send; dispatch",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "pass the time; recreation",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+8A2D_U+8A08_00",
+      "hanri": "設計",
+      "reading": "셷1게",
+      "before": {
+        "english": "set up; design; plan; count",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "设计"
+      },
+      "after": {
+        "english": "design; plan",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "设计"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+4E8B_U+5BE6_00",
+      "hanri": "事實",
+      "reading": "수싣1",
+      "before": {
+        "english": "matter; affair; real; solid",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "事实"
+      },
+      "after": {
+        "english": "fact; reality",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "事实"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+8FAD_U+8077_00",
+      "hanri": "辭職",
+      "reading": "시짇",
+      "before": {
+        "english": "resign; words; job; duty",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "辞职"
+      },
+      "after": {
+        "english": "resign from a job",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "辞职"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+925B_U+7B46_00",
+      "hanri": "鉛筆",
+      "reading": "옌빋",
+      "before": {
+        "english": "lead; pencil; pen; brush",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "铅笔"
+      },
+      "after": {
+        "english": "pencil",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "铅笔"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+653F_U+6CBB_00",
+      "hanri": "政治",
+      "reading": "졩2디5",
+      "before": {
+        "english": "government; politics; govern; treat",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "politics",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+60C5_U+8A71_00",
+      "hanri": "情話",
+      "reading": "졩웨5",
+      "before": {
+        "english": "feeling; affection; speech; language",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "情话"
+      },
+      "after": {
+        "english": "words of affection",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "情话"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+9020_U+6210_00",
+      "hanri": "造成",
+      "reading": "조솅4",
+      "before": {
+        "english": "make; create; become; accomplish",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "cause; bring about",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+5168_U+4E16_U+754C_00",
+      "hanri": "全世界",
+      "reading": "좐세2개",
+      "before": {
+        "english": "whole; all; world; generation",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "the whole world",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+7D55_U+671B_00",
+      "hanri": "絕望",
+      "reading": "좓뻥5",
+      "before": {
+        "english": "cut off; despair; hope; look",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "绝望"
+      },
+      "after": {
+        "english": "despair; lose hope",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "绝望"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+77F3_U+982D_00",
+      "hanri": "石頭",
+      "reading": "죻ᄐᅷ4",
+      "before": {
+        "english": "head",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "石头"
+      },
+      "after": {
+        "english": "stone; rock",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "石头"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+81EA_U+7531_U+81EA_U+5728_00",
+      "hanri": "自由自在",
+      "reading": "주유주재5",
+      "before": {
+        "english": "self; from; reason; exist; at",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "free and at ease",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+5C0A_U+56B4_00",
+      "hanri": "尊嚴",
+      "reading": "준5꺔4",
+      "before": {
+        "english": "honorable; respect; strict; solemn",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "尊严"
+      },
+      "after": {
+        "english": "dignity",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "尊严"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+521D_U+6200_00",
+      "hanri": "初戀",
+      "reading": "처5롼4",
+      "before": {
+        "english": "beginning; first; love; long for",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "初恋"
+      },
+      "after": {
+        "english": "first love",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "初恋"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6E05_U+9192_00",
+      "hanri": "清醒",
+      "reading": "촁5첼2",
+      "before": {
+        "english": "clear; pure; wake; sober",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "awake; clear-headed; sober",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6E05_U+9192_01",
+      "hanri": "清醒",
+      "reading": "촁5칠2",
+      "before": {
+        "english": "clear; pure; wake; sober",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "awake; clear-headed; sober",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+7B11_U+5BB9_00",
+      "hanri": "笑容",
+      "reading": "쵸2영4",
+      "before": {
+        "english": "laugh; smile; appearance; contain",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "smile",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6625_U+96E8_00",
+      "hanri": "春雨",
+      "reading": "춘5허5",
+      "before": {
+        "english": "rain",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "spring rain",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "〃"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+51FA_U+73FE_00",
+      "hanri": "出現",
+      "reading": "춛1혠5",
+      "before": {
+        "english": "go out; produce; present; appear",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "出现"
+      },
+      "after": {
+        "english": "appear; emerge",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "出现"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+8F15_U+9B06_00",
+      "hanri": "輕鬆",
+      "reading": "킨5상1",
+      "before": {
+        "english": "light; easy; loose; relaxed",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "轻松"
+      },
+      "after": {
+        "english": "relaxed; easy",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "轻松"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+614B_U+5EA6_00",
+      "hanri": "態度",
+      "reading": "태2더5",
+      "before": {
+        "english": "state; attitude; degree; measure",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "态度"
+      },
+      "after": {
+        "english": "attitude",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "态度"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+9AD4_U+9A57_00",
+      "hanri": "體驗",
+      "reading": "테1꺔5",
+      "before": {
+        "english": "body; form; verify; experience",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "体验"
+      },
+      "after": {
+        "english": "experience; experience firsthand",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "体验"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+9AD4_U+8AD2_00",
+      "hanri": "體諒",
+      "reading": "테1령5",
+      "before": {
+        "english": "body; form; forgive; understand",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "体谅"
+      },
+      "after": {
+        "english": "understand; make allowances for",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "体谅"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6E6F_U+5319_00",
+      "hanri": "湯匙",
+      "reading": "틍5시4",
+      "before": {
+        "english": "soup; hot water; spoon; key",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "汤匙"
+      },
+      "after": {
+        "english": "spoon",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "汤匙"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+535A_U+7269_U+9928_00",
+      "hanri": "博物館",
+      "reading": "퍽1뿓관2",
+      "before": {
+        "english": "thing; hall; shop; institution",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "博物馆"
+      },
+      "after": {
+        "english": "museum",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "博物馆"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+813E_U+6C23_00",
+      "hanri": "脾氣",
+      "reading": "피키",
+      "before": {
+        "english": "spleen; temper; air; energy",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "脾气"
+      },
+      "after": {
+        "english": "temper; disposition",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "脾气"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+767C_U+73FE_00",
+      "hanri": "發現",
+      "reading": "홛1혠5",
+      "before": {
+        "english": "send out; develop; present; appear",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "发现"
+      },
+      "after": {
+        "english": "discover; notice",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "发现"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+61F7_U+7591_00",
+      "hanri": "懷疑",
+      "reading": "홰끼4",
+      "before": {
+        "english": "harbor; miss; doubt; suspect",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "怀疑"
+      },
+      "after": {
+        "english": "doubt; suspect",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "怀疑"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+8CA0_U+8CAC_U+4EFB_00",
+      "hanri": "負責任",
+      "reading": "후졕1띰5",
+      "before": {
+        "english": "carry; betray; responsibility; blame; duty",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "负责任"
+      },
+      "after": {
+        "english": "take responsibility; be responsible",
+        "mandarin_trad": "〃",
+        "mandarin_simp": "负责任"
+      },
+      "source": "",
+      "basis": "Editorial correction of an ordinary shared Chinese expression; existing Mandarin lookup retained. No new Hokkien sense or reading inferred."
+    },
+    {
+      "entry_id": "U+6B72_U+982D_00",
+      "hanri": "歲頭",
+      "reading": "훼2ᄐᅷ4",
+      "before": {
+        "english": "head",
+        "mandarin_trad": "年初",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "age",
+        "mandarin_trad": "年齡",
+        "mandarin_simp": "年龄"
+      },
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/9677/",
+      "basis": "MOE whole-word definition"
+    },
+    {
+      "entry_id": "U+7A00_U+5FAE_00",
+      "hanri": "稀微",
+      "reading": "히5삐4",
+      "before": {
+        "english": "rare; thin; slight; subtle",
+        "mandarin_trad": "孤寂",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "lonely; desolate",
+        "mandarin_trad": "孤寂",
+        "mandarin_simp": "〃"
+      },
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/8803/",
+      "basis": "MOE whole-word definition"
+    },
+    {
+      "entry_id": "U+660E_U+4ED4_U+8F09_01",
+      "hanri": "明仔載",
+      "reading": "먀4재*",
+      "before": {
+        "english": "bright; clear; diminutive suffix",
+        "mandarin_trad": "明天",
+        "mandarin_simp": "〃"
+      },
+      "after": {
+        "english": "tomorrow",
+        "mandarin_trad": "明天",
+        "mandarin_simp": "〃"
+      },
+      "source": "https://sutian.moe.edu.tw/zh-hant/su/4208/",
+      "basis": "MOE whole-word definition"
+    }
+  ]
+}

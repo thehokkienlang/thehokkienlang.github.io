@@ -492,7 +492,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 台北車頭	台北车头	대박1챠5ᄐᅷ4	臺北車站	台北车站	Taipei station		lexical	U+53F0_U+5317_U+8ECA_U+982D_00
 台北市	〃	대박1치5	〃	〃	Taipei City		lexical	U+53F0_U+5317_U+5E02_00
 台北市政府	〃	대박1치졩2후2	〃	〃	Taipei City Government		lexical	U+53F0_U+5317_U+5E02_U+653F_U+5E9C_00
-代表	〃	대ᄇᆤ2	〃	〃	generation; replace; surface; express		lexical	U+4EE3_U+8868_00
+代表	〃	대ᄇᆤ2	〃	〃	represent; representative		lexical	U+4EE3_U+8868_00
 台灣	台湾	대완4	〃	台湾	Taiwan		lexical	U+53F0_U+7063_00
 台灣人	台湾人	대완랑4	〃	台湾人	Taiwanese person		lexical	U+53F0_U+7063_U+4EBA_00
 台灣話	台湾话	대완웨5	〃	台湾话	Taiwanese language		lexical	U+53F0_U+7063_U+8A71_00
@@ -709,7 +709,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 日日夜夜	〃	띧띧야야5	〃	〃	day and night		lexical	U+65E5_U+65E5_U+591C_U+591C_00
 日本	〃	띧분2	〃	〃	Japan		lexical	U+65E5_U+672C_00
 日本人	〃	띧분1랑4	〃	〃	Japanese person		lexical	U+65E5_U+672C_U+4EBA_00
-日常	〃	띧셩4	〃	〃	day; sun; usual; constant		lexical	U+65E5_U+5E38_00
+日常	〃	띧셩4	〃	〃	daily; everyday		lexical	U+65E5_U+5E38_00
 日’시	〃	띧1’시	白天	〃	day; sun		lexical	U+65E5_U+2019_U+C2DC_00
 日子	〃	띧즤2	〃	〃	day; date		lexical	U+65E5_U+5B50_00
 日頭	日头	띧ᄐᅷ4	〃	日头	sun		lexical	U+65E5_U+982D_00
@@ -826,7 +826,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 寧	宁	롕4	〃	宁	peaceful; rather		lexical	U+5BE7_00
 龍	龙	롕4	〃	龙	dragon		lexical	U+9F8D_01
 冷淡	〃	롕1담5	〃	〃	cold; indifferent		lexical	U+51B7_U+6DE1_00
-能力	〃	롕롁1	〃	〃	ability; can; strength; power		lexical	U+80FD_U+529B_00
+能力	〃	롕롁1	〃	〃	ability; capability		lexical	U+80FD_U+529B_00
 冷冷	〃	롕1롕2	〃	〃	cold		lexical	U+51B7_U+51B7_00
 冷暖	〃	롕1롼2	〃	〃	cold		lexical	U+51B7_U+6696_00
 冷氣	冷气	롕1키	〃	冷气	air conditioning		lexical	U+51B7_U+6C23_00
@@ -959,7 +959,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 摒掃	摒扫	뱔2ᄉᅷ	打掃	打扫	sweep		lexical	U+6452_U+6383_00
 壁	〃	뱧	〃	〃	wall		lexical	U+58C1_00
 漂緻	漂致	ᄇᆤ5디	精緻	精致	fine; delicate		lexical	U+6F02_U+7DFB_00
-表演	〃	ᄇᆤ1옌2	〃	〃	surface; express; perform; develop		lexical	U+8868_U+6F14_00
+表演	〃	ᄇᆤ1옌2	〃	〃	perform; performance		lexical	U+8868_U+6F14_00
 步	〃	버5	〃	〃	step		lexical	U+6B65_00
 部	〃	버5	〃	〃	department; section		lexical	U+90E8_00
 布袋	〃	버2데5	〃	〃	cloth; spread; bag		lexical	U+5E03_U+888B_00
@@ -996,7 +996,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 平平安安	〃	볭볭안5안1	〃	〃	flat; ordinary; peace; safe		lexical	U+5E73_U+5E73_U+5B89_U+5B89_00
 兵衫	〃	볭5살1	軍服	军服	military uniform		lexical	U+5175_U+886B_00
 平常	〃	볭셩4	〃	〃	ordinary; usually		lexical	U+5E73_U+5E38_00
-平安	〃	볭안1	〃	〃	flat; ordinary; peace; safe		lexical	U+5E73_U+5B89_00
+平安	〃	볭안1	〃	〃	safe; peaceful		lexical	U+5E73_U+5B89_00
 朋友	〃	볭유2	〃	〃	friend		lexical	U+670B_U+53CB_00
 兵褲	兵裤	볭5커	軍褲	军裤	soldier		lexical	U+5175_U+8932_00
 兵頭	兵头	볭5ᄐᅷ4	軍官	军官	soldier; head		lexical	U+5175_U+982D_00
@@ -1010,7 +1010,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 玻璃杯	〃	보5레붸1	〃	〃	glass cup		lexical	U+73BB_U+7483_U+676F_00
 保庇	〃	보1비	保佑	〃	protect; keep; shelter		lexical	U+4FDD_U+5E87_00
 寶惜	宝惜	보1숗	珍惜	〃	treasure; cherish		lexical	U+5BF6_U+60DC_00
-保證	保证	보1졩	〃	保证	protect; keep; prove; certificate		lexical	U+4FDD_U+8B49_00
+保證	保证	보1졩	〃	保证	guarantee; assure		lexical	U+4FDD_U+8B49_00
 報紙	报纸	보2좌2	〃	报纸	newspaper		lexical	U+5831_U+7D19_00
 薄	〃	봏1	〃	〃	thin		lexical	U+8584_00
 薄情郎	〃	봏졩렁4	〃	〃	thin; feeling; affection		lexical	U+8584_U+60C5_U+90CE_00
@@ -1177,12 +1177,12 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 面	〃	삔5	〃	〃	face; side; noodles		lexical	U+9762_00
 民國	民国	삔걱	〃	民国	Republic; Minguo		lexical	U+6C11_U+570B_00
 面底皮	〃	삔되1풰4	臉皮	脸皮	face; surface; where; which		lexical	U+9762_U+5E95_U+76AE_00
-面對	面对	삔뒤	〃	面对	face; surface; correct; toward; pair		lexical	U+9762_U+5C0D_00
+面對	面对	삔뒤	〃	面对	face; confront		lexical	U+9762_U+5C0D_00
 眠夢	眠梦	삔빵5	夢	梦	dream		lexical	U+7720_U+5922_00
 面肉	〃	삔빻	臉頰	脸颊	face flesh		lexical	U+9762_U+8089_00
 面色	〃	삔셱	〃	〃	face; surface; color		lexical	U+9762_U+8272_00
 明仔日	〃	삔아1띧1	明天	〃	tomorrow		lexical	U+660E_U+4ED4_U+65E5_00
-明仔載	明仔载	삔아1재	明天	〃	bright; clear; diminutive suffix		lexical	U+660E_U+4ED4_U+8F09_00
+明仔載	明仔载	삔아1재	明天	〃	tomorrow		lexical	U+660E_U+4ED4_U+8F09_00
 面冊	面册	삔쳏	臉書	脸书	face; surface		lexical	U+9762_U+518A_00
 眠床	〃	삔층4	床	〃	sleep; bed		lexical	U+7720_U+5E8A_00
 蜜	〃	삗1	〃	〃	honey		lexical	U+871C_00
@@ -1247,8 +1247,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 少年家	〃	ᄉᆤ2롄게1	年輕人	年轻人	young person		lexical	U+5C11_U+5E74_U+5BB6_00
 少年人	〃	ᄉᆤ2롄랑4	年輕人	年轻人	year; person; people		lexical	U+5C11_U+5E74_U+4EBA_00
 消失	〃	ᄉᆤ5싣	〃	〃	lose; mistake		lexical	U+6D88_U+5931_00
-消息	〃	ᄉᆤ5싣	〃	〃	disappear; remove; rest; breath		lexical	U+6D88_U+606F_00
-消遣	〃	ᄉᆤ5켼2	〃	〃	disappear; remove; send; dispatch		lexical	U+6D88_U+9063_00
+消息	〃	ᄉᆤ5싣	〃	〃	news; information		lexical	U+6D88_U+606F_00
+消遣	〃	ᄉᆤ5켼2	〃	〃	pass the time; recreation		lexical	U+6D88_U+9063_00
 痟貪	痟贪	ᄉᆤ1탐1	貪心	贪心	crazy		lexical	U+75DF_U+8CAA_00
 酥	〃	서1	〃	〃	crisp; flaky		lexical	U+9165_00
 所	〃	서2	〃	〃	place; that which		lexical	U+6240_00
@@ -1311,7 +1311,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 仙女	〃	셴5릐2	〃	〃	immortal; fairy; woman; female		lexical	U+4ED9_U+5973_00
 先生	〃	셴5실1	〃	〃	teacher; Mr.; husband		lexical	U+5148_U+751F_00
 蟮蟲	蟮虫	셴탕4	壁虎	〃	house lizard		lexical	U+87EE_U+87F2_00
-設計	设计	셷1게	〃	设计	set up; design; plan; count		lexical	U+8A2D_U+8A08_00
+設計	设计	셷1게	〃	设计	design; plan		lexical	U+8A2D_U+8A08_00
 先	〃	솅1	〃	〃	first		lexical	U+5148_00
 升	〃	솅1	〃	〃	rise; ascend		lexical	U+5347_00
 成	〃	솅4	〃	〃	become; accomplish		lexical	U+6210_00
@@ -1389,7 +1389,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 輸人	输人	수5랑4	不如人	〃	lose to others; be inferior		lexical	U+8F38_U+4EBA_00
 思念	〃	수5럄5	〃	〃	miss; think of		lexical	U+601D_U+5FF5_00
 思戀	思恋	수5롼4	〃	思恋	miss; yearn for		lexical	U+601D_U+6200_00
-事實	事实	수싣1	〃	事实	matter; affair; real; solid		lexical	U+4E8B_U+5BE6_00
+事實	事实	수싣1	〃	事实	fact; reality		lexical	U+4E8B_U+5BE6_00
 輸贏	输赢	수5얄4	〃	输赢	win or lose; outcome		lexical	U+8F38_U+8D0F_00
 需要	〃	수5ᄋᆤ	〃	〃	need		lexical	U+9700_U+8981_00
 思考	〃	수5코2	〃	〃	think; consider		lexical	U+601D_U+8003_00
@@ -1452,7 +1452,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 四十	〃	시2잡1	〃	〃	forty		lexical	U+56DB_U+5341_00
 時鐘	时钟	시졩1	〃	时钟	clock		lexical	U+6642_U+9418_00
 時陣	时阵	시준5	時候	时候	time; occasion		lexical	U+6642_U+9663_00
-辭職	辞职	시짇	〃	辞职	resign; words; job; duty		lexical	U+8FAD_U+8077_00
+辭職	辞职	시짇	〃	辞职	resign from a job		lexical	U+8FAD_U+8077_00
 辭頭路	辞头路	시ᄐᅷ러5	辭職	辞职	head; road		lexical	U+8FAD_U+982D_U+8DEF_00
 新	〃	신1	〃	〃	new		lexical	U+65B0_00
 身	〃	신1	〃	〃	body		lexical	U+8EAB_00
@@ -1638,7 +1638,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 緣投	缘投	옌ᄃᅷ4	英俊	〃	handsome		lexical	U+7DE3_U+6295_00
 延平	〃	옌볭4	〃	〃	flat; ordinary		lexical	U+5EF6_U+5E73_00
 延平王	〃	옌볭엉4	〃	〃	flat; ordinary; king		lexical	U+5EF6_U+5E73_U+738B_00
-鉛筆	铅笔	옌빋	〃	铅笔	lead; pencil; pen; brush		lexical	U+925B_U+7B46_00
+鉛筆	铅笔	옌빋	〃	铅笔	pencil		lexical	U+925B_U+7B46_00
 胭脂水粉	〃	옌5지5쥐1훈2	〃	〃	water; flour; powder		lexical	U+80ED_U+8102_U+6C34_U+7C89_00
 緣份	缘份	옌훈5	〃	缘份	fate; connection		lexical	U+7DE3_U+4EFD_00
 湧	涌	옝2	〃	涌	surge; well up		lexical	U+6E67_00
@@ -1889,11 +1889,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 曾	〃	졩4	〃	〃	once; Zeng		lexical	U+66FE_01
 曾經	曾经	졩곙1	〃	曾经	once; formerly		lexical	U+66FE_U+7D93_00
 情歌	〃	졩과1	〃	〃	love song		lexical	U+60C5_U+6B4C_00
-政治	〃	졩2디5	〃	〃	government; politics; govern; treat		lexical	U+653F_U+6CBB_00
+政治	〃	졩2디5	〃	〃	politics		lexical	U+653F_U+6CBB_00
 前路	〃	졩러5	〃	〃	road ahead; future path		lexical	U+524D_U+8DEF_00
 情路	〃	졩러5	〃	〃	road of love; romantic path		lexical	U+60C5_U+8DEF_00
 情愛	情爱	졩애	〃	情爱	love; affection		lexical	U+60C5_U+611B_00
-情話	情话	졩웨5	〃	情话	feeling; affection; speech; language		lexical	U+60C5_U+8A71_00
+情話	情话	졩웨5	〃	情话	words of affection		lexical	U+60C5_U+8A71_00
 情意	〃	졩이	〃	〃	affection; sentiment		lexical	U+60C5_U+610F_00
 情批	〃	졩풰1	情書	情书	love letter		lexical	U+60C5_U+6279_00
 情海	〃	졩해2	〃	〃	sea of love		lexical	U+60C5_U+6D77_00
@@ -1903,7 +1903,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 座	〃	조5	〃	〃	seat; classifier		lexical	U+5EA7_00
 做工	〃	조2강1	〃	〃	work		lexical	U+505A_U+5DE5_00
 做兵	〃	조2볭1	當兵	当兵	serve as a soldier		lexical	U+505A_U+5175_00
-造成	〃	조솅4	〃	〃	make; create; become; accomplish		lexical	U+9020_U+6210_00
+造成	〃	조솅4	〃	〃	cause; bring about		lexical	U+9020_U+6210_00
 做伙	〃	조2훼2	一起	〃	together		lexical	U+505A_U+4F19_00
 昨	〃	좋1	〃	〃	yesterday		lexical	U+6628_00
 紙	纸	좌2	〃	纸	paper		lexical	U+7D19_00
@@ -1914,11 +1914,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 轉達	转达	좐1닫1	〃	转达	convey; pass on		lexical	U+8F49_U+9054_00
 轉輪聖王	转轮圣王	좐1룬솅2엉4	〃	转轮圣王	turn; return; king		lexical	U+8F49_U+8F2A_U+8056_U+738B_00
 全部	〃	좐버5	〃	〃	all; entire		lexical	U+5168_U+90E8_00
-全世界	〃	좐세2개	〃	〃	whole; all; world; generation		lexical	U+5168_U+4E16_U+754C_00
+全世界	〃	좐세2개	〃	〃	the whole world		lexical	U+5168_U+4E16_U+754C_00
 泉漳	〃	좐쟝1	〃	〃	Quanzhou and Zhangzhou; Quanzhang		lexical	U+6CC9_U+6F33_00
 泉漳話	泉漳话	좐쟝5웨5	〃	泉漳话	Quanzhou-Zhangzhou speech; Hokkien		lexical	U+6CC9_U+6F33_U+8A71_00
 泉州	〃	좐쥬1	〃	〃	Quanzhou		lexical	U+6CC9_U+5DDE_00
-絕望	绝望	좓뻥5	〃	绝望	cut off; despair; hope; look		lexical	U+7D55_U+671B_00
+絕望	绝望	좓뻥5	〃	绝望	despair; lose hope		lexical	U+7D55_U+671B_00
 絕情	绝情	좓졩4	〃	绝情	feeling; affection		lexical	U+7D55_U+60C5_00
 怎樣	怎样	좔1율5	〃	怎样	how; appearance; manner		lexical	U+600E_U+6A23_00
 縒	〃	좧1	偏差; 偏誤	偏差; 偏误	difference; error; deviate from the intended form		lexical	U+7E12_00
@@ -1939,7 +1939,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 招呼	〃	죠5허1	〃	〃	greet		lexical	U+62DB_U+547C_00
 借	〃	죻	〃	〃	borrow; lend		lexical	U+501F_00
 石獅	石狮	죻새1	〃	石狮	Shishi		lexical	U+77F3_U+7345_00
-石頭	石头	죻ᄐᅷ4	〃	石头	head		lexical	U+77F3_U+982D_00
+石頭	石头	죻ᄐᅷ4	〃	石头	stone; rock		lexical	U+77F3_U+982D_00
 書	书	주1	〃	书	book		lexical	U+66F8_00
 珠	〃	주1	〃	〃	pearl		lexical	U+73E0_00
 主	〃	주2	〃	〃	main; master		lexical	U+4E3B_00
@@ -1963,7 +1963,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 子民	〃	주1삔4	〃	〃	people; subjects		lexical	U+5B50_U+6C11_00
 主要	〃	주1ᄋᆤ	〃	〃	main; principal		lexical	U+4E3B_U+8981_00
 自由	〃	주유4	〃	〃	self; from; reason		lexical	U+81EA_U+7531_00
-自由自在	〃	주유주재5	〃	〃	self; from; reason; exist; at		lexical	U+81EA_U+7531_U+81EA_U+5728_00
+自由自在	〃	주유주재5	〃	〃	free and at ease		lexical	U+81EA_U+7531_U+81EA_U+5728_00
 自在	〃	주재5	〃	〃	free; at ease		lexical	U+81EA_U+5728_00
 煮食	〃	주1쟣1	做飯	做饭	cook		lexical	U+716E_U+98DF_00
 自作多情	〃	주적1도5졩4	〃	〃	feeling; affection		lexical	U+81EA_U+4F5C_U+591A_U+60C5_00
@@ -1972,7 +1972,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 存	〃	준4	〃	〃	exist; keep		lexical	U+5B58_00
 船	〃	준4	〃	〃	boat; ship		lexical	U+8239_00
 陣	阵	준5	〃	阵	period; formation		lexical	U+9663_00
-尊嚴	尊严	준5꺔4	〃	尊严	honorable; respect; strict; solemn		lexical	U+5C0A_U+56B4_00
+尊嚴	尊严	준5꺔4	〃	尊严	dignity		lexical	U+5C0A_U+56B4_00
 準備	准备	준1비5	〃	准备	accurate; standard; prepare		lexical	U+6E96_U+5099_00
 存在	〃	준재5	〃	〃	exist; existence		lexical	U+5B58_U+5728_00
 船隻	船只	준쟣	〃	船只	boat		lexical	U+8239_U+96BB_00
@@ -2117,7 +2117,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 粗	〃	처1	〃	〃	coarse; rough		lexical	U+7C97_00
 醋	〃	처	〃	〃	vinegar; jealousy		lexical	U+918B_00
 粗魯	粗鲁	처5러2	〃	粗鲁	unruly		lexical	U+7C97_U+9B6F_00
-初戀	初恋	처5롼4	〃	初恋	beginning; first; love; long for		lexical	U+521D_U+6200_00
+初戀	初恋	처5롼4	〃	初恋	first love		lexical	U+521D_U+6200_00
 初步	〃	처5버5	〃	〃	step		lexical	U+521D_U+6B65_00
 創	创	청	〃	创	create; wound		lexical	U+5275_00
 創治	创治	청2디5	捉弄; 欺負	捉弄; 欺负	bully; tease; play tricks on		lexical	U+5275_U+6CBB_00
@@ -2148,10 +2148,10 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 穿	〃	촁5	〃	〃	wear; pierce		lexical	U+7A7F_00
 千年	〃	촁5니4	〃	〃	thousand years		lexical	U+5343_U+5E74_00
 穿衫	〃	촁살1	穿衣服	〃	wear clothes		lexical	U+7A7F_U+886B_00
-清醒	〃	촁5첼2	〃	〃	clear; pure; wake; sober		lexical	U+6E05_U+9192_00
+清醒	〃	촁5첼2	〃	〃	awake; clear-headed; sober		lexical	U+6E05_U+9192_00
 清楚	〃	촁5초2	〃	〃	to be clear		lexical	U+6E05_U+695A_00
 青春	〃	촁5춘1	〃	〃	youth		lexical	U+9752_U+6625_00
-清醒	〃	촁5칠2	〃	〃	clear; pure; wake; sober		lexical	U+6E05_U+9192_01
+清醒	〃	촁5칠2	〃	〃	awake; clear-headed; sober		lexical	U+6E05_U+9192_01
 千箍	〃	촁5커1	千元	〃	thousand; dollar; ring		lexical	U+5343_U+7B8D_00
 清氣	清气	촁5키	乾淨	干净	clean		lexical	U+6E05_U+6C23_00
 清芳	〃	촁5팡1	清香	〃	fragrant		lexical	U+6E05_U+82B3_00
@@ -2166,7 +2166,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 初一十五	〃	최5읻1잡꺼5	〃	〃	days 1 and 15 of a Chinese calendar month		lexical	U+521D_U+4E00_U+5341_U+4E94_00
 笑	〃	쵸	〃	〃	laugh; smile		lexical	U+7B11_00
 笑文文	〃	쵸2뿐뿐4	微笑	〃	smile gently		lexical	U+7B11_U+6587_U+6587_00
-笑容	〃	쵸2영4	〃	〃	laugh; smile; appearance; contain		lexical	U+7B11_U+5BB9_00
+笑容	〃	쵸2영4	〃	〃	smile		lexical	U+7B11_U+5BB9_00
 笑詼	笑诙	쵸2퀘1	笑話	笑话	laugh; smile; joke; humorous		lexical	U+7B11_U+8A7C_00
 此	〃	추2	〃	〃	this		lexical	U+6B64_00
 厝	〃	추	房子	〃	house		lexical	U+539D_00
@@ -2178,7 +2178,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 賰	䞐	춘1	剩	〃	left over; surplus		lexical	U+8CF0_00
 春天	〃	춘5틸1	〃	〃	spring		lexical	U+6625_U+5929_00
 春夏秋冬	〃	춘5하츄5당1	〃	〃	winter		lexical	U+6625_U+590F_U+79CB_U+51AC_00
-春雨	〃	춘5허5	〃	〃	rain		lexical	U+6625_U+96E8_00
+春雨	〃	춘5허5	〃	〃	spring rain		lexical	U+6625_U+96E8_00
 春風	春风	춘5헝1	〃	春风	wind		lexical	U+6625_U+98A8_00
 出	〃	춛	〃	〃	go out; produce		lexical	U+51FA_00
 出嫁	〃	춛1게	〃	〃	marry out		lexical	U+51FA_U+5AC1_00
@@ -2190,7 +2190,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 出世	〃	춛1시	〃	〃	to be born		lexical	U+51FA_U+4E16_00
 出口	〃	춛1ᄏᅷ2	〃	〃	mouth		lexical	U+51FA_U+53E3_00
 出頭天	出头天	춛1ᄐᅷ틸1	〃	出头天	one's breakthrough		lexical	U+51FA_U+982D_U+5929_00
-出現	出现	춛1혠5	〃	出现	go out; produce; present; appear		lexical	U+51FA_U+73FE_00
+出現	出现	춛1혠5	〃	出现	appear; emerge		lexical	U+51FA_U+73FE_00
 吹	〃	췌1	〃	〃	blow		lexical	U+5439_00
 揣	〃	췌5	找; 猜	〃	look for; guess		lexical	U+63E3_00
 催	〃	취1	〃	〃	urge; hurry		lexical	U+50AC_00
@@ -2341,7 +2341,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 起身	〃	키1신1	〃	〃	get up; start		lexical	U+8D77_U+8EAB_00
 氣身惱命	气身恼命	키2신5로1먀5	氣憤; 怒不可遏	气愤; 怒不可遏	furious; extremely angry		lexical	U+6C23_U+8EAB_U+60F1_U+547D_00
 輕	轻	킨1	〃	轻	light		lexical	U+8F15_00
-輕鬆	轻松	킨5상1	〃	轻松	light; easy; loose; relaxed		lexical	U+8F15_U+9B06_00
+輕鬆	轻松	킨5상1	〃	轻松	relaxed; easy		lexical	U+8F15_U+9B06_00
 輕聲	轻声	킨5샬1	〃	轻声	soft; low in volume		lexical	U+8F15_U+8072_00
 勤儉	勤俭	킨캼5	〃	勤俭	diligent; frugal; economical		lexical	U+52E4_U+5109_00
 輕可	轻可	킨5코2	還好	还好	alright		lexical	U+8F15_U+53EF_00
@@ -2376,7 +2376,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 待	〃	태5	〃	〃	wait		lexical	U+5F85_00
 泰國	泰国	태2걱	〃	泰国	Thailand		lexical	U+6CF0_U+570B_00
 泰國人	泰国人	태2걱1랑4	〃	泰国人	Thai person		lexical	U+6CF0_U+570B_U+4EBA_00
-態度	态度	태2더5	〃	态度	state; attitude; degree; measure		lexical	U+614B_U+5EA6_00
+態度	态度	태2더5	〃	态度	attitude		lexical	U+614B_U+5EA6_00
 聽	听	턀1	〃	听	listen; hear		lexical	U+807D_00
 疼	〃	턀	〃	〃	pain; to love		lexical	U+75BC_00
 聽講	听讲	턀5겅2	〃	听讲	hearsay		lexical	U+807D_U+8B1B_00
@@ -2398,8 +2398,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 通	〃	텅1	〃	〃	pass through; understand		lexical	U+901A_01
 體	体	테2	〃	体	body; form		lexical	U+9AD4_00
 提	〃	테4	〃	〃	carry; mention		lexical	U+63D0_00
-體驗	体验	테1꺔5	〃	体验	body; form; verify; experience		lexical	U+9AD4_U+9A57_00
-體諒	体谅	테1령5	〃	体谅	body; form; forgive; understand		lexical	U+9AD4_U+8AD2_00
+體驗	体验	테1꺔5	〃	体验	experience; experience firsthand		lexical	U+9AD4_U+9A57_00
+體諒	体谅	테1령5	〃	体谅	understand; make allowances for		lexical	U+9AD4_U+8AD2_00
 提起	〃	테키2	〃	〃	mention; bring up		lexical	U+63D0_U+8D77_00
 退下	〃	테2하5	〃	〃	below; under		lexical	U+9000_U+4E0B_00
 體會	体会	테1훼5	〃	体会	can; meeting		lexical	U+9AD4_U+6703_00
@@ -2425,7 +2425,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 湯	汤	틍1	〃	汤	soup; hot water		lexical	U+6E6F_00
 糖	〃	틍4	〃	〃	sugar		lexical	U+7CD6_00
 糖甘蜜甜	〃	틍감5삗딜1	甜如蜜	〃	sweet as sugar and honey		lexical	U+7CD6_U+7518_U+871C_U+751C_00
-湯匙	汤匙	틍5시4	〃	汤匙	soup; hot water; spoon; key		lexical	U+6E6F_U+5319_00
+湯匙	汤匙	틍5시4	〃	汤匙	spoon		lexical	U+6E6F_U+5319_00
 啼	〃	티4	〃	〃	cry; crow		lexical	U+557C_00
 天	〃	틸1	〃	〃	sky; day		lexical	U+5929_00
 天光	〃	틸5긍1	〃	〃	daybreak; dawn		lexical	U+5929_U+5149_00
@@ -2470,7 +2470,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 譜	谱	퍼2	〃	谱	score; record		lexical	U+8B5C_00
 菩薩	菩萨	퍼삳	〃	菩萨	bodhisattva		lexical	U+83E9_U+85A9_00
 普通	〃	퍼1텅1	〃	〃	ordinary; common		lexical	U+666E_U+901A_00
-博物館	博物馆	퍽1뿓관2	〃	博物馆	thing; hall; shop; institution		lexical	U+535A_U+7269_U+9928_00
+博物館	博物馆	퍽1뿓관2	〃	博物馆	museum		lexical	U+535A_U+7269_U+9928_00
 博士	〃	퍽1수5	〃	〃	broad; doctorate; scholar; specialist		lexical	U+535A_U+58EB_00
 膨風	膨风	펑2헝1	腹脹; 吹牛	腹胀; 吹牛	feel bloated; brag		lexical	U+81A8_U+98A8_00
 碧山	〃	폑1산1	〃	〃	mountain		lexical	U+78A7_U+5C71_00
@@ -2499,7 +2499,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 被單	被单	풰돨1	〃	被单	single; alone		lexical	U+88AB_U+55AE_00
 皮膚	皮肤	풰후1	〃	皮肤	skin; leather		lexical	U+76AE_U+819A_00
 屁	〃	퓌	〃	〃	fart; nonsense		lexical	U+5C41_00
-脾氣	脾气	피키	〃	脾气	spleen; temper; air; energy		lexical	U+813E_U+6C23_00
+脾氣	脾气	피키	〃	脾气	temper; disposition		lexical	U+813E_U+6C23_00
 品	〃	핀2	〃	〃	goods; quality		lexical	U+54C1_00
 片	〃	필	〃	〃	piece; slice		lexical	U+7247_00
 鼻	〃	필5	〃	〃	nose		lexical	U+9F3B_00
@@ -2644,14 +2644,14 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 發展	发展	홛1뎬2	〃	发展	send out; develop; unfold		lexical	U+767C_U+5C55_00
 法寶	法宝	홛1보2	〃	法宝	treasured method; magic weapon		lexical	U+6CD5_U+5BF6_00
 發生	发生	홛1솅1	〃	发生	happen		lexical	U+767C_U+751F_00
-發現	发现	홛1혠5	〃	发现	send out; develop; present; appear		lexical	U+767C_U+73FE_00
+發現	发现	홛1혠5	〃	发现	discover; notice		lexical	U+767C_U+73FE_00
 歡	欢	활1	〃	欢	happy; welcome		lexical	U+6B61_00
 岸	〃	활5	〃	〃	shore; bank		lexical	U+5CB8_00
 捍	〃	활5	〃	〃	defend; guard		lexical	U+634D_00
 捍車	捍车	활챠1	攔車	拦车	vehicle		lexical	U+634D_U+8ECA_00
 歡歡喜喜	欢欢喜喜	활5활5히1히2	〃	欢欢喜喜	happily; cheerfully		lexical	U+6B61_U+6B61_U+559C_U+559C_00
 歡喜	欢喜	활5히2	〃	欢喜	happy; like		lexical	U+6B61_U+559C_00
-懷疑	怀疑	홰끼4	〃	怀疑	harbor; miss; doubt; suspect		lexical	U+61F7_U+7591_00
+懷疑	怀疑	홰끼4	〃	怀疑	doubt; suspect		lexical	U+61F7_U+7591_00
 橫直	横直	홸딛1	反正	〃	straight		lexical	U+6A6B_U+76F4_00
 後果	后果	효고2	〃	后果	consequence		lexical	U+5F8C_U+679C_00
 後悔	后悔	효훼2	〃	后悔	after; behind		lexical	U+5F8C_U+6094_00
@@ -2659,7 +2659,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 烌	〃	후1	灰塵; 灰燼	灰尘; 灰烬	dust; ash		lexical	U+70CC_00
 付	〃	후	〃	〃	pay; hand over		lexical	U+4ED8_00
 駙馬	驸马	후마2	〃	驸马	horse		lexical	U+99D9_U+99AC_00
-負責任	负责任	후졕1띰5	〃	负责任	carry; betray; responsibility; blame; duty		lexical	U+8CA0_U+8CAC_U+4EFB_00
+負責任	负责任	후졕1띰5	〃	负责任	take responsibility; be responsible		lexical	U+8CA0_U+8CAC_U+4EFB_00
 分	〃	훈1	〃	〃	divide; minute; cent		lexical	U+5206_01
 薰	〃	훈1	香; 煙	香; 烟	fragrant; smoke		lexical	U+85B0_00
 粉	〃	훈2	〃	〃	flour; powder		lexical	U+7C89_00
@@ -2695,7 +2695,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 火王爺	火王爷	훼1엉야4	〃	火王爷	Fire King (deity)		lexical	U+706B_U+738B_U+723A_00
 花雨	〃	훼5우2	〃	〃	rain		lexical	U+82B1_U+96E8_00
 火車	火车	훼1챠1	〃	火车	train		lexical	U+706B_U+8ECA_00
-歲頭	岁头	훼2ᄐᅷ4	年初	〃	head		lexical	U+6B72_U+982D_00
+歲頭	岁头	훼2ᄐᅷ4	年齡	年龄	age		lexical	U+6B72_U+982D_00
 回頭	回头	훼ᄐᅷ4	〃	回头	turn back; look back		lexical	U+56DE_U+982D_00
 回航	〃	훼항4	〃	〃	return		lexical	U+56DE_U+822A_00
 花園	花园	훼5흥4	〃	花园	flower; garden; park		lexical	U+82B1_U+5712_00
@@ -2711,7 +2711,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 戲	戏	히	〃	戏	play; drama		lexical	U+6232_00
 戲弄	戏弄	히2랑5	〃	戏弄	tease; play with		lexical	U+6232_U+5F04_00
 希望	〃	히5빵5	〃	〃	hope; rare; look		lexical	U+5E0C_U+671B_00
-稀微	〃	히5삐4	孤寂	〃	rare; thin; slight; subtle		lexical	U+7A00_U+5FAE_00
+稀微	〃	히5삐4	孤寂	〃	lonely; desolate		lexical	U+7A00_U+5FAE_00
 犧牲	牺牲	히5솅1	〃	牺牲	sacrifice; livestock		lexical	U+72A7_U+7272_00
 彼	〃	힏	〃	〃	that		lexical	U+5F7C_00
 彼个	〃	힏1에4	那個	那个	that		lexical	U+5F7C_U+4E2A_00
@@ -2723,7 +2723,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 二十	〃	능잡1*	〃	〃	twenty	띠잡1	correction_alias	U+4E8C_U+5341_01
 二十箍	〃	능잡커1*	二十元	〃	twenty dollars	띠잡커1	correction_alias	U+4E8C_U+5341_U+7B8D_01
 兩千箍	两千箍	능쳰5커1*	兩千元	两千元	two thousand dollars	능촁5커1	correction_alias	U+5169_U+5343_U+7B8D_01
-明仔載	明仔载	먀4재*	明天	〃	bright; clear; diminutive suffix	삔아1재	correction_alias	U+660E_U+4ED4_U+8F09_01
+明仔載	明仔载	먀4재*	明天	〃	tomorrow	삔아1재	correction_alias	U+660E_U+4ED4_U+8F09_01
 新加坡	〃	신5가5포1*	〃	〃	Singapore	신5가5보1	correction_alias	U+65B0_U+52A0_U+5761_01
 一千箍	〃	짇쳰5커1*	一千元	〃	one thousand dollars	짇촁5커1	correction_alias	U+4E00_U+5343_U+7B8D_01
 千箍	〃	쳰5커1*	千元	〃	thousand; dollar; ring	촁5커1	correction_alias	U+5343_U+7B8D_01

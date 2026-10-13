@@ -1,0 +1,393 @@
+{
+  "scope": "Existing source entries only; both Taipei/Singapore metadata checked. No pronunciation or WAV edits.",
+  "affected_source_entries": 24,
+  "missing_syllable_tones": 17,
+  "recordings": [
+    {
+      "key": "꺔3",
+      "suggested_filename": "giam3.wav",
+      "entries": [
+        "十殿閻君"
+      ]
+    },
+    {
+      "key": "꺔4",
+      "suggested_filename": "giam4.wav",
+      "entries": [
+        "尊嚴"
+      ]
+    },
+    {
+      "key": "꺔5",
+      "suggested_filename": "giam5.wav",
+      "entries": [
+        "體驗"
+      ]
+    },
+    {
+      "key": "꺕1",
+      "suggested_filename": "giap1.wav",
+      "entries": [
+        "出業"
+      ]
+    },
+    {
+      "key": "꼉2",
+      "suggested_filename": "giong2.wav",
+      "entries": [
+        "久仰"
+      ]
+    },
+    {
+      "key": "꼑1",
+      "suggested_filename": "giek1.wav",
+      "entries": [
+        "地獄",
+        "無間地獄"
+      ]
+    },
+    {
+      "key": "꼑3",
+      "suggested_filename": "giek3.wav",
+      "entries": [
+        "獄城"
+      ]
+    },
+    {
+      "key": "꼗1",
+      "suggested_filename": "giet1.wav",
+      "entries": [
+        "妖孽"
+      ]
+    },
+    {
+      "key": "꼗3",
+      "suggested_filename": "giet3.wav",
+      "entries": [
+        "孽鏡台",
+        "孽緣"
+      ]
+    },
+    {
+      "key": "꽏3",
+      "suggested_filename": "goat3.wav",
+      "entries": [
+        "月台",
+        "月老",
+        "花容月貌"
+      ]
+    },
+    {
+      "key": "끤4",
+      "suggested_filename": "gin4.wav",
+      "entries": [
+        "銀"
+      ]
+    },
+    {
+      "key": "따2",
+      "suggested_filename": "ra2.wav",
+      "entries": [
+        "菝仔",
+        "一點仔",
+        "姼仔"
+      ]
+    },
+    {
+      "key": "땀3",
+      "suggested_filename": "ram3.wav",
+      "entries": [
+        "一暗"
+      ]
+    },
+    {
+      "key": "열4",
+      "suggested_filename": "yorl4.wav",
+      "entries": [
+        "楊"
+      ]
+    },
+    {
+      "key": "질1",
+      "suggested_filename": "jil1.wav",
+      "entries": [
+        "水晶"
+      ]
+    },
+    {
+      "key": "질3",
+      "suggested_filename": "jil3.wav",
+      "entries": [
+        "錢銀"
+      ]
+    },
+    {
+      "key": "질4",
+      "suggested_filename": "jil4.wav",
+      "entries": [
+        "本錢",
+        "錢"
+      ]
+    }
+  ],
+  "entries": [
+    {
+      "entry_id": "U+4E45_U+4EF0_00",
+      "hanri": "久仰",
+      "reading": "규1꼉2",
+      "missing": [
+        "꼉2"
+      ],
+      "previous_missing": [
+        "꼉2"
+      ]
+    },
+    {
+      "entry_id": "U+7344_U+57CE_00",
+      "hanri": "獄城",
+      "reading": "꼑샬4",
+      "missing": [
+        "꼑3"
+      ],
+      "previous_missing": [
+        "꼑샬4"
+      ]
+    },
+    {
+      "entry_id": "U+5B7D_U+93E1_U+53F0_00",
+      "hanri": "孽鏡台",
+      "reading": "꼗걀2대4",
+      "missing": [
+        "꼗3"
+      ],
+      "previous_missing": [
+        "꼗걀2"
+      ]
+    },
+    {
+      "entry_id": "U+5B7D_U+7DE3_00",
+      "hanri": "孽緣",
+      "reading": "꼗옌4",
+      "missing": [
+        "꼗3"
+      ],
+      "previous_missing": [
+        "꼗3"
+      ]
+    },
+    {
+      "entry_id": "U+6708_U+53F0_00",
+      "hanri": "月台",
+      "reading": "꽏대4",
+      "missing": [
+        "꽏3"
+      ],
+      "previous_missing": [
+        "꽏대4"
+      ]
+    },
+    {
+      "entry_id": "U+6708_U+8001_00",
+      "hanri": "月老",
+      "reading": "꽏로2",
+      "missing": [
+        "꽏3"
+      ],
+      "previous_missing": [
+        "꽏로2"
+      ]
+    },
+    {
+      "entry_id": "U+9280_01",
+      "hanri": "銀",
+      "reading": "끤4",
+      "missing": [
+        "끤4"
+      ],
+      "previous_missing": [
+        "끤4"
+      ]
+    },
+    {
+      "entry_id": "U+5730_U+7344_00",
+      "hanri": "地獄",
+      "reading": "데꼑1",
+      "missing": [
+        "꼑1"
+      ],
+      "previous_missing": []
+    },
+    {
+      "entry_id": "U+83DD_U+4ED4_00",
+      "hanri": "菝仔",
+      "reading": "받아2",
+      "missing": [
+        "따2"
+      ],
+      "previous_missing": [
+        "따2"
+      ]
+    },
+    {
+      "entry_id": "U+672C_U+9322_00",
+      "hanri": "本錢",
+      "reading": "분1질4",
+      "missing": [
+        "질4"
+      ],
+      "previous_missing": [
+        "질4"
+      ]
+    },
+    {
+      "entry_id": "U+7121_U+9593_U+5730_U+7344_00",
+      "hanri": "無間地獄",
+      "reading": "뿌간5데꼑1",
+      "missing": [
+        "꼑1"
+      ],
+      "previous_missing": []
+    },
+    {
+      "entry_id": "U+5996_U+5B7D_00",
+      "hanri": "妖孽",
+      "reading": "ᄋᆤ5꼗1",
+      "missing": [
+        "꼗1"
+      ],
+      "previous_missing": [
+        "꼗1"
+      ]
+    },
+    {
+      "entry_id": "U+694A_00",
+      "hanri": "楊",
+      "reading": "열4",
+      "missing": [
+        "열4"
+      ],
+      "previous_missing": [
+        "열4"
+      ]
+    },
+    {
+      "entry_id": "U+5341_U+6BBF_U+95BB_U+541B_00",
+      "hanri": "十殿閻君",
+      "reading": "잡뎬꺔군1",
+      "missing": [
+        "꺔3"
+      ],
+      "previous_missing": []
+    },
+    {
+      "entry_id": "U+5C0A_U+56B4_00",
+      "hanri": "尊嚴",
+      "reading": "준5꺔4",
+      "missing": [
+        "꺔4"
+      ],
+      "previous_missing": [
+        "꺔4"
+      ]
+    },
+    {
+      "entry_id": "U+6C34_U+6676_00",
+      "hanri": "水晶",
+      "reading": "쥐1질1",
+      "missing": [
+        "질1"
+      ],
+      "previous_missing": [
+        "질1"
+      ]
+    },
+    {
+      "entry_id": "U+4E00_U+9EDE_U+4ED4_00",
+      "hanri": "一點仔",
+      "reading": "짇댬1아2",
+      "missing": [
+        "따2"
+      ],
+      "previous_missing": [
+        "따2"
+      ]
+    },
+    {
+      "entry_id": "U+4E00_U+6697_00",
+      "hanri": "一暗",
+      "reading": "짇암",
+      "missing": [
+        "땀3"
+      ],
+      "previous_missing": [
+        "땀3"
+      ]
+    },
+    {
+      "entry_id": "U+9322_00",
+      "hanri": "錢",
+      "reading": "질4",
+      "missing": [
+        "질4"
+      ],
+      "previous_missing": [
+        "질4"
+      ]
+    },
+    {
+      "entry_id": "U+9322_U+9280_00",
+      "hanri": "錢銀",
+      "reading": "질꾼4",
+      "missing": [
+        "질3"
+      ],
+      "previous_missing": [
+        "질꾼4"
+      ]
+    },
+    {
+      "entry_id": "U+51FA_U+696D_00",
+      "hanri": "出業",
+      "reading": "춛1꺕1",
+      "missing": [
+        "꺕1"
+      ],
+      "previous_missing": [
+        "꺕1"
+      ]
+    },
+    {
+      "entry_id": "U+59FC_U+4ED4_00",
+      "hanri": "姼仔",
+      "reading": "칟1아2",
+      "missing": [
+        "따2"
+      ],
+      "previous_missing": [
+        "따2"
+      ]
+    },
+    {
+      "entry_id": "U+9AD4_U+9A57_00",
+      "hanri": "體驗",
+      "reading": "테1꺔5",
+      "missing": [
+        "꺔5"
+      ],
+      "previous_missing": [
+        "꺔5"
+      ]
+    },
+    {
+      "entry_id": "U+82B1_U+5BB9_U+6708_U+8C8C_00",
+      "hanri": "花容月貌",
+      "reading": "화5영꽏ᄆᅷ5",
+      "missing": [
+        "꽏3"
+      ],
+      "previous_missing": [
+        "꽏3"
+      ]
+    }
+  ]
+}

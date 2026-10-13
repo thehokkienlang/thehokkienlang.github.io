@@ -3968,11 +3968,16 @@ def audio_missing_label_for_unit(unit: str, tone: str) -> str:
     return f'{lookup_unit}{lookup_tone}'
 
 
-def resolve_audio_files_for_unit(folder: Path, unit: str, tone: str) -> tuple[list[Path], list[str]]:
-    """Return audio files for a unit, with fallback decomposition if needed."""
+def resolve_audio_parts_for_unit(folder: Path, unit: str, tone: str) -> tuple[list[tuple[Path, str, str]], list[str]]:
+    """Resolve recordings without losing a partial chunk's syllables or tones.
+
+    Earlier parts use tone 3 and the final part uses the supplied tone, as in
+    the existing decomposition contract. Missing parts must not discard known
+    neighbours or fall through to an alias for only the first syllable.
+    """
     parts = split_untoned_hangul_units(unit)
     if len(parts) > 1:
-        files: list[Path] = []
+        resolved: list[tuple[Path, str, str]] = []
         missing: list[str] = []
         for idx, part in enumerate(parts):
             part_tone = tone if idx == len(parts) - 1 else '3'
@@ -3980,15 +3985,20 @@ def resolve_audio_files_for_unit(folder: Path, unit: str, tone: str) -> tuple[li
             if path is None:
                 missing.append(audio_missing_label_for_unit(part, part_tone))
             else:
-                files.append(path)
-        if not missing and files:
-            return files, []
+                resolved.append((path, part, str(part_tone)))
+        return resolved, missing
 
     direct = find_audio_file(folder, unit, tone)
     if direct is not None:
-        return [direct], []
+        return [(direct, unit, str(tone))], []
 
     return [], [audio_missing_label_for_unit(unit, tone)]
+
+
+def resolve_audio_files_for_unit(folder: Path, unit: str, tone: str) -> tuple[list[Path], list[str]]:
+    """Keep the path-only interface for existing callers."""
+    resolved, missing = resolve_audio_parts_for_unit(folder, unit, tone)
+    return [path for path, _unit, _tone in resolved], missing
 
 
 def is_silent_audio_unit(unit: str, tone: str) -> bool:
@@ -12531,9 +12541,8 @@ class HokkienIMEPad:
         for unit_index, (unit, tone, trim_start, trim_end, english_cluster_reduction) in enumerate(audio_units):
             if is_silent_audio_unit(unit, tone):
                 continue
-            resolved, missing_keys = resolve_audio_files_for_unit(folder, unit, tone)
-            fallback_parts = split_untoned_hangul_units(unit) if len(resolved) > 1 else []
-            for idx, path in enumerate(resolved):
+            resolved, missing_keys = resolve_audio_parts_for_unit(folder, unit, tone)
+            for idx, (path, segment_unit, segment_tone) in enumerate(resolved):
                 # Smoothing rule:
                 # - start-trim phrase-internal audio units by 0.20s;
                 # - end-trim non-final phrase audio units by 0.15s;
@@ -12542,12 +12551,6 @@ class HokkienIMEPad:
                 segment_cluster_reduction = bool(english_cluster_reduction)
                 segment_trim_start = bool(trim_start or idx > 0)
                 segment_trim_end = bool(trim_end or idx < len(resolved) - 1)
-                segment_unit = fallback_parts[idx] if idx < len(fallback_parts) else unit
-                # If a missing whole-unit recording is decomposed into smaller
-                # fallback parts, only the final fallback part carries the
-                # original tone.  Earlier fallback parts stay tone 3, matching
-                # resolve_audio_files_for_unit().
-                segment_tone = str(tone if (not fallback_parts or idx == len(fallback_parts) - 1) else '3')
                 segment_short_overlap_final = audio_unit_has_short_overlap_final(segment_unit)
                 audio_segments.append((path, segment_trim_start, segment_trim_end, False, segment_short_overlap_final, segment_tone, segment_cluster_reduction))
             missing.extend(missing_keys)
