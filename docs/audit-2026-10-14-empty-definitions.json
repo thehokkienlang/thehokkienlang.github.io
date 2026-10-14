@@ -1,0 +1,610 @@
+{
+  "task": "2a",
+  "base_commit": "7729cff141545e2e87da2e97b8872eaef2d30076",
+  "scope": "Blank English and Mandarin definition fields only; prior populated fields, readings, headwords, IDs and entry types preserved. Tasks 1, 4 and new tests in task 5 remain paused. Deployment authorized.",
+  "counts": {
+    "reviewed_entry_rows": 24,
+    "filled_entry_rows": 1,
+    "new_field_values": 3,
+    "unchanged_entry_rows": 23,
+    "comment_rows_excluded": 1
+  },
+  "rows": [
+    {
+      "line": 14,
+      "entry_id": "U+B38B_00",
+      "hanri": "뎋",
+      "reading": "뎋",
+      "entry_type": "hangul_override",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "grammatical_function_unconfirmed",
+      "reason": "Input override/attached form; needs a usage sentence identifying its grammatical function before adding English or Mandarin.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 15,
+      "entry_id": "U+2019_U+B434_00",
+      "hanri": "’됴",
+      "reading": "’됴",
+      "entry_type": "hangul_override",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "grammatical_function_unconfirmed",
+      "reason": "Input override/attached form; needs a usage sentence identifying its grammatical function before adding English or Mandarin.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 16,
+      "entry_id": "U+2019_U+B44F_00",
+      "hanri": "’둏",
+      "reading": "’둏",
+      "entry_type": "hangul_override",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "grammatical_function_unconfirmed",
+      "reason": "Input override/attached form; needs a usage sentence identifying its grammatical function before adding English or Mandarin.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 19,
+      "entry_id": "U+2019_U+B798_00",
+      "hanri": "’래",
+      "reading": "’래",
+      "entry_type": "hangul_override",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "grammatical_function_unconfirmed",
+      "reason": "Input override/attached form; needs a usage sentence identifying its grammatical function before adding English or Mandarin.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 51,
+      "entry_id": "U+2019_U+D088_00",
+      "hanri": "’킈",
+      "reading": "’킈",
+      "entry_type": "hangul_override",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "grammatical_function_unconfirmed",
+      "reason": "Input override/attached form; needs a usage sentence identifying its grammatical function before adding English or Mandarin.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 215,
+      "entry_id": "U+632D_00",
+      "hanri": "挭",
+      "reading": "곙5",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "block; choke",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "conflicting_sense",
+      "reason": "Existing block/choke gloss conflicts with the MOE support/prop sense for alternate 挭 under 楗; confirm the intended sense and reading before translating.",
+      "after": {
+        "english": "block; choke",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 354,
+      "entry_id": "U+7344_U+57CE_00",
+      "hanri": "獄城",
+      "reading": "꼑샬4",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "prison; hell; city; wall",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "uncertain_referent",
+      "reason": "Prison, an infernal city, or a particular religious name is not established by the component gloss.",
+      "after": {
+        "english": "prison; hell; city; wall",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 411,
+      "entry_id": "U+5169_U+89D2_00",
+      "hanri": "兩角",
+      "reading": "능각",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "two; both",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "multiple_senses",
+      "reason": "MOE attests the currency use, but 角 also means corner/horn; a usage example is needed to choose the intended sense.",
+      "after": {
+        "english": "two; both",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 698,
+      "entry_id": "U+4EBA_U+9858_00",
+      "hanri": "人願",
+      "reading": "띤꽌5",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "person; people",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "insufficient_whole_word_evidence",
+      "reason": "Existing person/people gloss does not establish the whole expression; an intended meaning or sentence is needed.",
+      "after": {
+        "english": "person; people",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 930,
+      "entry_id": "U+5317_U+9670_U+9146_U+90FD_00",
+      "hanri": "北陰酆都",
+      "reading": "박1임5헝5더1",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "north; yin; cloudy; hidden; all",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "uncertain_referent",
+      "reason": "Religious references attest a related deity title; this shortened entry does not identify whether a deity/title or place is intended.",
+      "after": {
+        "english": "north; yin; cloudy; hidden; all",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 1173,
+      "entry_id": "U+7C73_U+7C89_U+7CBF_00",
+      "hanri": "米粉粿",
+      "reading": "삐1훈1궤2",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "bee hoon kueh",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "food_identity",
+      "reason": "Existing bee hoon kueh label leaves rice-flour food versus wheat-flour mee hoon kueh unresolved; confirm the dish.",
+      "after": {
+        "english": "bee hoon kueh",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 1309,
+      "entry_id": "U+87EE_00",
+      "hanri": "蟮",
+      "reading": "셴5",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "bound_component_user_decision",
+      "reason": "Earlier user review identified this as a bound component of 蟮蟲, not a standalone gecko word; preserve the blank semantic fields.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 1487,
+      "entry_id": "U+5FC3_U+72C2_00",
+      "hanri": "心狂",
+      "reading": "심5겅4",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "mind losing",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "multiple_senses",
+      "reason": "Existing mind losing gloss does not distinguish panic/agitation, anger, or mental derangement; compound examples do not settle this standalone entry.",
+      "after": {
+        "english": "mind losing",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2389,
+      "entry_id": "U+60BF_00",
+      "hanri": "悿",
+      "reading": "턈2",
+      "entry_type": "lexical",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "filled",
+      "reason_group": "direct_dictionary_attestation",
+      "reason": "MOE 忝 thiám lists 悿 as an alternate spelling and defines fatigue and severity. Existing 턈2 spelling and tone are compatible; no reading or headword change.",
+      "after": {
+        "english": "tired; exhausted; severe (in degree)",
+        "mandarin_trad": "疲累; 慘重; 嚴重",
+        "mandarin_simp": "疲累; 惨重; 严重"
+      },
+      "sources": [
+        "https://sutian.moe.edu.tw/zh-hant/su/3879/"
+      ]
+    },
+    {
+      "line": 2732,
+      "entry_id": "U+0030_00",
+      "hanri": "0",
+      "reading": "0",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2733,
+      "entry_id": "U+0031_00",
+      "hanri": "1",
+      "reading": "1",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2734,
+      "entry_id": "U+0032_00",
+      "hanri": "2",
+      "reading": "2",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2735,
+      "entry_id": "U+0033_00",
+      "hanri": "3",
+      "reading": "3",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2736,
+      "entry_id": "U+0034_00",
+      "hanri": "4",
+      "reading": "4",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2737,
+      "entry_id": "U+0035_00",
+      "hanri": "5",
+      "reading": "5",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2738,
+      "entry_id": "U+0036_00",
+      "hanri": "6",
+      "reading": "6",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2739,
+      "entry_id": "U+0037_00",
+      "hanri": "7",
+      "reading": "7",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2740,
+      "entry_id": "U+0038_00",
+      "hanri": "8",
+      "reading": "8",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    },
+    {
+      "line": 2741,
+      "entry_id": "U+0039_00",
+      "hanri": "9",
+      "reading": "9",
+      "entry_type": "number_pronunciation",
+      "empty_fields_before": [
+        "english",
+        "mandarin_trad",
+        "mandarin_simp"
+      ],
+      "before": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      },
+      "status": "unchanged",
+      "reason_group": "input_only_numeral",
+      "reason": "Pronunciation-routing row for a digit; intentionally not a lexical translation entry.",
+      "after": {
+        "english": "",
+        "mandarin_trad": "",
+        "mandarin_simp": ""
+      }
+    }
+  ]
+}
