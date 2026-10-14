@@ -22,6 +22,7 @@ from dictionary_schema import (
     resolve_dictionary_record,
     is_comment_record,
     require_dictionary_header,
+    load_headword_aliases,
 )
 from validate_dictionary_tsv import validate_registry
 from simplified_lookup import simplified_field_errors
@@ -321,6 +322,7 @@ def build_dictionary(
     source_bytes = tsv_path.read_bytes()
     registry_path = registry_path or tsv_path.with_name("dictionary_entry_id_registry.tsv")
     category_labels, category_memberships = load_categories(category_path, read_records(tsv_path))
+    headword_aliases = load_headword_aliases(tsv_path, read_records(tsv_path))
 
     entries: list[dict[str, Any]] = []
     skipped_rows: list[dict[str, Any]] = []
@@ -435,6 +437,9 @@ def build_dictionary(
             }
             if corrected:
                 entry["correctedFrom"] = reading
+            aliases = [alias for alias, target in headword_aliases.items() if target == entry_id]
+            if aliases:
+                entry["headwordAliases"] = aliases
             if skip_reason:
                 entry["skipReason"] = skip_reason
 
@@ -480,6 +485,8 @@ def build_dictionary(
                 raise ValueError(f'Ambiguous correction target for {hanri!r} / {reading!r}: '
                                  + ', '.join(entry['id'] for entry in canonical))
             for alias in aliases:
+                if canonical:
+                    canonical[0].setdefault('readingAliases', []).append(source_reading.rstrip('*'))
                 correction_aliases.append({
                     "aliasId": alias["id"],
                     "canonicalId": canonical[0]["id"] if canonical else None,
@@ -606,6 +613,7 @@ def build_dictionary(
         "source": str(tsv_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "sourceBytes": len(source_bytes),
         "sourceSha256": file_sha256(tsv_path),
+        "headwordAliasesSourceSha256": file_sha256(tsv_path.with_name('dictionary_redirects.tsv')) if tsv_path.with_name('dictionary_redirects.tsv').exists() else None,
         "idRegistrySource": str(registry_path.relative_to(REPO_ROOT)).replace("\\", "/"),
         "idRegistrySourceSha256": file_sha256(registry_path),
         "categorySource": str(category_path.relative_to(REPO_ROOT)).replace("\\", "/"),

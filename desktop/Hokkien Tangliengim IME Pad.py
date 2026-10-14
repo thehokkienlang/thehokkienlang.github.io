@@ -1501,6 +1501,11 @@ def load_hanri_dict(tsv_path: Path | None = None) -> dict[str, list[dict]]:
                         })
 
         ranking = dictionary_ranking_api()
+        aliases = dictionary_schema_api().load_headword_aliases(tsv_path, ranking.read_records(tsv_path))
+        for values in entries.values():
+            for entry in values:
+                if not entry.get('auto_sandhi'):
+                    entry['headwordAliases'] = [key for key, target in aliases.items() if target == entry['entry_id']]
         ranking.annotate_entries([e for values in entries.values() for e in values],
                                  tsv_path.with_name('dictionary_priority.tsv'), ranking.read_records(tsv_path))
         loaded: dict[str, list[dict]] = {}
@@ -2188,6 +2193,8 @@ def build_hanri_candidate_tests(hanri_dict: dict) -> tuple[list[tuple[str, str, 
     for base_reading, entries in hanri_dict.items():
         exact_tests.append((base_reading, base_reading, entries))
         for entry in entries:
+            for alias in entry.get('headwordAliases', []):
+                exact_tests.append((alias, base_reading, [entry]))
             written = entry.get('reading', base_reading)
             if written != base_reading:
                 exact_tests.append((written, base_reading, entries))
@@ -3606,7 +3613,7 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
         hanri_match = static_audio_hanri_match(source, i)
         if hanri_match:
             key, reading = hanri_match
-            run_parts.append((reading, True, True, post_apostrophe_force_tone3, False))
+            run_parts.append((mark_untoned_audio_units(reading), True, True, post_apostrophe_force_tone3, False))
             i += len(key)
             continue
 
@@ -10118,7 +10125,7 @@ class HokkienIMEPad:
                 continue
 
             hanri_raw = entry['hanri']
-            commit_reading_value = entry.get('citation_reading', reading_value) if entry.get('auto_sandhi') else reading_value
+            commit_reading_value = entry.get('citation_reading', reading_value) if entry.get('auto_sandhi') else entry_audio_reading(entry, base_reading)
             commit_auto_sandhi = bool(entry.get('auto_sandhi') and not entry.get('citation_reading'))
             variants = tone_variants(hanri_raw)
 

@@ -16,6 +16,7 @@ from dictionary_schema import (
     valid_entry_id,
     is_comment_row,
     resolve_dictionary_record,
+    load_headword_aliases,
 )
 from tangliengim_collation import ENTRY_TYPE_ORDER, out_of_order_pairs
 from simplified_lookup import simplified_field_errors
@@ -202,6 +203,7 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
     if not errors:
         try:
             load_priority(path.with_name('dictionary_priority.tsv'), data_rows)
+            load_headword_aliases(path, data_rows)
         except (ValueError, UnicodeError, csv.Error) as exc:
             errors.append(str(exc))
     if not errors:

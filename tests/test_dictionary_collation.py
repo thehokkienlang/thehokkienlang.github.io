@@ -204,6 +204,7 @@ class CollationTests(unittest.TestCase):
         with (ROOT / "data/dictionary_entry_id_registry.tsv").open(encoding="utf-8", newline="") as handle:
             registry = list(csv.DictReader(handle, delimiter="\t"))
         self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | {
+            'U+7C73_U+7C89_U+7CBF_00',  # Retired 米粉粿; spelling redirect preserves lookup.
             "U+B990_U+D638_01", "U+B990_U+D638_00", "U+B098_00", "U+B3C4_U+C704_00",
         })
         for record in registry:

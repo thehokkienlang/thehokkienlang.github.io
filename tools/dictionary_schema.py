@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import re
+import csv
 import unicodedata
 from urllib.parse import quote
 
@@ -24,6 +25,33 @@ DICTIONARY_COLUMNS = (
 )
 DITTO = "〃"
 INHERITED_FIELDS = {"simplified": "hanri", "mandarin_trad": "hanri", "mandarin_simp": "mandarin_trad"}
+REDIRECT_COLUMNS = ['kind', 'source', 'source_reading', 'target_entry_id', 'reason', 'sources', 'date']
+
+
+def load_headword_aliases(tsv_path, records):
+    """Resolve spelling aliases to existing lexical IDs, never new candidates."""
+    path = tsv_path.with_name("dictionary_redirects.tsv")
+    if not path.exists():
+        return {}
+    targets = {r['entry_id']: r for r in records if r.get('entry_type') == 'lexical'}
+    headwords = {r['hanri'] for r in records}
+    aliases = {}
+    with path.open(encoding='utf-8', newline='') as stream:
+        reader = csv.DictReader(stream, delimiter='\t')
+        if reader.fieldnames != REDIRECT_COLUMNS:
+            raise ValueError('Invalid headword alias header')
+        for row in reader:
+            if row['kind'] != 'headword':
+                continue
+            alias, target_id = row['source'], row['target_entry_id']
+            target = targets.get(target_id)
+            if not target or not alias or alias in aliases or alias in headwords:
+                raise ValueError(f'Invalid or ambiguous headword alias: {alias!r}')
+            # Existing segmentation consumers advance by the canonical length.
+            if len(alias) != len(target['hanri']) or not all('\u3400' <= c <= '\u9fff' for c in alias):
+                raise ValueError(f'Headword alias must be equal-length Hanri: {alias!r}')
+            aliases[alias] = target_id
+    return aliases
 
 
 def require_dictionary_header(header) -> tuple[str, ...]:

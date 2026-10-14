@@ -68,6 +68,21 @@ recovery.findCandidates = () => [range(source('U+5E95_00')), range(source('U+5E9
 recovery.renderCandidates();
 assert.equal(recovery.activeCandidateIndex, 1, 'Remembered same-reading records remain independent');
 const aliases = data.correctionAliases || [];
+for (const input of ['米粉粿', '삐훈궤', '삐1훈1궤2', '미훈1궤2']) {
+  const food = controller();
+  food.control.value = input;
+  food.control.setSelectionRange(input.length, input.length);
+  food.unresolvedCandidateContext = food.candidateContextKey();
+  food.renderCandidates();
+  const candidate = food.activeCandidates.find(c => c.entry.hanri === '麵粉粿');
+  assert.ok(candidate, `${input} must offer 麵粉粿`);
+  assert.equal(candidate.entry.reading, '미훈1궤2');
+  assert.ok(!food.activeCandidates.some(c => c.entry.hanri === '米粉粿'));
+  food.applyCandidate(candidate);
+  assert.equal(food.control.value, '麵粉粿', 'Existing candidate commit replaces wrong spelling');
+  assert.equal(food.getRememberedHanriReadings()[0].reading, '미훈1궤2');
+}
+assert.equal(core.createDictionaryIndex(data.entries).findHanriEntry('米粉粿').hanri, '麵粉粿');
 const ids = new Set(data.entries.map(entry => entry.raw.entry_id));
 for (const alias of aliases) {
   assert.ok(ids.has(alias.aliasId) && ids.has(alias.canonicalId), 'Alias relationships target active source IDs');

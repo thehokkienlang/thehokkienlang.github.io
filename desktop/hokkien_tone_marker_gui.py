@@ -1799,6 +1799,9 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
     all_entries = [e for groups in (index,mixed_index,overrides) for values in groups.values() for e in values]
     if all_entries:
         ranking.annotate_entries(all_entries,path.with_name('dictionary_priority.tsv'),ranking.read_records(path))
+        aliases = dictionary_schema_api().load_headword_aliases(path, ranking.read_records(path))
+        for entry in all_entries:
+            entry['headwordAliases'] = [key for key, target in aliases.items() if target == entry['entry_id']]
     for groups in (index,mixed_index):
         for key, entries in groups.items():
             groups[key] = ranking.rank_entries(entries,key)

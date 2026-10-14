@@ -177,6 +177,13 @@ async function loadApp(route, script) {
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
   assert.ok(vm.runInContext(`(() => {
+    return ['米粉粿', '麵粉粿', '面粉粿', '삐1훈1궤2', '삐훈궤'].every(query => {
+      searchInput.value = query;
+      const groups = searchGroups().shown;
+      return groups.some(group => group.hanri === '麵粉粿') && !groups.some(group => group.hanri === '米粉粿');
+    });
+  })()`, dictionary.context), 'Food spelling aliases must display 麵粉粿');
+  assert.ok(vm.runInContext(`(() => {
     const groups = state.groups.filter(group => group.search.simplified);
     return groups.length > 2500 && groups.every(group =>
       scoreGroup(group, [group.search.simplified], 'lomari') > 0
@@ -1084,7 +1091,7 @@ async function loadApp(route, script) {
   for (const [word, taipei, singapore] of [
     ['\u7e3d\u7d71', '1,2', '4,2'],
     ['\u7e3d\u7763', '1,3', '4,3'],
-    ['\u7c73\u7c89\u7cbf', null, '5,4,2'],
+    ['麵粉粿', '3,1,2', '3,4,2'],
   ]) {
     assert.ok(data.entries.some(entry => entry.hanri === word), `Missing sandhi fixture: ${word}`);
     for (const [mode, expected] of [['taipei', taipei], ['singapore', singapore]]) {

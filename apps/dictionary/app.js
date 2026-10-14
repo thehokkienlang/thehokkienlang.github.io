@@ -111,8 +111,10 @@ function groupEntries(entries) {
       ImeCore.compareCanonicalEntries(a,b)
     );
     group.categories = [...new Set(group.readings.flatMap((item) => item.categories || []))];
-    group.search.reading = normalizeText(group.readings.map((item) => item.reading).join(" "));
-    group.search.readingBase = normalizeText(group.readings.map((item) => item.readingBase).join(" "));
+    group.search.reading = normalizeText(group.readings.flatMap((item) => [item.reading, ...(item.readingAliases || [])]).join(" "));
+    group.search.headwordAliases = normalizeText(group.readings.flatMap((item) => item.headwordAliases || []).join(" "));
+    group.search.readingBase = normalizeText(group.readings.flatMap((item) => [item.readingBase,
+      ...(item.readingAliases || []).map(value => TangliengimHangulIme.normalizeReadingBase(value))]).join(" "));
     group.search.lomari = normalizeText(group.readings.map((item) => item.lomari).join(" "));
     group.search.lomariAliases = normalizeLomariSearchAliases(group.readings.map((item) => item.lomari).join(" "));
     group.search.english = normalizeEnglishSearch(group.readings.map((item) => item.english || "").join(" "));
@@ -120,6 +122,7 @@ function groupEntries(entries) {
     group.search.mandarinSimp = normalizeText(group.readings.map((item) => item.mandarin_simp || "").join(" "));
     group.search.all = [
       group.search.hanri,
+      group.search.headwordAliases,
       group.search.simplified,
       group.search.simplifiedRaw,
       group.search.mandarinTrad,
@@ -151,6 +154,7 @@ function scoreGroup(group, queries, mode) {
 
   const fields = [
     { name: "hanri", boost: mode === "hanri-hangul" ? 6 : 0 },
+    { name: "headwordAliases", boost: 6 },
     { name: "simplified", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "simplifiedRaw", boost: mode === "hanri-hangul" ? 6 : 0 },
     { name: "mandarinTrad", boost: 0 },

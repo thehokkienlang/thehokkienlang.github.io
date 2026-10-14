@@ -877,6 +877,7 @@ const TangliengimImeCore = (() => {
         entry.readingBase,
         entry.reading,
         entry.raw?.reading,
+        ...(!entry.autoSandhi ? entry.headwordAliases || [] : []),
       ].map((value) => normalizeText(TangliengimHangulIme.normalizeReadingBase(value)));
 
       for (const key of new Set(readingKeys.filter(Boolean))) {
@@ -928,7 +929,8 @@ const TangliengimImeCore = (() => {
     }
 
     const compatible = candidates.filter((entry) =>
-      typedTonesAreCompatibleWithEntry(typedForm, entry.reading || entry.readingBase)
+      typedTonesAreCompatibleWithEntry(typedForm, entry.reading || entry.readingBase) ||
+      (entry.correctedFrom && typedTonesAreCompatibleWithEntry(typedForm, entry.correctedFrom))
     );
     if (compatible.length) return compatible;
 
@@ -963,9 +965,11 @@ const TangliengimImeCore = (() => {
 
     for (const entry of hanriEntries) {
       if (entry.kind !== "plain_hanri") continue;
-      const first = String.fromCodePoint(entry.hanri.codePointAt(0));
-      if (!plainHanriByFirst.has(first)) plainHanriByFirst.set(first, []);
-      plainHanriByFirst.get(first).push(entry);
+      for (const key of [entry.hanri, ...(entry.headwordAliases || [])]) {
+        const first = String.fromCodePoint(key.codePointAt(0));
+        if (!plainHanriByFirst.has(first)) plainHanriByFirst.set(first, []);
+        plainHanriByFirst.get(first).push({ key, entry });
+      }
     }
 
     function addExactReading(key, entry) {
@@ -1020,8 +1024,7 @@ const TangliengimImeCore = (() => {
 
         const choices = [];
         const currentChar = String.fromCodePoint(text.codePointAt(position));
-        for (const entry of plainHanriByFirst.get(currentChar) || []) {
-          const key = String(entry.hanri || "");
+        for (const { key, entry } of plainHanriByFirst.get(currentChar) || []) {
           if (!key || !text.startsWith(key, position) || position + key.length > runEnd) continue;
           const rest = bestAt(position + key.length);
           const candidate = {
@@ -1105,7 +1108,7 @@ const TangliengimImeCore = (() => {
 
   function isImeCandidateChar(char) {
     if (!char) return false;
-    return /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ12345]/u.test(char);
+    return isHanriChar(char) || /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ12345]/u.test(char);
   }
 
   function candidateReplacementStart(text, start, replacement) {
@@ -2033,7 +2036,7 @@ const TangliengimImeCore = (() => {
             length: suffix.length,
           });
         }
-        if (!exactHangulOverride) {
+        if (!exactHangulOverride && ![...suffix].some(isHanriChar)) {
           found.push({
             entry: {
               hanri: key ? readingBase : suffix,

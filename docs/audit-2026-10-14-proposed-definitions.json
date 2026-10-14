@@ -1,0 +1,173 @@
+{
+  "changes": [
+    {
+      "before": {
+        "hanri": "挭",
+        "simplified": "〃",
+        "reading": "곙5",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "block; choke",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+632D_00"
+      },
+      "after": {
+        "hanri": "挭",
+        "simplified": "〃",
+        "reading": "곙5",
+        "mandarin_trad": "撐住; 支撐; 支助",
+        "mandarin_simp": "撑住; 支撑; 支助",
+        "english": "prop up; brace; support",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+632D_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "獄城",
+        "simplified": "狱城",
+        "reading": "꼑샬4",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "prison; hell; city; wall",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+7344_U+57CE_00"
+      },
+      "after": {
+        "hanri": "獄城",
+        "simplified": "狱城",
+        "reading": "꼑샬4",
+        "mandarin_trad": "監獄城; 地獄之城",
+        "mandarin_simp": "监狱城; 地狱之城",
+        "english": "prison fortress; infernal city",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+7344_U+57CE_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "兩角",
+        "simplified": "两角",
+        "reading": "능각",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "two; both",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5169_U+89D2_00"
+      },
+      "after": {
+        "hanri": "兩角",
+        "simplified": "两角",
+        "reading": "능각",
+        "mandarin_trad": "兩角錢; 0.2元",
+        "mandarin_simp": "两角钱; 0.2元",
+        "english": "twenty cents; two tenths of a monetary unit",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5169_U+89D2_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "人願",
+        "simplified": "人愿",
+        "reading": "띤꽌5",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "person; people",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+4EBA_U+9858_00"
+      },
+      "after": {
+        "hanri": "人願",
+        "simplified": "人愿",
+        "reading": "띤꽌5",
+        "mandarin_trad": "人的心願; 願望",
+        "mandarin_simp": "人的心愿; 愿望",
+        "english": "a person's wishes; human aspirations",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+4EBA_U+9858_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "北陰酆都",
+        "simplified": "北阴酆都",
+        "reading": "박1임5헝5더1",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "north; yin; cloudy; hidden; all",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5317_U+9670_U+9146_U+90FD_00"
+      },
+      "after": {
+        "hanri": "北陰酆都",
+        "simplified": "北阴酆都",
+        "reading": "박1임5헝5더1",
+        "mandarin_trad": "北陰酆都大帝; 道教冥界主宰",
+        "mandarin_simp": "北阴酆都大帝; 道教冥界主宰",
+        "english": "Fengdu Emperor; Taoist ruler of the underworld",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5317_U+9670_U+9146_U+90FD_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "米粉粿",
+        "simplified": "〃",
+        "reading": "삐1훈1궤2",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "bee hoon kueh",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+7C73_U+7C89_U+7CBF_00"
+      },
+      "after": {
+        "hanri": "麵粉粿",
+        "simplified": "面粉粿",
+        "reading": "미훈1궤2",
+        "mandarin_trad": "麵粉粿; 手撕麵片",
+        "mandarin_simp": "面粉粿; 手撕面片",
+        "english": "mee hoon kueh; hand-torn wheat-flour noodles",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+9EB5_U+7C89_U+7CBF_00"
+      }
+    },
+    {
+      "before": {
+        "hanri": "心狂",
+        "simplified": "〃",
+        "reading": "심5겅4",
+        "mandarin_trad": "",
+        "mandarin_simp": "",
+        "english": "mind losing",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5FC3_U+72C2_00"
+      },
+      "after": {
+        "hanri": "心狂",
+        "simplified": "〃",
+        "reading": "심5겅4",
+        "mandarin_trad": "心神激動; 狂躁不安",
+        "mandarin_simp": "心神激动; 狂躁不安",
+        "english": "frenzied; intensely agitated",
+        "corrected": "",
+        "entry_type": "lexical",
+        "entry_id": "U+5FC3_U+72C2_00"
+      }
+    }
+  ],
+  "note": "Approved inferred definitions; food renamed and old reading retained as correction_alias. IDs allocated by assign_dictionary_entry_ids."
+}

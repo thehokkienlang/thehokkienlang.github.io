@@ -74,6 +74,7 @@ def main() -> int:
         run(f"JavaScript syntax: {relative}", "node", "--check", relative)
     run("Dictionary TSV schema", sys.executable, "-X", "utf8", "tools/validate_dictionary_tsv.py")
     run("Canonical source order (read-only)", sys.executable, "-X", "utf8", "tools/sort_dictionary_tsv.py", "--check")
+    run("Redirect log coverage and jamo order", sys.executable, "-X", "utf8", "tools/build_redirect_log.py", "--check")
     if args.source_only:
         run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
     else:

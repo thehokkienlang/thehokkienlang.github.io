@@ -165,8 +165,8 @@
         "taipei": {
           "segments": [
             {
-              "unit": "삐",
-              "tone": "1",
+              "unit": "미",
+              "tone": "3",
               "trimStart": false,
               "trimEnd": true,
               "englishClusterHelper": false
@@ -191,8 +191,8 @@
         "singapore": {
           "segments": [
             {
-              "unit": "삐",
-              "tone": "5",
+              "unit": "미",
+              "tone": "3",
               "trimStart": false,
               "trimEnd": true,
               "englishClusterHelper": false

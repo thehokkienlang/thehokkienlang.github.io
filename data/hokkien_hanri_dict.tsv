@@ -212,7 +212,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 經	经	곙1	〃	经	scripture; classic; pass through		lexical	U+7D93_00
 境	〃	곙2	〃	〃	border; situation		lexical	U+5883_00
 揀	拣	곙2	〃	拣	choose		lexical	U+63C0_00
-挭	〃	곙5			block; choke		lexical	U+632D_00
+挭	〃	곙5	撐住; 支撐; 支助	撑住; 支撑; 支助	prop up; brace; support		lexical	U+632D_00
 更加	〃	곙2가1	〃	〃	more; again; add; increase		lexical	U+66F4_U+52A0_00
 經過	经过	곙5궤	〃	经过	scripture; classic; pass through; pass; exceed		lexical	U+7D93_U+904E_00
 經歷	经历	곙5롁1	〃	经历	scripture; classic; pass through		lexical	U+7D93_U+6B77_00
@@ -351,7 +351,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 牙	〃	께4	〃	〃	tooth		lexical	U+7259_00
 藝	艺	께5	〃	艺	art; skill		lexical	U+85DD_00
 藝術	艺术	께숟1	〃	艺术	arts		lexical	U+85DD_U+8853_00
-獄城	狱城	꼑샬4			prison; hell; city; wall		lexical	U+7344_U+57CE_00
+獄城	狱城	꼑샬4	監獄城; 地獄之城	监狱城; 地狱之城	prison fortress; infernal city		lexical	U+7344_U+57CE_00
 諺	谚	꼔5	〃	谚	proverb		lexical	U+8AFA_00
 諺文	谚文	꼔뿐4	〃	谚文	hangul		lexical	U+8AFA_U+6587_00
 癮頭	瘾头	꼔2ᄐᅷ4	傻子	〃	silly head; fool		lexical	U+766E_U+982D_00
@@ -408,7 +408,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 軟	软	능2	〃	软	soft		lexical	U+8EDF_00
 兩	两	능5	〃	两	two; both		lexical	U+5169_00
 卵	〃	능5	〃	〃	egg		lexical	U+5375_00
-兩角	两角	능각			two; both		lexical	U+5169_U+89D2_00
+兩角	两角	능각	兩角錢; 0.2元	两角钱; 0.2元	twenty cents; two tenths of a monetary unit		lexical	U+5169_U+89D2_00
 兩個月	两个月	능고2뀋1	〃	两个月	two months		lexical	U+5169_U+500B_U+6708_00
 卵仁	〃	능띤4	蛋黃	蛋黄	egg		lexical	U+5375_U+4EC1_00
 兩日	两日	능띧1	〃	两日	two days		lexical	U+5169_U+65E5_00
@@ -695,7 +695,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 二十箍	〃	띠잡커1	二十元	〃	twenty dollars		lexical	U+4E8C_U+5341_U+7B8D_00
 人間	人间	띤간1	〃	人间	human world		lexical	U+4EBA_U+9593_00
 人格	〃	띤겧	〃	〃	person; people		lexical	U+4EBA_U+683C_00
-人願	人愿	띤꽌5			person; people		lexical	U+4EBA_U+9858_00
+人願	人愿	띤꽌5	人的心願; 願望	人的心愿; 愿望	a person's wishes; human aspirations		lexical	U+4EBA_U+9858_00
 認同	认同	띤덩4	〃	认同	recognize; admit; same; together		lexical	U+8A8D_U+540C_00
 人民	〃	띤삔4	〃	〃	people		lexical	U+4EBA_U+6C11_00
 人生	〃	띤솅1	〃	〃	life		lexical	U+4EBA_U+751F_00
@@ -916,6 +916,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 麵線	面线	미솰	〃	面线	mee sua; wheat vermicelli		lexical	U+9EB5_U+7DDA_00
 麵線糊	面线糊	미솰2거4	〃	面线糊	mee sua paste		lexical	U+9EB5_U+7DDA_U+7CCA_00
 暝’시	〃	미4’시	晚上	〃	night		lexical	U+669D_U+2019_U+C2DC_01
+麵粉粿	面粉粿	미훈1궤2	麵粉粿; 手撕麵片	面粉粿; 手撕面片	mee hoon kueh; hand-torn wheat-flour noodles		lexical	U+9EB5_U+7C89_U+7CBF_00
 物	〃	밓1	〃	〃	thing		lexical	U+7269_00
 物件	〃	밓걀5	〃	〃	thing		lexical	U+7269_U+4EF6_00
 飽	饱	바2	〃	饱	full; satisfied		lexical	U+98FD_00
@@ -927,7 +928,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 北京	〃	박1걀1	〃	〃	Beijing		lexical	U+5317_U+4EAC_00
 腹肚	〃	박1더2	〃	〃	belly		lexical	U+8179_U+809A_00
 腹內	腹内	박1래5	〃	腹内	inside the belly		lexical	U+8179_U+5167_00
-北陰酆都	北阴酆都	박1임5헝5더1			north; yin; cloudy; hidden; all		lexical	U+5317_U+9670_U+9146_U+90FD_00
+北陰酆都	北阴酆都	박1임5헝5더1	北陰酆都大帝; 道教冥界主宰	北阴酆都大帝; 道教冥界主宰	Fengdu Emperor; Taoist ruler of the underworld		lexical	U+5317_U+9670_U+9146_U+90FD_00
 班	〃	반1	〃	〃	class; shift		lexical	U+73ED_00
 辦公伙	办公伙	반겅5훼2	扮家家酒	〃	playing house		lexical	U+8FA6_U+516C_U+4F19_00
 班機	班机	반5기1	〃	班机	flight		lexical	U+73ED_U+6A5F_00
@@ -1170,7 +1171,6 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 米酒頭	米酒头	삐1쥬1ᄐᅷ4	〃	米酒头	rice; alcohol; wine; head		lexical	U+7C73_U+9152_U+982D_00
 米酒頭仔	米酒头仔	삐1쥬1ᄐᅷ아2	米酒頭	米酒头	rice; alcohol; wine; head; diminutive suffix		lexical	U+7C73_U+9152_U+982D_U+4ED4_00
 米粉	〃	삐1훈2	〃	〃	bee hoon; rice vermicelli		lexical	U+7C73_U+7C89_00
-米粉粿	〃	삐1훈1궤2			bee hoon kueh		lexical	U+7C73_U+7C89_U+7CBF_00
 米粉湯	米粉汤	삐1훈1틍1	〃	米粉汤	rice vermicelli soup		lexical	U+7C73_U+7C89_U+6E6F_00
 民	〃	삔4	〃	〃	people		lexical	U+6C11_00
 眠	〃	삔4	〃	〃	sleep		lexical	U+7720_00
@@ -1484,7 +1484,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 生	〃	실1	〃	〃	life; give birth		lexical	U+751F_01
 性命	〃	실2먀5	〃	〃	life; fate		lexical	U+6027_U+547D_01
 心	〃	심1	〃	〃	heart; mind		lexical	U+5FC3_00
-心狂	〃	심5겅4			mind losing		lexical	U+5FC3_U+72C2_00
+心狂	〃	심5겅4	心神激動; 狂躁不安	心神激动; 狂躁不安	frenzied; intensely agitated		lexical	U+5FC3_U+72C2_00
 心狂火著	心狂火着	심5겅훼1돟1	大發雷霆	大发雷霆	to lose temper and feel rage		lexical	U+5FC3_U+72C2_U+706B_U+8457_00
 心肝	〃	심5괄1	〃	〃	heart; darling		lexical	U+5FC3_U+809D_00
 心中	〃	심5뎡1	〃	〃	in one's heart		lexical	U+5FC3_U+4E2D_00
@@ -2724,6 +2724,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 二十箍	〃	능잡커1*	二十元	〃	twenty dollars	띠잡커1	correction_alias	U+4E8C_U+5341_U+7B8D_01
 兩千箍	两千箍	능쳰5커1*	兩千元	两千元	two thousand dollars	능촁5커1	correction_alias	U+5169_U+5343_U+7B8D_01
 明仔載	明仔载	먀4재*	明天	〃	tomorrow	삔아1재	correction_alias	U+660E_U+4ED4_U+8F09_01
+麵粉粿	面粉粿	삐1훈1궤2*	麵粉粿; 手撕麵片	面粉粿; 手撕面片	mee hoon kueh; hand-torn wheat-flour noodles	미훈1궤2	correction_alias	U+9EB5_U+7C89_U+7CBF_01
 新加坡	〃	신5가5포1*	〃	〃	Singapore	신5가5보1	correction_alias	U+65B0_U+52A0_U+5761_01
 一千箍	〃	짇쳰5커1*	一千元	〃	one thousand dollars	짇촁5커1	correction_alias	U+4E00_U+5343_U+7B8D_01
 千箍	〃	쳰5커1*	千元	〃	thousand; dollar; ring	촁5커1	correction_alias	U+5343_U+7B8D_01

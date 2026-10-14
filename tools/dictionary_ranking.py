@@ -213,10 +213,10 @@ def segment_match(text: str, index: int, entries: list[dict], run_end: int | Non
             return memo[position]
         choices = []
         for entry in entries:
-            word = entry['hanri']
-            if word and text.startswith(word,position) and position+len(word)<=end:
-                rest, _ = best_at(position+len(word))
-                choices.append(((rest[0],rest[1]+1),entry))
+            for word in [entry['hanri'], *entry.get('headwordAliases', [])]:
+                if word and text.startswith(word,position) and position+len(word)<=end:
+                    rest, _ = best_at(position+len(word))
+                    choices.append(((rest[0],rest[1]+1),entry))
         rest, _ = best_at(position+1)
         fallback = ((rest[0]+1,rest[1]+1),None)
         if not choices:

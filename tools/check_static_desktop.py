@@ -48,7 +48,7 @@ def main():
         with copied.open('w',encoding='utf-8',newline='') as stream:
             writer=csv.writer(stream,delimiter='\t',lineterminator='\r\n')
             writer.writerow(rows[0]); writer.writerows(reversed(rows[1:]))
-        for name in ('dictionary_priority.tsv','dictionary_entry_id_registry.tsv'):
+        for name in ('dictionary_priority.tsv','dictionary_entry_id_registry.tsv','dictionary_redirects.tsv'):
             shutil.copyfile(source.with_name(name),copied.with_name(name))
         reordered=pad.load_hanri_dict(copied)
         identity=lambda groups:{key:[e['entry_id'] for e in values] for key,values in groups.items()}

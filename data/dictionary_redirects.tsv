@@ -1,0 +1,12 @@
+kind	source	source_reading	target_entry_id	reason	sources	date
+reading	능잡1	능잡1	U+4E8C_U+5341_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	능잡커1	능잡커1	U+4E8C_U+5341_U+7B8D_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	능쳰5커1	능쳰5커1	U+5169_U+5343_U+7B8D_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	먀4재	먀4재	U+660E_U+4ED4_U+8F09_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+headword	米粉粿	삐1훈1궤2	U+9EB5_U+7C89_U+7CBF_00	Wheat-flour dish: 麵粉粿, not rice-flour 米粉粿.	https://en.wiktionary.org/wiki/麵粉粿 https://www.zaobao.com.sg/lifestyle/food/story20240216-1468240	2026-10-14
+reading	삐1훈1궤2	삐1훈1궤2	U+9EB5_U+7C89_U+7CBF_00	Preserve old bi-hun-kue input; correct to mi-hun-kue.	https://en.wiktionary.org/wiki/麵粉粿 https://www.zaobao.com.sg/lifestyle/food/story20240216-1468240	2026-10-14
+reading	신5가5포1	신5가5포1	U+65B0_U+52A0_U+5761_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	짇쳰5커1	짇쳰5커1	U+4E00_U+5343_U+7B8D_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	쳰5커1	쳰5커1	U+5343_U+7B8D_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	퇀솯	퇀솯	U+50B3_U+8AAA_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
+reading	핀돨5	핀돨5	U+8CA7_U+60F0_00	Existing nonstandard reading correction; original rationale not recorded.	data/hokkien_hanri_dict.tsv	unknown
