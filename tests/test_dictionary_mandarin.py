@@ -115,8 +115,15 @@ class MandarinLookupTests(unittest.TestCase):
             self.assertTrue(resolved['mandarin_trad'])
             self.assertTrue(resolved['mandarin_simp'])
         self.assertIn('U+87EE_00', remaining_ids)
-        self.assertEqual(rows['U+87EE_00']['english'], '')
-        self.assertEqual(rows['U+87EE_00']['mandarin_trad'], '')
+        # Explicit user clarification, 2026-10-14: label the bound character.
+        bound = json.loads((ROOT / 'docs/audit-2026-10-14-empty-definitions.json').read_text(encoding='utf-8'))
+        annotation = next(item for item in bound['rows'] if item['entry_id'] == 'U+87EE_00')
+        self.assertEqual(annotation['reason_group'], 'explicit_user_bound_character_definition')
+        for field, value in annotation['after'].items():
+            self.assertEqual(rows['U+87EE_00'][field], value)
+        self.assertIn('bound character', rows['U+87EE_00']['english'])
+        self.assertIn('not a standalone word', rows['U+87EE_00']['english'])
+        self.assertNotIn('gecko', rows['U+87EE_00']['english'])
         self.assertEqual(resolve_dictionary_record(rows['U+63DE_U+8170_00'])['mandarin_trad'], '彎腰')
         self.assertEqual(resolve_dictionary_record(rows['U+82A1_U+82B3_00'])['mandarin_trad'], '爆香')
 

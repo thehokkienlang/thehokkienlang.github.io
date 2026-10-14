@@ -1,6 +1,6 @@
 # Empty definition follow-up, 14 October 2026
 
-Reviewed 24 entry rows with empty English or Mandarin fields. Filled one row (three fields); preserved 23 rows for the reasons below. The comment row at line 2 is excluded. Physical TSV line numbers refer to this commit; stable IDs are in the JSON manifest.
+Reviewed 24 entry rows with empty English or Mandarin fields. Filled two rows (six fields); preserved 22 rows for the reasons below. The comment row at line 2 is excluded. Physical TSV line numbers refer to this commit; stable IDs are in the JSON manifest.
 
 ## Filled: direct dictionary attestation
 
@@ -9,6 +9,14 @@ Reviewed 24 entry rows with empty English or Mandarin fields. Filled one row (th
 | 2389 | 悿 | 턈2 | tired; exhausted; severe (in degree) | 疲累; 慘重; 嚴重 | 疲累; 惨重; 严重 |
 
 [MOE 忝](https://sutian.moe.edu.tw/zh-hant/su/3879/) explicitly lists 悿 as an alternate spelling. This supports both fatigue and severity; the character, reading and entry identity are preserved.
+
+## Filled: explicit user definition of a bound character
+
+| Line | Entry | English | Mandarin Traditional | Mandarin Simplified |
+| --- | --- | --- | --- | --- |
+| 1309 | 蟮 | bound character (used in 蟮蟲); not a standalone word | 僅用於複詞的字（如蟮蟲），不單獨成詞 | 仅用于复词的字（如蟮虫），不单独成词 |
+
+The user explicitly requested this annotation on 14 October 2026. This identifies the character’s bound status without assigning the whole compound’s gecko meaning to a standalone word.
 
 ## Unchanged: grouped by reason
 
@@ -53,12 +61,6 @@ Reviewed 24 entry rows with empty English or Mandarin fields. Filled one row (th
 | Line | Entry | Reading | Reason |
 | --- | --- | --- | --- |
 | 1173 | 米粉粿 | 삐1훈1궤2 | Existing bee hoon kueh label leaves rice-flour food versus wheat-flour mee hoon kueh unresolved; confirm the dish. |
-
-### Bound component user decision
-
-| Line | Entry | Reading | Reason |
-| --- | --- | --- | --- |
-| 1309 | 蟮 | 셴5 | Earlier user review identified this as a bound component of 蟮蟲, not a standalone gecko word; preserve the blank semantic fields. |
 
 ### Input only numeral
 

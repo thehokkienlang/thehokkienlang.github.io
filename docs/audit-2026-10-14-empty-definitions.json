@@ -4,9 +4,9 @@
   "scope": "Blank English and Mandarin definition fields only; prior populated fields, readings, headwords, IDs and entry types preserved. Tasks 1, 4 and new tests in task 5 remain paused. Deployment authorized.",
   "counts": {
     "reviewed_entry_rows": 24,
-    "filled_entry_rows": 1,
-    "new_field_values": 3,
-    "unchanged_entry_rows": 23,
+    "filled_entry_rows": 2,
+    "new_field_values": 6,
+    "unchanged_entry_rows": 22,
     "comment_rows_excluded": 1
   },
   "rows": [
@@ -295,14 +295,17 @@
         "mandarin_trad": "",
         "mandarin_simp": ""
       },
-      "status": "unchanged",
-      "reason_group": "bound_component_user_decision",
-      "reason": "Earlier user review identified this as a bound component of 蟮蟲, not a standalone gecko word; preserve the blank semantic fields.",
+      "status": "filled",
+      "reason_group": "explicit_user_bound_character_definition",
+      "reason": "User explicitly instructed: define 蟮 by stating clearly it is a bound character. Label its role in 蟮蟲 without assigning a standalone gecko sense.",
       "after": {
-        "english": "",
-        "mandarin_trad": "",
-        "mandarin_simp": ""
-      }
+        "english": "bound character (used in 蟮蟲); not a standalone word",
+        "mandarin_trad": "僅用於複詞的字（如蟮蟲），不單獨成詞",
+        "mandarin_simp": "仅用于复词的字（如蟮虫），不单独成词"
+      },
+      "sources": [
+        "User instruction, 14 October 2026"
+      ]
     },
     {
       "line": 1487,
