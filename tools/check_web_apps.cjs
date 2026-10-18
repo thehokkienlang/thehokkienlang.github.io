@@ -69,6 +69,24 @@ async function loadApp(route, script) {
   assert.ok(vm.runInContext(`${controllerName}.candidatesByReading.size > 0`, context));
   assert.ok(vm.runInContext('typeof TangliengimImeCore.createCandidatePopupPositioner === "function"', context));
   assert.ok(vm.runInContext('typeof TangliengimWebAudio.createPlayer === "function"', context));
+  if (route === 'ime') {
+    const hints = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../tests/fixtures/keyboard-romanisation-hints.json'), 'utf8'));
+    for (const [key, expected] of Object.entries(hints)) {
+      const actual = vm.runInContext(`(() => {
+        guideShifted = false;
+        const normal = phoneticCore.keyboardGuideRomanisation(guideOutputForKey(${JSON.stringify(key)}));
+        guideShifted = true;
+        const shifted = phoneticCore.keyboardGuideRomanisation(guideOutputForKey(${JSON.stringify(key)}));
+        guideShifted = false;
+        return [normal, shifted];
+      })()`, context);
+      assert.deepEqual(Array.from(actual), expected, `Keyboard romanisation: ${key}`);
+    }
+    assert.equal(vm.runInContext('keyboardRomanisationHints.checked === true', context), false);
+    for (const key of ['1', '2', '4', '5', 'Space', 'Shift', 'Backspace', '’']) {
+      assert.equal(vm.runInContext(`phoneticCore.keyboardGuideRomanisation(guideOutputForKey(${JSON.stringify(key)}))`, context), '');
+    }
+  }
   assert.ok(vm.runInContext(`(() => {
     const index = TangliengimImeCore.createDictionaryIndex(state.entries);
     const kah = state.entries.find(entry => entry.id === 'U+5FA6_00');

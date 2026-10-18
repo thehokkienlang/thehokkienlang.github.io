@@ -37,6 +37,22 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
 
     source = "[德國뎩걱] 뎩"
     pad = pad_module.HokkienIMEPad.__new__(pad_module.HokkienIMEPad)
+    from types import SimpleNamespace
+    hints = json.loads((ROOT / 'tests/fixtures/keyboard-romanisation-hints.json').read_text(encoding='utf-8'))
+    pad.input_mode = SimpleNamespace(get=lambda: 'hangul')
+    for key, expected in hints.items():
+        pad.keyboard_help_shifted = False
+        normal = pad.keyboard_guide_romanisation_hint(key)
+        pad.keyboard_help_shifted = True
+        shifted = pad.keyboard_guide_romanisation_hint(key)
+        assert [normal, shifted] == expected, (key, normal, shifted)
+    pad.keyboard_help_shifted = False
+    for key in ['1', '2', '4', '5', 'Space', 'Shift', 'Backspace', '’']:
+        assert pad.keyboard_guide_romanisation_hint(key) == '', key
+    for mode in ['lomari', 'bopomofo']:
+        pad.input_mode = SimpleNamespace(get=lambda: mode)
+        assert all(pad.keyboard_guide_romanisation_hint(key) == '' for key in hints)
+    pad.input_mode = SimpleNamespace(get=lambda: 'hangul')
     pad.composer = pad_module.Composer(output=source, cursor_pos=len(source))
     pad.hanri_instance_readings = []
     pad.hanri_instance_text_snapshot = source

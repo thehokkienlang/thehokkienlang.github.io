@@ -201,6 +201,15 @@ const TangliengimPhoneticOutput = (() => {
     return text;
   }
 
+  function keyboardGuideRomanisation(unit) {
+    const text = String(unit || "");
+    if (text === "\u3147") return "-ng";
+    if (text === "\u3186") return "ng-";
+    if (text === "\u3161") return "\u2205";
+    if (text in COMPAT_INITIAL || text in COMPAT_MEDIAL) return romanizeUnit(text);
+    return "";
+  }
+
   function readingUnitAt(text, index, imeCore) {
     if (text[index] === "\u115f" && text[index + 1] in MEDIAL_ROMAN) {
       return { text: text.slice(index, index + 2), end: index + 2, canCarryTone: true };
@@ -829,7 +838,7 @@ const TangliengimPhoneticOutput = (() => {
     return { plan };
   }
 
-  return { applyTone, canonicalizeAudioUnit, createAudioPlanner, createRenderer, romanizeUnit };
+  return { applyTone, canonicalizeAudioUnit, createAudioPlanner, createRenderer, keyboardGuideRomanisation, romanizeUnit };
 })();
 
 window.TangliengimPhoneticOutput = TangliengimPhoneticOutput;

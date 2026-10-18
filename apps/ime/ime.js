@@ -15,6 +15,8 @@ const textWrap = document.querySelector(".text-wrap");
 const keyboardGuideButton = document.querySelector("#keyboardGuideButton");
 const keyboardGuide = document.querySelector("#keyboardGuide");
 const keyboardLayout = document.querySelector("#keyboardLayout");
+const keyboardGuideOptions = document.querySelector("#keyboardGuideOptions");
+const keyboardRomanisationHints = document.querySelector("#keyboardRomanisationHints");
 const pad = document.querySelector(".pad");
 
 const browserNavigator = typeof navigator === "undefined" ? {} : navigator;
@@ -76,6 +78,7 @@ const audioPlanner = phoneticCore.createAudioPlanner({
 const audioPlayer = webAudio.createPlayer();
 const guideButtons = new Map();
 let guideShifted = false;
+let guideHintsRestoreFocus = false;
 
 const GUIDE_ROWS = [
   ["1", "2", "4", "5", "Backspace"],
@@ -110,10 +113,12 @@ function refreshGuideKey(key) {
   button.classList.toggle("modifier-active", key === "Shift" && guideShifted);
   const input = button.querySelector?.(".key-input");
   const output = button.querySelector?.(".key-output");
+  const romanisation = button.querySelector?.(".key-romanisation");
   if (input && key.length === 1 && /[a-z]/i.test(key)) {
     input.textContent = guideInputForKey(key);
   }
   if (output) output.textContent = guideOutputForKey(key);
+  if (romanisation) romanisation.textContent = phoneticCore.keyboardGuideRomanisation(guideOutputForKey(key));
 }
 
 function refreshGuideShiftState() {
@@ -167,6 +172,13 @@ function makeGuideKey(key) {
     output.className = "key-output";
     output.textContent = guideOutputForKey(key);
     button.append(input, output);
+    if (/^[a-z]$/i.test(key)) {
+      const romanisation = document.createElement("span");
+      romanisation.className = "key-romanisation";
+      romanisation.setAttribute("aria-hidden", "true");
+      romanisation.textContent = phoneticCore.keyboardGuideRomanisation(guideOutputForKey(key));
+      button.append(romanisation);
+    }
   }
   button.addEventListener("mousedown", (event) => event.preventDefault());
   button.addEventListener("pointerdown", () => setGuidePressed(key, true));
@@ -184,7 +196,9 @@ function renderKeyboardGuide() {
     row.className = "keyboard-row";
     if (keys.includes("Backspace")) row.classList.add("keyboard-row-top-controls");
     if (keys.includes("Shift")) row.classList.add("keyboard-row-bottom");
+    if (keys.includes("Space")) row.classList.add("keyboard-row-space");
     for (const key of keys) row.append(makeGuideKey(key));
+    if (keys.includes("Space")) row.append(keyboardGuideOptions);
     keyboardLayout.append(row);
   }
 }
@@ -386,6 +400,16 @@ copyButton.addEventListener("click", async () => {
 });
 
 audioButton.addEventListener("click", playPadAudio);
+keyboardGuideOptions.addEventListener("mousedown", (event) => {
+  guideHintsRestoreFocus = document.activeElement === imeText;
+  event.preventDefault();
+});
+keyboardRomanisationHints.addEventListener("keydown", () => { guideHintsRestoreFocus = false; });
+keyboardRomanisationHints.addEventListener("change", () => {
+  keyboardLayout.classList.toggle("romanisation-hints", keyboardRomanisationHints.checked);
+  if (guideHintsRestoreFocus) imeText.focus({ preventScroll: true });
+  guideHintsRestoreFocus = false;
+});
 taipeiButton.addEventListener("click", () => setSandhiMode("taipei"));
 singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
 

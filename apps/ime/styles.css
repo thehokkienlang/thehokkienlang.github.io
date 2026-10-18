@@ -428,12 +428,134 @@ h1 {
   line-height: 1;
 }
 
+.keyboard-key:not(.tone-key) .key-input {
+  color: #aab3bd;
+}
+
+.tone-key .key-input {
+  color: #aab3bd;
+}
+
 .key-output {
   align-self: start;
   margin-top: -1px;
   font-family: "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif;
   font-size: 1.12rem;
   line-height: 1;
+}
+
+.keyboard-layout:not(.romanisation-hints) .keyboard-key:not(.tone-key) .key-output {
+  transform: translateY(1px);
+}
+
+.tone-key .key-output {
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-size: 1.5rem;
+  transform: translateY(4px);
+}
+
+.keyboard-row-space {
+  position: relative;
+  width: 534px;
+}
+
+.keyboard-guide-options {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  color: #46566a;
+  font-size: 0.75rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.keyboard-guide-options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  opacity: 0;
+}
+
+.guide-mode-switch {
+  position: relative;
+  width: 34px;
+  height: 20px;
+  flex: 0 0 34px;
+  border-radius: 10px;
+  background: #cbd0d7;
+  transition: background-color 160ms ease;
+}
+
+.guide-mode-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 1px 2px #00000026;
+  transition: transform 160ms ease;
+}
+
+.keyboard-guide-options input:checked + .guide-mode-switch {
+  background: #34c759;
+}
+
+.keyboard-guide-options input:checked + .guide-mode-switch::after {
+  transform: translateX(14px);
+}
+
+.keyboard-guide-options input:focus-visible + .guide-mode-switch {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .guide-mode-switch,
+  .guide-mode-switch::after {
+    transition: none;
+  }
+}
+
+.key-romanisation {
+  display: none;
+  pointer-events: none;
+}
+
+.romanisation-hints .key-romanisation {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  color: #202124;
+  font-size: 0.9375rem;
+  line-height: 1;
+  text-align: center;
+  transform: translateY(1.5px);
+}
+
+.romanisation-hints .keyboard-key:not(.tone-key) .key-output {
+  position: absolute;
+  top: 3px;
+  right: 4px;
+  margin: 0;
+  color: #46566a;
+  font-size: 0.875rem;
+}
+
+.romanisation-hints .keyboard-key:not(.tone-key) .key-input {
+  position: absolute;
+  top: 3px;
+  left: 4px;
+  margin: 0;
 }
 
 .control-key {

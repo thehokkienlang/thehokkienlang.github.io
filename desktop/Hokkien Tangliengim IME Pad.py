@@ -238,6 +238,7 @@ UI_TEXT = {
         'keyboard_guide_closed': 'Keyboard guide ▼',
         'keyboard_guide_open': 'Keyboard guide ▲',
         'keyboard_guide_title': 'Keyboard guide',
+        'keyboard_romanisation_hints': 'Lomari mode',
         'clear_text': 'Clear text',
         'copy_text': 'Copy text',
         'copy_html': 'Copy current text as HTML',
@@ -322,6 +323,7 @@ UI_TEXT = {
         'keyboard_guide_closed': '鍵盤初學 ▼',
         'keyboard_guide_open': '鍵盤初學 ▲',
         'keyboard_guide_title': '鍵盤初學',
+        'keyboard_romanisation_hints': '羅馬字模式',
         'clear_text': '清除文字',
         'copy_text': '複製文字',
         'copy_html': '複製為 HTML',
@@ -6920,6 +6922,7 @@ class HokkienIMEPad:
         self.keyboard_help_shifted = False
         self.keyboard_help_ctrled = False
         self.keyboard_guide_pressed_keys = set()
+        self.keyboard_romanisation_hints = tk.BooleanVar(value=False)
         self.keyboard_guide_keycaps = {}
         self.keyboard_help_panel = None
         self.keyboard_help_popup_content = None
@@ -8291,6 +8294,41 @@ class HokkienIMEPad:
                 row_frame.place(relx=0.5, rely=0.5, anchor='center')
                 hint_width = max(120, (full_row_width - self.keyboard_guide_row_width(row)) // 2 - 10)
                 self.add_lomari_keyboard_inline_hint(row_container, bg, muted, hint_width)
+            elif row == ['Space'] and self.input_mode.get() == 'hangul':
+                row_container = tk.Frame(keyboard, bg=bg, width=full_row_width, height=26)
+                row_container.pack(anchor='center', pady=(4, 0))
+                row_container.pack_propagate(False)
+                row_frame = tk.Frame(row_container, bg=bg)
+                row_frame.place(relx=0.5, rely=0.5, anchor='center')
+                option = tk.Frame(row_container, bg=bg)
+                option.place(relx=1.0, rely=0.5, anchor='e')
+                label = tk.Label(option, text=self.tr('keyboard_romanisation_hints'),
+                                 font=self.ui_font_tuple(8), bg=bg, fg=muted, cursor='hand2')
+                label.pack(side='left', padx=(0, 5))
+                switch = tk.Canvas(option, width=36, height=22, bg=bg, bd=0,
+                                   highlightthickness=1, highlightbackground=bg,
+                                   highlightcolor='#1d70d7', takefocus=True, cursor='hand2')
+                switch.pack(side='left')
+
+                def paint_switch():
+                    enabled = self.keyboard_romanisation_hints.get()
+                    switch.delete('all')
+                    switch.create_line(11, 11, 25, 11, width=20, capstyle=tk.ROUND,
+                                       fill='#34c759' if enabled else '#cbd0d7')
+                    center = 25 if enabled else 11
+                    switch.create_oval(center - 8, 3, center + 8, 19, fill='#ffffff', outline='')
+
+                def toggle_switch(_event):
+                    self.keyboard_romanisation_hints.set(not self.keyboard_romanisation_hints.get())
+                    self.refresh_keyboard_guide_romanisation()
+                    paint_switch()
+                    return 'break'
+
+                for widget in (label, switch):
+                    widget.bind('<Button-1>', toggle_switch)
+                switch.bind('<space>', toggle_switch)
+                switch.bind('<Return>', toggle_switch)
+                paint_switch()
             else:
                 row_frame = tk.Frame(keyboard, bg=bg)
                 row_frame.pack(anchor='center', pady=(0, 6) if row_index < len(rows) - 1 else (4, 0))
@@ -8396,6 +8434,23 @@ class HokkienIMEPad:
                 return '\u115F' + output
             return output
         return ''
+
+    def keyboard_guide_romanisation_hint(self, key: str) -> str:
+        if self.input_mode.get() != 'hangul' or len(key) != 1 or not key.isascii() or not key.isalpha():
+            return ''
+        output = self.keyboard_guide_key_output(key, True)
+        if output == 'ㅇ':
+            return '-ng'
+        if output == 'ㆆ':
+            return 'ng-'
+        if output == 'ㅡ':
+            return '∅'
+        return hangul_unit_to_lomari(output)
+
+    def refresh_keyboard_guide_romanisation(self) -> None:
+        for key in list(self.keyboard_guide_keycaps):
+            if self.keyboard_guide_romanisation_hint(key):
+                self.refresh_keyboard_guide_keycap(key)
 
     def keyboard_guide_repaint_keycap(self, widget, color: str, border: str | None = None) -> None:
         try:
@@ -8599,7 +8654,15 @@ class HokkienIMEPad:
         else:
             value_font_to_use = value_font if output else (self.lomari_font_family, 12)
         value_fill = '#202124'
-        canvas.create_text(width // 2, 11, text=char, font=key_font_to_use, fill=guide_muted)
+        romanisation = self.keyboard_guide_romanisation_hint(key) if self.keyboard_romanisation_hints.get() else ''
+        if romanisation:
+            canvas.create_text(4, 8, text=char, font=key_font_to_use, fill=guide_muted, anchor='nw')
+            canvas.create_text(width - 4, 8, text=output,
+                               font=(self.hangul_font_family, 8), fill=guide_muted, anchor='ne')
+            value_text = romanisation
+            value_font_to_use = (self.lomari_font_family, 12)
+        else:
+            canvas.create_text(width // 2, 11, text=char, font=key_font_to_use, fill=guide_muted)
         canvas.create_text(width // 2, 34, text=value_text, font=value_font_to_use, fill=value_fill)
 
     def bind_keyboard_guide_keycap_events(self, cap, key: str) -> None:
