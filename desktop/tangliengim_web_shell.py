@@ -1,9 +1,9 @@
 """Run the shared Web IME with local-only desktop extensions.
 
 The visible interface and IME engine come directly from the GitHub checkout.
-HTML export and TSV syncing call the mature Tkinter implementation through a
-small localhost bridge, so those desktop-only capabilities do not fork the
-shared browser engine.
+HTML export uses a persistent export-only service through a small localhost
+bridge. TSV syncing reuses the local Git workflow. Neither needs to construct
+the classic editor or fork the shared browser engine.
 """
 
 from __future__ import annotations
@@ -11,9 +11,11 @@ from __future__ import annotations
 import json
 import mimetypes
 import os
+import queue
 import shutil
 import subprocess
 import sys
+import tempfile
 import threading
 import time
 import webbrowser
@@ -346,6 +348,9 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.classic_script = classic_script.resolve()
         self.classic_process: subprocess.Popen | None = None
         self.bridge_lock = threading.RLock()
+        self.html_bridge_process = None
+        self.html_bridge_responses = None
+        self.html_bridge_errors = None
         self.candidate_preferences = FilePreferenceStore(active_ids_from_tsv(self.local_tsv_path()))
         self.preference_receipts = OrderedDict()
 
@@ -408,13 +413,16 @@ class DesktopHttpServer(ThreadingHTTPServer):
                 return console_python
         return interpreter
 
-    def run_bridge(self, flag: str, payload: dict | None = None) -> dict:
-        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
+    def bridge_environment(self) -> dict:
         env = os.environ.copy()
         env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
         env["HOKKIEN_HANRI_DICT_PATH"] = str(self.local_tsv_path())
         # subprocess encoding controls only the parent; set the child's pipes too.
         env["PYTHONIOENCODING"] = "utf-8"
+        return env
+
+    def run_bridge(self, flag: str, payload: dict | None = None) -> dict:
+        creationflags = getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0
         with self.bridge_lock:
             result = subprocess.run(
                 [str(self.bridge_interpreter()), str(self.classic_script), flag],
@@ -424,7 +432,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
                 encoding="utf-8",
                 errors="replace",
                 cwd=str(self.classic_script.parent),
-                env=env,
+                env=self.bridge_environment(),
                 timeout=3600,
                 creationflags=creationflags,
                 check=False,
@@ -446,6 +454,90 @@ class DesktopHttpServer(ThreadingHTTPServer):
             raise RuntimeError(str(response.get("error") or "Desktop bridge failed"))
         return response
 
+    def start_html_bridge(self) -> None:
+        with self.bridge_lock:
+            if self.html_bridge_process is not None and self.html_bridge_process.poll() is None:
+                return
+            self.close_html_bridge()
+            errors = tempfile.TemporaryFile(mode="w+", encoding="utf-8")
+            try:
+                process = subprocess.Popen(
+                    [str(self.bridge_interpreter()), str(self.classic_script), "--desktop-html-worker"],
+                    stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=errors,
+                    text=True, encoding="utf-8", errors="replace", bufsize=1,
+                    cwd=str(self.classic_script.parent), env=self.bridge_environment(),
+                    creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0,
+                )
+            except Exception:
+                errors.close()
+                raise
+            responses = queue.Queue()
+            self.html_bridge_process = process
+            self.html_bridge_responses = responses
+            self.html_bridge_errors = errors
+
+            def read_responses():
+                try:
+                    for line in process.stdout:
+                        try:
+                            response = json.loads(line)
+                        except json.JSONDecodeError:
+                            continue
+                        if isinstance(response, dict):
+                            responses.put(response)
+                finally:
+                    responses.put(None)
+
+            threading.Thread(target=read_responses, name="TangliengimHtmlBridge", daemon=True).start()
+
+    def close_html_bridge(self) -> None:
+        process = self.html_bridge_process
+        self.html_bridge_process = None
+        if process is not None:
+            try:
+                process.stdin.close()
+            except OSError:
+                pass
+            try:
+                process.wait(timeout=2)
+            except subprocess.TimeoutExpired:
+                process.terminate()
+                try:
+                    process.wait(timeout=2)
+                except subprocess.TimeoutExpired:
+                    process.kill()
+                    process.wait()
+            process.stdout.close()
+        if self.html_bridge_errors is not None:
+            self.html_bridge_errors.close()
+            self.html_bridge_errors = None
+        self.html_bridge_responses = None
+
+    def server_close(self) -> None:
+        try:
+            self.close_html_bridge()
+        finally:
+            super().server_close()
+
+    def run_html_bridge(self, payload: dict) -> dict:
+        with self.bridge_lock:
+            self.start_html_bridge()
+            try:
+                self.html_bridge_process.stdin.write(json.dumps(payload, ensure_ascii=False) + "\n")
+                self.html_bridge_process.stdin.flush()
+                response = self.html_bridge_responses.get(timeout=3600)
+            except (OSError, queue.Empty) as exc:
+                self.close_html_bridge()
+                raise RuntimeError("HTML converter stopped or timed out") from exc
+            if response is None:
+                self.html_bridge_errors.seek(0)
+                detail = self.html_bridge_errors.read().strip()
+                self.close_html_bridge()
+                raise RuntimeError(detail or "HTML converter exited without a response")
+            if not response.get("ok"):
+                raise RuntimeError(str(response.get("error") or "HTML conversion failed"))
+            return response
+
     def copy_html(self, payload: dict) -> dict:
         text = str(payload.get("text") or "")
         style = str(payload.get("style") or "plain")
@@ -454,7 +546,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
             raise ValueError("No text to copy")
         if style not in valid_styles:
             raise ValueError("Unknown HTML mode")
-        response = self.run_bridge("--desktop-html-bridge", payload)
+        response = self.run_html_bridge(payload)
         response["tsvPending"] = self.tsv_sync_pending()
         return response
 
@@ -507,6 +599,7 @@ def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
         raise FileNotFoundError("Missing shared web files: " + ", ".join(missing))
 
     server = DesktopHttpServer(repo_root, classic_script)
+    server.start_html_bridge()
     thread = threading.Thread(target=server.serve_forever, name="TangliengimDesktopServer", daemon=True)
     thread.start()
     url = f"http://127.0.0.1:{server.server_port}/ime/?desktop=1"

@@ -117,6 +117,9 @@ def github_repo_for_tsv_sync() -> Path | None:
 
 
 def dictionary_schema_api():
+    module = sys.modules.get('dictionary_schema')
+    if module is not None:
+        return module
     for repo in github_repo_path_candidates():
         directory = repo / 'tools'
         if (directory / 'dictionary_schema.py').is_file():
@@ -9388,6 +9391,14 @@ class HokkienIMEPad:
             user32.SetClipboardData.restype = wintypes.HANDLE
             user32.CloseClipboard.argtypes = []
             user32.CloseClipboard.restype = wintypes.BOOL
+            user32.CreateWindowExW.argtypes = [
+                wintypes.DWORD, wintypes.LPCWSTR, wintypes.LPCWSTR, wintypes.DWORD,
+                ctypes.c_int, ctypes.c_int, ctypes.c_int, ctypes.c_int,
+                wintypes.HWND, wintypes.HMENU, wintypes.HINSTANCE, ctypes.c_void_p,
+            ]
+            user32.CreateWindowExW.restype = wintypes.HWND
+            user32.DestroyWindow.argtypes = [wintypes.HWND]
+            user32.DestroyWindow.restype = wintypes.BOOL
 
             kernel32.GlobalAlloc.argtypes = [wintypes.UINT, ctypes.c_size_t]
             kernel32.GlobalAlloc.restype = wintypes.HGLOBAL
@@ -9403,7 +9414,13 @@ class HokkienIMEPad:
             normalized = str(text).replace('\r\n', '\n').replace('\r', '\n').replace('\n', '\r\n')
             data = normalized.encode('utf-16le') + b'\x00\x00'
 
-            if not user32.OpenClipboard(None):
+            # Windows requires a real owner for EmptyClipboard/SetClipboardData.
+            # This invisible native window needs no Tk editor or event loop.
+            owner = user32.CreateWindowExW(0, 'STATIC', '', 0, 0, 0, 0, 0, None, None, None, None)
+            if not owner:
+                return False
+            if not user32.OpenClipboard(owner):
+                user32.DestroyWindow(owner)
                 return False
 
             handle = None
@@ -9436,6 +9453,7 @@ class HokkienIMEPad:
                 user32.CloseClipboard()
                 if handle:
                     kernel32.GlobalFree(handle)
+                user32.DestroyWindow(owner)
         except Exception:
             return False
 
@@ -11956,7 +11974,8 @@ class HokkienIMEPad:
         result = {'reading': None}
         dialog = tk.Toplevel(self.root)
         dialog.title(self.tr('confirm_hanri'))
-        dialog.transient(self.root)
+        if self.root.state() != 'withdrawn':
+            dialog.transient(self.root)
         dialog.resizable(False, False)
 
         surface_display = item.get('surface_display') or item.get('surface_reading') or ''
@@ -12016,7 +12035,8 @@ class HokkienIMEPad:
         result = {'confirmed': False}
         dialog = tk.Toplevel(self.root)
         dialog.title(self.tr('confirm_hanri'))
-        dialog.transient(self.root)
+        if self.root.state() != 'withdrawn':
+            dialog.transient(self.root)
         dialog.resizable(False, False)
         dialog.configure(bg=getattr(self, 'surface_bg', '#f8fafd'))
 
@@ -12396,12 +12416,8 @@ class HokkienIMEPad:
         self.last_identical_tsv_detected = identical_entry_detected
         return True
 
-    def copy_as_html(self) -> str:
-        self.close_candidate_popup()
-        self.flush_sequence_buffer()
-        self.reset_lomari_buffer()
-        self.composer.commit()
-
+    def prepare_html_copy(self, style: str) -> tuple[str, str] | None:
+        """Convert a text snapshot without constructing or updating an editor."""
         content = format_text_tones_for_output(
             self.text_with_hanri_instance_readings(
                 self.composer.text(),
@@ -12412,51 +12428,56 @@ class HokkienIMEPad:
             keep_literal_digit_markers=True,
         ).replace(LITERAL_DIGIT_MARK, '')
 
+        converter = self.load_tone_marker_module()
+        suffix_join_decisions = {}
+        if style == 'lomari_next_line':
+            self.last_identical_tsv_detected = False
+        elif not self.confirm_and_save_bracketed_hanri_annotations(converter, content):
+            return None
+        else:
+            _conversion_content, _generated_suffix_readings, suffix_join_decisions = (
+                self.resolve_suffix_join_annotations(converter, content)
+            )
+        html_content = format_text_tones_for_output(
+            self.text_with_hanri_instance_readings(self.composer.text()),
+            True,
+            keep_literal_digit_markers=True,
+        ).replace(LITERAL_DIGIT_MARK, '')
+        if style != 'lomari_next_line':
+            html_content, _, suffix_join_decisions = self.resolve_suffix_join_annotations(
+                converter, html_content, decisions=suffix_join_decisions, prompt=False,
+            )
+        result = converter.convert_hangul_to_html(html_content, style)
+        style_label = {
+            'plain': self.tr('html_plain'),
+            'lomari_ruby_below': self.tr('html_lomari_ruby_below'),
+            'lomari_next_line': self.tr('html_lomari_next_line'),
+            'song': self.tr('html_song'),
+            'novel': self.tr('html_novel'),
+            'novel_first': self.tr('html_novel_first'),
+            'title': self.tr('html_title'),
+        }.get(style, 'HTML')
+        if getattr(self, 'last_identical_tsv_detected', False):
+            status = self.tr('copied_html_identical_tsv')
+            self.last_identical_tsv_detected = False
+        else:
+            status = self.tr('copied_html', style=style_label)
+        if result.get('tone_autocorrected'):
+            status += self.tr('tone_autocorrected')
+        return result['html'], status
+
+    def copy_as_html(self) -> str:
+        self.close_candidate_popup()
+        self.flush_sequence_buffer()
+        self.reset_lomari_buffer()
+        self.composer.commit()
         try:
-            converter = self.load_tone_marker_module()
-            suffix_join_decisions = {}
-            if self.html_style.get() == 'lomari_next_line':
-                self.last_identical_tsv_detected = False
-            elif not self.confirm_and_save_bracketed_hanri_annotations(
-                converter,
-                content,
-            ):
+            prepared = self.prepare_html_copy(self.html_style.get())
+            if prepared is None:
                 self.text.focus_set()
                 return 'break'
-            elif self.html_style.get() != 'lomari_next_line':
-                _conversion_content, _generated_suffix_readings, suffix_join_decisions = (
-                    self.resolve_suffix_join_annotations(converter, content)
-                )
-            html_content = format_text_tones_for_output(
-                self.text_with_hanri_instance_readings(self.composer.text()),
-                True,
-                keep_literal_digit_markers=True,
-            ).replace(LITERAL_DIGIT_MARK, '')
-            if self.html_style.get() != 'lomari_next_line':
-                html_content, _, suffix_join_decisions = self.resolve_suffix_join_annotations(
-                    converter,
-                    html_content,
-                    decisions=suffix_join_decisions,
-                    prompt=False,
-                )
-            result = converter.convert_hangul_to_html(html_content, self.html_style.get())
-            self.set_system_clipboard_text(result['html'])
-            style_label = {
-                'plain': self.tr('html_plain'),
-                'lomari_ruby_below': self.tr('html_lomari_ruby_below'),
-                'lomari_next_line': self.tr('html_lomari_next_line'),
-                'song': self.tr('html_song'),
-                'novel': self.tr('html_novel'),
-                'novel_first': self.tr('html_novel_first'),
-                'title': self.tr('html_title'),
-            }.get(self.html_style.get(), 'HTML')
-            if getattr(self, 'last_identical_tsv_detected', False):
-                status = self.tr('copied_html_identical_tsv')
-                self.last_identical_tsv_detected = False
-            else:
-                status = self.tr('copied_html', style=style_label)
-            if result.get('tone_autocorrected'):
-                status += self.tr('tone_autocorrected')
+            html, status = prepared
+            self.set_system_clipboard_text(html)
             self.status.configure(text=status)
         except Exception as exc:
             self.status.configure(text=self.tr('html_error', error=exc))
@@ -12844,11 +12865,112 @@ def write_desktop_bridge_result(payload: dict) -> None:
     print(json.dumps(payload, ensure_ascii=False), flush=True)
 
 
-def run_desktop_html_bridge() -> None:
-    """Use the mature local HTML workflow for the shared desktop web shell."""
-    root = None
+class DesktopHtmlService:
+    """Export-only state; no classic editor, widgets, bindings, or timers."""
+
+    # Share the existing conversion/TSV rules without inheriting the editor.
+    tr = HokkienIMEPad.tr
+    load_tone_marker_module = HokkienIMEPad.load_tone_marker_module
+    sync_hanri_instance_readings = HokkienIMEPad.sync_hanri_instance_readings
+    text_with_hanri_instance_readings = HokkienIMEPad.text_with_hanri_instance_readings
+    split_converter_hanri_hangul_bracket = HokkienIMEPad.split_converter_hanri_hangul_bracket
+    converter_existing_hanri_readings = HokkienIMEPad.converter_existing_hanri_readings
+    suffix_join_reading_proposal = HokkienIMEPad.suffix_join_reading_proposal
+    raw_hanri_suffix_join_match = HokkienIMEPad.raw_hanri_suffix_join_match
+    resolve_suffix_join_annotations = HokkienIMEPad.resolve_suffix_join_annotations
+    confirm_and_save_bracketed_hanri_annotations = HokkienIMEPad.confirm_and_save_bracketed_hanri_annotations
+    prepare_html_copy = HokkienIMEPad.prepare_html_copy
+
+    def __init__(self):
+        self.root = None
+        self.tone_marker_module = None
+        self.tone_marker_module_mtime = None
+        self.composer = Composer()
+        self.hanri_instance_readings = []
+        self.hangul_instance_readings = []
+        self.hanri_instance_text_snapshot = ''
+        self.last_identical_tsv_detected = False
+        self.tsv_sync_pending = False
+        self.hangul_font_family = 'Noto Sans KR'
+
+    def run_confirmation(self, method, *args, **kwargs):
+        # A Tk owner exists only while an actual TSV confirmation is open.
+        self.root = tk.Tk()
+        try:
+            self.root.withdraw()
+            return method(self, *args, **kwargs)
+        finally:
+            self.close()
+
+    def ask_add_tsv_confirmation(self, *args, **kwargs):
+        return self.run_confirmation(HokkienIMEPad.ask_add_tsv_confirmation, *args, **kwargs)
+
+    def choose_ambiguous_reverse_sandhi_reading(self, *args, **kwargs):
+        return self.run_confirmation(HokkienIMEPad.choose_ambiguous_reverse_sandhi_reading, *args, **kwargs)
+
+    def ask_join_suffix_confirmation(self, *args, **kwargs):
+        return self.run_confirmation(HokkienIMEPad.ask_join_suffix_confirmation, *args, **kwargs)
+
+    def mark_tsv_sync_pending(self):
+        self.tsv_sync_pending = True
+
+    def set_system_clipboard_text(self, text: str):
+        if sys.platform.startswith('win'):
+            if not HokkienIMEPad.set_windows_clipboard_unicode_text(self, text):
+                raise RuntimeError('Could not open the clipboard. Please try copying again.')
+            return
+        commands = ([['pbcopy']] if sys.platform == 'darwin' else [
+            ['wl-copy'], ['xclip', '-selection', 'clipboard'], ['xsel', '--clipboard', '--input'],
+        ])
+        for command in commands:
+            try:
+                subprocess.run(command, input=text, text=True, encoding='utf-8', timeout=3, check=True)
+                return
+            except (OSError, subprocess.SubprocessError):
+                continue
+        raise RuntimeError('Could not write to the system clipboard.')
+
+    def copy_html(self, style: str) -> str:
+        prepared = self.prepare_html_copy(style)
+        if prepared is None:
+            raise RuntimeError('HTML copying was cancelled.')
+        html, message = prepared
+        self.set_system_clipboard_text(html)
+        return message
+
+    def close(self):
+        if self.root is not None:
+            try:
+                self.root.destroy()
+            finally:
+                self.root = None
+
+
+def desktop_html_resource_signature() -> tuple:
+    paths = [TONE_MARKER_MODULE_PATH]
+    for source in hanri_tsv_path_candidates():
+        paths.extend(source.with_name(name) for name in (
+            source.name, 'dictionary_entry_id_registry.tsv',
+            'dictionary_priority.tsv', 'dictionary_redirects.tsv',
+        ))
+    signature = []
+    for path in paths:
+        try:
+            stat = path.stat()
+            signature.append((str(path), stat.st_mtime_ns, stat.st_size))
+        except FileNotFoundError:
+            signature.append((str(path), None, None))
+    return tuple(signature)
+
+
+def run_desktop_html_bridge(payload: dict | None = None, app=None) -> None:
+    """Export a browser text snapshot without constructing the classic IME."""
+    owns_service = app is None
     try:
-        payload = read_desktop_bridge_payload()
+        if payload is None:
+            payload = read_desktop_bridge_payload()
+        if not isinstance(payload, dict):
+            raise ValueError('Desktop bridge request must be a JSON object.')
         content = normalize_typographic_apostrophes(str(payload.get('text') or ''))
         style = str(payload.get('style') or 'plain')
         valid_styles = {
@@ -12860,15 +12982,9 @@ def run_desktop_html_bridge() -> None:
         if style not in valid_styles:
             raise ValueError(f'Unknown HTML mode: {style}')
 
-        root = tk.Tk()
-        root.geometry('820x500')
-        try:
-            root.attributes('-alpha', 0.0)
-        except tk.TclError:
-            pass
-        app = HokkienIMEPad(root)
+        if app is None:
+            app = DesktopHtmlService()
         app.composer = Composer(output=content, cursor_pos=len(content))
-        app.composer.e_to_ye_autocorrect_enabled = app.e_to_ye_autocorrect_on.get
         app.hanri_instance_readings = []
         app.hangul_instance_readings = []
         dictionary_schema_api()
@@ -12920,33 +13036,43 @@ def run_desktop_html_bridge() -> None:
                 'auto_sandhi': bool(raw.get('autoSandhi')),
                 **reference,
             })
-        app.html_style.set(style)
-
-        captured: dict[str, str] = {}
-        original_clipboard = app.set_system_clipboard_text
-
-        def capture_clipboard(value: str) -> None:
-            captured['html'] = str(value)
-            original_clipboard(value)
-
-        app.set_system_clipboard_text = capture_clipboard
-        app.copy_as_html()
-        if 'html' not in captured:
-            raise RuntimeError('The HTML converter did not produce output.')
-        try:
-            message = str(app.status.cget('text') or 'Copied HTML')
-        except Exception:
-            message = 'Copied HTML'
+        message = app.copy_html(style)
         write_desktop_bridge_result({'ok': True, 'message': message})
     except Exception as exc:
         write_desktop_bridge_result({'ok': False, 'error': str(exc)})
         raise SystemExit(1)
     finally:
-        if root is not None:
+        if owns_service and app is not None:
+            app.close()
+
+
+def run_desktop_html_worker() -> None:
+    """Keep the local HTML converter warm; each request still has fresh text."""
+    app = DesktopHtmlService()
+    try:
+        app.load_tone_marker_module().load_hanri_reading_index()
+        signature = desktop_html_resource_signature()
+        for line in sys.stdin:
+            if not line.strip():
+                continue
             try:
-                root.destroy()
-            except Exception:
-                pass
+                payload = json.loads(line)
+                if not isinstance(payload, dict):
+                    raise ValueError('Desktop bridge request must be a JSON object.')
+                current = desktop_html_resource_signature()
+                if current != signature:
+                    reload_hanri_resources()
+                    app.tone_marker_module = None
+                    app.tone_marker_module_mtime = None
+                    signature = current
+                run_desktop_html_bridge(payload, app)
+            except SystemExit:
+                # The one-shot bridge has already emitted this request's error.
+                continue
+            except Exception as exc:
+                write_desktop_bridge_result({'ok': False, 'error': str(exc)})
+    finally:
+        app.close()
 
 
 def run_desktop_sync_bridge() -> None:
@@ -12969,6 +13095,9 @@ def run_desktop_sync_bridge() -> None:
 
 
 def main() -> None:
+    if '--desktop-html-worker' in sys.argv:
+        run_desktop_html_worker()
+        return
     if '--desktop-html-bridge' in sys.argv:
         run_desktop_html_bridge()
         return

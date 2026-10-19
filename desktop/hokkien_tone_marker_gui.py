@@ -1410,6 +1410,9 @@ def dictionary_tools_path() -> Path:
 
 
 def dictionary_schema_api():
+    module = sys.modules.get('dictionary_schema')
+    if module is not None:
+        return module
     dictionary_tools_path()
     import dictionary_schema
     return dictionary_schema

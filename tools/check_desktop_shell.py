@@ -5,6 +5,7 @@ from __future__ import annotations
 import csv
 import json
 import importlib.util
+import io
 import os
 import subprocess
 import sys
@@ -12,7 +13,7 @@ import tempfile
 import threading
 from pathlib import Path
 from urllib.request import urlopen
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -171,10 +172,189 @@ def check_repository_sync_pending(shell) -> None:
             server.server_close()
 
 
+def check_html_worker_state() -> None:
+    from types import SimpleNamespace
+    pad = sys.modules['tangliengim_pad_check']
+    copied, snapshots = [], []
+    clipboard = copied.append
+    app = SimpleNamespace(
+        close=Mock(),
+        set_system_clipboard_text=clipboard,
+        load_tone_marker_module=lambda: SimpleNamespace(load_hanri_reading_index=lambda: {}),
+    )
+    def copy_html(style):
+        snapshots.append((app.composer.text(), style,
+                          list(app.hanri_instance_readings), list(app.hangul_instance_readings)))
+        app.set_system_clipboard_text('<ruby>' + app.composer.text() + '</ruby>')
+        return 'Copied HTML'
+    app.copy_html = copy_html
+    requests = [
+        {'text': '뎩', 'style': 'plain', 'rememberedHangulReadings': [
+            {'start': 0, 'end': 1, 'hangul': '뎩', 'reading': '뎩1'}]},
+        None,
+        {'text': '家己', 'style': 'song', 'rememberedReadings': [
+            {'start': 0, 'end': 2, 'hanri': '家己', 'reading': '가1기'}]},
+        {'text': '릐호', 'style': 'plain'},
+    ]
+    output = io.StringIO()
+    with (
+        patch.object(pad, 'DesktopHtmlService', return_value=app) as create,
+        patch.object(pad, 'desktop_html_resource_signature', side_effect=['a', 'a', 'b', 'b']),
+        patch.object(pad, 'reload_hanri_resources') as reload,
+        patch.object(sys, 'stdin', io.StringIO('\n'.join(json.dumps(r) for r in requests))),
+        patch.object(sys, 'stdout', output),
+    ):
+        pad.run_desktop_html_worker()
+    replies = [json.loads(line) for line in output.getvalue().splitlines()]
+    assert [r['ok'] for r in replies] == [True, False, True, True], replies
+    assert snapshots[0][3][0]['reading'] == '뎩1'
+    assert snapshots[1][1] == 'song' and not snapshots[1][3]
+    assert snapshots[2] == ('릐호', 'plain', [], [])
+    assert app.set_system_clipboard_text is clipboard
+    assert copied == ['<ruby>뎩</ruby>', '<ruby>家己</ruby>', '<ruby>릐호</ruby>']
+    create.assert_called_once()
+    reload.assert_called_once()
+    app.close.assert_called_once()
+
+
+def check_export_only_html_service() -> None:
+    pad = sys.modules['tangliengim_pad_check']
+    styles = ['plain', 'lomari_ruby_below', 'lomari_next_line', 'song',
+              'novel', 'novel_first', 'title']
+    with (
+        patch.object(pad.HokkienIMEPad, '__init__', side_effect=AssertionError('Classic IME constructed')),
+        patch.object(pad.tk, 'Tk', side_effect=AssertionError('Unexpected Tk root')),
+    ):
+        service = pad.DesktopHtmlService()
+        assert not isinstance(service, pad.HokkienIMEPad)
+        service.composer = pad.Composer(output='릐호 家己')
+        service.hanri_instance_text_snapshot = service.composer.text()
+        converter = service.load_tone_marker_module()
+        copied = []
+        with patch.object(service, 'set_system_clipboard_text', side_effect=copied.append):
+            for style in styles:
+                service.copy_html(style)
+                expected = converter.convert_hangul_to_html('릐호 家己', style)['html']
+                assert copied[-1] == expected, style
+            service.composer = pad.Composer(output='뎩')
+            service.hangul_instance_readings = [
+                {'start': 0, 'end': 1, 'hangul': '뎩', 'reading': '뎩1'}]
+            service.copy_html('plain')
+            expected = converter.convert_hangul_to_html(
+                pad.format_text_tones_for_output('뎩1'), 'plain')['html']
+            assert copied[-1] == expected, 'Selected tones must survive export'
+        with patch.object(pad.sys, 'platform', 'win32'), patch.object(
+            pad.HokkienIMEPad, 'set_windows_clipboard_unicode_text', return_value=False
+        ):
+            try:
+                service.copy_html('plain')
+                raise AssertionError('Clipboard failure was hidden')
+            except RuntimeError as exc:
+                assert 'clipboard' in str(exc)
+        assert service.root is None
+        service.close()
+
+    # Confirmations alone may own a short-lived Tk root, including on errors.
+    root = Mock()
+    with patch.object(pad.tk, 'Tk', return_value=root):
+        def confirmation(owner):
+            assert owner.root is root
+            raise ValueError('test dialog error')
+        try:
+            service.run_confirmation(confirmation)
+        except ValueError:
+            pass
+    root.withdraw.assert_called_once()
+    root.destroy.assert_called_once()
+    assert service.root is None
+
+
+def check_native_html_clipboard() -> None:
+    import ctypes
+    pad = sys.modules['tangliengim_pad_check']
+    memory = ctypes.create_string_buffer(1024)
+    user32 = Mock()
+    user32.CreateWindowExW.return_value = 123
+    user32.OpenClipboard.return_value = True
+    user32.EmptyClipboard.return_value = True
+    user32.SetClipboardData.return_value = 456
+    kernel32 = Mock()
+    kernel32.GlobalAlloc.return_value = 456
+    kernel32.GlobalLock.return_value = ctypes.addressof(memory)
+    with (
+        patch.object(pad.sys, 'platform', 'win32'),
+        patch.object(ctypes, 'WinDLL', side_effect=lambda name, **kwargs:
+                     user32 if name == 'user32' else kernel32, create=True),
+        patch.object(pad.tk, 'Tk', side_effect=AssertionError('Clipboard must not need Tk')),
+    ):
+        service = pad.DesktopHtmlService()
+        service.set_system_clipboard_text('𤺪뎩\nHTML')
+        expected = '𤺪뎩\r\nHTML\0'.encode('utf-16le')
+        assert memory.raw[:len(expected)] == expected
+        user32.OpenClipboard.assert_called_once_with(123)
+        user32.SetClipboardData.assert_called_once_with(13, 456)
+        user32.CloseClipboard.assert_called_once()
+        user32.DestroyWindow.assert_called_once_with(123)
+        kernel32.GlobalFree.assert_not_called()  # Ownership transferred to Windows.
+
+        user32.reset_mock()
+        user32.OpenClipboard.return_value = False
+        try:
+            service.set_system_clipboard_text('test')
+            raise AssertionError('Clipboard contention must be reported')
+        except RuntimeError:
+            pass
+        user32.EmptyClipboard.assert_not_called()
+        user32.CloseClipboard.assert_not_called()
+        user32.DestroyWindow.assert_called_once_with(123)
+
+
+def check_persistent_html_bridge(shell) -> None:
+    with tempfile.TemporaryDirectory() as folder:
+        script = Path(folder) / 'worker.py'
+        script.write_text(
+            'import json, os, sys\n'
+            'for line in sys.stdin:\n'
+            '    payload = json.loads(line)\n'
+            '    if payload.get("crash"): sys.exit(1)\n'
+            '    print(json.dumps({"ok": not payload.get("fail"), "error": "test error", '
+            '"payload": payload, "pid": os.getpid()}, ensure_ascii=False), flush=True)\n',
+            encoding='utf-8',
+        )
+        server = shell.DesktopHttpServer(ROOT, script)
+        try:
+            server.start_html_bridge()
+            first = server.copy_html({'text': '𤺪뎩', 'style': 'plain'})
+            second = server.copy_html({'text': '家己', 'style': 'song'})
+            assert first['pid'] == second['pid'], 'HTML requests must reuse the worker'
+            assert first['payload']['text'] == '𤺪뎩'
+            try:
+                server.run_html_bridge({'fail': True})
+                raise AssertionError('Worker errors must reach the caller')
+            except RuntimeError as exc:
+                assert str(exc) == 'test error'
+            assert server.run_html_bridge({})['pid'] == first['pid']
+            try:
+                server.run_html_bridge({'crash': True})
+                raise AssertionError('Worker exits must reach the caller')
+            except RuntimeError:
+                pass
+            restarted = server.run_html_bridge({})
+            assert restarted['pid'] != first['pid'], 'The next request must recover after a worker exit'
+            process = server.html_bridge_process
+        finally:
+            server.server_close()
+        assert process.poll() is not None, 'Closing the shell must stop its HTML worker'
+
+
 def main() -> None:
     shell = load_shell()
     check_repository_sync_pending(shell)
     check_hidden_tones_in_bracketed_tsv_input()
+    check_html_worker_state()
+    check_export_only_html_service()
+    check_native_html_clipboard()
+    check_persistent_html_bridge(shell)
     # Exercise the real pipe boundary under a non-UTF-8 Windows-style default.
     with tempfile.TemporaryDirectory() as folder:
         bridge_script = Path(folder) / "echo_bridge.py"
