@@ -7176,28 +7176,12 @@ class HokkienIMEPad:
         destination = repo / 'data' / HANRI_TSV_FILENAME
         if source_tsv.resolve() != destination.resolve():
             raise ValueError('Sync TSV publishes the repository dictionary; separate TSV copies are no longer supported.')
-        registry = destination.with_name('dictionary_entry_id_registry.tsv')
-        if not registry.is_file():
-            raise FileNotFoundError(f'Repository ID registry not found: {registry}')
-        priorities = destination.with_name('dictionary_priority.tsv')
-        relative_destinations = [p.relative_to(repo).as_posix() for p in (destination, registry, priorities) if p.is_file()]
-
-        cls.run_git_command(repo, 'add', '--', *relative_destinations)
-        staged = subprocess.run(
-            ['git', '-C', str(repo), 'diff', '--cached', '--quiet', '--', *relative_destinations],
-            capture_output=True,
-            text=True,
-            encoding='utf-8',
-            errors='replace',
-            check=False,
-        )
-        if staged.returncode == 1:
-            cls.run_git_command(repo, 'commit', '-m', 'Sync local TSV additions', '--', *relative_destinations)
-        elif staged.returncode != 0:
-            detail = (staged.stderr or staged.stdout).strip()
-            raise RuntimeError(detail or 'Could not inspect the staged TSV change.')
-
-        cls.run_git_command(repo, 'push', 'origin', 'main')
+        tools_path = str(repo / 'tools')
+        if tools_path not in sys.path:
+            sys.path.insert(0, tools_path)
+        from dictionary_editor_service import DictionaryEditorService
+        from dictionary_editor_publish import DictionaryPublisher
+        DictionaryPublisher(DictionaryEditorService(repo)).publish()
         return 'success'
 
     def sync_tsv_to_github(self) -> None:

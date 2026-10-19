@@ -37,6 +37,24 @@ Each row has an explicit `entry_type` and a pre-release Unicode-derived `entry_i
 Do not edit generated JSON or maintain a second TSV in the archived dictionary
 repository. Historical local desktop installations are separate from this checkout.
 
+## Dictionary Editor
+
+Open **Dictionary editor** in the Local IME toolbar, or launch it directly:
+
+```sh
+python "desktop/Tangliengim Dictionary Editor.py"
+```
+
+The local editor provides searchable entries, a Hangul-enabled entry form,
+English/Mandarin fields, categories, pronunciation preview and editable batch
+paste. **Save locally** validates, allocates IDs and sorts automatically.
+**Publish updates** reconciles GitHub changes by entry ID, runs the release
+checks, and publishes a data-only commit. Conflicting fields require a choice;
+failed publishing leaves saved local entries intact. The editor is served only
+by the desktop localhost server and is never copied into the public website.
+
+See [editor workflow and recovery](docs/dictionary-editor.md).
+
 ## Build and preview
 
 Use Python 3.10 or later with Tkinter available, and Node.js for validation.

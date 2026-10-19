@@ -285,13 +285,16 @@ capture after approved semantic changes. They are not automatic lexical repairs.
 3. Edit only deliberate static exceptions in `dictionary_priority.tsv`, and add
    exact category memberships in `dictionary_categories.tsv`. Keep their checked
    informational labels synchronized after approved headword changes.
-4. Run `python tools/sort_dictionary_tsv.py` as a separate maintenance action;
-   Local appends do not implicitly reorder the dictionary.
+4. The Dictionary Editor and Local IME's add-reading flow share a validated save
+   service that allocates IDs and sorts automatically. For manual TSV edits,
+   run `python tools/sort_dictionary_tsv.py` explicitly.
 5. Run `python tools/check_release.py` to validate and rebuild everything.
    Investigate failures instead of hand-editing JSON or refreshing baselines.
-6. Inspect the diff, then commit/push only when requested. Local Sync TSV publishes
-   repository dictionary/ledger/priority changes; it does not transfer a second
-   Local TSV or publish personal preference statistics.
+6. Use the Dictionary Editor's Publish updates (also used by Local Sync TSV)
+   to fetch remote changes, reconcile records/fields, run the full release gate
+   in isolation and publish dictionary data. It refuses to push unrelated local
+   commits. Alternatively inspect the diff and commit/push with GitHub Desktop.
+   No separate Local TSV or personal preference statistics are published.
 
 Normal additions require no ranking points, URL fields, personal scores or
 duplicate Unicode identity metadata. Keep linguistic uncertainty in the existing

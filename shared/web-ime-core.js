@@ -1329,6 +1329,7 @@ const TangliengimImeCore = (() => {
       recomposeNativeKoreanInput = false,
       preferences = null,
       normalizationContainer = null,
+      toneInputStyle = "hidden",
     }) {
       this.control = control;
       this.candidateContainer = candidateContainer;
@@ -1336,6 +1337,7 @@ const TangliengimImeCore = (() => {
       this.onUpdate = onUpdate;
       this.onCandidatesChanged = onCandidatesChanged;
       this.enterBehavior = enterBehavior;
+      this.toneInputStyle = toneInputStyle;
       this.candidateLimit = candidateLimit;
       this.recomposeNativeKoreanInput = Boolean(recomposeNativeKoreanInput);
       this.dictionaryIndex = dictionaryIndex;
@@ -1618,6 +1620,16 @@ const TangliengimImeCore = (() => {
     applyHiddenTone(char) {
       const digit = inputToneDigit(char);
       if (!digit) return false;
+      if (this.toneInputStyle === "digits") {
+        this.composer.insertLiteral(digit);
+        return true;
+      }
+      if (this.toneInputStyle === "symbols") {
+        this.composer.commit();
+        if (this.previousHangulUnit(this.composer.text(), this.composer.displayCursorPos())) this.composer.addTone(digit);
+        else this.composer.insertLiteral(digit);
+        return true;
+      }
       this.composer.commit();
       const text = this.composer.text();
       const cursor = this.composer.displayCursorPos();

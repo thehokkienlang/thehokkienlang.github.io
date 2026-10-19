@@ -8,6 +8,7 @@ public/audio/_hokkien_ime_playback.wav
 
 # Website build output and locally regenerated data
 _site/
+.dictionary-editor/
 public/data/hokkien-hanri-dict.json
 
 # C extensions

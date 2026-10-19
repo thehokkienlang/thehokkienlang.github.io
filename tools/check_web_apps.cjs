@@ -373,6 +373,21 @@ async function loadApp(route, script) {
     '가',
     'Clickable keyboard input must use the shared Hangul composer'
   );
+  assert.ok(
+    vm.runInContext(`(() => {
+      const values = [];
+      for (const style of ['digits', 'symbols', 'hidden']) {
+        imeController.clear();
+        imeController.toneInputStyle = style;
+        imeController.insertText('rk1');
+        values.push(imeText.value);
+      }
+      const remembered = imeController.getRememberedHangulReadings().some(span => span.reading === '가1');
+      imeController.clear();
+      return JSON.stringify(values) === JSON.stringify(['가1', '가ˆ', '가']) && remembered;
+    })()`, context),
+    'Dictionary editor tone input must persist visible digits/symbols while normal IME tones remain hidden'
+  );
   assert.equal(
     vm.runInContext(`(() => {
       imeController.clear();

@@ -26,7 +26,9 @@ from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from candidate_preferences import FilePreferenceStore, active_ids_from_tsv
+from dictionary_editor_service import EditorError
 
 HTML_RESPONSE_TIMEOUT_SECONDS = 30
 
@@ -65,6 +67,7 @@ DESKTOP_SCRIPT = r"""
   try { window.resizeTo(920, 800); } catch {}
   const actions = document.querySelector(".toolbar-actions");
   if (!actions) return;
+  const editorToken = "__EDITOR_TOKEN__";
 
   const style = document.createElement("style");
   style.textContent = `
@@ -129,7 +132,14 @@ DESKTOP_SCRIPT = r"""
   syncButton.textContent = "Sync TSV";
   syncButton.disabled = true;
 
-  actions.append(htmlStyle, htmlButton, syncButton);
+  const editorButton = document.createElement("a");
+  editorButton.id = "desktopDictionaryEditor";
+  editorButton.className = "desktop-action-button";
+  editorButton.textContent = "Dictionary editor";
+  editorButton.href = "/editor/";
+  editorButton.target = "_blank";
+  editorButton.style.cssText = "display:inline-flex;align-items:center;text-decoration:none";
+  actions.append(htmlStyle, htmlButton, syncButton, editorButton);
 
   async function request(path, payload = {}, timeoutMs = 0) {
     const abort = new AbortController();
@@ -137,7 +147,7 @@ DESKTOP_SCRIPT = r"""
     try {
       const response = await fetch(path, {
         method: "POST", signal: abort.signal,
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "X-Tangliengim-Editor": editorToken },
         body: JSON.stringify(payload),
       });
       const result = await response.json();
@@ -198,6 +208,28 @@ DESKTOP_SCRIPT = r"""
   }
 
   let pendingHtmlConfirmation = null;
+  async function refreshDictionaryJob(id) {
+    try {
+      while (true) {
+        const job = await request("/desktop-api/editor/job", { id });
+        if (job.status === "failed") throw new Error(job.message);
+        if (job.status === "done") { await loadDictionary(); return; }
+        await new Promise(resolve => setTimeout(resolve, 1500));
+      }
+    } catch (error) { showToast("Reading saved; dictionary refresh needs attention: " + error.message); }
+  }
+  let dictionaryGeneration = null;
+  window.addEventListener("focus", async () => {
+    try {
+      const response = await fetch("/desktop-api/status", { cache: "no-store" });
+      const status = await response.json();
+      if (dictionaryGeneration !== status.dictionaryGeneration) {
+        dictionaryGeneration = status.dictionaryGeneration;
+        await loadDictionary();
+      }
+      await refreshStatus();
+    } catch {}
+  });
   window.addEventListener("pagehide", () => {
     if (pendingHtmlConfirmation) navigator.sendBeacon("/desktop-api/html-cancel", new Blob([
       JSON.stringify({ id: pendingHtmlConfirmation }),
@@ -229,6 +261,7 @@ DESKTOP_SCRIPT = r"""
       }
       syncButton.disabled = !result.tsvPending;
       showToast(result.message || "Copied HTML");
+      if (result.refreshJob) refreshDictionaryJob(result.refreshJob);
     } catch (error) {
       showToast(`Could not copy HTML: ${error.message}`);
     } finally {
@@ -246,7 +279,8 @@ DESKTOP_SCRIPT = r"""
     showToast("Syncing TSV...");
     try {
       const result = await request("/desktop-api/sync-tsv");
-      showToast(result.message || "TSV synced");
+      window.open("/editor/?job=" + encodeURIComponent(result.job), "tangliengim-dictionary-editor");
+      showToast("Publishing entries; see dictionary editor for progress");
     } catch (error) {
       showToast(`Could not sync TSV: ${error.message}`);
     } finally {
@@ -291,6 +325,11 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
     elif path.startswith("/dictionary/"):
         suffix = path.removeprefix("/dictionary/") or "index.html"
         relative = Path("apps") / "dictionary" / suffix
+    elif path.startswith("/editor/"):
+        suffix = path.removeprefix("/editor/") or "index.html"
+        if suffix not in {"index.html", "editor.css", "editor.js"}:
+            return None
+        relative = Path("desktop") / "dictionary_editor_ui" / suffix
     elif path.startswith(("/shared/", "/public/", "/assets/")):
         relative = Path(path.lstrip("/"))
     else:
@@ -345,6 +384,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
 
     def do_GET(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlsplit(self.path).path
+        if self.headers.get('Host') not in {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}:
+            self.send_error(403)
+            return
         if path == '/desktop-api/candidate-preferences':
             self._send_json(self.server.load_candidate_preferences())
             return
@@ -361,11 +403,16 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
         if path == "/dictionary":
             self._redirect("/dictionary/")
             return
+        if path == "/editor":
+            self._redirect("/editor/")
+            return
         if path == "/desktop/desktop-shell.js":
-            self._send_bytes(DESKTOP_SCRIPT.encode("utf-8"), "text/javascript; charset=utf-8")
+            script = DESKTOP_SCRIPT.replace('__EDITOR_TOKEN__', self.server.editor_token)
+            self._send_bytes(script.encode("utf-8"), "text/javascript; charset=utf-8")
             return
         if path == "/desktop-api/status":
-            self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending()})
+            self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending(),
+                             "dictionaryGeneration": self.server.editor.generation})
             return
 
         target = _safe_repo_file(self.server.repo_root, self.path)
@@ -373,6 +420,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         data = target.read_bytes()
+        if target == self.server.repo_root / 'desktop/dictionary_editor_ui/index.html':
+            data = data.replace(b'__EDITOR_TOKEN__', self.server.editor_token.encode())
         if target in [self.server.repo_root / 'apps' / app / 'index.html' for app in ('ime', 'dictionary')]:
             html = data.decode('utf-8').replace(
                 '</head>',
@@ -394,8 +443,18 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802 - BaseHTTPRequestHandler API
         path = urlsplit(self.path).path
         try:
+            host = self.headers.get('Host')
+            if host not in {f'127.0.0.1:{self.server.server_port}', f'localhost:{self.server.server_port}'}:
+                raise EditorError('Invalid local host.', code='forbidden')
+            origin = self.headers.get('Origin')
+            if (origin and origin != f'http://{host}') or self.headers.get('Sec-Fetch-Site') == 'cross-site':
+                raise EditorError('Only the local desktop interface may change the dictionary.', code='forbidden')
             payload = self._read_json()
-            if path == "/desktop-api/copy-html":
+            if path.startswith('/desktop-api/editor/'):
+                if self.headers.get('X-Tangliengim-Editor') != self.server.editor_token:
+                    raise EditorError('Editor session expired. Reload this page.', code='forbidden')
+                result = self.server.editor.dispatch(path.removeprefix('/desktop-api/editor/'), payload)
+            elif path == "/desktop-api/copy-html":
                 result = self.server.copy_html(payload)
             elif path == "/desktop-api/html-confirmation":
                 result = self.server.confirm_html(payload)
@@ -416,6 +475,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404)
                 return
             self._send_json(result)
+        except EditorError as exc:
+            self._send_json({"ok": False, "error": str(exc), "code": exc.code, "details": exc.details},
+                            status=403 if exc.code == 'forbidden' else 409 if exc.code in {'stale', 'conflict'} else 400)
         except Exception as exc:
             self._send_json({"ok": False, "error": str(exc)}, status=500)
 
@@ -435,6 +497,9 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.html_confirmation_id = None
         self.candidate_preferences = FilePreferenceStore(active_ids_from_tsv(self.local_tsv_path()))
         self.preference_receipts = OrderedDict()
+        from dictionary_editor import DictionaryEditorController
+        self.editor_token = uuid.uuid4().hex
+        self.editor = DictionaryEditorController(self)
 
     def load_candidate_preferences(self) -> dict:
         with self.bridge_lock:
@@ -468,7 +533,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def tsv_sync_pending(self) -> bool:
         if not (self.repo_root / ".git").exists():
             return False
-        paths = ["data/hokkien_hanri_dict.tsv", "data/dictionary_entry_id_registry.tsv", "data/dictionary_priority.tsv", "data/dictionary_redirects.tsv"]
+        paths = ["data/hokkien_hanri_dict.tsv", "data/dictionary_entry_id_registry.tsv", "data/dictionary_priority.tsv", "data/dictionary_redirects.tsv", "data/dictionary_categories.tsv"]
         command = ["git", "-c", f"safe.directory={self.repo_root.as_posix()}", "-C", str(self.repo_root)]
         options = {
             "capture_output": True, "text": True, "encoding": "utf-8",
@@ -640,6 +705,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
             raise ValueError("Unknown HTML mode")
         response = self.run_html_bridge(payload)
         response["tsvPending"] = self.tsv_sync_pending()
+        if not response.get('confirmation'):
+            response['refreshJob'] = self.editor.refresh_if_changed()
         return response
 
     def confirm_html(self, payload: dict) -> dict:
@@ -648,6 +715,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
             raise ValueError('Missing HTML confirmation ID')
         response = self.run_html_bridge({'value': payload.get('value')}, confirmation_id=identity)
         response['tsvPending'] = self.tsv_sync_pending()
+        if not response.get('confirmation'):
+            response['refreshJob'] = self.editor.refresh_if_changed()
         return response
 
     def cancel_html(self, payload: dict) -> dict:
@@ -657,9 +726,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         return {'ok': True}
 
     def sync_tsv(self) -> dict:
-        response = self.run_bridge("--desktop-sync-bridge")
-        response["tsvPending"] = self.tsv_sync_pending()
-        return response
+        return self.editor.dispatch('publish', {})
 
     def open_classic_tools(self) -> None:
         if self.classic_process is not None and self.classic_process.poll() is None:
@@ -680,22 +747,22 @@ class DesktopHttpServer(ThreadingHTTPServer):
         )
 
 
-def _fallback_browser_host(url: str) -> None:
+def _fallback_browser_host(url: str, *, editor: bool = False) -> None:
     import tkinter as tk
 
     webbrowser.open_new(url)
     root = tk.Tk()
-    root.title("Hokkien Tangliengim IME Pad")
+    root.title("Tangliengim Dictionary Editor" if editor else "Hokkien Tangliengim IME Pad")
     root.geometry("340x92")
     root.resizable(False, False)
-    tk.Label(root, text="The IME is open in your browser.", padx=18, pady=12).pack()
-    tk.Button(root, text="Close IME", command=root.destroy).pack()
+    tk.Label(root, text="The dictionary editor is open in your browser." if editor else "The IME is open in your browser.", padx=18, pady=12).pack()
+    tk.Button(root, text="Close editor" if editor else "Close IME", command=root.destroy).pack()
     root.mainloop()
 
 
-def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
+def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = False) -> None:
     repo_root = repo_root.resolve()
-    required = [
+    required = [repo_root / "desktop/dictionary_editor_ui/index.html"] if editor else [
         repo_root / "apps" / "ime" / "index.html",
         repo_root / "shared" / "web-ime-core.js",
         repo_root / "public" / "data" / "hokkien-hanri-dict.json",
@@ -705,16 +772,17 @@ def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
         raise FileNotFoundError("Missing shared web files: " + ", ".join(missing))
 
     server = DesktopHttpServer(repo_root, classic_script)
-    server.start_html_bridge()
+    if not editor:
+        server.start_html_bridge()
     thread = threading.Thread(target=server.serve_forever, name="TangliengimDesktopServer", daemon=True)
     thread.start()
-    url = f"http://127.0.0.1:{server.server_port}/ime/?desktop=1"
+    url = f"http://127.0.0.1:{server.server_port}" + ("/editor/" if editor else "/ime/?desktop=1")
     try:
         edge = find_edge()
         if edge is None:
-            _fallback_browser_host(url)
+            _fallback_browser_host(url, editor=editor)
             return
-        profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / "DesktopProfile"
+        profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / ("DictionaryEditorProfile" if editor else "DesktopProfile")
         profile.mkdir(parents=True, exist_ok=True)
         started = time.monotonic()
         process = subprocess.Popen(
@@ -722,7 +790,7 @@ def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
                 str(edge),
                 f"--app={url}",
                 f"--user-data-dir={profile}",
-                "--window-size=920,800",
+                "--window-size=1200,860" if editor else "--window-size=920,800",
                 "--no-first-run",
                 "--disable-features=msEdgeFirstRunExperience",
             ],
@@ -730,7 +798,7 @@ def run_desktop_shell(repo_root: Path, classic_script: Path) -> None:
         )
         process.wait()
         if time.monotonic() - started < 2:
-            _fallback_browser_host(url)
+            _fallback_browser_host(url, editor=editor)
     finally:
         server.shutdown()
         server.server_close()

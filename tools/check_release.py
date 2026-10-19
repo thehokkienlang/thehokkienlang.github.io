@@ -17,6 +17,7 @@ from capture_legacy_parity import capture
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 JAVASCRIPT_FILES = (
+    "desktop/dictionary_editor_ui/editor.js",
     "apps/dictionary/gate.js",
     "apps/dictionary/app.js",
     "apps/ime/ime.js",
@@ -26,6 +27,10 @@ JAVASCRIPT_FILES = (
     "shared/web-audio-player.js",
 )
 PYTHON_FILES = (
+    "desktop/dictionary_editor.py",
+    "desktop/Tangliengim Dictionary Editor.py",
+    "tools/dictionary_editor_service.py",
+    "tools/dictionary_editor_publish.py",
     "desktop/Hokkien Tangliengim IME Pad.py",
     "desktop/hokkien_tone_marker_gui.py",
     "desktop/tangliengim_web_shell.py",

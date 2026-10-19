@@ -1446,29 +1446,13 @@ def append_hanri_reading_to_tsv(hanri: str, reading: str) -> bool:
         return False
 
     path = hanri_tsv_path_for_write()
-    path.parent.mkdir(parents=True, exist_ok=True)
-    needs_newline = path.exists() and path.stat().st_size > 0
-    simplified = dictionary_simplified_headword(hanri)
-    schema = dictionary_schema_api()
-    record = dict(hanri=hanri, simplified=schema.inherited_storage(simplified, hanri),
-                  reading=reading, mandarin_trad='', mandarin_simp='', english='',
-                  corrected='', entry_type=entry_type)
-    if path.exists() and path.stat().st_size:
-        with path.open('r', encoding='utf-8-sig', newline='') as existing:
-            if next(csv.reader(existing, delimiter='\t'), None) != list(schema.DICTIONARY_COLUMNS):
-                raise ValueError('Dictionary must be migrated to the current schema before adding readings.')
-    entry_id = reserve_dictionary_entry_id(path, hanri)
-    record['entry_id'] = entry_id
-    with path.open('a', encoding='utf-8', newline='') as f:
-        if needs_newline:
-            with path.open('rb') as existing:
-                existing.seek(-1, os.SEEK_END)
-                if existing.read(1) != b'\n':
-                    f.write('\r\n')
-        writer = csv.writer(f, delimiter='\t', lineterminator='\r\n')
-        if not needs_newline:
-            writer.writerow(schema.DICTIONARY_COLUMNS)
-        writer.writerow([record[name] for name in schema.DICTIONARY_COLUMNS])
+    dictionary_tools_path()
+    from dictionary_editor_service import DictionaryEditorService
+    result = DictionaryEditorService.for_tsv(path).save(
+        [dict(hanri=hanri, reading=reading, entry_type=entry_type)], allow_alternative=True,
+    )
+    if not result['saved']:
+        return False
 
     _HANRI_READING_INDEX = None
     _HANRI_READING_KEYS = None
