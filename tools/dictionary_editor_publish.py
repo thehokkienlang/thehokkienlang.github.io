@@ -208,8 +208,16 @@ class DictionaryPublisher:
             env = release_env.copy()
             env["HOKKIEN_GITHUB_REPO_PATH"] = str(staging)
             env["HOKKIEN_HANRI_DICT_PATH"] = str(staging / "data" / MAIN)
+            env["PYTHONIOENCODING"] = "utf-8"
+            env["PYTHONUNBUFFERED"] = "1"
+            interpreter = Path(sys.executable)
+            # pythonw drops console streams in nested checks; keep the window hidden below.
+            if interpreter.name.lower() == 'pythonw.exe':
+                interpreter = interpreter.with_name('python.exe')
+                if not interpreter.is_file():
+                    raise EditorError('Publishing requires python.exe beside pythonw.exe. Repair the Python installation; local entries are saved.', code='dependency')
             with log.open("w", encoding="utf-8") as output:
-                check = subprocess.run([sys.executable, "-X", "utf8", "tools/check_release.py"],
+                check = subprocess.run([str(interpreter), "-X", "utf8", "tools/check_release.py"],
                                        cwd=staging, env=env, stdout=output, stderr=subprocess.STDOUT,
                                        encoding="utf-8", timeout=1800, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
             if check.returncode:

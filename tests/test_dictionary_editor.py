@@ -446,6 +446,29 @@ class PublishTests(unittest.TestCase):
         with self.assertRaisesRegex(EditorError, "unpublished commits"):
             DictionaryPublisher(self.service).publish()
 
+    @unittest.skipUnless(os.name == 'nt', 'Windows GUI interpreter regression')
+    def test_gui_publish_preserves_nested_validation_errors(self):
+        gui_python = Path(sys.executable).with_name('pythonw.exe')
+        self.assertTrue(gui_python.is_file())
+        (self.repo / 'tools/check_release.py').write_text(
+            "import subprocess, sys\n"
+            "from pathlib import Path\n"
+            "print('Validation interpreter: ' + Path(sys.executable).name, flush=True)\n"
+            "subprocess.run([sys.executable, '-c', \"import sys; sys.stderr.write('nested validation failure\\\\n'); sys.exit(1)\"], check=True)\n"
+        )
+        git(self.repo, 'add', 'tools')
+        git(self.repo, 'commit', '-m', 'Nested failing check')
+        git(self.repo, 'push', 'origin', 'main')
+        before = git(self.repo, 'rev-parse', 'origin/main').stdout
+        self.service.save([dict(hanri='新', reading='신1')])
+        with patch.object(publishing.sys, 'executable', str(gui_python)):
+            with self.assertRaisesRegex(EditorError, 'nested validation failure'):
+                DictionaryPublisher(self.service).publish()
+        log = (self.service.state / 'publish-checks.log').read_text(encoding='utf-8')
+        self.assertIn('Validation interpreter: python.exe', log)
+        self.assertEqual(git(self.repo, 'rev-parse', 'origin/main').stdout, before)
+        self.assertEqual(len(self.service.snapshot()['entries']), 2)
+
     def test_entry_saved_during_checks_requires_retry(self):
         self.service.save([dict(hanri="新", reading="신1")])
         def progress(message):
