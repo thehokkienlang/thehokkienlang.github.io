@@ -943,6 +943,118 @@ const TangliengimImeCore = (() => {
     );
   }
 
+  function createSimplifiedNormalizationIndex(entries) {
+    const forms = new Map();
+    const trie = { children: new Map() };
+    let maxLength = 0;
+    const compareUnicode = (left, right) => {
+      const a = Array.from(left, char => char.codePointAt(0));
+      const b = Array.from(right, char => char.codePointAt(0));
+      for (let i = 0; i < Math.min(a.length, b.length); i += 1) {
+        if (a[i] !== b[i]) return a[i] - b[i];
+      }
+      return a.length - b.length;
+    };
+    for (const entry of entries || []) {
+      if (!searchableEntry(entry) || entry.autoSandhi || entry.auto_sandhi) continue;
+      const sourceHanri = String(entry.raw?.hanri || entry.hanri || "");
+      const hanri = stripLegacyInlineToneMarks(entry.hanri);
+      const source = entry.simplified === "〃" ? sourceHanri : String(entry.simplified || "");
+      const entryId = sourceEntryId(entry);
+      if (!source || !hanri || !entryId) continue;
+      if (!forms.has(source)) forms.set(source, new Map());
+      if (source === sourceHanri) continue;
+      const targets = forms.get(source);
+      if (!targets.has(hanri)) targets.set(hanri, new Set());
+      targets.get(hanri).add(entryId);
+    }
+    for (const [source, targets] of forms) {
+      let node = trie;
+      for (const char of source) {
+        if (!node.children.has(char)) node.children.set(char, { children: new Map() });
+        node = node.children.get(char);
+      }
+      node.targets = [...targets].sort(([a], [b]) => compareUnicode(a, b))
+        .map(([hanri, ids]) => ({ hanri, entryIds: [...ids].sort(compareUnicode) }));
+      maxLength = Math.max(maxLength, source.length);
+    }
+    return {
+      size: [...forms.values()].filter(targets => targets.size).length,
+      ambiguousCount: [...forms.values()].filter(targets => targets.size > 1).length,
+      maxLength,
+      matchAt(text, start) {
+        let node = trie;
+        let match = null;
+        for (let end = start; end < text.length;) {
+          const char = String.fromCodePoint(text.codePointAt(end));
+          node = node.children.get(char);
+          if (!node) break;
+          end += char.length;
+          if (node.targets) match = { start, end, source: text.slice(start, end), targets: node.targets };
+        }
+        return match;
+      },
+    };
+  }
+
+  function createSimplifiedNormalizationSession(index) {
+    return {
+      text: "",
+      matches: [],
+      segments: [],
+      update(text) {
+        if (text === this.text) return false;
+        const previous = this.text;
+        let start = 0;
+        while (start < previous.length && start < text.length && previous[start] === text[start]) start += 1;
+        const isLowSurrogate = code => code >= 0xdc00 && code <= 0xdfff;
+        if (start && (isLowSurrogate(previous.charCodeAt(start)) || isLowSurrogate(text.charCodeAt(start)))) start -= 1;
+        let suffix = 0;
+        while (suffix < previous.length - start && suffix < text.length - start &&
+          previous[previous.length - 1 - suffix] === text[text.length - 1 - suffix]) suffix += 1;
+        if (suffix && (isLowSurrogate(previous.charCodeAt(previous.length - suffix)) ||
+          isLowSurrogate(text.charCodeAt(text.length - suffix)))) suffix -= 1;
+        const oldEnd = previous.length - suffix;
+        const newEnd = text.length - suffix;
+        const offset = newEnd - oldEnd;
+        let cursor = Math.max(0, start - index.maxLength + 1);
+        if (isLowSurrogate(text.charCodeAt(cursor))) cursor -= 1;
+        let stableSuffixStart = newEnd;
+        for (const match of this.segments) {
+          if (match.start < cursor && match.end > cursor) cursor = match.start;
+          if (match.start < oldEnd && match.end > oldEnd) {
+            stableSuffixStart = Math.max(stableSuffixStart, match.end + offset);
+          }
+        }
+        const matches = this.segments.filter(match => match.end <= cursor);
+        const unchanged = this.segments.filter(match => match.start >= oldEnd)
+          .map(match => ({ ...match, start: match.start + offset, end: match.end + offset }));
+        let nextUnchanged = 0;
+        // Resume the unchanged greedy segmentation once the edit's overlap ends.
+        while (cursor < text.length && index.maxLength) {
+          if (cursor >= stableSuffixStart) {
+            while (unchanged[nextUnchanged]?.end <= cursor) nextUnchanged += 1;
+            if (!unchanged[nextUnchanged] || unchanged[nextUnchanged].start >= cursor) {
+              matches.push(...unchanged.slice(nextUnchanged));
+              break;
+            }
+          }
+          const match = index.matchAt(text, cursor);
+          if (match) {
+            matches.push(match);
+            cursor = match.end;
+          } else {
+            cursor += String.fromCodePoint(text.codePointAt(cursor)).length;
+          }
+        }
+        this.text = text;
+        this.segments = matches;
+        this.matches = matches.filter(match => match.targets.length);
+        return true;
+      },
+    };
+  }
+
   function createDictionaryIndex(entries) {
     const activeEntries = (entries || [])
       .filter(searchableEntry)
@@ -1099,6 +1211,7 @@ const TangliengimImeCore = (() => {
     return {
       entries: activeEntries,
       candidatesByReading: buildReadingCandidateMap(activeEntries),
+      simplifiedNormalization: createSimplifiedNormalizationIndex(activeEntries),
       findHanriEntry,
       findHangulOverride,
       findHangulOverrideAt,
@@ -1215,6 +1328,7 @@ const TangliengimImeCore = (() => {
       candidateLimit = 9,
       recomposeNativeKoreanInput = false,
       preferences = null,
+      normalizationContainer = null,
     }) {
       this.control = control;
       this.candidateContainer = candidateContainer;
@@ -1246,6 +1360,11 @@ const TangliengimImeCore = (() => {
       this.rememberedTextSnapshot = normalizeApostrophes(control.value || "");
       this.nativeComposition = null;
       this.nativeCompositionActive = false;
+      this.externalCompositionActive = false;
+      this.normalizationContainer = normalizationContainer;
+      this.normalizationSession = normalizationContainer ? createSimplifiedNormalizationSession(
+        dictionaryIndex?.simplifiedNormalization || createSimplifiedNormalizationIndex(entries)
+      ) : null;
 
       this.handleKeydown = this.handleKeydown.bind(this);
       this.handleBeforeInput = this.handleBeforeInput.bind(this);
@@ -1265,7 +1384,7 @@ const TangliengimImeCore = (() => {
       control.addEventListener("click", this.handleCursorChange);
       control.addEventListener("keyup", this.handleCursorChange);
       document.addEventListener("pointerdown", this.handleDocumentPointerDown);
-      if (this.recomposeNativeKoreanInput) {
+      if (this.recomposeNativeKoreanInput || this.normalizationSession) {
         control.addEventListener("compositionstart", this.handleCompositionStart);
         control.addEventListener("compositionupdate", this.handleCompositionUpdate);
         control.addEventListener("compositionend", this.handleCompositionEnd);
@@ -1281,6 +1400,12 @@ const TangliengimImeCore = (() => {
       this.preferences.setActiveIds((entries || []).filter(entry => entry.active !== false).map(sourceEntryId));
       this.dictionaryIndex = dictionaryIndex;
       this.candidatesByReading = dictionaryIndex?.candidatesByReading || buildReadingCandidateMap(entries || []);
+      if (this.normalizationSession) {
+        this.normalizationSession = createSimplifiedNormalizationSession(
+          dictionaryIndex?.simplifiedNormalization || createSimplifiedNormalizationIndex(entries)
+        );
+        this.renderNormalizationSuggestions(true);
+      }
       this.renderCandidates();
     }
 
@@ -1598,12 +1723,14 @@ const TangliengimImeCore = (() => {
       this.control.setSelectionRange(cursor, cursor);
       this.internalUpdate = false;
       this.unresolvedCandidateContext = allowCandidateMenu ? this.candidateContextKey() : null;
+      this.renderNormalizationSuggestions();
       this.onUpdate();
       this.renderCandidates();
     }
 
     shouldHandleKey(event) {
       if (!this.isEnabled()) return false;
+      if (this.externalCompositionActive || event.keyCode === 229) return false;
       if (event.ctrlKey || event.metaKey || event.altKey || event.isComposing) return false;
       if (event.key.length === 1) return true;
       if (this.activeCandidates.length && ["ArrowUp", "ArrowDown", "Tab", "Escape"].includes(event.key)) return true;
@@ -1673,6 +1800,7 @@ const TangliengimImeCore = (() => {
     }
 
     handleBeforeInput(event) {
+      if (this.internalUpdate) return;
       this.candidateSelectionExplicit = false;
       if (
         this.recomposeNativeKoreanInput &&
@@ -1687,7 +1815,7 @@ const TangliengimImeCore = (() => {
         }
         return;
       }
-      if (!this.isEnabled() || event.isComposing || !event.cancelable) return;
+      if (!this.isEnabled() || this.externalCompositionActive || event.isComposing || !event.cancelable) return;
 
       if (event.inputType === "insertText" && event.data) {
         event.preventDefault();
@@ -1725,7 +1853,7 @@ const TangliengimImeCore = (() => {
     handleInput(event) {
       if (this.internalUpdate) return;
       this.candidateSelectionExplicit = false;
-      if (this.nativeCompositionActive) return;
+      if (this.nativeCompositionActive || this.externalCompositionActive || event?.isComposing) return;
       const imeEnabled = this.isEnabled();
       const normalizeInput = (value) => {
         const apostrophesNormalized = normalizeApostrophes(value);
@@ -1747,11 +1875,15 @@ const TangliengimImeCore = (() => {
       this.unresolvedCandidateContext = COMMITTED_INPUT_TYPES.has(event?.inputType)
         ? null
         : this.candidateContextKey();
+      this.renderNormalizationSuggestions();
       this.onUpdate();
       this.renderCandidates();
     }
 
     handleCursorChange(event) {
+      // Native preedit (including Pinyin apostrophes) must not be rewritten.
+      if (this.externalCompositionActive || this.nativeCompositionActive ||
+        event?.isComposing || event?.keyCode === 229) return;
       if (
         event?.type === "keyup" &&
         this.activeCandidates.length &&
@@ -1879,6 +2011,8 @@ const TangliengimImeCore = (() => {
     }
 
     handleCompositionStart() {
+      this.externalCompositionActive = true;
+      if (this.normalizationContainer) this.normalizationContainer.hidden = true;
       this.candidateSelectionExplicit = false;
       if (!this.recomposeNativeKoreanInput || !this.isEnabled()) return;
       this.syncComposerFromControl();
@@ -1906,7 +2040,14 @@ const TangliengimImeCore = (() => {
     }
 
     handleCompositionEnd(event) {
-      if (!this.nativeCompositionActive || !this.nativeComposition) return;
+      this.externalCompositionActive = false;
+      if (!this.nativeCompositionActive || !this.nativeComposition) {
+        if (this.normalizationSession) {
+          this.handleInput({ inputType: "insertFromComposition" });
+          this.renderNormalizationSuggestions(true);
+        }
+        return;
+      }
       const snapshot = this.nativeComposition;
       const current = normalizeApostrophes(this.control.value);
       this.nativeCompositionActive = false;
@@ -1949,6 +2090,66 @@ const TangliengimImeCore = (() => {
       this.composer.setText(base, snapshot.start);
       this.processNativeKoreanInputAtCursor(inserted, snapshot.value.slice(snapshot.start, snapshot.end));
       this.updateControlFromComposer();
+    }
+
+    renderNormalizationSuggestions(force = false) {
+      if (!this.normalizationSession) return;
+      if (this.externalCompositionActive) {
+        this.normalizationContainer.hidden = true;
+        return;
+      }
+      const changed = this.normalizationSession.update(this.control.value);
+      if (!changed && !force) {
+        this.normalizationContainer.hidden = !this.normalizationSession.matches.length;
+        return;
+      }
+      this.normalizationContainer.replaceChildren();
+      for (const match of this.normalizationSession.matches) {
+        const row = document.createElement("p");
+        row.className = "normalization-suggestion";
+        row.append(document.createTextNode("Did you mean "));
+        match.targets.forEach((target, index) => {
+          if (index) row.append(document.createTextNode(" or "));
+          const button = document.createElement("button");
+          button.type = "button";
+          button.className = "normalization-target";
+          button.setAttribute("aria-label", `Replace ${match.source} with ${target.hanri}`);
+          button.append(displayTextNode(target.hanri));
+          button.addEventListener("click", () => this.acceptNormalizationSuggestion(match, target));
+          row.append(button);
+        });
+        row.append(document.createTextNode("?"));
+        this.normalizationContainer.append(row);
+      }
+      this.normalizationContainer.hidden = !this.normalizationSession.matches.length;
+    }
+
+    acceptNormalizationSuggestion(match, target) {
+      const session = this.normalizationSession;
+      const text = this.control.value;
+      if (this.externalCompositionActive || !session?.matches.includes(match) ||
+        !match.targets.includes(target) || session.text !== text ||
+        text.slice(match.start, match.end) !== match.source) return false;
+      this.control.focus();
+      this.control.setSelectionRange(match.start, match.end);
+      this.internalUpdate = true;
+      try {
+        // Native insertion preserves the browser's undo stack where supported.
+        if (typeof document.execCommand === "function") document.execCommand("insertText", false, target.hanri);
+        if (this.control.value === text) {
+          this.control.setRangeText(target.hanri, match.start, match.end, "end");
+        }
+      } finally {
+        this.internalUpdate = false;
+      }
+      const end = match.start + target.hanri.length;
+      this.control.setSelectionRange(end, end);
+      this.syncRememberedReadings(this.control.value);
+      this.composer.setText(this.control.value, end);
+      this.renderNormalizationSuggestions();
+      this.dismissCandidates(false);
+      this.onUpdate();
+      return true;
     }
 
     activeCandidateRange() {
@@ -2253,6 +2454,8 @@ const TangliengimImeCore = (() => {
     citationToTaipeiSandhiTone,
     createCandidatePopupPositioner,
     createDictionaryIndex,
+    createSimplifiedNormalizationIndex,
+    createSimplifiedNormalizationSession,
     createTextImeController,
     displayTextNode,
     headwordUnitAt,

@@ -18,7 +18,6 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 란ˋ		란2	我們	我们	we (inclusive of listener)		hangul_override	U+B780_00
 ’래		’래					hangul_override	U+2019_U+B798_00
 ’ᄅᆤˋ		’ᄅᆤ2	了	〃	perfective aspect marker		hangul_override	U+2019_U+1105_U+11A4_00
-렁ˋ		렁2	全部	〃	all		hangul_override	U+B801_00
 릐ˋ		릐2	你	〃	you		hangul_override	U+B990_00
 ’릐		’릐	你	〃	you		hangul_override	U+2019_U+B990_00
 린ˋ		린2	你; 你的	〃	you; your		hangul_override	U+B9B0_00
@@ -797,12 +796,13 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 樂觀	乐观	럭관1	〃	乐观	optimistic		lexical	U+6A02_U+89C0_00
 烙印	〃	럭인	〃	〃	brand; bake; mark; print		lexical	U+70D9_U+5370_00
 落魄	〃	럭폑	〃	〃	down and out		lexical	U+843D_U+9B44_00
+攏	拢	렁2	全部	〃	all		lexical	U+650F_00
 挵	〃	렁	撞; 敲	〃	hit; knock		lexical	U+6335_00
 浪	〃	렁5	〃	〃	wave; wander		lexical	U+6D6A_00
 郎君	〃	렁군1	〃	〃	lord; husband		lexical	U+90CE_U+541B_00
 浪漫	〃	렁빤5	〃	〃	wave; wander		lexical	U+6D6A_U+6F2B_00
 櫳仔	栊仔	렁아2	監牢	监牢	prison; jail		lexical	U+6AF3_U+4ED4_00
-렁ˆ總	렁ˆ总	렁1정2	全部	〃	total; general; always		lexical	U+B801_U+7E3D_00
+攏總	拢总	렁1정2	全部	〃	total; general; always		lexical	U+650F_U+7E3D_00
 浪子	〃	렁주2	〃	〃	wanderer; prodigal		lexical	U+6D6A_U+5B50_00
 挵破	〃	렁2퐈	撞破	〃	to break		lexical	U+6335_U+7834_00
 禮	礼	레2	〃	礼	ritual; courtesy		lexical	U+79AE_00

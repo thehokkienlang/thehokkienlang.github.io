@@ -28,6 +28,8 @@ from urllib.parse import unquote, urlsplit
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 from candidate_preferences import FilePreferenceStore, active_ids_from_tsv
 
+HTML_RESPONSE_TIMEOUT_SECONDS = 30
+
 
 PREFERENCE_SCRIPT = r"""
 (() => {
@@ -79,6 +81,16 @@ DESKTOP_SCRIPT = r"""
     .desktop-action-button { padding: 0 11px; cursor: pointer; }
     .desktop-action-button:hover:not(:disabled) { border-color: rgba(15,118,110,.5); color: #0b5f58; }
     .desktop-action-button:disabled { cursor: default; opacity: .48; }
+    .desktop-html-confirmation {
+      width: min(520px, calc(100vw - 40px)); max-height: calc(100dvh - 40px);
+      padding: 20px; border: 1px solid #bfd0e4; border-radius: 8px;
+      color: #202124; background: #fff; overflow: auto;
+      font: 16px Calibri, "Noto Sans KR", "Segoe UI", sans-serif;
+    }
+    .desktop-html-confirmation::backdrop { background: rgba(15, 23, 42, .28); }
+    .desktop-html-confirmation h2 { margin: 0 0 12px; font-size: 1.05rem; }
+    .desktop-html-confirmation p { margin: 0 0 18px; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .desktop-html-confirmation-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-end; }
     @media (max-width: 650px) {
       .desktop-html-style { max-width: 142px; }
       .desktop-action-button { padding-inline: 8px; }
@@ -119,15 +131,60 @@ DESKTOP_SCRIPT = r"""
 
   actions.append(htmlStyle, htmlButton, syncButton);
 
-  async function request(path, payload = {}) {
-    const response = await fetch(path, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
+  async function request(path, payload = {}, timeoutMs = 0) {
+    const abort = new AbortController();
+    const timer = timeoutMs ? setTimeout(() => abort.abort(), timeoutMs) : null;
+    try {
+      const response = await fetch(path, {
+        method: "POST", signal: abort.signal,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.error || `HTTP ${response.status}`);
+      return result;
+    } catch (error) {
+      if (error.name === "AbortError") throw new Error("HTML converter did not respond. Please try again.");
+      throw error;
+    } finally {
+      if (timer !== null) clearTimeout(timer);
+    }
+  }
+
+  function confirmHtml(prompt) {
+    return new Promise((resolve, reject) => {
+      const dialog = document.createElement("dialog");
+      dialog.className = "desktop-html-confirmation";
+      dialog.setAttribute("aria-labelledby", "htmlConfirmationTitle");
+      const title = document.createElement("h2");
+      title.id = "htmlConfirmationTitle";
+      title.textContent = prompt.title;
+      const message = document.createElement("p");
+      message.textContent = prompt.message;
+      const buttons = document.createElement("div");
+      buttons.className = "desktop-html-confirmation-actions";
+      let answered = false;
+      const finish = value => {
+        if (answered) return;
+        answered = true;
+        if (dialog.open) dialog.close();
+        dialog.remove();
+        resolve(value);
+      };
+      for (const option of prompt.options) {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "desktop-action-button";
+        button.textContent = option.label;
+        button.addEventListener("click", () => finish(option.value));
+        buttons.append(button);
+      }
+      dialog.addEventListener("cancel", event => { event.preventDefault(); finish(prompt.cancelValue); });
+      dialog.addEventListener("close", () => finish(prompt.cancelValue));
+      dialog.append(title, message, buttons);
+      document.body.append(dialog);
+      try { dialog.showModal(); } catch (error) { dialog.remove(); reject(error); }
     });
-    const result = await response.json();
-    if (!response.ok || !result.ok) throw new Error(result.error || `HTTP ${response.status}`);
-    return result;
   }
 
   async function refreshStatus() {
@@ -140,6 +197,13 @@ DESKTOP_SCRIPT = r"""
     }
   }
 
+  let pendingHtmlConfirmation = null;
+  window.addEventListener("pagehide", () => {
+    if (pendingHtmlConfirmation) navigator.sendBeacon("/desktop-api/html-cancel", new Blob([
+      JSON.stringify({ id: pendingHtmlConfirmation }),
+    ], { type: "application/json" }));
+  });
+
   htmlButton.addEventListener("click", async () => {
     if (!imeText.value.trim()) {
       showToast("No text to copy");
@@ -148,17 +212,30 @@ DESKTOP_SCRIPT = r"""
     htmlButton.disabled = true;
     showToast("Preparing HTML...");
     try {
-      const result = await request("/desktop-api/copy-html", {
+      let result = await request("/desktop-api/copy-html", {
         text: imeText.value,
         style: htmlStyle.value,
         rememberedReadings: imeController.getRememberedHanriReadings(imeText.value),
         rememberedHangulReadings: imeController.getRememberedHangulReadings(imeText.value),
-      });
+      }, 45000);
+      while (result.confirmation) {
+        showToast("Confirm the reading to finish copying HTML");
+        pendingHtmlConfirmation = result.confirmation.id;
+        const value = await confirmHtml(result.confirmation);
+        pendingHtmlConfirmation = null;
+        result = await request("/desktop-api/html-confirmation", {
+          id: result.confirmation.id, value,
+        }, 45000);
+      }
       syncButton.disabled = !result.tsvPending;
       showToast(result.message || "Copied HTML");
     } catch (error) {
       showToast(`Could not copy HTML: ${error.message}`);
     } finally {
+      if (pendingHtmlConfirmation) {
+        request("/desktop-api/html-cancel", { id: pendingHtmlConfirmation }, 5000).catch(() => {});
+        pendingHtmlConfirmation = null;
+      }
       htmlButton.disabled = false;
       imeText.focus();
     }
@@ -320,6 +397,10 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             payload = self._read_json()
             if path == "/desktop-api/copy-html":
                 result = self.server.copy_html(payload)
+            elif path == "/desktop-api/html-confirmation":
+                result = self.server.confirm_html(payload)
+            elif path == "/desktop-api/html-cancel":
+                result = self.server.cancel_html(payload)
             elif path == '/desktop-api/candidate-preferences/record':
                 result = self.server.record_candidate_preference(payload)
             elif path == '/desktop-api/candidate-preferences/reset':
@@ -351,6 +432,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.html_bridge_process = None
         self.html_bridge_responses = None
         self.html_bridge_errors = None
+        self.html_confirmation_id = None
         self.candidate_preferences = FilePreferenceStore(active_ids_from_tsv(self.local_tsv_path()))
         self.preference_receipts = OrderedDict()
 
@@ -491,6 +573,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
             threading.Thread(target=read_responses, name="TangliengimHtmlBridge", daemon=True).start()
 
     def close_html_bridge(self) -> None:
+        self.html_confirmation_id = None
         process = self.html_bridge_process
         self.html_bridge_process = None
         if process is not None:
@@ -519,13 +602,19 @@ class DesktopHttpServer(ThreadingHTTPServer):
         finally:
             super().server_close()
 
-    def run_html_bridge(self, payload: dict) -> dict:
+    def run_html_bridge(self, payload: dict, *, confirmation_id: str | None = None) -> dict:
         with self.bridge_lock:
             self.start_html_bridge()
+            if confirmation_id is not None:
+                if confirmation_id != self.html_confirmation_id:
+                    raise RuntimeError("This HTML confirmation has expired. Please copy again.")
+                self.html_confirmation_id = None
+            elif self.html_confirmation_id is not None:
+                raise RuntimeError("Finish the open HTML confirmation before copying again.")
             try:
                 self.html_bridge_process.stdin.write(json.dumps(payload, ensure_ascii=False) + "\n")
                 self.html_bridge_process.stdin.flush()
-                response = self.html_bridge_responses.get(timeout=3600)
+                response = self.html_bridge_responses.get(timeout=HTML_RESPONSE_TIMEOUT_SECONDS)
             except (OSError, queue.Empty) as exc:
                 self.close_html_bridge()
                 raise RuntimeError("HTML converter stopped or timed out") from exc
@@ -536,6 +625,9 @@ class DesktopHttpServer(ThreadingHTTPServer):
                 raise RuntimeError(detail or "HTML converter exited without a response")
             if not response.get("ok"):
                 raise RuntimeError(str(response.get("error") or "HTML conversion failed"))
+            if response.get("confirmation"):
+                self.html_confirmation_id = uuid.uuid4().hex
+                response['confirmation']['id'] = self.html_confirmation_id
             return response
 
     def copy_html(self, payload: dict) -> dict:
@@ -549,6 +641,20 @@ class DesktopHttpServer(ThreadingHTTPServer):
         response = self.run_html_bridge(payload)
         response["tsvPending"] = self.tsv_sync_pending()
         return response
+
+    def confirm_html(self, payload: dict) -> dict:
+        identity = payload.get('id')
+        if not isinstance(identity, str) or not identity:
+            raise ValueError('Missing HTML confirmation ID')
+        response = self.run_html_bridge({'value': payload.get('value')}, confirmation_id=identity)
+        response['tsvPending'] = self.tsv_sync_pending()
+        return response
+
+    def cancel_html(self, payload: dict) -> dict:
+        with self.bridge_lock:
+            if self.html_confirmation_id and payload.get('id') == self.html_confirmation_id:
+                self.close_html_bridge()
+        return {'ok': True}
 
     def sync_tsv(self) -> dict:
         response = self.run_bridge("--desktop-sync-bridge")

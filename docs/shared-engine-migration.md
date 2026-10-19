@@ -15,6 +15,32 @@ current dictionary/ranking/reference contract use [the production schema](dictio
 
 Do not add new pronunciation, sandhi, candidate, or audio rules directly to a Web or desktop UI. Add them to the shared engine and cover them with a desktop parity fixture first.
 
+## Simplified Hokkien Suggestions
+
+Pasting or committing Simplified Hokkien text in the IME can show an unobtrusive
+`Did you mean 負責任?` suggestion directly below the textbox. The text stays exactly
+as entered until the user clicks or keyboard-activates a proposed canonical form.
+Each action replaces only its matching span and does not train candidate preferences.
+Suggestions wait until an external IME finishes composing; caret movement alone
+does not create suggestions. Browser-native undo is retained where available;
+the classic Pad uses its existing undo history.
+
+The only mapping is the dictionary's resolved `simplified` field to its existing
+`hanri` and stable entry IDs. `〃` resolves to `hanri`; identical forms need no
+suggestion. Mandarin and English search metadata are never normalization sources.
+Matching runs left to right and consumes the longest dictionary form at each
+position, including identical forms, with no overlapping matches. Multiple readings
+of one headword share a button carrying all associated IDs; genuinely different
+headwords appear as separate alternatives, ordered by Unicode code points.
+Independent spans have separate prompts. Edits invalidate overlapping suggestions
+and shift still-valid spans; acceptance rechecks both the current span and record
+reference before replacing it.
+
+Web and the default Local/Desktop shell use the shared controller and dictionary
+index in `shared/web-ime-core.js`. The optional `--classic-ui` Pad reads the same
+resolved TSV through `tools/simplified_normalization.py`. Shared fixtures in
+`tests/fixtures/simplified-normalization.json` lock both matchers to the same rules.
+
 ## Parity Fixtures
 
 `tests/fixtures/legacy-ime-parity-cases.json` lists inputs to capture.

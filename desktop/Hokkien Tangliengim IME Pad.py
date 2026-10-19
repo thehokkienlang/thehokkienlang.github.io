@@ -7813,6 +7813,8 @@ class HokkienIMEPad:
         self.clear_button.place(relx=0.5, y=2, anchor='n', width=30, height=30)
         self.clear_tooltip = self.add_tooltip(self.clear_button, self.tr('clear_text'))
 
+        self.normalization_frame = tk.Frame(typing_card, bg=card_bg, bd=0)
+
         # Google-Translate-like inline Lomari preview: no separate label/card.
         # It stays inside the same typing card, visually as a minimal bottom line.
         tk.Frame(typing_card, bg='#eef0f3', height=1, bd=0).pack(fill='x', side='top')
@@ -9002,6 +9004,7 @@ class HokkienIMEPad:
         self.root.bind_all('<ButtonPress-1>', self.on_global_button_press, add='+')
         self.root.bind('<FocusOut>', self.on_root_focus_out, add='+')
         self.text.bind('<<Paste>>', lambda event: self.paste_raw_clipboard())
+        self.text.bind('<<Modified>>', self.on_external_text_modified, add='+')
         self.text.bind('<<Cut>>', lambda event: self.cut_selection())
         self.text.bind('<Control-a>', self.select_all_main_text)
         self.text.bind('<Control-A>', self.select_all_main_text)
@@ -11190,6 +11193,93 @@ class HokkienIMEPad:
         self.text.see('insert')
         self.update_roman_preview(content)
         self.refresh_modern_control_states()
+        self.text.edit_modified(False)
+        self.refresh_normalization_suggestions(content)
+
+    def refresh_normalization_suggestions(self, content: str) -> None:
+        if not hasattr(self, 'normalization_frame'):
+            return
+        source = next((path for path in hanri_tsv_path_candidates() if path.is_file()), None)
+        if source is None:
+            return
+        stat = source.stat()
+        signature = (str(source), stat.st_mtime_ns, stat.st_size)
+        refreshed = signature != getattr(self, 'normalization_signature', None)
+        if refreshed:
+            dictionary_schema_api()
+            from simplified_normalization import SimplifiedNormalizationIndex, SimplifiedNormalizationSession
+            self.normalization_session = SimplifiedNormalizationSession(
+                SimplifiedNormalizationIndex.from_tsv(source))
+            self.normalization_signature = signature
+        changed = self.normalization_session.update(content)
+        if not changed and not refreshed:
+            return
+        for child in self.normalization_frame.winfo_children():
+            child.destroy()
+        if not self.normalization_session.matches:
+            self.normalization_frame.pack_forget()
+            return
+        self.normalization_frame.pack(fill='x', before=self.roman_preview_frame, padx=8, pady=(3, 5))
+        bg = self.normalization_frame.cget('bg')
+        for match in self.normalization_session.matches:
+            row = tk.Frame(self.normalization_frame, bg=bg)
+            row.pack(fill='x')
+            tk.Label(row, text='Did you mean ', bg=bg, fg='#506176', font=self.ui_font_tuple(10)).pack(side='left')
+            for index, target in enumerate(match['targets']):
+                if index:
+                    tk.Label(row, text=' or ', bg=bg, fg='#506176').pack(side='left')
+                tk.Button(
+                    row, text=target['hanri'], bg=bg, fg='#276dbb', relief='flat', bd=0,
+                    padx=2, pady=0, cursor='hand2', takefocus=True,
+                    font=(self.hangul_font_family, 10, 'underline'),
+                    command=lambda m=match, t=target: self.accept_normalization_suggestion(m, t),
+                ).pack(side='left')
+            tk.Label(row, text='?', bg=bg, fg='#506176').pack(side='left')
+
+    def accept_normalization_suggestion(self, match, target) -> bool:
+        session = getattr(self, 'normalization_session', None)
+        if session is None:
+            return False
+        content = self.text.get('1.0', 'end-1c')
+        replacement = session.replacement(match, target, content)
+        if replacement is None:
+            return False
+        content, cursor = replacement
+        self.push_undo_state()
+        self.close_candidate_popup()
+        self.flush_sequence_buffer()
+        self.reset_lomari_buffer()
+        self.composer = Composer(output=content, cursor_pos=cursor)
+        self.composer.e_to_ye_autocorrect_enabled = self.e_to_ye_autocorrect_on.get
+        self.sync_hanri_instance_readings()
+        self.render()
+        self.text.focus_set()
+        return True
+
+    def on_external_text_modified(self, event=None) -> None:
+        if not self.text.edit_modified():
+            return
+        self.text.edit_modified(False)
+        if getattr(self, 'external_text_commit_pending', False):
+            return
+        self.external_text_commit_pending = True
+        self.root.after_idle(self.sync_external_text_commit)
+
+    def sync_external_text_commit(self) -> None:
+        # Tk inserts the external IME's result text; native preedit stays with the OS.
+        self.external_text_commit_pending = False
+        content = self.text.get('1.0', 'end-1c')
+        if content == self.composer.text():
+            return
+        cursor = self.text_index_to_offset('insert')
+        self.push_undo_state()
+        self.close_candidate_popup()
+        self.flush_sequence_buffer()
+        self.reset_lomari_buffer()
+        self.composer = Composer(output=content, cursor_pos=cursor)
+        self.composer.e_to_ye_autocorrect_enabled = self.e_to_ye_autocorrect_on.get
+        self.sync_hanri_instance_readings()
+        self.render()
 
     def flush_sequence_buffer(self, cancel_timer: bool = True) -> None:
         """Compatibility no-op: v0.4 has no delayed shortcut buffer."""
@@ -12881,7 +12971,8 @@ class DesktopHtmlService:
     confirm_and_save_bracketed_hanri_annotations = HokkienIMEPad.confirm_and_save_bracketed_hanri_annotations
     prepare_html_copy = HokkienIMEPad.prepare_html_copy
 
-    def __init__(self):
+    def __init__(self, confirm=None):
+        self.confirm = confirm
         self.root = None
         self.tone_marker_module = None
         self.tone_marker_module_mtime = None
@@ -12893,23 +12984,39 @@ class DesktopHtmlService:
         self.tsv_sync_pending = False
         self.hangul_font_family = 'Noto Sans KR'
 
-    def run_confirmation(self, method, *args, **kwargs):
-        # A Tk owner exists only while an actual TSV confirmation is open.
-        self.root = tk.Tk()
-        try:
-            self.root.withdraw()
-            return method(self, *args, **kwargs)
-        finally:
-            self.close()
+    def run_confirmation(self, title, message, options):
+        if self.confirm is None:
+            raise RuntimeError('This HTML export needs a confirmation in the Local IME window.')
+        return self.confirm({'title': title, 'message': message, 'options': options,
+                             'cancelValue': options[-1]['value']})
 
-    def ask_add_tsv_confirmation(self, *args, **kwargs):
-        return self.run_confirmation(HokkienIMEPad.ask_add_tsv_confirmation, *args, **kwargs)
+    def ask_add_tsv_confirmation(self, hanri, display, message=None):
+        return self.run_confirmation(
+            self.tr('confirm_hanri'), f'{hanri} ({display})\n\n{message or self.tr("add_tsv")}',
+            [{'label': self.tr('yes'), 'value': True}, {'label': self.tr('no'), 'value': False}],
+        )
 
-    def choose_ambiguous_reverse_sandhi_reading(self, *args, **kwargs):
-        return self.run_confirmation(HokkienIMEPad.choose_ambiguous_reverse_sandhi_reading, *args, **kwargs)
+    def choose_ambiguous_reverse_sandhi_reading(self, hanri, item):
+        by_tone = {str(option.get('tone', '')): option.get('reading', '')
+                   for option in item.get('reverse_sandhi_options') or []}
+        if '4' not in by_tone or '5' not in by_tone:
+            return item.get('reading', '')
+        display = item.get('surface_display') or item.get('surface_reading') or ''
+        return self.run_confirmation(
+            self.tr('confirm_hanri'), f'{hanri} ({display})\n\n{self.tr("ambiguous_prompt")}',
+            [{'label': self.tr('yes_tone_4'), 'value': by_tone['4']},
+             {'label': self.tr('yes_tone_5'), 'value': by_tone['5']},
+             {'label': self.tr('no'), 'value': None}],
+        )
 
-    def ask_join_suffix_confirmation(self, *args, **kwargs):
-        return self.run_confirmation(HokkienIMEPad.ask_join_suffix_confirmation, *args, **kwargs)
+    def ask_join_suffix_confirmation(self, hanri, reading, suffix, suffix_reading, combined_hanri, combined_reading):
+        message = self.tr(
+            'join_suffix_tsv', hanri=hanri, reading=format_text_tones_for_output(reading, True),
+            suffix=suffix, suffix_reading=format_text_tones_for_output(suffix_reading, True),
+            combined_hanri=combined_hanri, combined_reading=format_text_tones_for_output(combined_reading, True),
+        )
+        return self.run_confirmation(self.tr('copy_html_dialog'), message,
+            [{'label': self.tr('yes'), 'value': True}, {'label': self.tr('no'), 'value': False}])
 
     def mark_tsv_sync_pending(self):
         self.tsv_sync_pending = True
@@ -13046,9 +13153,24 @@ def run_desktop_html_bridge(payload: dict | None = None, app=None) -> None:
             app.close()
 
 
+def request_desktop_html_confirmation(prompt: dict):
+    write_desktop_bridge_result({'ok': True, 'confirmation': prompt})
+    line = sys.stdin.readline()
+    if not line:
+        raise RuntimeError('HTML confirmation closed without an answer.')
+    answer = json.loads(line)
+    if not isinstance(answer, dict) or 'value' not in answer:
+        raise ValueError('Invalid HTML confirmation answer.')
+    value = answer['value']
+    if not any(type(value) is type(option['value']) and value == option['value']
+               for option in prompt['options']):
+        raise ValueError('Unknown HTML confirmation choice.')
+    return value
+
+
 def run_desktop_html_worker() -> None:
     """Keep the local HTML converter warm; each request still has fresh text."""
-    app = DesktopHtmlService()
+    app = DesktopHtmlService(confirm=request_desktop_html_confirmation)
     try:
         app.load_tone_marker_module().load_hanri_reading_index()
         signature = desktop_html_resource_signature()

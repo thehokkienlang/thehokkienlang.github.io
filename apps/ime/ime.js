@@ -40,6 +40,7 @@ const candidatePopup = imeCore.createCandidatePopupPositioner({
 const imeController = imeCore.createTextImeController({
   control: imeText,
   candidateContainer: candidateBar,
+  normalizationContainer: document.querySelector("#normalizationSuggestions"),
   enabled: () => true,
   onUpdate: updateImePresentation,
   onCandidatesChanged: candidatePopup.schedule,

@@ -254,19 +254,28 @@ def check_export_only_html_service() -> None:
         assert service.root is None
         service.close()
 
-    # Confirmations alone may own a short-lived Tk root, including on errors.
-    root = Mock()
-    with patch.object(pad.tk, 'Tk', return_value=root):
-        def confirmation(owner):
-            assert owner.root is root
-            raise ValueError('test dialog error')
+    prompts = []
+    def decline(prompt):
+        prompts.append(prompt)
+        return prompt['cancelValue']
+    with patch.object(pad.tk, 'Tk', side_effect=AssertionError('HTML confirmations must stay in the browser')):
+        service = pad.DesktopHtmlService(confirm=decline)
+        assert service.ask_add_tsv_confirmation('德', '뎩1') is False
+        assert service.choose_ambiguous_reverse_sandhi_reading('德', {
+            'reverse_sandhi_options': [{'tone': '4', 'reading': '뎩4'}, {'tone': '5', 'reading': '뎩5'}],
+        }) is None
+        assert service.ask_join_suffix_confirmation('德', '뎩1', '仔', '아2', '德仔', '뎩1아2') is False
+    assert [len(prompt['options']) for prompt in prompts] == [2, 3, 2]
+    output = io.StringIO()
+    with patch.object(sys, 'stdin', io.StringIO('{"value": false}\n')), patch.object(sys, 'stdout', output):
+        assert pad.request_desktop_html_confirmation(prompts[0]) is False
+    assert json.loads(output.getvalue())['confirmation'] == prompts[0]
+    with patch.object(sys, 'stdin', io.StringIO('{"value": 1}\n')), patch.object(sys, 'stdout', io.StringIO()):
         try:
-            service.run_confirmation(confirmation)
+            pad.request_desktop_html_confirmation(prompts[0])
+            raise AssertionError('Numeric answers must not masquerade as boolean choices')
         except ValueError:
             pass
-    root.withdraw.assert_called_once()
-    root.destroy.assert_called_once()
-    assert service.root is None
 
 
 def check_native_html_clipboard() -> None:
@@ -313,10 +322,14 @@ def check_persistent_html_bridge(shell) -> None:
     with tempfile.TemporaryDirectory() as folder:
         script = Path(folder) / 'worker.py'
         script.write_text(
-            'import json, os, sys\n'
+            'import json, os, sys, time\n'
             'for line in sys.stdin:\n'
             '    payload = json.loads(line)\n'
             '    if payload.get("crash"): sys.exit(1)\n'
+            '    if payload.get("hang"): time.sleep(100)\n'
+            '    if payload.get("ask"):\n'
+            '        print(json.dumps({"ok": True, "confirmation": {"title": "Reading", "options": []}}), flush=True)\n'
+            '        payload = json.loads(sys.stdin.readline())\n'
             '    print(json.dumps({"ok": not payload.get("fail"), "error": "test error", '
             '"payload": payload, "pid": os.getpid()}, ensure_ascii=False), flush=True)\n',
             encoding='utf-8',
@@ -334,6 +347,20 @@ def check_persistent_html_bridge(shell) -> None:
             except RuntimeError as exc:
                 assert str(exc) == 'test error'
             assert server.run_html_bridge({})['pid'] == first['pid']
+            prompt = server.copy_html({'text': '[德뎩1]', 'ask': True})['confirmation']
+            try:
+                server.copy_html({'text': '릐호'})
+                raise AssertionError('A second copy must not answer an open confirmation')
+            except RuntimeError as exc:
+                assert 'confirmation' in str(exc)
+            try:
+                server.confirm_html({'id': 'stale', 'value': False})
+                raise AssertionError('Stale confirmation ID was accepted')
+            except RuntimeError:
+                pass
+            confirmed = server.confirm_html({'id': prompt['id'], 'value': False})
+            assert confirmed['payload'] == {'value': False}
+            assert confirmed['pid'] == first['pid']
             try:
                 server.run_html_bridge({'crash': True})
                 raise AssertionError('Worker exits must reach the caller')
@@ -341,6 +368,14 @@ def check_persistent_html_bridge(shell) -> None:
                 pass
             restarted = server.run_html_bridge({})
             assert restarted['pid'] != first['pid'], 'The next request must recover after a worker exit'
+            with patch.object(shell, 'HTML_RESPONSE_TIMEOUT_SECONDS', 0.05):
+                try:
+                    server.run_html_bridge({'hang': True})
+                    raise AssertionError('A stuck HTML worker must time out')
+                except RuntimeError as exc:
+                    assert 'timed out' in str(exc)
+            assert server.html_bridge_process is None
+            assert server.run_html_bridge({})['pid'] != restarted['pid']
             process = server.html_bridge_process
         finally:
             server.server_close()

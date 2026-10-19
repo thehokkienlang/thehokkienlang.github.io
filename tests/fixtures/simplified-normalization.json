@@ -1,0 +1,34 @@
+{
+  "entries": [
+    {"id":"U+8CA0_U+8CAC_U+4EFB_00","active":true,"hanri":"負責任","simplified":"负责任"},
+    {"id":"U+8CA0_U+8CAC_U+4EFB_01","active":true,"hanri":"負責任","simplified":"负责任"},
+    {"id":"U+8CAC_U+4EFB_00","active":true,"hanri":"責任","simplified":"责任"},
+    {"id":"U+4E16_U+754C_00","active":true,"hanri":"世界","simplified":"〃"},
+    {"id":"U+767C_00","active":true,"hanri":"發","simplified":"发"},
+    {"id":"U+767C_U+52D5_00","active":true,"hanri":"發動","simplified":"发动"},
+    {"id":"U+6C96_00","active":true,"hanri":"沖","simplified":"冲"},
+    {"id":"U+885D_00","active":true,"hanri":"衝","simplified":"冲"},
+    {"id":"U+8CA0_U+BF40_00","active":true,"hanri":"負뽀","simplified":"负뽀"},
+    {"id":"U+5BB6_U+5DF1_00","active":true,"hanri":"家己","simplified":"〃","mandarin_simp":"自己"},
+    {"id":"U+96F2_00","active":true,"hanri":"雲","simplified":"云"},
+    {"id":"U+4E91_U+4E91_00","active":true,"hanri":"云云","simplified":"〃"},
+    {"id":"U+98A8_00","active":false,"hanri":"風","simplified":"风"},
+    {"id":"U+9AD4_00-sandhi","active":true,"hanri":"體","simplified":"体","autoSandhi":true},
+    {"id":"U+5104_00","active":true,"kind":"numeric_override","hanri":"億","simplified":"亿"},
+    {"id":"U+82B1_00","active":true,"hanri":"花","simplified":""},
+    {"id":"U+53F1_00","active":true,"hanri":"叱","simplified":"𠮟"}
+  ],
+  "cases": [
+    {"text":"负责任","matches":[["负责任",["負責任"],0]]},
+    {"text":"世界","matches":[]},
+    {"text":"ABC负责任XYZ","matches":[["负责任",["負責任"],3]]},
+    {"text":"负责任责任发动","matches":[["负责任",["負責任"],0],["责任",["責任"],3],["发动",["發動"],5]]},
+    {"text":"发 冲","matches":[["发",["發"],0],["冲",["沖","衝"],2]]},
+    {"text":"自己","matches":[]},
+    {"text":"☃负责任𤺪负뽀","matches":[["负责任",["負責任"],1],["负뽀",["負뽀"],5]]},
+    {"text":"云云 云","matches":[["云",["雲"],3]]},
+    {"text":"风体亿花","matches":[]},
+    {"text":"〃","matches":[]},
+    {"text":"𠮟负责任","matches":[["𠮟",["叱"],0],["负责任",["負責任"],1]]}
+  ]
+}

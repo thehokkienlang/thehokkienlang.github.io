@@ -92,6 +92,7 @@ def main() -> int:
     run('Adaptive Web safeguards', 'node', 'tools/check_adaptive_safeguards.cjs')
     run('Adaptive Local/Desktop safeguards', sys.executable, '-X', 'utf8', 'tools/check_adaptive_safeguards.py')
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
+    run("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()
 
