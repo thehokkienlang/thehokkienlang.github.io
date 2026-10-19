@@ -4,6 +4,12 @@ Launch `python "desktop/Tangliengim Dictionary Editor.py"` or use **Dictionary
 editor** in the Local IME toolbar. This is a local desktop tool; `/editor/` is
 served by the localhost bridge, not GitHub Pages.
 
+Publishing requires Node.js for the JavaScript release checks. The editor looks
+on PATH, in standard Windows Node.js locations, and in the available Codex runtime.
+For a custom installation, set `TANGLIENGIM_NODE` to the full executable path.
+The resolved directory is passed to all release-check subprocesses. If no runtime
+is available, publishing stops with instructions while keeping local entries saved.
+
 ## Daily editing
 
 1. Search/select an entry to edit it, or choose **New entry**.

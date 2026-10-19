@@ -23,6 +23,7 @@ from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS
 from dictionary_references import CATEGORY_COLUMNS
 from sort_dictionary_tsv import sort_tsv
 from validate_dictionary_tsv import validate
+from node_runtime import node_environment
 
 
 def entry(hanri="家", reading="가1", english="home", identity="U+5BB6_00"):
@@ -43,6 +44,45 @@ def fixture(root):
     for name, raw in files.items():
         (data / name).write_bytes(raw)
     return files
+
+
+class NodeRuntimeTests(unittest.TestCase):
+    def test_node_on_path_is_propagated_to_child_processes(self):
+        with tempfile.TemporaryDirectory() as folder:
+            executable = Path(folder) / 'node.exe'
+            executable.touch()
+            with patch('node_runtime.shutil.which', return_value=str(executable)):
+                node, env = node_environment({'PATH': 'existing-path'})
+            self.assertEqual(node, str(executable.resolve()))
+            self.assertEqual(env['TANGLIENGIM_NODE'], node)
+            self.assertEqual(env['PATH'], str(executable.parent) + os.pathsep + 'existing-path')
+
+    def test_desktop_without_node_on_path_finds_bundled_runtime(self):
+        with tempfile.TemporaryDirectory() as folder:
+            executable = Path(folder) / '.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node.exe'
+            executable.parent.mkdir(parents=True)
+            executable.touch()
+            with patch('node_runtime.shutil.which', return_value=None):
+                node, env = node_environment({'USERPROFILE': folder, 'PATH': ''})
+            self.assertEqual(node, str(executable.resolve()))
+            self.assertTrue(env['PATH'].startswith(str(executable.parent)))
+
+    def test_explicit_missing_runtime_has_actionable_error(self):
+        with tempfile.TemporaryDirectory() as folder:
+            with self.assertRaisesRegex(FileNotFoundError, 'Install Node.js LTS'):
+                node_environment({'TANGLIENGIM_NODE': str(Path(folder) / 'missing.exe')})
+
+    def test_publisher_reports_missing_node_before_git_operations(self):
+        with tempfile.TemporaryDirectory() as folder:
+            repo = Path(folder)
+            fixture(repo)
+            publisher = DictionaryPublisher(DictionaryEditorService(repo))
+            with (patch.object(publishing, 'node_environment', side_effect=FileNotFoundError('Install Node.js LTS')),
+                  patch.object(publishing, 'git') as run_git):
+                with self.assertRaises(EditorError) as caught:
+                    publisher.publish()
+                self.assertEqual(caught.exception.code, 'dependency')
+                run_git.assert_not_called()
 
 
 class SaveTests(unittest.TestCase):

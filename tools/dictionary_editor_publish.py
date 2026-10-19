@@ -23,6 +23,7 @@ from dictionary_editor_service import (
 from dictionary_schema import is_comment_record, next_entry_id
 from sort_dictionary_tsv import sort_tsv
 from validate_dictionary_tsv import validate
+from node_runtime import node_environment
 
 
 def git(repo, *arguments, timeout=120, check=True):
@@ -161,6 +162,10 @@ class DictionaryPublisher:
     def publish(self, resolutions=None):
         repo = self.repo
         self.progress("Checking local repository")
+        try:
+            _, release_env = node_environment()
+        except FileNotFoundError as error:
+            raise EditorError(str(error), code='dependency') from error
         if git(repo, "branch", "--show-current").stdout.strip() != "main":
             raise EditorError("Publish entries from the main checkout. Your saved entries are safe.")
         if git(repo, "diff", "--cached", "--name-only").stdout.strip():
@@ -200,7 +205,7 @@ class DictionaryPublisher:
             merged = {name: (staging / "data" / name).read_bytes() for name in merged}
             self.progress("Running dictionary, build, and release checks")
             log = self.service.state / "publish-checks.log"
-            env = os.environ.copy()
+            env = release_env.copy()
             env["HOKKIEN_GITHUB_REPO_PATH"] = str(staging)
             env["HOKKIEN_HANRI_DICT_PATH"] = str(staging / "data" / MAIN)
             with log.open("w", encoding="utf-8") as output:

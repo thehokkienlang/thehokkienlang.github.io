@@ -12,6 +12,7 @@ import sys
 from pathlib import Path
 
 from capture_legacy_parity import capture
+from node_runtime import node_environment
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -27,6 +28,7 @@ JAVASCRIPT_FILES = (
     "shared/web-audio-player.js",
 )
 PYTHON_FILES = (
+    "tools/node_runtime.py",
     "desktop/dictionary_editor.py",
     "desktop/Tangliengim Dictionary Editor.py",
     "tools/dictionary_editor_service.py",
@@ -73,6 +75,13 @@ def main() -> int:
         help="Run portable source checks without rebuilding the published site.",
     )
     args = parser.parse_args()
+
+    try:
+        _, env = node_environment()
+    except FileNotFoundError as error:
+        print(str(error), file=sys.stderr)
+        return 1
+    os.environ.update(env)
 
     check_python_syntax()
     for relative in JAVASCRIPT_FILES:
