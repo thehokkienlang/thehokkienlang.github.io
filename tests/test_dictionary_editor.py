@@ -55,7 +55,7 @@ class NodeRuntimeTests(unittest.TestCase):
                 node, env = node_environment({'PATH': 'existing-path'})
             self.assertEqual(node, str(executable.resolve()))
             self.assertEqual(env['TANGLIENGIM_NODE'], node)
-            self.assertEqual(env['PATH'], str(executable.parent) + os.pathsep + 'existing-path')
+            self.assertEqual(env['PATH'], str(executable.resolve().parent) + os.pathsep + 'existing-path')
 
     def test_desktop_without_node_on_path_finds_bundled_runtime(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -65,7 +65,7 @@ class NodeRuntimeTests(unittest.TestCase):
             with patch('node_runtime.shutil.which', return_value=None):
                 node, env = node_environment({'USERPROFILE': folder, 'PATH': ''})
             self.assertEqual(node, str(executable.resolve()))
-            self.assertTrue(env['PATH'].startswith(str(executable.parent)))
+            self.assertEqual(env['PATH'].split(os.pathsep)[0], str(executable.resolve().parent))
 
     def test_explicit_missing_runtime_has_actionable_error(self):
         with tempfile.TemporaryDirectory() as folder:
@@ -89,7 +89,7 @@ class SaveTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
+        self.root = Path(self.temp.name).resolve()
         fixture(self.root)
         self.service = DictionaryEditorService(self.root)
 
