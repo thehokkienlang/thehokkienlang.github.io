@@ -2300,12 +2300,12 @@ AUDIO_FILE_EXTENSIONS = ('.wav', '.wave')
 # Adjacent audio units inside the same phrase are also overlapped/crossfaded
 # slightly to reduce the stitched-together feeling.  The overlap is determined
 # by the boundary type:
-#   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.08s
+#   previous ㄱ/ㄷ/ㅀ/ㅂ/ㅎ-final unit -> 0.06s
 #   otherwise -> 0.12s
 AUDIO_CONNECTED_TRIM_SECONDS = 0.20
 AUDIO_END_TRIM_SECONDS = 0.15
 AUDIO_UNIT_OVERLAP_SECONDS = 0.12
-AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.08
+AUDIO_CHECKED_FINAL_UNIT_OVERLAP_SECONDS = 0.06
 AUDIO_MAX_UNIT_OVERLAP_FRACTION = 0.25
 # Add a short leading silence so Windows/audio devices do not clip the first syllable.
 AUDIO_INITIAL_BUFFER_SECONDS = 0.25

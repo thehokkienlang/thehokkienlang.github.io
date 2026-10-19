@@ -3,7 +3,7 @@ const TangliengimWebAudio = (() => {
   const TONE4_SPEED = 1.03;
   const AUDIO_JOIN_TIMING = Object.freeze({
     normalOverlapSeconds: 0.12,
-    checkedOverlapSeconds: 0.08,
+    checkedOverlapSeconds: 0.06,
     englishClusterOverlapSeconds: 0.04,
     maxClipFraction: 0.25,
   });
