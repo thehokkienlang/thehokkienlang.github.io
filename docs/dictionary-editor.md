@@ -19,15 +19,43 @@ is available, publishing stops with instructions while keeping local entries sav
 3. Add English, Traditional Mandarin and existing categories as appropriate.
    Simplified forms are generated using the existing OpenCC rules. Unknown
    translations remain blank. Additional fields expose the stored values.
+   Entry type is detected automatically and displayed read-only there: numeric
+   input with a corrected pronunciation takes precedence, then a `*` reading
+   with a corrected reading, then Hanri/mixed words or pure-Hangul overrides.
+   New entries, preview and batch imports use the same rules. Existing types are
+   retained for ordinary gloss edits; changes to the headword, reading or corrected
+   reading trigger reclassification. Defunct is a separate status.
 4. **Preview** uses the desktop pronunciation engines for Lomari and recorded
    audio. Missing recordings are identified before publishing.
 5. **Save locally** validates the complete proposed data, assigns new IDs,
    updates category/reference labels where applicable, and applies canonical
    sorting. Identical rows are skipped. Another reading or sense for an existing
-   headword requires confirmation. Existing IDs are preserved; changing the
-   identity headword requires creating a new record.
+   headword requires confirmation. Editing the identity headword automatically
+   saves a replacement with a new ID and marks the previous record defunct.
+   Its original ID stays reserved. Categories and explicit references follow
+   the replacement; candidate preference history is not transferred.
 6. Local runtime data refreshes in a background job. Returning to the IME window
    refreshes candidates without clearing its typed text.
+
+New entries and headword replacements appear first in the editor with a blue
+highlight. Recent-entry highlighting persists in this browser across reloads;
+the source TSV retains its canonical order. Ordinary edits to meanings or
+readings do not mark an existing entry as newly created.
+
+The default **All entries** view includes defunct records, greyed out and labelled
+**Defunct**. Select one to inspect its previous values. The status filter can also
+show only active or only defunct entries. Defunct entries are read-only and are
+stored in `data/dictionary_defunct.tsv`, with their original
+nine fields and `replacement_entry_id`. The replacement link is editor history,
+not a public URL redirect. Defunct records are excluded from runtime dictionaries,
+IME candidates and script-normalization suggestions. The editor saves and
+publishes the archive together with the active dictionary and ID registry.
+
+To retire an entry without replacing its headword, select it and click
+**Make defunct**, then confirm. The original saved record stays visible in grey
+and its ID stays reserved. Its `replacement_entry_id` is blank. Linked reading
+corrections are also retired; active category, priority and correction references
+are removed or adjusted. Use **Publish updates** to apply the change to GitHub.
 
 **Batch import** accepts tab-separated headword, reading, English and Traditional
 Mandarin (the last two may be omitted). A named header may specify the existing

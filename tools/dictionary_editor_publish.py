@@ -17,10 +17,11 @@ from urllib.parse import urlsplit
 
 from assign_dictionary_entry_ids import _atomic_write
 from dictionary_editor_service import (
-    DATA_FILES, MAIN, REGISTRY, CATEGORIES, DictionaryEditorService, EditorError,
+    DATA_FILES, MAIN, REGISTRY, CATEGORIES, DEFUNCT, DictionaryEditorService, EditorError,
     fingerprint, read_table, table_bytes,
 )
-from dictionary_schema import is_comment_record, next_entry_id
+from dictionary_schema import is_comment_record, next_entry_id, canonical_entry_headword
+from dictionary_ranking import lookup_key, reading_base
 from sort_dictionary_tsv import sort_tsv
 from validate_dictionary_tsv import validate
 from node_runtime import node_environment
@@ -28,6 +29,40 @@ from node_runtime import node_environment
 BASELINE = 'tests/fixtures/dictionary-baseline.json'
 DATA_BASELINES = (BASELINE, 'tests/fixtures/adaptive-static-menu-baseline.json',
                   'tests/fixtures/adaptive-static-desktop-baseline.json')
+READING_DEFAULTS = 'tests/fixtures/static-reading-defaults.json'
+
+
+def retire_default_expectations(repo):
+    """Remove historical expectations only for records deliberately made defunct."""
+    archive = repo / 'data' / DEFUNCT
+    fixture = repo / READING_DEFAULTS
+    if not archive.exists() or not fixture.exists():
+        return
+    archived = read_table(archive.read_bytes())[1]
+    active = [row for row in read_table((repo / 'data' / MAIN).read_bytes())[1] if not is_comment_record(row)]
+    ids = {row['entry_id'] for row in archived}
+    retired_words = {canonical_entry_headword(row['hanri']) for row in archived}
+    retired_words -= {canonical_entry_headword(row['hanri']) for row in active}
+    retired_overrides = {reading_base(row['hanri']) for row in archived
+                         if row['entry_type'] == 'hangul_override'}
+    retired_overrides -= {reading_base(row['hanri']) for row in active
+                          if row['entry_type'] == 'hangul_override'}
+    defaults = json.loads(fixture.read_text(encoding='utf-8'))
+    for field in ('defaults', 'hangulDefaults'):
+        defaults[field] = [row for row in defaults[field] if row.get('id') not in ids]
+    defaults['desktopMixedDefaults'] = [row for row in defaults['desktopMixedDefaults']
+                                        if row['key'] not in retired_words]
+    defaults['desktopAudioReadingDefaults'] = {key: value for key, value in defaults['desktopAudioReadingDefaults'].items()
+                                              if reading_base(key) not in retired_overrides}
+    _atomic_write(fixture, (json.dumps(defaults, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
+
+
+def changed_lookup_sources(before, after):
+    def definitions(raw):
+        return {row['entry_id']: tuple(row[field] for field in ('hanri', 'reading', 'corrected', 'entry_type'))
+                for row in read_table(raw)[1] if not is_comment_record(row)}
+    old, new = definitions(before[MAIN]), definitions(after[MAIN])
+    return sorted(identity for identity in old.keys() | new.keys() if old.get(identity) != new.get(identity))
 
 def git(repo, *arguments, timeout=120, check=True):
     env = os.environ.copy()
@@ -67,10 +102,12 @@ def merge_sources(base, local, remote, resolutions=None):
     base_ids = {r["entry_id"] for r in read_table(base[REGISTRY])[1]}
     remote_reserved = {r["entry_id"] for r in read_table(remote[REGISTRY])[1]}
     remote_by_id = {r["entry_id"]: r for r in remote_rows if not is_comment_record(r)}
+    local_archived = read_table(local[DEFUNCT])[1] if DEFUNCT in local else []
+    remote_by_id.update({r['entry_id']: r for r in read_table(remote[DEFUNCT])[1]} if DEFUNCT in remote else {})
     reg_header, reg_rows = read_table(local[REGISTRY])
     reserved = {r["entry_id"] for raw in (local[REGISTRY], remote[REGISTRY]) for r in read_table(raw)[1]}
     remapped = {}
-    for row in local_rows:
+    for row in [*local_rows, *local_archived]:
         identity = row.get("entry_id")
         other = remote_by_id.get(identity)
         if identity and identity not in base_ids and identity in remote_reserved and other != row:
@@ -80,19 +117,21 @@ def merge_sources(base, local, remote, resolutions=None):
             row["entry_id"] = replacement
     if remapped:
         local[MAIN] = table_bytes(local_header, local_rows)
+        if DEFUNCT in local:
+            local[DEFUNCT] = table_bytes(read_table(local[DEFUNCT])[0], local_archived)
         for row in reg_rows:
             row["entry_id"] = remapped.get(row["entry_id"], row["entry_id"])
         local[REGISTRY] = table_bytes(reg_header, reg_rows)
-        for name in (CATEGORIES, "dictionary_priority.tsv", "dictionary_redirects.tsv"):
+        for name in (CATEGORIES, "dictionary_priority.tsv", "dictionary_redirects.tsv", DEFUNCT):
             if name not in local:
                 continue
             header, rows = read_table(local[name])
             for row in rows:
-                for column in ("entry_id", "target_entry_id"):
+                for column in ("entry_id", "target_entry_id", "replacement_entry_id"):
                     if column in row:
                         row[column] = remapped.get(row[column], row[column])
             local[name] = table_bytes(header, rows)
-    keys = {MAIN: ("entry_id",), REGISTRY: ("entry_id",), CATEGORIES: ("category", "entry_id"),
+    keys = {MAIN: ("entry_id",), REGISTRY: ("entry_id",), DEFUNCT: ("entry_id",), CATEGORIES: ("category", "entry_id"),
             "dictionary_priority.tsv": ("lookup_key", "entry_id"),
             "dictionary_redirects.tsv": ("kind", "source", "source_reading")}
     merged, conflicts = {}, []
@@ -239,6 +278,7 @@ class DictionaryPublisher:
                 check(*baseline_checks[0][0])
                 for name, raw in merged.items():
                     (staging / 'data' / name).write_bytes(raw)
+                retire_default_expectations(staging)
                 with redirect_stdout(io.StringIO()):
                     errors = validate(staging / 'data' / MAIN)
                     if errors:
@@ -247,17 +287,28 @@ class DictionaryPublisher:
                 merged = {name: (staging / 'data' / name).read_bytes() for name in merged}
                 self.progress('Updating the dictionary snapshot for the saved entries')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
+                if (staging / 'tools/check_static_ranking.cjs').is_file():
+                    self.progress('Checking reading defaults affected by the saved entries')
+                    check(env['TANGLIENGIM_NODE'], 'tools/check_static_ranking.cjs', '--refresh-defaults-for',
+                          json.dumps(changed_lookup_sources(remote, merged)))
+                if (staging / 'tools/check_static_desktop.py').is_file():
+                    check(str(interpreter), '-X', 'utf8', 'tools/check_static_desktop.py')
                 for command, capture_flag, label in baseline_checks:
                     self.progress('Preparing ' + label + ' snapshot')
                     check(*command, capture_flag)
                 self.progress('Building the updated dictionary and IME')
+                if (staging / 'tools/build_redirect_log.py').is_file():
+                    check(str(interpreter), '-X', 'utf8', 'tools/build_redirect_log.py')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_site.py')
                 self.progress('Checking dictionary references')
                 check(env['TANGLIENGIM_NODE'], 'tools/check_entry_references.cjs')
                 self.progress('Checking generated website files')
                 check(str(interpreter), '-X', 'utf8', 'tools/check_site.py')
             paths = ["data/" + name for name in DATA_FILES if name in merged]
-            git(staging, "add", "--", *paths, *DATA_BASELINES)
+            fixtures = [name for name in (*DATA_BASELINES, READING_DEFAULTS) if (staging / name).exists()]
+            if (staging / 'docs/dictionary-redirects.md').is_file():
+                fixtures.append('docs/dictionary-redirects.md')
+            git(staging, "add", "--", *paths, *fixtures)
             changed = bool(git(staging, "diff", "--cached", "--name-only").stdout.strip())
             if changed:
                 git(staging, "commit", "-m", "Update dictionary entries with Tangliengim Dictionary Editor")
@@ -277,7 +328,7 @@ class DictionaryPublisher:
                 dirty_data = git(repo, "status", "--porcelain", "--", *paths).stdout.strip()
                 stash_id = None
                 if dirty_data:
-                    git(repo, "stash", "push", "-m", "Tangliengim editor pre-publish backup", "--", *paths)
+                    git(repo, "stash", "push", "--include-untracked", "-m", "Tangliengim editor pre-publish backup", "--", *paths)
                     stash_id = git(repo, "rev-parse", "refs/stash").stdout.strip()
                 try:
                     git(repo, "merge", "--ff-only", "origin/main")

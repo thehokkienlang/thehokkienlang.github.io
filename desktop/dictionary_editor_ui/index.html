@@ -26,6 +26,7 @@
       </div>
       <div class="search-keyboard-control"><button id="searchKeyboardToggle" class="search-keyboard-toggle" type="button" aria-pressed="false" aria-controls="search"><span>Enable Hangul keyboard</span><span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button></div>
       <div class="entry-filters">
+        <select id="statusFilter" aria-label="Entry status"><option value="all">All entries</option><option value="active">Active entries</option><option value="defunct">Defunct entries</option></select>
         <select id="typeFilter" aria-label="Entry type"><option value="">All types</option><option value="lexical">Words</option><option value="hangul_override">Hangul overrides</option><option value="correction_alias">Corrections</option><option value="number_pronunciation">Numbers</option></select>
         <select id="categoryFilter" aria-label="Category"><option value="">All categories</option></select>
         <span id="entryCount" class="muted">Loading entries...</span>
@@ -41,6 +42,7 @@
     <section class="entry-detail" aria-labelledby="formTitle">
       <div class="detail-heading"><h2 id="formTitle">New entry</h2><span id="unsaved" class="muted" hidden>Unsaved changes</span></div>
       <p id="saveFeedback" class="save-feedback" role="status" aria-live="polite" hidden></p>
+      <p id="entryStatus" class="muted" hidden></p>
       <form id="entryForm">
         <label for="hanri">Hanri / headword</label>
         <div class="input-wrap"><input id="hanri" name="hanri" class="script" required autocomplete="off" spellcheck="false"><div id="headwordCandidates" class="candidate-bar hanri-candidate-menu" hidden></div></div>
@@ -52,11 +54,11 @@
         <details id="advanced"><summary>Additional fields</summary><div class="advanced-fields">
           <label for="simplified">Hokkien (Simplified)</label><input id="simplified" name="simplified" class="script" autocomplete="off">
           <label for="mandarin_simp">Mandarin (Simplified)</label><input id="mandarin_simp" name="mandarin_simp" class="script" autocomplete="off">
-          <label for="entry_type">Entry type</label><select id="entry_type" name="entry_type"><option value="">Automatic</option><option value="lexical">Word</option><option value="hangul_override">Hangul override</option><option value="correction_alias">Correction alias</option><option value="number_pronunciation">Number pronunciation</option></select>
+          <label for="entry_type">Entry type</label><input id="entry_type" readonly>
           <label for="corrected">Corrected reading</label><input id="corrected" name="corrected" class="script" autocomplete="off">
           <label for="entry_id">Entry ID</label><input id="entry_id" name="entry_id" readonly>
         </div></details>
-        <div class="form-actions"><button id="previewButton" type="button">Preview</button><button id="saveButton" class="primary" type="submit">Save locally</button></div>
+        <div class="form-actions"><button id="retireButton" type="button" hidden>Make defunct</button><button id="previewButton" type="button">Preview</button><button id="saveButton" class="primary" type="submit">Save locally</button></div>
       </form>
       <section id="preview" class="preview" aria-label="Entry preview" hidden>
         <div class="preview-top"><h3 id="previewHeadword" class="script"></h3><button id="listen" type="button">Listen</button></div>

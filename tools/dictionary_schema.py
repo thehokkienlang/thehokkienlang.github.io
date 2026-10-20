@@ -24,6 +24,7 @@ DICTIONARY_COLUMNS = (
     "english", "corrected", "entry_type", "entry_id",
 )
 DITTO = "〃"
+DEFUNCT_COLUMNS = (*DICTIONARY_COLUMNS, "replacement_entry_id")
 INHERITED_FIELDS = {"simplified": "hanri", "mandarin_trad": "hanri", "mandarin_simp": "mandarin_trad"}
 REDIRECT_COLUMNS = ['kind', 'source', 'source_reading', 'target_entry_id', 'reason', 'sources', 'date']
 

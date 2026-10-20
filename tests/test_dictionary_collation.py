@@ -164,7 +164,9 @@ class CollationTests(unittest.TestCase):
         self.assertEqual(len(set(entry_ids)), len(entry_ids))
         self.assertTrue(all(entry_id_matches_headword(row["entry_id"], row["hanri"]) for row in rows))
         bases = {value.rsplit("_", 1)[0] for value in entry_ids}
-        self.assertTrue(all(f"{base}_00" in entry_ids for base in bases))
+        with (ROOT / 'data/dictionary_entry_id_registry.tsv').open(encoding='utf-8', newline='') as handle:
+            reserved_ids = {row['entry_id'] for row in csv.DictReader(handle, delimiter='\t')}
+        self.assertTrue(all(f"{base}_00" in reserved_ids for base in bases))
         self.assertFalse(any(row["entry_id"] == "U+B990_U+D638_01" for row in rows))
         for row in rows:
             if row["entry_type"] != "number_pronunciation":
@@ -199,11 +201,17 @@ class CollationTests(unittest.TestCase):
         ):
             row = by_id[entry_id]
             self.assertEqual((row["reading"], row["hanri"], row["entry_type"]), (reading, headword, entry_type))
-        self.assertNotIn("U+AC00_00", by_id)
+        # The old 가2 spelling was migrated; a distinct 가5 entry is legitimate.
+        self.assertFalse(any(row['reading'] == '가2' and canonical_entry_headword(row['hanri']) == '가' for row in rows))
         self.assertEqual(by_id["U+54EA_U+88E1_00"]["english"], "where")
         with (ROOT / "data/dictionary_entry_id_registry.tsv").open(encoding="utf-8", newline="") as handle:
             registry = list(csv.DictReader(handle, delimiter="\t"))
-        self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | {
+        archive = ROOT / 'data/dictionary_defunct.tsv'
+        defunct_ids = set()
+        if archive.exists():
+            with archive.open(encoding='utf-8', newline='') as handle:
+                defunct_ids = {row['entry_id'] for row in csv.DictReader(handle, delimiter='\t')}
+        self.assertEqual({row["entry_id"] for row in registry}, set(by_id) | defunct_ids | {
             'U+7C73_U+7C89_U+7CBF_00',  # Retired 米粉粿; spelling redirect preserves lookup.
             "U+B990_U+D638_01", "U+B990_U+D638_00", "U+B098_00", "U+B3C4_U+C704_00",
         })

@@ -13,6 +13,25 @@ const index = core.createDictionaryIndex(data.entries);
 const reversed = core.createDictionaryIndex([...data.entries].reverse().map((e,i) => ({...e,row:100000-i})));
 for (const [key,list] of index.candidatesByReading) assert.deepEqual(list.map(e=>e.id),reversed.candidatesByReading.get(key).map(e=>e.id),`Row-dependent candidates: ${key}`);
 const defaults = JSON.parse(fs.readFileSync(path.join(root,'tests/fixtures/static-reading-defaults.json')));
+const refreshFlag = process.argv.indexOf('--refresh-defaults-for');
+if (refreshFlag !== -1) {
+  const changed = JSON.parse(process.argv[refreshFlag + 1]);
+  assert.ok(Array.isArray(changed) && changed.every(id => typeof id === 'string'), 'Expected changed source IDs');
+  const allowed = new Set(changed);
+  let refreshed = 0;
+  for (const expected of defaults.defaults) {
+    const actual = index.findHanriEntry(expected.key);
+    const identity = actual?.raw?.entry_id || actual?.id || null;
+    if (!allowed.has(identity) && !allowed.has(expected.id)) continue;
+    const values = {id: actual?.id || null, hanri: actual?.hanri || null, reading: actual?.reading || null};
+    if (Object.keys(values).some(field => expected[field] !== values[field])) {
+      Object.assign(expected, values);
+      refreshed++;
+    }
+  }
+  fs.writeFileSync(path.join(root,'tests/fixtures/static-reading-defaults.json'),JSON.stringify(defaults,null,2)+'\n');
+  console.log(`Refreshed ${refreshed} lookup contexts affected by edited source IDs.`);
+}
 for (const expected of defaults.defaults) {
   const actual = index.findHanriEntry(expected.key);
   assert.equal(actual?.hanri || null,expected.hanri,`Segmentation changed: ${expected.key}`);

@@ -93,7 +93,7 @@ async function loadApp(route, script) {
     return kah?.hanri === '徦' && kah.reading === '갛' && kah.entryType === 'lexical'
       && index.findHanriEntry('徦', 0)?.id === kah.id
       && [...index.candidatesByReading.values()].some(entries => entries.some(entry => entry.id === kah.id))
-      && !state.entries.some(entry => entry.id === 'U+AC00_00')
+      && !state.entries.some(entry => entry.id === 'U+AC00_00' && entry.reading === '가2')
       && state.entries.find(entry => entry.id === 'U+5E95_00')?.reading === '되2'
       && state.entries.find(entry => entry.id === 'U+5E95_01')?.reading === '도2'
       && state.entries.find(entry => entry.id === 'U+54EA_U+88E1_00')?.english === 'where';
@@ -958,7 +958,8 @@ async function loadApp(route, script) {
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
     ['릐호', 'lî-ho'],
-    ['릐 시뎋哭', 'lì si-têh-khau'],
+    // Use the current aspect-marker entry, which replaced the retired 뎋 default.
+    ['릐 시렣哭', 'lì si-lêh-khau'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
     ['賣票', 'boe-phio'],
     ['廈門', 'e-mńg'],

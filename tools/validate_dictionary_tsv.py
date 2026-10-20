@@ -9,7 +9,7 @@ import unicodedata
 from pathlib import Path
 
 from dictionary_schema import (
-    DICTIONARY_COLUMNS,
+    DICTIONARY_COLUMNS, DEFUNCT_COLUMNS,
     ENTRY_ID_REGISTRY_COLUMNS,
     canonical_entry_headword,
     entry_id_matches_headword,
@@ -99,6 +99,48 @@ def validate_registry(path: Path, active_ids: dict[str, str]) -> list[str]:
             errors.append(f"ID registry: active entry_id {entry_id!r} is missing")
         elif row != (headword, ""):
             errors.append(f"ID registry: active entry_id {entry_id!r} has mismatched metadata or redirect")
+    return errors
+
+
+def validate_defunct(path: Path, active_ids: dict[str, str], registry_path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    errors, archived, successors = [], {}, {}
+    try:
+        raw = path.read_bytes()
+        if (raw.startswith(b'\xef\xbb\xbf') or raw.count(b'\n') != raw.count(b'\r\n')
+                or raw.count(b'\r') != raw.count(b'\r\n') or not raw.endswith(b'\r\n')):
+            errors.append('Defunct entries must use UTF-8 without BOM and CRLF line endings')
+        reader = csv.DictReader(io.StringIO(raw.decode('utf-8'), newline=''), delimiter='\t', strict=True)
+        if tuple(reader.fieldnames or ()) != DEFUNCT_COLUMNS:
+            return errors + ['Invalid defunct-entry header']
+        for row in reader:
+            if None in row or None in row.values():
+                errors.append('Malformed defunct entry')
+                continue
+            identity, target = row['entry_id'], row['replacement_entry_id']
+            if any(v != v.strip() or unicodedata.normalize('NFC', v) != v for v in row.values()):
+                errors.append(f'Defunct entry {identity}: whitespace or non-NFC data')
+            if (not valid_entry_id(identity) or identity in active_ids or identity in archived
+                    or not row['hanri'] or not row['reading'] or row['entry_type'] not in ENTRY_TYPES
+                    or not entry_id_matches_headword(identity, canonical_entry_headword(row['hanri']))):
+                errors.append(f'Invalid, active or repeated defunct entry: {identity}')
+            if target and not valid_entry_id(target):
+                errors.append(f'Defunct entry {identity}: invalid replacement ID')
+            resolve_dictionary_record({key: row[key] for key in DICTIONARY_COLUMNS})
+            archived[identity] = canonical_entry_headword(row['hanri'])
+            successors[identity] = target
+        for identity in successors:
+            current, visited = identity, set()
+            while current in successors and current not in visited:
+                visited.add(current)
+                current = successors[current]
+            if current and current not in active_ids:
+                errors.append(f'Defunct entry {identity}: replacement chain must end at an active entry or a defunct entry without a replacement')
+        if not errors:
+            errors.extend(validate_registry(registry_path, {**active_ids, **archived}))
+    except (OSError, ValueError, UnicodeError, csv.Error) as exc:
+        errors.append(f'Invalid defunct entries: {exc}')
     return errors
 
 
@@ -193,6 +235,8 @@ def validate(path: Path, registry_path: Path | None = None) -> list[str]:
         return errors
 
     errors.extend(validate_registry(registry_path or path.with_name("dictionary_entry_id_registry.tsv"), active_ids))
+    errors.extend(validate_defunct(path.with_name('dictionary_defunct.tsv'), active_ids,
+                                   registry_path or path.with_name('dictionary_entry_id_registry.tsv')))
     category_path = path.with_name('dictionary_categories.tsv')
     if category_path.is_file() or path.resolve() == DEFAULT_PATH.resolve():
         from dictionary_references import load_categories

@@ -1,5 +1,24 @@
 # Tangliengim dictionary production contract
 
+## Defunct entries in the editor
+
+Changing an entry's canonical headword creates a new active record with a newly
+allocated ID. The old record moves to the optional `data/dictionary_defunct.tsv`
+archive. Its columns are the nine dictionary columns in their existing order,
+followed by `replacement_entry_id`. The complete original row is retained and
+its ID remains reserved in the ID registry without an ID redirect.
+
+Each archived ID must be absent from the active dictionary, unique in the archive,
+and consistent with its original headword and registry record. Replacement chains
+must end at a current active entry or a defunct entry without a replacement and
+may not cycle. A blank replacement ID records direct retirement through the
+editor's **Make defunct** button. The replacement field records
+editor history; it is not a public redirect or a source of candidate-learning data.
+Categories, static priority references and existing correction links follow the new
+active record. The archive participates in editor save recovery and publication,
+but is never loaded into generated runtime dictionary entries or normalization
+indexes. The main dictionary retains its nine-column schema and canonical order.
+
 ## 1. Scope
 
 This is the authoritative current schema and maintenance reference after Exodus

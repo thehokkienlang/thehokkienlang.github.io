@@ -133,7 +133,8 @@ class DictionaryEditorController:
         if action == "simplify":
             return {"ok": True, **self.service.simplified_fields(payload)}
         if action == "preview":
-            record = self.service.normalize(payload.get("entry", {}))
+            entry = payload.get('entry', {})
+            record = self.service.normalize(entry, previous=self.service.existing_entry(entry.get('entry_id')) if isinstance(entry, dict) else None)
             with self.lock:
                 if self.preview_module is None:
                     script = self.service.repo / "desktop" / "hokkien_tone_marker_gui.py"
@@ -150,14 +151,17 @@ class DictionaryEditorController:
                     self.preview_ime = load_ime_module()
                 playback = audio_for_reading(self.preview_ime, self.service.repo / "public/audio", record["corrected"] or record["reading"])
             return {"ok": True, "entry": record, "lomari": roman, "audio": playback}
-        if action == "save":
+        if action in ("save", "retire"):
             with self.lock:
                 if self.server.restarting:
                     raise EditorError("Restart in progress. Your form is retained.", code="busy")
                 if self.active_job and self.jobs[self.active_job]['kind'] != 'refresh':
                     raise EditorError("A dictionary operation is running. Your form is retained.", code="busy")
-                result = self.service.save(payload.get("entries"), revision=payload.get("revision"),
-                                           allow_alternative=payload.get("allowAlternative") is True)
+                if action == "retire":
+                    result = self.service.make_defunct(payload.get('entry_id'), revision=payload.get('revision'))
+                else:
+                    result = self.service.save(payload.get("entries"), revision=payload.get("revision"),
+                                               allow_alternative=payload.get("allowAlternative") is True)
                 job = {"job": self.active_job} if self.active_job else self.start_job("refresh", self.refresh_runtime)
             return {**result, "job": job["job"]}
         if action == "refresh":

@@ -17,7 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "desktop"))
 import dictionary_editor_service as editor
-from dictionary_editor_service import DictionaryEditorService, EditorError, MAIN, REGISTRY, CATEGORIES, read_table, table_bytes
+from dictionary_editor_service import DictionaryEditorService, EditorError, MAIN, REGISTRY, CATEGORIES, DEFUNCT, read_table, table_bytes
 from dictionary_editor_publish import merge_sources, DictionaryPublisher, git, BASELINE, DATA_BASELINES
 import dictionary_editor_publish as publishing
 from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS
@@ -122,10 +122,168 @@ class SaveTests(unittest.TestCase):
         self.assertEqual(result["saved"][0]["entry_id"], "U+5BB6_00")
         self.assertEqual(result["saved"][0]["english"], "house; home")
 
-    def test_identity_change_rejected(self):
-        record = entry() | {"hanri": "新"}
-        with self.assertRaisesRegex(EditorError, "identity headword"):
-            self.service.save([record])
+    def test_new_entry_types_are_detected_with_special_rules_first(self):
+        cases = [
+            ({'hanri': '新', 'reading': '신1'}, 'lexical'),
+            ({'hanri': '’新뽀', 'reading': '신뽀'}, 'lexical'),
+            ({'hanri': '𤺪', 'reading': '셴5'}, 'lexical'),
+            ({'hanri': '릐', 'reading': '릐2'}, 'hangul_override'),
+            ({'hanri': '’ᄅᆤ', 'reading': 'ᄅᆤ2'}, 'hangul_override'),
+            ({'hanri': '家', 'reading': '까1*', 'corrected': '가1'}, 'correction_alias'),
+            ({'hanri': '릐', 'reading': '리2*', 'corrected': '릐2'}, 'correction_alias'),
+            ({'hanri': '0', 'reading': '0', 'corrected': '릉'}, 'number_pronunciation'),
+            ({'hanri': '零', 'reading': '0*', 'corrected': '릉'}, 'number_pronunciation'),
+        ]
+        for row, expected in cases:
+            with self.subTest(row=row):
+                self.assertEqual(self.service.normalize(row)['entry_type'], expected)
+
+    def test_saved_types_are_automatic_and_relevant_edits_reclassify(self):
+        result = self.service.save([{'hanri': '0', 'reading': '0', 'corrected': '릉', 'entry_type': 'lexical'}])
+        self.assertEqual(result['saved'][0]['entry_type'], 'number_pronunciation')
+        result = self.service.save([entry() | {'hanri': '릐', 'reading': '릐2'}])
+        self.assertEqual(result['saved'][0]['entry_type'], 'hangul_override')
+        self.assertEqual(self.service.snapshot()['defunctEntries'][0]['entry_type'], 'lexical')
+
+    def test_gloss_edit_preserves_stored_type_even_with_stale_submitted_type(self):
+        result = self.service.save([{'entry_id': 'U+5BB6_00', 'english': 'house', 'entry_type': 'number_pronunciation'}])
+        self.assertEqual(result['saved'][0]['entry_type'], 'lexical')
+        self.assertEqual(result['saved'][0]['entry_id'], 'U+5BB6_00')
+
+    def test_live_type_and_import_use_save_rules(self):
+        live = self.service.simplified_fields({'hanri': '家', 'reading': '까1*', 'corrected': '가1', 'entry_id': 'U+5BB6_00'})
+        self.assertEqual(live['entry_type'], 'correction_alias')
+        batch = self.service.import_rows('hanri\treading\tcorrected\n0\t0\t릉\n家\t까1*\t가1')
+        self.assertEqual([r['entry_type'] for r in batch], ['number_pronunciation', 'correction_alias'])
+        edit = self.service.import_rows('entry_id\tenglish\thanri\treading\nU+5BB6_00\thouse\t家\t가1')
+        self.assertEqual(edit[0]['entry_type'], 'lexical')
+
+    def test_unknown_script_is_not_forced_into_a_hangul_type(self):
+        self.assertEqual(self.service.simplified_fields({'hanri': 'ABC'})['entry_type'], '')
+        with self.assertRaises(EditorError):
+            self.service.normalize({'hanri': 'ABC', 'reading': '가1'})
+
+    def test_headword_change_retires_original_and_keeps_references(self):
+        result = self.service.save([entry() | {"hanri": "新"}])
+        new = result['saved'][0]
+        self.assertEqual(new['entry_id'], 'U+65B0_00')
+        self.assertEqual(result['newEntryIds'], ['U+65B0_00'])
+        snapshot = self.service.snapshot()
+        self.assertEqual([r['entry_id'] for r in snapshot['entries']], ['U+65B0_00'])
+        self.assertEqual(snapshot['entries'][0]['categories'], ['home'])
+        archived = snapshot['defunctEntries'][0]
+        self.assertEqual(archived['hanri'], '家')
+        self.assertEqual(archived['english'], 'home')
+        self.assertEqual(archived['entry_id'], 'U+5BB6_00')
+        self.assertEqual(archived['replacement_entry_id'], 'U+65B0_00')
+        registry = read_table(self.service.files()[REGISTRY])[1]
+        self.assertEqual({r['entry_id'] for r in registry}, {'U+5BB6_00', 'U+65B0_00'})
+        self.assertTrue(all(not r['redirect_entry_id'] for r in registry))
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+
+    def test_repeated_replacement_reserves_ids_and_stale_edit_is_rejected(self):
+        self.service.save([entry() | {'hanri': '新'}])
+        self.service.save([{'entry_id': 'U+65B0_00', 'hanri': '家'}])
+        self.assertEqual(self.service.snapshot()['entries'][0]['entry_id'], 'U+5BB6_01')
+        self.assertEqual(len(self.service.snapshot()['defunctEntries']), 2)
+        before = self.service.files()
+        with self.assertRaises(EditorError):
+            self.service.save([entry()])
+        self.assertEqual(self.service.files(), before)
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+
+    def test_replacement_with_existing_identical_target_reuses_target(self):
+        self.service.save([entry('新', '가1', 'home', '')])
+        result = self.service.save([entry() | {'hanri': '新'}])
+        self.assertEqual(result['saved'][0]['entry_id'], 'U+65B0_00')
+        self.assertEqual(result['newEntryIds'], [])
+        self.assertEqual(len(self.service.snapshot()['entries']), 1)
+        self.assertEqual(self.service.snapshot()['entries'][0]['categories'], ['home'])
+
+    def test_failed_replacement_batch_preserves_active_and_defunct_data(self):
+        before = self.service.files()
+        with self.assertRaises(EditorError):
+            self.service.save([entry() | {'hanri': '新'}, {'hanri': '空', 'reading': ''}])
+        self.assertEqual(self.service.files(), before)
+
+    def test_renamed_headword_priority_and_reading_correction_follow_replacement(self):
+        data = self.root / 'data'
+        (data / 'dictionary_priority.tsv').write_bytes('lookup_key\tentry\tentry_id\trank\r\n家\t家\tU+5BB6_00\t1\r\n'.encode())
+        alias = entry('家', '까1*', 'home', 'U+5BB6_01') | {'entry_type': 'correction_alias', 'corrected': '가1'}
+        path = data / MAIN
+        path.write_bytes(path.read_bytes() + table_bytes(DICTIONARY_COLUMNS, [alias]).split(b'\r\n', 1)[1])
+        path = data / REGISTRY
+        path.write_bytes(path.read_bytes() + 'U+5BB6_01\t家\t\r\n'.encode())
+        path = data / 'dictionary_redirects.tsv'
+        path.write_bytes(path.read_bytes() + 'reading\t까1\t까1\tU+5BB6_00\treason\tfixture\tunknown\r\n'.encode())
+        result = self.service.save([entry() | {'hanri': '新'}])
+        self.assertEqual(len(result['retired']), 2)
+        rows = read_table(self.service.files()[MAIN])[1]
+        self.assertEqual({r['hanri'] for r in rows}, {'新'})
+        priority = read_table(self.service.files()['dictionary_priority.tsv'])[1][0]
+        self.assertEqual((priority['lookup_key'], priority['entry_id']), ('新', 'U+65B0_00'))
+        self.assertEqual(validate(data / MAIN), [])
+
+    def test_annotation_only_edit_preserves_identity_without_retiring(self):
+        result = self.service.save([entry() | {'hanri': '家ˋ'}])
+        self.assertEqual(result['saved'][0]['entry_id'], 'U+5BB6_00')
+        self.assertEqual(result['retired'], [])
+        self.assertEqual(result['newEntryIds'], [])
+
+    def test_defunct_validation_rejects_cycles_and_reactivated_ids(self):
+        self.service.save([entry() | {'hanri': '新'}])
+        path = self.root / 'data' / DEFUNCT
+        header, rows = read_table(path.read_bytes())
+        rows[0]['replacement_entry_id'] = rows[0]['entry_id']
+        path.write_bytes(table_bytes(header, rows))
+        self.assertTrue(any('replacement chain' in e for e in validate(self.root / 'data' / MAIN)))
+
+    def test_make_defunct_preserves_record_and_registry_without_replacement(self):
+        revision = self.service.snapshot()['revision']
+        original_registry = self.service.files()[REGISTRY]
+        result = self.service.make_defunct('U+5BB6_00', revision=revision)
+        snapshot = self.service.snapshot()
+        self.assertEqual(snapshot['entries'], [])
+        self.assertEqual(snapshot['defunctEntries'][0]['hanri'], '家')
+        self.assertEqual(result['retired'][0]['replacement_entry_id'], '')
+        self.assertEqual(self.service.files()[REGISTRY], original_registry)
+        self.assertEqual(read_table(self.service.files()[CATEGORIES])[1], [])
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+        with self.assertRaises(EditorError):
+            self.service.make_defunct('U+5BB6_00')
+
+    def test_make_defunct_rejects_stale_revision(self):
+        old = self.service.snapshot()['revision']
+        self.service.save([{'entry_id': 'U+5BB6_00', 'english': 'house'}])
+        before = self.service.files()
+        with self.assertRaises(EditorError):
+            self.service.make_defunct('U+5BB6_00', revision=old)
+        self.assertEqual(self.service.files(), before)
+
+    def test_direct_retirement_ends_existing_replacement_chain(self):
+        self.service.save([entry() | {'hanri': '新'}])
+        self.service.make_defunct('U+65B0_00')
+        self.assertEqual(len(self.service.snapshot()['defunctEntries']), 2)
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+
+    def test_retirement_compresses_explicit_ranks_without_reordering_survivors(self):
+        self.service.save([dict(hanri='新', reading='가1')])
+        self.service.save([dict(hanri='語', reading='가1')])
+        (self.root / 'data/dictionary_priority.tsv').write_bytes(
+            'lookup_key\tentry\tentry_id\trank\r\n가\t家\tU+5BB6_00\t1\r\n가\t語\tU+8A9E_00\t3\r\n'.encode())
+        self.service.make_defunct('U+5BB6_00')
+        priorities = read_table(self.service.files()['dictionary_priority.tsv'])[1]
+        self.assertEqual([(r['entry_id'], r['rank']) for r in priorities], [('U+8A9E_00', '2')])
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+
+    def test_retiring_target_retires_dependent_corrections_and_removes_links(self):
+        self.test_renamed_headword_priority_and_reading_correction_follow_replacement()
+        target = next(r for r in self.service.snapshot()['entries'] if r['entry_type'] == 'lexical')
+        result = self.service.make_defunct(target['entry_id'])
+        self.assertEqual(len(result['retired']), 2)
+        self.assertEqual(read_table(self.service.files()['dictionary_redirects.tsv'])[1], [])
+        self.assertEqual(self.service.snapshot()['entries'], [])
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
 
     def test_stale_form_does_not_overwrite_new_entry(self):
         snapshot = self.service.snapshot()
@@ -226,6 +384,22 @@ class MergeTests(unittest.TestCase):
         result[MAIN] = table_bytes(header, rows)
         return result
 
+    def test_retirement_removes_only_obsolete_default_expectations(self):
+        repo = Path(self.temp.name)
+        service = DictionaryEditorService(repo)
+        service.save([entry() | {'hanri': '新'}])
+        path = repo / publishing.READING_DEFAULTS
+        path.parent.mkdir(parents=True)
+        preserved = {'id': 'U+8A9E_00', 'key': '語'}
+        defaults = {'defaults': [{'id': 'U+5BB6_00', 'key': '家'}, preserved],
+                    'hangulDefaults': [], 'desktopMixedDefaults': [],
+                    'desktopAudioReadingDefaults': {'가': '가1'}}
+        path.write_text(json.dumps(defaults), encoding='utf-8')
+        publishing.retire_default_expectations(repo)
+        actual = json.loads(path.read_text(encoding='utf-8'))
+        self.assertEqual(actual['defaults'], [preserved])
+        self.assertEqual(actual['desktopAudioReadingDefaults'], defaults['desktopAudioReadingDefaults'])
+
     def test_independent_fields_merge_without_conflict(self):
         local = self.changed(self.base, english="house")
         remote = self.changed(self.base, mandarin_trad="房子", mandarin_simp="房子")
@@ -233,6 +407,28 @@ class MergeTests(unittest.TestCase):
         row = read_table(merged[MAIN])[1][0]
         self.assertEqual(row["english"], "house")
         self.assertEqual(row["mandarin_trad"], "房子")
+
+    def test_only_lookup_definition_changes_allow_default_refresh(self):
+        semantic_edit = self.changed(self.base, english='house')
+        self.assertEqual(publishing.changed_lookup_sources(self.base, semantic_edit), [])
+        reading_edit = self.changed(self.base, reading='가2')
+        self.assertEqual(publishing.changed_lookup_sources(self.base, reading_edit), ['U+5BB6_00'])
+        service = DictionaryEditorService(Path(self.temp.name))
+        service.save([dict(hanri='新', reading='신1')])
+        self.assertEqual(publishing.changed_lookup_sources(self.base, service.files()), ['U+65B0_00'])
+
+    def test_retired_audio_default_cleanup_understands_digits_and_legacy_tones(self):
+        repo = Path(self.temp.name)
+        service = DictionaryEditorService(repo)
+        added = service.save([dict(hanri='갈ˉ', reading='갈5')])['saved'][0]
+        service.make_defunct(added['entry_id'])
+        path = repo / publishing.READING_DEFAULTS
+        path.parent.mkdir(parents=True)
+        defaults = {'defaults': [], 'hangulDefaults': [], 'desktopMixedDefaults': [],
+                    'desktopAudioReadingDefaults': {'갈ˉ': '갈5', '갈5': '갈5', '갈ˆ': '갈1', '가1': '가1'}}
+        path.write_text(json.dumps(defaults), encoding='utf-8')
+        publishing.retire_default_expectations(repo)
+        self.assertEqual(json.loads(path.read_text(encoding='utf-8'))['desktopAudioReadingDefaults'], {'가1': '가1'})
 
     def test_conflicting_gloss_requires_explicit_resolution(self):
         local = self.changed(self.base, english="house")
@@ -260,6 +456,23 @@ class MergeTests(unittest.TestCase):
         self.assertEqual(mapping, {"U+65B0_00": "U+65B0_01"})
         self.assertEqual(len(read_table(merged[MAIN])[1]), 3)
         self.assertEqual(read_table(merged[CATEGORIES])[1][-1]["entry_id"], "U+65B0_01")
+
+    def test_retirement_archive_merges_and_remaps_new_replacement_ids(self):
+        root = Path(self.temp.name)
+        service = DictionaryEditorService(root)
+        service.save([entry() | {'hanri': '新'}])
+        local = service.files()
+        remote = dict(self.base)
+        header, rows = read_table(remote[MAIN])
+        rows.append(entry('新', '신2', 'new', 'U+65B0_00'))
+        remote[MAIN] = table_bytes(header, rows)
+        header, rows = read_table(remote[REGISTRY])
+        rows.append(dict(entry_id='U+65B0_00', canonical_headword='新', redirect_entry_id=''))
+        remote[REGISTRY] = table_bytes(header, rows)
+        merged, mapping = merge_sources(self.base, local, remote)
+        self.assertEqual(mapping, {'U+65B0_00': 'U+65B0_01'})
+        self.assertEqual(read_table(merged[DEFUNCT])[1][0]['replacement_entry_id'], 'U+65B0_01')
+        self.assertEqual(read_table(merged[CATEGORIES])[1][0]['entry_id'], 'U+65B0_01')
 
     def test_new_entry_cannot_reuse_a_concurrently_retired_id(self):
         local, remote = dict(self.base), dict(self.base)
@@ -462,6 +675,17 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(git(self.repo, "status", "--porcelain", "--", "data").stdout.strip(), "")
         for baseline in DATA_BASELINES:
             self.assertEqual((self.repo / baseline).read_text(), hashlib.sha256((self.repo / 'data' / MAIN).read_bytes()).hexdigest())
+
+    def test_publish_includes_new_defunct_archive_and_retained_registry(self):
+        self.service.save([entry() | {'hanri': '新'}])
+        result = DictionaryPublisher(self.service).publish()
+        self.assertTrue(result['ok'])
+        archive = git(self.repo, 'show', 'origin/main:data/' + DEFUNCT).stdout
+        self.assertIn('replacement_entry_id', archive)
+        self.assertIn('U+5BB6_00', archive)
+        self.assertIn('U+65B0_00', archive)
+        self.assertEqual(len(self.service.snapshot()['defunctEntries']), 1)
+        self.assertEqual(git(self.repo, 'status', '--porcelain', '--', 'data').stdout.strip(), '')
 
     def test_existing_baseline_failure_blocks_recapture_and_publish(self):
         (self.repo / BASELINE).write_text('broken baseline')
