@@ -520,13 +520,22 @@ class PublishTests(unittest.TestCase):
 
     def test_entry_saved_during_checks_requires_retry(self):
         self.service.save([dict(hanri="新", reading="신1")])
-        def progress(message):
-            if message.startswith("Running dictionary"):
+        before = git(self.repo, 'rev-parse', 'origin/main').stdout
+        real_run = subprocess.run
+        injected = False
+        def run(command, *args, **kwargs):
+            nonlocal injected
+            if 'tools/check_site.py' in command and not injected:
+                injected = True
                 self.service.save([dict(hanri="新", reading="신2")], allow_alternative=True)
-        with self.assertRaises(EditorError) as caught:
-            DictionaryPublisher(self.service, progress).publish()
+            return real_run(command, *args, **kwargs)
+        with patch.object(publishing.subprocess, 'run', side_effect=run):
+            with self.assertRaises(EditorError) as caught:
+                DictionaryPublisher(self.service).publish()
+        self.assertTrue(injected, 'A concurrent save must occur during validation')
         self.assertEqual(caught.exception.code, "stale")
         self.assertEqual(len(self.service.snapshot()["entries"]), 3)
+        self.assertEqual(git(self.repo, 'rev-parse', 'origin/main').stdout, before)
 
     def test_public_deployment_status_works_without_github_cli(self):
         self.service.state.mkdir(parents=True)
