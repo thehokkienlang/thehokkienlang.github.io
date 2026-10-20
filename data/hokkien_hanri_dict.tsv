@@ -1,8 +1,8 @@
 hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_type	entry_id
 		# implicit-tone-overrides (single Hangul-only hanri rows used when the typed form has no tone mark)						
+가ˉ		가5	跟; 把	跟; 把	with; to; for		hangul_override	U+AC00_00
 가ˉ야ˆ		가5야1	咖椰醬	咖椰酱	kaya		hangul_override	U+AC00_U+C57C_00
 가ˉ야ˉ또디ˆ		가5야5또디1	咖椰麵包	咖椰面包	kaya bread; kaya roti		hangul_override	U+AC00_U+C57C_U+B610_U+B514_00
-갈ˉ		갈5	和; 一起	〃	with; together		hangul_override	U+AC08_00
 감ˋ		감2	是否	〃	(question marker)		hangul_override	U+AC10_00
 고ˉ비ˆ		고5비1	咖啡	〃	coffee		hangul_override	U+ACE0_U+BE44_00
 곻		곻	再	〃	again		hangul_override	U+ACFB_00
@@ -11,13 +11,13 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 꽌ˋ		꽌2	我; 我的; 我們	我; 我的; 我们	I; my; we (exclusive of listener)		hangul_override	U+AF4C_00
 꾼ˋ		꾼2	我; 我的; 我們	我; 我的; 我们	I; my; we (exclusive of listener)		hangul_override	U+AFBC_00
 댱ˊ		댱4	誰	谁	who		hangul_override	U+B331_00
-뎋		뎋					hangul_override	U+B38B_00
 ’됴		’됴					hangul_override	U+2019_U+B434_00
 ’둏		’둏					hangul_override	U+2019_U+B44F_00
 또디ˆ		또디1	麵包	面包	bread; roti		hangul_override	U+B610_U+B514_00
 란ˋ		란2	我們	我们	we (inclusive of listener)		hangul_override	U+B780_00
 ’래		’래					hangul_override	U+2019_U+B798_00
 ’ᄅᆤˋ		’ᄅᆤ2	了	〃	perfective aspect marker		hangul_override	U+2019_U+1105_U+11A4_00
+렣		렣			in the process of		hangul_override	U+B823_00
 릐ˋ		릐2	你	〃	you		hangul_override	U+B990_00
 ’릐		’릐	你	〃	you		hangul_override	U+2019_U+B990_00
 린ˋ		린2	你; 你的	〃	you; your		hangul_override	U+B9B0_00
@@ -1134,6 +1134,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 明明	〃	뼹뼹4	〃	〃	clearly; obviously		lexical	U+660E_U+660E_00
 明王	〃	뼹엉4	〃	〃	bright; clear; king		lexical	U+660E_U+738B_00
 明知	〃	뼹재1	〃	〃	know clearly		lexical	U+660E_U+77E5_00
+無	无	뽀4	沒有	没有	to not have; there is not		lexical	U+7121_01
 뽀影	〃	뽀얄2	不是真的	〃	not real; not legitimate		lexical	U+BF40_U+5F71_00
 뽀要緊	뽀要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+BF40_U+8981_U+7DCA_00
 뽀插	〃	뽀찹	不要插入	〃	do not insert; not inserted		lexical	U+BF40_U+63D2_00
@@ -1694,6 +1695,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 腰懸	腰悬	요5괠4	高個子	高个子	tall		lexical	U+8170_U+61F8_00
 藥	药	욯1	〃	药	medicine		lexical	U+85E5_00
 臆	〃	욯	〃	〃	chest; guess		lexical	U+81C6_00
+有	有	우5	有	有	have; there is		lexical	U+6709_00
 譽	誉	우5	〃	誉	praise; reputation		lexical	U+8B7D_00
 宇宙	〃	우1듀5	〃	〃	universe; house; time		lexical	U+5B87_U+5B99_00
 우時	우时	우시4	有時候	有时候	sometimes		lexical	U+C6B0_U+6642_00
