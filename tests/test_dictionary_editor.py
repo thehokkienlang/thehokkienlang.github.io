@@ -430,6 +430,26 @@ class MergeTests(unittest.TestCase):
         publishing.retire_default_expectations(repo)
         self.assertEqual(json.loads(path.read_text(encoding='utf-8'))['desktopAudioReadingDefaults'], {'가1': '가1'})
 
+    def test_retirement_keeps_plain_and_apostrophe_overrides_separate(self):
+        for retire_prefix in (False, True):
+            with self.subTest(retire_prefix=retire_prefix), tempfile.TemporaryDirectory() as folder:
+                repo = Path(folder)
+                fixture(repo)
+                service = DictionaryEditorService(repo)
+                plain = service.save([dict(hanri='뽀ˊ', reading='뽀4')])['saved'][0]
+                prefixed = service.save([dict(hanri='’뽀ˊ', reading='’뽀4')])['saved'][0]
+                service.make_defunct((prefixed if retire_prefix else plain)['entry_id'])
+                path = repo / publishing.READING_DEFAULTS
+                path.parent.mkdir(parents=True)
+                defaults = {'defaults': [], 'hangulDefaults': [], 'desktopMixedDefaults': [],
+                            'desktopAudioReadingDefaults': {'뽀': '뽀4', '뽀ˊ': '뽀4', '뽀4': '뽀4',
+                                                            '’뽀': '’뽀4', '’뽀ˊ': '’뽀4', "'뽀4": '’뽀4'}}
+                path.write_text(json.dumps(defaults), encoding='utf-8')
+                publishing.retire_default_expectations(repo)
+                actual = json.loads(path.read_text(encoding='utf-8'))['desktopAudioReadingDefaults']
+                self.assertEqual(actual, {key: value for key, value in defaults['desktopAudioReadingDefaults'].items()
+                                          if key.startswith(('’', "'")) != retire_prefix})
+
     def test_conflicting_gloss_requires_explicit_resolution(self):
         local = self.changed(self.base, english="house")
         remote = self.changed(self.base, english="family")

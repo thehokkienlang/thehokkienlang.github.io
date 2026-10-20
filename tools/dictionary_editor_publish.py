@@ -43,9 +43,12 @@ def retire_default_expectations(repo):
     ids = {row['entry_id'] for row in archived}
     retired_words = {canonical_entry_headword(row['hanri']) for row in archived}
     retired_words -= {canonical_entry_headword(row['hanri']) for row in active}
-    retired_overrides = {reading_base(row['hanri']) for row in archived
+    def override_key(value):
+        # Apostrophes distinguish separate overrides; tone notation does not.
+        return '’'.join(reading_base(part) for part in value.replace("'", '’').split('’'))
+    retired_overrides = {override_key(row['hanri']) for row in archived
                          if row['entry_type'] == 'hangul_override'}
-    retired_overrides -= {reading_base(row['hanri']) for row in active
+    retired_overrides -= {override_key(row['hanri']) for row in active
                           if row['entry_type'] == 'hangul_override'}
     defaults = json.loads(fixture.read_text(encoding='utf-8'))
     for field in ('defaults', 'hangulDefaults'):
@@ -53,7 +56,7 @@ def retire_default_expectations(repo):
     defaults['desktopMixedDefaults'] = [row for row in defaults['desktopMixedDefaults']
                                         if row['key'] not in retired_words]
     defaults['desktopAudioReadingDefaults'] = {key: value for key, value in defaults['desktopAudioReadingDefaults'].items()
-                                              if reading_base(key) not in retired_overrides}
+                                              if override_key(key) not in retired_overrides}
     _atomic_write(fixture, (json.dumps(defaults, ensure_ascii=False, indent=2) + '\n').encode('utf-8'))
 
 
