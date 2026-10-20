@@ -138,6 +138,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 鹹	咸	걈4	〃	咸	salty		lexical	U+9E79_00
 鹹酥雞	咸酥鸡	걈서5괴1	〃	咸酥鸡	Taiwanese popcorn chicken		lexical	U+9E79_U+9165_U+96DE_00
 鹹酸苦澀	咸酸苦涩	걈승5커1샵	〃	咸酸苦涩	salty, sour, bitter and astringent; hardships		lexical	U+9E79_U+9178_U+82E6_U+6F80_00
+鹹菜	咸菜	걈채	鹹菜	咸菜	salted vegetable; crumpled		lexical	U+9E79_U+83DC_00
 謙虛	谦虚	걈5희1	〃	谦虚	modest; empty; weak		lexical	U+8B19_U+865B_00
 劫	〃	걉	〃	〃	robbery; calamity		lexical	U+52AB_00
 孤	〃	거1	〃	〃	lone		lexical	U+5B64_00
@@ -320,6 +321,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 今年	〃	긴5니4	〃	〃	year		lexical	U+4ECA_U+5E74_00
 今日	〃	긴5띧1	〃	〃	today		lexical	U+4ECA_U+65E5_00
 今暝	〃	긴5미4	今晚	〃	night		lexical	U+4ECA_U+669D_00
+囡仔	囡仔	긴1아2	小孩	小孩	child		lexical	U+56E1_U+4ED4_00
 今仔日	〃	긴5아1띧1	今天	〃	today		lexical	U+4ECA_U+4ED4_U+65E5_00
 今夜	〃	긴5야5	〃	〃	night		lexical	U+4ECA_U+591C_00
 見	见	길	〃	见	see		lexical	U+898B_00
@@ -632,6 +634,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 地	〃	되5	〃	〃	earth; place; ground		lexical	U+5730_01
 潮汕話	潮汕话	됴솰2웨5	〃	潮汕话	Chaoshan language		lexical	U+6F6E_U+6C55_U+8A71_00
 潮州	〃	됴쥬1	〃	〃	Teochew; Chaozhou		lexical	U+6F6E_U+5DDE_00
+潮州糜	潮州糜	됴쥬5뭬4	潮州粥	潮州粥	Teochew porridge		lexical	U+6F6E_U+5DDE_U+7CDC_00
 潮州話	潮州话	됴쥬5웨5	〃	潮州话	Teochew language		lexical	U+6F6E_U+5DDE_U+8A71_00
 著	着	둏1	〃	〃	hit; correct; wear		lexical	U+8457_00
 著痧	着痧	둏솨1	中暑	〃	get heatstroke		lexical	U+8457_U+75E7_00
@@ -1608,6 +1611,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 烏白	乌白	어5벻1	胡亂	胡乱	wrongly; randomly		lexical	U+70CF_U+767D_00
 烏白講	乌白讲	어5벻겅2	胡說	胡说	talk nonsense		lexical	U+70CF_U+767D_U+8B1B_00
 烏白無常	乌白无常	어5벻뿌셩4	黑白無常	黑白无常	Black and White Impermanence (underworld deities)		lexical	U+70CF_U+767D_U+7121_U+5E38_00
+烏米糜	乌米糜	어5삐1뻬4	椰漿黑糯米粥	椰浆黑糯米粥	black glutinous rice with coconut milk; pulut hitam		lexical	U+70CF_U+7C73_U+7CDC_00
 烏紗	乌纱	어5세1	〃	乌纱	official's hat; official position (figurative)		lexical	U+70CF_U+7D17_00
 烏色	乌色	어5셱1	黑色	〃	black		lexical	U+70CF_U+8272_00
 烏鴉	乌鸦	어5아1	〃	乌鸦	black		lexical	U+70CF_U+9D09_00
