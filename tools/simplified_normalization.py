@@ -12,6 +12,7 @@ from dictionary_schema import canonical_entry_headword
 class SimplifiedNormalizationIndex:
     def __init__(self, entries):
         forms = {}
+        canonical_forms = set()
         self.trie = {}
         self.max_length = 0
         for entry in entries:
@@ -25,11 +26,17 @@ class SimplifiedNormalizationIndex:
             if source == '〃':
                 source = source_hanri
             identity = entry.get('raw', {}).get('entry_id') or entry.get('entry_id') or entry.get('id')
-            if not source or not hanri or not identity:
+            if not hanri or not identity:
+                continue
+            canonical_forms.add(hanri)
+            if not source:
                 continue
             targets = forms.setdefault(source, {})
             if source != source_hanri:
                 targets.setdefault(hanri, set()).add(identity)
+        # Canonical words block conversion; longer Simplified matches still win.
+        for hanri in canonical_forms:
+            forms[hanri] = {}
         for source, targets in forms.items():
             node = self.trie
             for char in source:

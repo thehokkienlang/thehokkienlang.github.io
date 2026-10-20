@@ -28,6 +28,9 @@ the classic Pad uses its existing undo history.
 The only mapping is the dictionary's resolved `simplified` field to its existing
 `hanri` and stable entry IDs. `〃` resolves to `hanri`; identical forms need no
 suggestion. Mandarin and English search metadata are never normalization sources.
+Canonical dictionary headwords block conversion suggestions even if another entry
+uses that spelling as its Simplified form: `面` stays valid as face. A longer
+dictionary match such as `食面` can still suggest `食麵`.
 Matching runs left to right and consumes the longest dictionary form at each
 position, including identical forms, with no overlapping matches. Multiple readings
 of one headword share a button carrying all associated IDs; genuinely different

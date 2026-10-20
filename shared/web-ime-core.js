@@ -945,6 +945,7 @@ const TangliengimImeCore = (() => {
 
   function createSimplifiedNormalizationIndex(entries) {
     const forms = new Map();
+    const canonicalForms = new Set();
     const trie = { children: new Map() };
     let maxLength = 0;
     const compareUnicode = (left, right) => {
@@ -961,13 +962,17 @@ const TangliengimImeCore = (() => {
       const hanri = stripLegacyInlineToneMarks(entry.hanri);
       const source = entry.simplified === "〃" ? sourceHanri : String(entry.simplified || "");
       const entryId = sourceEntryId(entry);
-      if (!source || !hanri || !entryId) continue;
+      if (!hanri || !entryId) continue;
+      canonicalForms.add(hanri);
+      if (!source) continue;
       if (!forms.has(source)) forms.set(source, new Map());
       if (source === sourceHanri) continue;
       const targets = forms.get(source);
       if (!targets.has(hanri)) targets.set(hanri, new Set());
       targets.get(hanri).add(entryId);
     }
+    // Canonical words block conversion; longer Simplified matches still win.
+    for (const hanri of canonicalForms) forms.set(hanri, new Map());
     for (const [source, targets] of forms) {
       let node = trie;
       for (const char of source) {

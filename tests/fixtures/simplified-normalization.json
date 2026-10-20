@@ -1,5 +1,11 @@
 {
   "entries": [
+    {"id":"U+9762_00","active":true,"hanri":"面","simplified":"〃"},
+    {"id":"U+9EB5_00","active":true,"hanri":"麵","simplified":"面"},
+    {"id":"U+98DF_U+9EB5_00","active":true,"hanri":"食麵","simplified":"食面"},
+    {"id":"U+9762_U+76AE_00","active":true,"hanri":"面皮","simplified":""},
+    {"id":"U+9762_U+7C89_00","active":true,"hanri":"面粉","simplified":"面粉"},
+    {"id":"U+9EB5_U+7C89_00","active":true,"hanri":"麵粉","simplified":"面粉"},
     {"id":"U+8CA0_U+8CAC_U+4EFB_00","active":true,"hanri":"負責任","simplified":"负责任"},
     {"id":"U+8CA0_U+8CAC_U+4EFB_01","active":true,"hanri":"負責任","simplified":"负责任"},
     {"id":"U+8CAC_U+4EFB_00","active":true,"hanri":"責任","simplified":"责任"},
@@ -19,6 +25,10 @@
     {"id":"U+53F1_00","active":true,"hanri":"叱","simplified":"𠮟"}
   ],
   "cases": [
+    {"text":"面","matches":[]},
+    {"text":"面粉","matches":[]},
+    {"text":"面皮 食面 食麵","matches":[["食面",["食麵"],3]]},
+    {"text":"ABC食面XYZ 面","matches":[["食面",["食麵"],3]]},
     {"text":"负责任","matches":[["负责任",["負責任"],0]]},
     {"text":"世界","matches":[]},
     {"text":"ABC负责任XYZ","matches":[["负责任",["負責任"],3]]},

@@ -36,7 +36,7 @@ class NormalizationTests(unittest.TestCase):
         session = SimplifiedNormalizationSession(index)
         randomizer = random.Random(7351)
         text = '负责任 云云 发动'
-        chars = list('负责任发动冲云뽀𤺪😀 x')
+        chars = list('负责任发动冲云面粉皮食麵뽀𤺪😀 x')
         for edit in range(800):
             start = randomizer.randrange(len(text) + 1)
             end = start + randomizer.randrange(4)
@@ -77,6 +77,18 @@ class NormalizationTests(unittest.TestCase):
         self.assertEqual(index.trie, generated.trie)
         self.assertEqual(index.match_at('负责任', 0)['targets'], [
             {'hanri': '負責任', 'entryIds': ['U+8CA0_U+8CAC_U+4EFB_00']}])
+        for matcher in (index, generated):
+            session = SimplifiedNormalizationSession(matcher)
+            for text, expected in (
+                ('面', []),
+                ('食面', [('食面', ['食麵'])]),
+                ('食麵', []),
+                ('面 食面 食麵', [('食面', ['食麵'])]),
+                ('面', []),
+            ):
+                session.update(text)
+                self.assertEqual([(m['source'], [t['hanri'] for t in m['targets']])
+                                  for m in session.matches], expected, text)
 
     def test_classic_acceptance_uses_existing_undo_and_not_candidate_learning(self):
         spec = importlib.util.spec_from_file_location('normalization_classic_check',

@@ -50,7 +50,7 @@ const index = core.createSimplifiedNormalizationIndex(fixture.entries);
 const session = core.createSimplifiedNormalizationSession(index);
 let seed = 7351;
 const random = limit => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed % limit; };
-const chars = Array.from('负责任发动冲云뽀𤺪😀 x');
+const chars = Array.from('负责任发动冲云面粉皮食麵뽀𤺪😀 x');
 let text = '负责任 云云 发动';
 for (let count = 0; count < 800; count += 1) {
   const units = Array.from(text);
@@ -209,4 +209,16 @@ const realMatch = real.matchAt('负责任', 0);
 assert.deepEqual(plain(realMatch.targets), [{ hanri: '負責任', entryIds: ['U+8CA0_U+8CAC_U+4EFB_00'] }]);
 assert.equal(real.ambiguousCount, 1);
 assert.deepEqual(plain(real.matchAt('冲', 0).targets.map(target => target.hanri)), ['沖', '衝']);
+const canonicalSession = core.createSimplifiedNormalizationSession(real);
+for (const [text, expected] of [
+  ['面', []],
+  ['食面', [['食面', ['食麵']]]],
+  ['食麵', []],
+  ['面 食面 食麵', [['食面', ['食麵']]]],
+  ['面', []],
+]) {
+  canonicalSession.update(text);
+  assert.deepEqual(plain(canonicalSession.matches.map(match =>
+    [match.source, match.targets.map(target => target.hanri)])), expected, text);
+}
 console.log(`OK: Simplified Hokkien matching, 800 incremental edits, composition, replacements, and learning isolation; ${real.size} real mappings, ${real.ambiguousCount} ambiguous.`);
