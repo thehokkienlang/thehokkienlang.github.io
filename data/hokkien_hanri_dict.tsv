@@ -333,6 +333,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 金門	金门	김5믕4	〃	金门	Kinmen (Quemoy)		lexical	U+91D1_U+9580_00
 今生	〃	김5솅1	〃	〃	this life		lexical	U+4ECA_U+751F_00
 今生今世	〃	김5솅5김5세	〃	〃	this whole life		lexical	U+4ECA_U+751F_U+4ECA_U+4E16_00
+金紙	金纸	김5좌2	金紙	金纸	joss paper		lexical	U+91D1_U+7D19_00
 樂	乐	깍1	〃	乐	music		lexical	U+6A02_00
 眼	〃	깐2	〃	〃	eye		lexical	U+773C_00
 眼神	〃	깐1신4	〃	〃	look in one's eyes		lexical	U+773C_U+795E_00
@@ -2344,6 +2345,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 開車	开车	퀴5챠1	〃	开车	drive; start a vehicle		lexical	U+958B_U+8ECA_00
 開喙	开喙	퀴5취	開口	开口	open		lexical	U+958B_U+5599_00
 開花	开花	퀴5훼1	〃	开花	open		lexical	U+958B_U+82B1_00
+開火	开火	퀴5훼2	開火; 開燈	开火; 开灯	light up the fire; turn on the light		lexical	U+958B_U+706B_00
 快活	〃	퀼2왛1	〃	〃	happy; carefree		lexical	U+5FEB_U+6D3B_00
 囥	〃	킁	藏; 收起	〃	hide; store away		lexical	U+56E5_00
 去	〃	킈	〃	〃	go		lexical	U+53BB_00
