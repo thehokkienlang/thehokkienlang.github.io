@@ -186,6 +186,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 低	〃	게5	〃	〃	low		lexical	U+4F4E_00
 計較	计较	게2ᄀᅷ	〃	计较	argue; haggle; fuss over		lexical	U+8A08_U+8F03_00
 家婆	〃	게5보4	多管閒事	多管闲事	to be busybody		lexical	U+5BB6_U+5A46_00
+假痟	假痟	게1ᄉᆤ2	裝瘋賣傻	装疯卖傻	play the fool		lexical	U+5047_U+75DF_00
 繼續	继续	게2셕1	〃	继续	continue; inherit		lexical	U+7E7C_U+7E8C_00
 家後	家后	게5ᄋᅷ5	妻子	〃	wife		lexical	U+5BB6_U+5F8C_00
 家賄	家贿	게5훼2	家產	家产	family property		lexical	U+5BB6_U+8CC4_00
@@ -1138,6 +1139,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 滿	满	뽠2	〃	满	full		lexical	U+6EFF_01
 買	买	뾔2	〃	买	buy		lexical	U+8CB7_00
 賣	卖	뾔5	〃	卖	sell		lexical	U+8CE3_00
+뾔打限	〃	뾔다1한	受不了	受不了	unbearable; unable to endure any longer		lexical	U+BF94_U+6253_U+9650_00
 買賣	买卖	뾔1뾔5	〃	买卖	business; trade		lexical	U+8CB7_U+8CE3_00
 뾔要緊	뾔要紧	뾔ᄋᆤ2긴2	不會重要; 不會緊急	不会重要; 不会紧急	won't be important; won't be urgent		lexical	U+BF94_U+8981_U+7DCA_00
 買票	买票	뾔1표	〃	买票	buy a ticket		lexical	U+8CB7_U+7968_00
@@ -1400,6 +1402,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 順	顺	순5	〃	顺	smooth; along		lexical	U+9806_00
 孫中山	孙中山	순5뎡5산1	〃	孙中山	Sun Yat-sen		lexical	U+5B6B_U+4E2D_U+5C71_00
 順利	顺利	순리5	〃	顺利	smooth; along		lexical	U+9806_U+5229_00
+順目	顺目	순빡1	順眼	顺眼	pleasing to the eye		lexical	U+9806_U+76EE_00
 順順	顺顺	순순5	順利地	顺利地	smoothly		lexical	U+9806_U+9806_00
 純情	纯情	순졩4	〃	纯情	pure feelings		lexical	U+7D14_U+60C5_00
 術	术	숟1	〃	术	art; technique		lexical	U+8853_00

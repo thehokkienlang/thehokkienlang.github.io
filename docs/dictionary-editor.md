@@ -49,13 +49,17 @@ comparison dialog. Concurrent new entries receiving the same previously unused
 ID are preserved by allocating a fresh local ID and updating its category,
 priority and redirect references. The merged dictionary must pass validation.
 
-The full release gate runs in an isolated temporary checkout. The publisher first
-builds the unchanged remote dictionary and verifies its existing dictionary and
-Web/Desktop candidate-menu snapshots. If
-that fails, publication stops before any snapshot can be refreshed. After applying
-the merged entries, it rebuilds the dictionary and captures these three data-dependent
-snapshots, then runs every release check. The data and generated snapshots are
-committed together. Fixed linguistic and behavior fixtures are not refreshed. There is no
+Publication preparation runs in an isolated temporary checkout. The publisher first
+builds the unchanged remote dictionary and verifies its existing dictionary snapshot.
+If that fails, publication stops before any snapshot can be refreshed. After applying
+the merged entries, it validates and sorts the dictionary, regenerates the dictionary
+and Web/Desktop menu snapshots, builds the website, and checks dictionary references
+and generated site files. Each stage appears in the editor's publication status and
+has a five-minute timeout. The full developer regression suite runs in GitHub Actions
+after pushing rather than blocking the editor before its push. A failed GitHub check
+prevents website deployment and is reported separately from a successful push.
+The data and generated snapshots are committed together. Fixed linguistic and
+behavior fixtures are not refreshed. There is no
 force-push. A racing remote update or a new local save stops publishing and
 requests a retry. Saved local work remains available.
 

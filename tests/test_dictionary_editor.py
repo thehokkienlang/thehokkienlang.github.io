@@ -398,6 +398,9 @@ class PublishTests(unittest.TestCase):
             "out.parent.mkdir(parents=True, exist_ok=True)\n"
             "out.write_bytes(Path('data/hokkien_hanri_dict.tsv').read_bytes())\n"
         )
+        (self.repo / 'tools/build_site.py').write_text((self.repo / 'tools/build_dictionary_json.py').read_text())
+        (self.repo / 'tools/check_site.py').write_text("print('fixture website checks passed')\n")
+        (self.repo / 'tools/check_entry_references.cjs').write_text("console.log('fixture references passed');\n")
         (self.repo / 'tools/check_dictionary_baseline.cjs').write_text(
             "const fs = require('fs'), crypto = require('crypto'), assert = require('assert');\n"
             "const hash = crypto.createHash('sha256').update(fs.readFileSync('public/data/hokkien-hanri-dict.json')).digest('hex');\n"
@@ -474,13 +477,13 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(len(self.service.snapshot()['entries']), 2)
 
     def test_failed_checks_keep_local_entries_and_remote_unchanged(self):
-        (self.repo / "tools/check_release.py").write_text("raise SystemExit('test validation failure')\n")
+        (self.repo / "tools/check_site.py").write_text("raise SystemExit('test validation failure')\n")
         git(self.repo, "add", "tools")
         git(self.repo, "commit", "-m", "Failing test gate")
         git(self.repo, "push", "origin", "main")
         self.service.save([dict(hanri="新", reading="신1")])
         before = git(self.repo, "rev-parse", "origin/main").stdout
-        with self.assertRaisesRegex(EditorError, "Release checks failed"):
+        with self.assertRaisesRegex(EditorError, "Publication checks failed"):
             DictionaryPublisher(self.service).publish()
         self.assertEqual(len(self.service.snapshot()["entries"]), 2)
         self.assertEqual(git(self.repo, "rev-parse", "origin/main").stdout, before)
@@ -496,7 +499,7 @@ class PublishTests(unittest.TestCase):
     def test_gui_publish_preserves_nested_validation_errors(self):
         gui_python = Path(sys.executable).with_name('pythonw.exe')
         self.assertTrue(gui_python.is_file())
-        (self.repo / 'tools/check_release.py').write_text(
+        (self.repo / 'tools/check_site.py').write_text(
             "import subprocess, sys\n"
             "from pathlib import Path\n"
             "print('Validation interpreter: ' + Path(sys.executable).name, flush=True)\n"

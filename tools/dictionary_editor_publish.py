@@ -212,24 +212,28 @@ class DictionaryPublisher:
                     raise EditorError('Publishing requires python.exe beside pythonw.exe. Repair the Python installation; local entries are saved.', code='dependency')
             with log.open("w", encoding="utf-8") as output:
                 baseline_checks = (
-                    ((env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs'), '--capture'),
-                    ((env['TANGLIENGIM_NODE'], 'tools/check_adaptive_ranking.cjs'), '--capture-static'),
-                    ((str(interpreter), '-X', 'utf8', 'tools/check_adaptive_desktop.py'), '--capture-static'),
+                    ((env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs'), '--capture', 'dictionary'),
+                    ((env['TANGLIENGIM_NODE'], 'tools/check_adaptive_ranking.cjs'), '--capture-static', 'Web candidate menu'),
+                    ((str(interpreter), '-X', 'utf8', 'tools/check_adaptive_desktop.py'), '--capture-static', 'desktop candidate menu'),
                 )
                 def check(*command):
-                    result = subprocess.run(command, cwd=staging, env=env, stdout=output,
-                                            stderr=subprocess.STDOUT, encoding='utf-8', timeout=1800,
-                                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                    try:
+                        result = subprocess.run(command, cwd=staging, env=env, stdout=output,
+                                                stderr=subprocess.STDOUT, encoding='utf-8', timeout=300,
+                                                creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                    except subprocess.TimeoutExpired as error:
+                        raise EditorError('Publication preparation timed out. Local entries are saved; see publish-checks.log for the current step.') from error
                     if result.returncode:
                         output.flush()
                         tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-35:])
-                        raise EditorError('Release checks failed. Local entries are saved.\n' + tail)
+                        raise EditorError('Publication checks failed. Local entries are saved.\n' + tail)
 
                 # Prove the unchanged remote code/data matches its baseline before accepting data edits.
                 self.progress('Verifying the existing dictionary baseline')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
-                for command, _ in baseline_checks:
-                    check(*command)
+                # Freshness of the existing data snapshot is checked without replaying
+                # the full candidate-event tests, which run in GitHub Actions.
+                check(*baseline_checks[0][0])
                 for name, raw in merged.items():
                     (staging / 'data' / name).write_bytes(raw)
                 with redirect_stdout(io.StringIO()):
@@ -240,10 +244,15 @@ class DictionaryPublisher:
                 merged = {name: (staging / 'data' / name).read_bytes() for name in merged}
                 self.progress('Updating the dictionary snapshot for the saved entries')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
-                for command, capture_flag in baseline_checks:
+                for command, capture_flag, label in baseline_checks:
+                    self.progress('Preparing ' + label + ' snapshot')
                     check(*command, capture_flag)
-                self.progress('Running dictionary, build, and release checks')
-                check(str(interpreter), '-X', 'utf8', 'tools/check_release.py')
+                self.progress('Building the updated dictionary and IME')
+                check(str(interpreter), '-X', 'utf8', 'tools/build_site.py')
+                self.progress('Checking dictionary references')
+                check(env['TANGLIENGIM_NODE'], 'tools/check_entry_references.cjs')
+                self.progress('Checking generated website files')
+                check(str(interpreter), '-X', 'utf8', 'tools/check_site.py')
             paths = ["data/" + name for name in DATA_FILES if name in merged]
             git(staging, "add", "--", *paths, *DATA_BASELINES)
             changed = bool(git(staging, "diff", "--cached", "--name-only").stdout.strip())
