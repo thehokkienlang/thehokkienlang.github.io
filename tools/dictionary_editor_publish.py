@@ -26,6 +26,8 @@ from validate_dictionary_tsv import validate
 from node_runtime import node_environment
 
 BASELINE = 'tests/fixtures/dictionary-baseline.json'
+DATA_BASELINES = (BASELINE, 'tests/fixtures/adaptive-static-menu-baseline.json',
+                  'tests/fixtures/adaptive-static-desktop-baseline.json')
 
 def git(repo, *arguments, timeout=120, check=True):
     env = os.environ.copy()
@@ -209,6 +211,11 @@ class DictionaryPublisher:
                 if not interpreter.is_file():
                     raise EditorError('Publishing requires python.exe beside pythonw.exe. Repair the Python installation; local entries are saved.', code='dependency')
             with log.open("w", encoding="utf-8") as output:
+                baseline_checks = (
+                    ((env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs'), '--capture'),
+                    ((env['TANGLIENGIM_NODE'], 'tools/check_adaptive_ranking.cjs'), '--capture-static'),
+                    ((str(interpreter), '-X', 'utf8', 'tools/check_adaptive_desktop.py'), '--capture-static'),
+                )
                 def check(*command):
                     result = subprocess.run(command, cwd=staging, env=env, stdout=output,
                                             stderr=subprocess.STDOUT, encoding='utf-8', timeout=1800,
@@ -221,7 +228,8 @@ class DictionaryPublisher:
                 # Prove the unchanged remote code/data matches its baseline before accepting data edits.
                 self.progress('Verifying the existing dictionary baseline')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
-                check(env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs')
+                for command, _ in baseline_checks:
+                    check(*command)
                 for name, raw in merged.items():
                     (staging / 'data' / name).write_bytes(raw)
                 with redirect_stdout(io.StringIO()):
@@ -232,11 +240,12 @@ class DictionaryPublisher:
                 merged = {name: (staging / 'data' / name).read_bytes() for name in merged}
                 self.progress('Updating the dictionary snapshot for the saved entries')
                 check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
-                check(env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs', '--capture')
+                for command, capture_flag in baseline_checks:
+                    check(*command, capture_flag)
                 self.progress('Running dictionary, build, and release checks')
                 check(str(interpreter), '-X', 'utf8', 'tools/check_release.py')
             paths = ["data/" + name for name in DATA_FILES if name in merged]
-            git(staging, "add", "--", *paths, BASELINE)
+            git(staging, "add", "--", *paths, *DATA_BASELINES)
             changed = bool(git(staging, "diff", "--cached", "--name-only").stdout.strip())
             if changed:
                 git(staging, "commit", "-m", "Update dictionary entries with Tangliengim Dictionary Editor")

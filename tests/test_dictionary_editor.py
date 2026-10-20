@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "desktop"))
 import dictionary_editor_service as editor
 from dictionary_editor_service import DictionaryEditorService, EditorError, MAIN, REGISTRY, CATEGORIES, read_table, table_bytes
-from dictionary_editor_publish import merge_sources, DictionaryPublisher, git, BASELINE
+from dictionary_editor_publish import merge_sources, DictionaryPublisher, git, BASELINE, DATA_BASELINES
 import dictionary_editor_publish as publishing
 from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS
 from dictionary_references import CATEGORY_COLUMNS
@@ -405,6 +405,16 @@ class PublishTests(unittest.TestCase):
             "if (process.argv.includes('--capture')) fs.writeFileSync(baseline, hash);\n"
             "else assert.equal(fs.readFileSync(baseline, 'utf8'), hash, 'Existing baseline mismatch');\n"
         )
+        checker = (self.repo / 'tools/check_dictionary_baseline.cjs').read_text()
+        (self.repo / 'tools/check_adaptive_ranking.cjs').write_text(
+            checker.replace(BASELINE, DATA_BASELINES[1]).replace('--capture', '--capture-static'))
+        (self.repo / 'tools/check_adaptive_desktop.py').write_text(
+            "import hashlib, sys\nfrom pathlib import Path\n"
+            "value = hashlib.sha256(Path('data/hokkien_hanri_dict.tsv').read_bytes()).hexdigest()\n"
+            f"baseline = Path({DATA_BASELINES[2]!r})\n"
+            "if '--capture-static' in sys.argv: baseline.write_text(value)\n"
+            "else: assert baseline.read_text() == value, 'Existing baseline mismatch'\n"
+        )
         (self.repo / BASELINE).parent.mkdir(parents=True)
         self.capture_fixture_baseline(self.repo)
         git(self.repo, "init", "--initial-branch=main")
@@ -417,7 +427,8 @@ class PublishTests(unittest.TestCase):
         self.service = DictionaryEditorService(self.repo)
 
     def capture_fixture_baseline(self, repo):
-        (repo / BASELINE).write_text(hashlib.sha256((repo / 'data' / MAIN).read_bytes()).hexdigest())
+        for baseline in DATA_BASELINES:
+            (repo / baseline).write_text(hashlib.sha256((repo / 'data' / MAIN).read_bytes()).hexdigest())
 
     def remote_edit(self):
         clone = self.repo.parent / "other"
@@ -429,7 +440,7 @@ class PublishTests(unittest.TestCase):
         record["mandarin_trad"] = "房子"
         service.save([record])
         self.capture_fixture_baseline(clone)
-        git(clone, "add", "data", BASELINE)
+        git(clone, "add", "data", *DATA_BASELINES)
         git(clone, "commit", "-m", "Remote semantic edit")
         git(clone, "push", "origin", "main")
 
@@ -446,7 +457,8 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(len(entries), 2)
         self.assertEqual(next(row for row in entries if row["hanri"] == "家")["mandarin_trad"], "房子")
         self.assertEqual(git(self.repo, "status", "--porcelain", "--", "data").stdout.strip(), "")
-        self.assertEqual((self.repo / BASELINE).read_text(), hashlib.sha256((self.repo / 'data' / MAIN).read_bytes()).hexdigest())
+        for baseline in DATA_BASELINES:
+            self.assertEqual((self.repo / baseline).read_text(), hashlib.sha256((self.repo / 'data' / MAIN).read_bytes()).hexdigest())
 
     def test_existing_baseline_failure_blocks_recapture_and_publish(self):
         (self.repo / BASELINE).write_text('broken baseline')

@@ -111,7 +111,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 狗屎	〃	ᄀᅷ1새2	〃	〃	dog shit		lexical	U+72D7_U+5C4E_00
 教育	〃	ᄀᅷ2역1	〃	〃	education		lexical	U+6559_U+80B2_00
 教育部	〃	ᄀᅷ2역버5	〃	〃	Ministry of Education		lexical	U+6559_U+80B2_U+90E8_00
-厚話	厚话	ᄀᅷ웨5	多話	多话	speech; language		lexical	U+539A_U+8A71_00
+厚話	厚话	ᄀᅷ웨5	多話	多话	talkative		lexical	U+539A_U+8A71_00
 九十	〃	ᄀᅷ1잡1	〃	〃	ninety		lexical	U+4E5D_U+5341_00
 狡制	〃	ᄀᅷ1제	刁鑽; 古怪; 彆扭	刁钻; 古怪; 别扭	fussy; contrary; awkward		lexical	U+72E1_U+5236_00
 交通	〃	ᄀᅷ5텅1	〃	〃	traffic		lexical	U+4EA4_U+901A_00
@@ -422,6 +422,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 年	〃	니4	〃	〃	year		lexical	U+5E74_00
 焦	〃	다1	〃	〃	burnt; scorched		lexical	U+7126_00
 焦컥ˆ컥	〃	다5컥1컥	焦黑	〃	burnt; scorched		lexical	U+7126_U+CEE5_U+CEE5_00
+打限	〃	다1한	忍耐	〃	to bear; endure		lexical	U+6253_U+9650_00
 逐	〃	닥1	〃	〃	chase; each		lexical	U+9010_00
 逐工	〃	닥강1	每天	〃	work		lexical	U+9010_U+5DE5_00
 逐家	〃	닥게1	大家	〃	everyone		lexical	U+9010_U+5BB6_00
@@ -1081,7 +1082,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 萬	万	빤5	〃	万	ten thousand		lexical	U+842C_00
 閩語	闽语	빤꾸2	〃	闽语	Min language		lexical	U+95A9_U+8A9E_00
 閩東	闽东	빤당1	〃	闽东	Mindong		lexical	U+95A9_U+6771_00
-閩東語	闽东语	빤당5꾸2	〃	闽东语	Mindong language		lexical	U+95A9_U+6771_U+8A9E_00
+閩東語	闽东语	빤당5꾸2	〃	闽东语	Mindong language; Eastern Min		lexical	U+95A9_U+6771_U+8A9E_00
 閩南	闽南	빤람4	〃	闽南	Minnan; Southern Min		lexical	U+95A9_U+5357_00
 閩南語	闽南语	빤람꾸2	〃	闽南语	Minnan language; Southern Min		lexical	U+95A9_U+5357_U+8A9E_00
 慢慢	〃	빤빤5	〃	〃	slow		lexical	U+6162_U+6162_00
