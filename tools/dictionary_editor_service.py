@@ -167,6 +167,20 @@ class DictionaryEditorService:
                     "categories": labels, "source": str(self.data / MAIN)}
 
     @staticmethod
+    def simplified_fields(record: dict) -> dict:
+        if not isinstance(record, dict):
+            raise EditorError("Each entry must be an object.")
+        values = {}
+        for name in ("hanri", "mandarin_trad"):
+            value = record.get(name, "")
+            if not isinstance(value, str) or any(c in value for c in "\t\r\n\0"):
+                raise EditorError(f"{name}: use plain text without tabs or line breaks.")
+            values[name] = unicodedata.normalize("NFC", value.strip())
+        traditional = values["hanri"] if values["mandarin_trad"] == "〃" else values["mandarin_trad"]
+        return {"simplified": simplified_headword(values["hanri"]),
+                "mandarin_simp": simplified_headword(traditional) or traditional}
+
+    @staticmethod
     def normalize(record: dict) -> dict:
         if not isinstance(record, dict):
             raise EditorError("Each entry must be an object.")

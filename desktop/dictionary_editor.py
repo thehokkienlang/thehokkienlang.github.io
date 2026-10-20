@@ -126,6 +126,8 @@ class DictionaryEditorController:
                 return {"ok": True, **job}
         if action == "import":
             return {"ok": True, "entries": self.service.import_rows(payload.get("text"))}
+        if action == "simplify":
+            return {"ok": True, **self.service.simplified_fields(payload)}
         if action == "preview":
             record = self.service.normalize(payload.get("entry", {}))
             with self.lock:

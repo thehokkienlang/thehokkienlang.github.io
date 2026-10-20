@@ -8,6 +8,11 @@
   const audioPlayer = window.TangliengimWebAudio.createPlayer();
   const token = document.querySelector('meta[name="editor-token"]').content;
   const channel = typeof BroadcastChannel === "function" ? new BroadcastChannel("tangliengim-dictionary-updates") : null;
+  const simplifiedPairs = [
+    { source: "hanri", target: "simplified", manual: false },
+    { source: "mandarin_trad", target: "mandarin_simp", manual: false },
+  ];
+  let simplifiedTimer, simplifiedVersion = 0;
 
   async function request(action, payload = {}) {
     const response = await fetch("/desktop-api/editor/" + action, { method: "POST", cache: "no-store",
@@ -35,6 +40,33 @@
     entry.categories = [...$("categoryChoices").querySelectorAll("input:checked")].map(input => input.value);
     return entry;
   }
+  function scheduleSimplifiedFields() {
+    clearTimeout(simplifiedTimer);
+    simplifiedVersion++;
+    simplifiedTimer = setTimeout(() => {
+      updateSimplifiedFields().catch(error => notice(error.message, true));
+    }, 180);
+  }
+  async function updateSimplifiedFields() {
+    clearTimeout(simplifiedTimer);
+    const version = ++simplifiedVersion;
+    const sources = Object.fromEntries(simplifiedPairs.map(pair => [pair.source, $(pair.source).value]));
+    let result;
+    try {
+      result = sources.hanri || sources.mandarin_trad
+        ? await request("simplify", sources) : { simplified: "", mandarin_simp: "" };
+    } catch (error) {
+      if (version !== simplifiedVersion) return false;
+      throw error;
+    }
+    // A reply must never overwrite a newer edit or a different entry's form.
+    if (version !== simplifiedVersion) return false;
+    for (const pair of simplifiedPairs) if (!pair.manual) $(pair.target).value = result[pair.target];
+    return true;
+  }
+  async function flushSimplifiedFields() {
+    while (!await updateSimplifiedFields()) { /* Finish the latest Traditional edit before saving. */ }
+  }
   function mayDiscard() {
     return !state.dirty || window.confirm("Discard the unsaved changes in this form?");
   }
@@ -42,6 +74,10 @@
     audioPlayer.stop();
     for (const composer of composers) composer.clear();
     for (const field of fields) $(field).value = entry?.[field] || "";
+    for (const pair of simplifiedPairs) {
+      pair.manual = Boolean(entry?.[pair.target] && entry[pair.target] !== "〃");
+    }
+    scheduleSimplifiedFields();
     for (const input of $("categoryChoices").querySelectorAll("input")) input.checked = Boolean(entry?.categories?.includes(input.value));
     state.selected = entry?.entry_id || null;
     $("formTitle").textContent = entry ? "Edit entry" : "New entry";
@@ -145,11 +181,15 @@
     document.querySelector(".entry-detail").scrollTop = 0;
     $("hanri").focus();
   }
-  async function save(entries, batch = false) {
+  async function save(entries = null, batch = false) {
     if (state.saving) return;
     state.saving = true;
     busy(Boolean(state.job), state.jobKind);
     try {
+      if (!batch) {
+        await flushSimplifiedFields();
+        entries = [formEntry()];
+      }
       const payload = { entries, revision: state.revision };
       const result = await writeEntries("save", payload);
       if (!result) return;
@@ -207,6 +247,7 @@
     state.saving = true;
     busy(Boolean(state.job), state.jobKind);
     try {
+      if (state.dirty) await flushSimplifiedFields();
       const payload = { resolutions, ...(state.dirty ? { entries: [formEntry()], revision: state.revision } : {}) };
       const result = await writeEntries("publish", payload);
       if (!result) return;
@@ -285,7 +326,7 @@
   const core = window.TangliengimImeCore;
   const composers = [
     core.createTextImeController({ control: $("hanri"), candidateContainer: $("headwordCandidates"),
-      enabled: () => $("keyboard").checked, onUpdate: () => setDirty(true), enterBehavior: "commit", toneInputStyle: "symbols" }),
+      enabled: () => $("keyboard").checked, onUpdate: () => { setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "symbols" }),
     core.createTextImeController({ control: $("reading"), candidateContainer: $("readingCandidates"),
       enabled: () => $("keyboard").checked, onUpdate: () => setDirty(true), enterBehavior: "commit", toneInputStyle: "digits" }),
   ];
@@ -300,9 +341,15 @@
   channel?.addEventListener("message", () => refreshComposers().catch(() => {}));
   $("entryForm").addEventListener("input", event => { if (event.target.id !== "keyboard") setDirty(true); });
   $("entryForm").addEventListener("change", event => { if (event.target.id !== "keyboard") setDirty(true); });
-  $("entryForm").addEventListener("submit", event => { event.preventDefault(); save([formEntry()]); });
-  $("hanri").addEventListener("input", () => { if (!state.selected) $("simplified").value = ""; });
-  $("mandarin_trad").addEventListener("input", () => { $("mandarin_simp").value = ""; });
+  $("entryForm").addEventListener("submit", event => { event.preventDefault(); save(); });
+  for (const pair of simplifiedPairs) {
+    $(pair.source).addEventListener("input", event => { if (!event.isComposing) scheduleSimplifiedFields(); });
+    $(pair.source).addEventListener("compositionend", scheduleSimplifiedFields);
+    $(pair.target).addEventListener("input", () => {
+      pair.manual = Boolean($(pair.target).value);
+      scheduleSimplifiedFields();
+    });
+  }
   $("newButton").addEventListener("click", () => { if (mayDiscard()) { fill(); $("hanri").focus(); } });
   $("reloadButton").addEventListener("click", async () => {
     if (!mayDiscard()) return;
@@ -314,6 +361,7 @@
   $("publishButton").addEventListener("click", () => publish());
   $("previewButton").addEventListener("click", async () => {
     try {
+      await flushSimplifiedFields();
       const result = await request("preview", { entry: formEntry() });
       state.preview = result;
       $("previewHeadword").textContent = result.entry.hanri;
