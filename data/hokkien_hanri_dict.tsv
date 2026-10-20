@@ -393,6 +393,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 若	〃	나5	〃	〃	if; supposing that		lexical	U+82E5_00
 哪裡	哪里	나1리2	〃	哪里	where		lexical	U+54EA_U+88E1_00
 南無	南无	나머4	〃	南无	namo; homage to		lexical	U+5357_U+7121_00
+若是	若是	나시5	若是	若是	if		lexical	U+82E5_U+662F_00
 嚨喉	咙喉	나ᄋᅷ4	喉嚨	喉咙	throat		lexical	U+56A8_U+5589_00
 若準	若准	나준2	如果; 假如	〃	if; suppose		lexical	U+82E5_U+6E96_00
 奈	〃	내5	〃	〃	how; endure		lexical	U+5948_00
@@ -1120,6 +1121,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 迷題	迷题	뻬되4	謎題	谜题	riddle; puzzle		lexical	U+8FF7_U+984C_00
 迷人	〃	뻬랑4	〃	〃	charming; fascinating		lexical	U+8FF7_U+4EBA_00
 迷戀	迷恋	뻬롼4	〃	迷恋	infatuated; obsessed		lexical	U+8FF7_U+6200_00
+馬票	马票	뻬1표	萬字票	万字票	4D lottery		lexical	U+99AC_U+7968_00
 迷魂	〃	뻬훈4	〃	〃	enchant; lose one's soul		lexical	U+8FF7_U+9B42_00
 欲	〃	뼇	〃	〃	want; desire; about to		lexical	U+6B32_00
 免	〃	뼨2	〃	〃	do not need; exempt		lexical	U+514D_00
@@ -2042,6 +2044,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 一日	〃	짇띧1	〃	〃	one day		lexical	U+4E00_U+65E5_00
 一人	〃	짇랑4	〃	〃	one person		lexical	U+4E00_U+4EBA_00
 一路	〃	짇러5	〃	〃	all the way; road		lexical	U+4E00_U+8DEF_00
+一百	一百	짇밯	一百	一百	one hundred		lexical	U+4E00_U+767E_00
+一百萬	一百万	짇밯1빤5	一百萬	一百万	one million		lexical	U+4E00_U+767E_U+842C_00
 一百箍	〃	짇밯1커1	一百元	〃	one hundred dollars		lexical	U+4E00_U+767E_U+7B8D_00
 一擺	一摆	짇배2	一次	〃	one		lexical	U+4E00_U+64FA_00
 一步	〃	짇버5	〃	〃	one step		lexical	U+4E00_U+6B65_00
