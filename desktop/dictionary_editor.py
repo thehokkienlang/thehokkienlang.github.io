@@ -41,6 +41,8 @@ class DictionaryEditorController:
 
     def start_job(self, kind, operation):
         with self.lock:
+            if self.server.restarting:
+                raise EditorError("Restart in progress. Your form is retained.", code="busy")
             if self.active_job:
                 raise EditorError("Another dictionary operation is running. Please wait.", code="busy")
             identity = uuid.uuid4().hex
@@ -112,6 +114,8 @@ class DictionaryEditorController:
         return {"ok": True, "message": "Saved locally; IME candidates refreshed.", "generation": self.generation}
 
     def dispatch(self, action, payload):
+        if action == "restart":
+            return self.server.restart_desktop()
         if action == 'open':
             return self.server.open_dictionary_editor(payload.get('job'))
         if action == "snapshot":
@@ -148,6 +152,8 @@ class DictionaryEditorController:
             return {"ok": True, "entry": record, "lomari": roman, "audio": playback}
         if action == "save":
             with self.lock:
+                if self.server.restarting:
+                    raise EditorError("Restart in progress. Your form is retained.", code="busy")
                 if self.active_job and self.jobs[self.active_job]['kind'] != 'refresh':
                     raise EditorError("A dictionary operation is running. Your form is retained.", code="busy")
                 result = self.service.save(payload.get("entries"), revision=payload.get("revision"),
@@ -162,6 +168,8 @@ class DictionaryEditorController:
                 self.refresh_runtime(progress)
                 return result
             with self.lock:
+                if self.server.restarting:
+                    raise EditorError("Restart in progress. Your form is retained.", code="busy")
                 if self.active_job:
                     raise EditorError("Another dictionary operation is running. Your form is retained.", code="busy")
                 saved = {}

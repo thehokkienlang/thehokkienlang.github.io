@@ -18,6 +18,7 @@ from node_runtime import node_environment
 ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 JAVASCRIPT_FILES = (
+    "desktop/desktop_restart.js",
     "desktop/dictionary_editor_ui/editor.js",
     "apps/dictionary/gate.js",
     "apps/dictionary/app.js",

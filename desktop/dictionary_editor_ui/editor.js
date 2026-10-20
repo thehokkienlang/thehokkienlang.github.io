@@ -387,11 +387,46 @@
   $("saveBatch").addEventListener("click", () => save(state.batch, true));
   $("cancelConflicts").addEventListener("click", () => $("conflictDialog").close());
   $("conflictForm").addEventListener("submit", event => { event.preventDefault(); $("conflictDialog").close(); publish(state.resolutions); });
-  window.addEventListener("beforeunload", event => { if (state.dirty || state.batch.length) { event.preventDefault(); event.returnValue = ""; } });
+  $("restartButton").addEventListener("click", async () => {
+    $("restartButton").disabled = true;
+    try { await window.TangliengimDesktopRestart.restart(); }
+    catch (error) { notice(error.message, true); }
+    finally { $("restartButton").disabled = false; }
+  });
+  window.addEventListener("beforeunload", event => {
+    if (window.TangliengimDesktopRestart?.isReloading()) return;
+    if (state.dirty || state.batch.length) { event.preventDefault(); event.returnValue = ""; }
+  });
   (async () => {
     try {
       const result = await load();
       await refreshComposers();
+      await window.TangliengimDesktopRestart?.attach({
+        notify: message => notice(message),
+        canRestart: () => state.saving || state.job ? "Wait for the save or publication to finish before restarting."
+          : $("conflictDialog").open ? "Finish resolving the dictionary conflict before restarting." : null,
+        capture: () => ({ entry: formEntry(), dirty: state.dirty, selected: state.selected, page: state.page,
+          manual: simplifiedPairs.map(pair => pair.manual), keyboard: $("keyboard").checked,
+          advanced: $("advanced").open, batch: state.batch, batchText: $("batchText").value,
+          batchOpen: $("batchDialog").open, search: $("search").value,
+          typeFilter: $("typeFilter").value, categoryFilter: $("categoryFilter").value }),
+        restore: draft => {
+          fill(draft.entry);
+          state.selected = draft.selected;
+          $("formTitle").textContent = draft.selected ? "Edit entry" : "New entry";
+          setDirty(Boolean(draft.dirty));
+          simplifiedPairs.forEach((pair, index) => { pair.manual = Boolean(draft.manual?.[index]); });
+          $("keyboard").checked = draft.keyboard;
+          $("advanced").open = draft.advanced;
+          state.batch = draft.batch || [];
+          $("batchText").value = draft.batchText || "";
+          renderBatch();
+          if (draft.batchOpen) $("batchDialog").showModal();
+          for (const field of ["search", "typeFilter", "categoryFilter"]) $(field).value = draft[field] || "";
+          state.page = draft.page || 0;
+          renderEntries();
+        },
+      });
       const params = new URLSearchParams(location.search);
       const job = params.get("job") || result.activeJob;
       if (job) watchJob(job);

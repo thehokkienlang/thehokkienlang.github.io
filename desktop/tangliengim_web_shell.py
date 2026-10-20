@@ -71,6 +71,7 @@ DESKTOP_SCRIPT = r"""
 
   const style = document.createElement("style");
   style.textContent = `
+    .toolbar-actions { flex-wrap: wrap; min-width: 0; }
     .desktop-html-style,
     .desktop-action-button {
       height: 38px;
@@ -138,6 +139,13 @@ DESKTOP_SCRIPT = r"""
   editorButton.textContent = "Dictionary editor";
   editorButton.type = "button";
   actions.append(htmlStyle, htmlButton, syncButton, editorButton);
+  const restartButton = document.createElement("button");
+  restartButton.id = "desktopRestartButton";
+  restartButton.className = "desktop-action-button";
+  restartButton.type = "button";
+  restartButton.textContent = "Restart";
+  restartButton.title = "Restart with the latest local code";
+  actions.append(restartButton);
 
   async function request(path, payload = {}, timeoutMs = 0) {
     const abort = new AbortController();
@@ -298,6 +306,35 @@ DESKTOP_SCRIPT = r"""
     }
   });
 
+  restartButton.addEventListener("click", async () => {
+    restartButton.disabled = true;
+    try { await window.TangliengimDesktopRestart.restart(); }
+    catch (error) { showToast(error.message); }
+    finally { restartButton.disabled = false; }
+  });
+  window.TangliengimDesktopRestart.attach({
+    notify: message => showToast(message),
+    canRestart: () => htmlButton.disabled ? "Finish copying HTML before restarting." : null,
+    capture: () => {
+      imeController.syncRememberedReadings(imeText.value);
+      return { text: imeText.value, start: imeText.selectionStart, end: imeText.selectionEnd,
+        scrollTop: imeText.scrollTop, sandhiMode: state.sandhiMode,
+        hanri: imeController.rememberedHanriReadings, hangul: imeController.rememberedHangulReadings };
+    },
+    restore: async draft => {
+      await loadDictionary();
+      imeText.value = draft.text;
+      imeText.setSelectionRange(draft.start, draft.end);
+      imeController.syncComposerFromControl();
+      for (const span of draft.hanri || []) imeController.rememberHanriReading(span.start, span.entry, draft.text);
+      for (const span of draft.hangul || []) {
+        imeController.rememberHangulReading(span.start, span.end, span.reading, span.entry, draft.text, span.explicit);
+      }
+      setSandhiMode(draft.sandhiMode);
+      updateImePresentation();
+      imeText.scrollTop = draft.scrollTop;
+    },
+  }).catch(error => showToast("Could not restore input: " + error.message));
   window.TangliengimDesktopExtensions = { refreshStatus };
   refreshStatus();
 })();
@@ -427,9 +464,17 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             script = DESKTOP_SCRIPT.replace('__EDITOR_TOKEN__', self.server.editor_token)
             self._send_bytes(script.encode("utf-8"), "text/javascript; charset=utf-8")
             return
+        if path == "/desktop/restart.js":
+            script = (self.server.repo_root / "desktop/desktop_restart.js").read_text(encoding="utf-8")
+            script = script.replace('__EDITOR_TOKEN__', self.server.editor_token).replace('__DESKTOP_INSTANCE__', self.server.instance)
+            self._send_bytes(script.encode("utf-8"), "text/javascript; charset=utf-8")
+            return
+        if path == "/desktop-api/session":
+            self._send_json({"ok": True, "instance": self.server.instance})
+            return
         if path == "/desktop-api/status":
             self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending(),
-                             "dictionaryGeneration": self.server.editor.generation})
+                             "dictionaryGeneration": self.server.editor.generation, "instance": self.server.instance})
             return
 
         target = _safe_repo_file(self.server.repo_root, self.path)
@@ -439,6 +484,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
         data = target.read_bytes()
         if target == self.server.repo_root / 'desktop/dictionary_editor_ui/index.html':
             data = data.replace(b'__EDITOR_TOKEN__', self.server.editor_token.encode())
+        if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
+                      self.server.repo_root / 'apps/ime/index.html'):
+            data = data.replace(b'</head>', b'<script src="/desktop/restart.js"></script>\n</head>')
         if target in [self.server.repo_root / 'apps' / app / 'index.html' for app in ('ime', 'dictionary')]:
             html = data.decode('utf-8').replace(
                 '</head>',
@@ -467,6 +515,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             if (origin and origin != f'http://{host}') or self.headers.get('Sec-Fetch-Site') == 'cross-site':
                 raise EditorError('Only the local desktop interface may change the dictionary.', code='forbidden')
             payload = self._read_json()
+            if self.server.restarting:
+                raise EditorError('Restart in progress. Your input is retained.', code='busy')
             if path.startswith('/desktop-api/editor/'):
                 if self.headers.get('X-Tangliengim-Editor') != self.server.editor_token:
                     raise EditorError('Editor session expired. Reload this page.', code='forbidden')
@@ -492,6 +542,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
                 self.send_error(404)
                 return
             self._send_json(result)
+            if result.get('restarting'):
+                self.server.restart_event.set()
         except EditorError as exc:
             self._send_json({"ok": False, "error": str(exc), "code": exc.code, "details": exc.details},
                             status=403 if exc.code == 'forbidden' else 409 if exc.code in {'stale', 'conflict'} else 400)
@@ -502,8 +554,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
 class DesktopHttpServer(ThreadingHTTPServer):
     daemon_threads = True
 
-    def __init__(self, repo_root: Path, classic_script: Path):
-        super().__init__(("127.0.0.1", 0), DesktopRequestHandler)
+    def __init__(self, repo_root: Path, classic_script: Path, *, port: int = 0):
+        super().__init__(("127.0.0.1", port), DesktopRequestHandler)
         self.repo_root = repo_root.resolve()
         self.classic_script = classic_script.resolve()
         self.classic_process: subprocess.Popen | None = None
@@ -516,6 +568,10 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.preference_receipts = OrderedDict()
         from dictionary_editor import DictionaryEditorController
         self.editor_token = uuid.uuid4().hex
+        self.instance = uuid.uuid4().hex
+        self.restarting = False
+        self.restart_supported = False
+        self.restart_event = threading.Event()
         self.editor = DictionaryEditorController(self)
 
     def load_candidate_preferences(self) -> dict:
@@ -686,6 +742,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
 
     def run_html_bridge(self, payload: dict, *, confirmation_id: str | None = None) -> dict:
         with self.bridge_lock:
+            if self.restarting:
+                raise EditorError('Restart in progress. Your input is retained.', code='busy')
             self.start_html_bridge()
             if confirmation_id is not None:
                 if confirmation_id != self.html_confirmation_id:
@@ -745,6 +803,22 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def sync_tsv(self) -> dict:
         return self.editor.dispatch('publish', {})
 
+    def restart_desktop(self) -> dict:
+        with self.editor.lock:
+            if not self.restart_supported:
+                raise EditorError('Restart is available when launched as a desktop app.')
+            if self.editor.active_job:
+                raise EditorError('Wait for the dictionary save or publication to finish before restarting.', code='busy')
+            if not self.bridge_lock.acquire(blocking=False):
+                raise EditorError('Finish copying HTML before restarting.', code='busy')
+            try:
+                if self.html_confirmation_id:
+                    raise EditorError('Finish the HTML confirmation before restarting.', code='busy')
+                self.restarting = True
+            finally:
+                self.bridge_lock.release()
+        return {'ok': True, 'restarting': True}
+
     def open_dictionary_editor(self, job=None) -> dict:
         if job is not None:
             with self.editor.lock:
@@ -792,6 +866,32 @@ def _fallback_browser_host(url: str, *, editor: bool = False) -> None:
     root.mainloop()
 
 
+def run_desktop_server(repo_root: Path, classic_script: Path, port: int, *, editor: bool = False) -> int:
+    """Replacement backend; the original launcher continues to own the app window."""
+    server = DesktopHttpServer(repo_root, classic_script, port=port)
+    server.restart_supported = True
+    if not editor:
+        server.start_html_bridge()
+
+    def stop_on_request():
+        server.restart_event.wait()
+        server.shutdown()
+
+    def stop_on_launcher_exit():
+        for line in sys.stdin:
+            if line.strip() == 'stop':
+                break
+        server.restart_event.set()
+
+    threading.Thread(target=stop_on_request, daemon=True).start()
+    threading.Thread(target=stop_on_launcher_exit, daemon=True).start()
+    try:
+        server.serve_forever()
+    finally:
+        server.server_close()
+    return 75 if server.restarting else 0
+
+
 def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = False) -> None:
     repo_root = repo_root.resolve()
     required = [repo_root / "desktop/dictionary_editor_ui/index.html"] if editor else [
@@ -804,11 +904,48 @@ def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = F
         raise FileNotFoundError("Missing shared web files: " + ", ".join(missing))
 
     server = DesktopHttpServer(repo_root, classic_script)
+    server.restart_supported = True
     if not editor:
         server.start_html_bridge()
     thread = threading.Thread(target=server.serve_forever, name="TangliengimDesktopServer", daemon=True)
     thread.start()
     url = f"http://127.0.0.1:{server.server_port}" + ("/editor/" if editor else "/ime/?desktop=1")
+    stopping = threading.Event()
+    replacement = None
+    original_closed = False
+    server.editor.service.state.mkdir(parents=True, exist_ok=True)
+    log = (server.editor.service.state / 'desktop-restart.log').open('ab')
+
+    def supervise_restarts():
+        nonlocal replacement, original_closed
+        while not stopping.wait(.2):
+            if replacement is None:
+                if not server.restart_event.is_set():
+                    continue
+                server.shutdown()
+                server.server_close()
+                thread.join(timeout=2)
+                original_closed = True
+            elif replacement.poll() is None:
+                continue
+            elif replacement.returncode != 75:
+                return
+            else:
+                replacement.stdin.close()
+            if stopping.is_set():
+                return
+            command = [str(server.bridge_interpreter()), str(repo_root / 'desktop/tangliengim_web_shell.py'),
+                       '--desktop-server', '--repo', str(repo_root), '--classic-script', str(classic_script),
+                       '--port', str(server.server_port)]
+            if editor:
+                command.append('--editor')
+            replacement = subprocess.Popen(command, cwd=str(repo_root), stdin=subprocess.PIPE,
+                                           stdout=log, stderr=subprocess.STDOUT,
+                                           env={**os.environ, 'PYTHONIOENCODING': 'utf-8'}, close_fds=True,
+                                           creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+
+    supervisor = threading.Thread(target=supervise_restarts, name='TangliengimRestartSupervisor', daemon=True)
+    supervisor.start()
     try:
         edge = find_edge()
         if edge is None:
@@ -823,12 +960,37 @@ def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = F
         if time.monotonic() - started < 2:
             _fallback_browser_host(url, editor=editor)
     finally:
-        server.shutdown()
-        server.server_close()
-        thread.join(timeout=2)
+        stopping.set()
+        supervisor.join()
+        if replacement is not None:
+            try:
+                if replacement.poll() is None:
+                    replacement.stdin.write(b'stop\n')
+                    replacement.stdin.flush()
+                    replacement.wait(timeout=8)
+            except (OSError, subprocess.TimeoutExpired):
+                replacement.kill()
+                replacement.wait()
+            finally:
+                replacement.stdin.close()
+        if not original_closed:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=2)
+        log.close()
 
 
 def main() -> None:
+    import argparse
+    parser = argparse.ArgumentParser(description='Tangliengim local desktop server')
+    parser.add_argument('--desktop-server', action='store_true')
+    parser.add_argument('--repo', type=Path, default=Path(__file__).resolve().parents[1])
+    parser.add_argument('--classic-script', type=Path, default=Path(__file__).resolve().with_name('Hokkien Tangliengim IME Pad.py'))
+    parser.add_argument('--port', type=int, default=0)
+    parser.add_argument('--editor', action='store_true')
+    args = parser.parse_args()
+    if args.desktop_server:
+        raise SystemExit(run_desktop_server(args.repo, args.classic_script, args.port, editor=args.editor))
     repo_root = Path(__file__).resolve().parents[1]
     classic_script = Path(__file__).resolve().with_name("Hokkien Tangliengim IME Pad.py")
     run_desktop_shell(repo_root, classic_script)
