@@ -72,6 +72,7 @@ DESKTOP_SCRIPT = r"""
   const style = document.createElement("style");
   style.textContent = `
     .toolbar-actions { flex-wrap: wrap; min-width: 0; }
+    .ime-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .desktop-html-style,
     .desktop-action-button {
       height: 38px;
@@ -145,7 +146,7 @@ DESKTOP_SCRIPT = r"""
   restartButton.type = "button";
   restartButton.textContent = "Restart";
   restartButton.title = "Restart with the latest local code";
-  actions.append(restartButton);
+  document.querySelector(".ime-header").append(restartButton);
 
   async function request(path, payload = {}, timeoutMs = 0) {
     const abort = new AbortController();
@@ -603,6 +604,11 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def local_tsv_path(self) -> Path:
         return self.repo_root / "data" / "hokkien_hanri_dict.tsv"
 
+    def local_entries_pending(self) -> bool:
+        backup = self.editor.service.state / 'last-save-backup.json'
+        publication = self.editor.service.state / 'publication.json'
+        return backup.is_file() and (not publication.is_file() or backup.stat().st_mtime_ns > publication.stat().st_mtime_ns)
+
     def tsv_sync_pending(self) -> bool:
         if not (self.repo_root / ".git").exists():
             return False
@@ -610,7 +616,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         command = ["git", "-c", f"safe.directory={self.repo_root.as_posix()}", "-C", str(self.repo_root)]
         options = {
             "capture_output": True, "text": True, "encoding": "utf-8",
-            "errors": "replace", "check": False,
+            "errors": "replace", "check": False, "stdin": subprocess.DEVNULL, "timeout": 3,
             "creationflags": getattr(subprocess, "CREATE_NO_WINDOW", 0) if os.name == "nt" else 0,
             "env": {**os.environ, "GIT_OPTIONAL_LOCKS": "0"},
         }
@@ -622,8 +628,8 @@ class DesktopHttpServer(ThreadingHTTPServer):
                 return True
             ahead = subprocess.run([*command, "diff", "--quiet", "origin/main..HEAD", "--", *paths], **options)
             return ahead.returncode == 1
-        except OSError:
-            return False
+        except (OSError, subprocess.SubprocessError):
+            return self.local_entries_pending()
 
     def bridge_interpreter(self) -> Path:
         interpreter = Path(sys.executable)
@@ -830,7 +836,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         url = f'http://127.0.0.1:{self.server_port}/editor/'
         if job is not None:
             url += '?' + urlencode({'job': job})
-        subprocess.Popen(_edge_app_command(edge, url, editor=True), close_fds=True,
+        subprocess.Popen(_edge_app_command(edge, url, editor=True), close_fds=True, stdin=subprocess.DEVNULL,
                          creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         return {'ok': True}
 
@@ -847,6 +853,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         env["HOKKIEN_HANRI_DICT_PATH"] = str(self.local_tsv_path())
         self.classic_process = subprocess.Popen(
             [str(interpreter), str(self.classic_script), "--classic-ui"],
+            stdin=subprocess.DEVNULL,
             cwd=str(self.classic_script.parent),
             env=env,
             close_fds=True,
@@ -878,9 +885,23 @@ def run_desktop_server(repo_root: Path, classic_script: Path, port: int, *, edit
         server.shutdown()
 
     def stop_on_launcher_exit():
-        for line in sys.stdin:
-            if line.strip() == 'stop':
-                break
+        if os.name == 'nt':
+            import ctypes
+            import msvcrt
+            # A blocking stdin reader can hold Windows stdio locks while HTTP
+            # threads launch Git/Python. Only read after the control pipe has data.
+            handle = ctypes.c_void_p(msvcrt.get_osfhandle(sys.stdin.fileno()))
+            available = ctypes.c_ulong()
+            peek = ctypes.windll.kernel32.PeekNamedPipe
+            while not server.restart_event.wait(.25):
+                if not peek(handle, None, 0, None, ctypes.byref(available), None):
+                    break
+                if available.value and sys.stdin.readline().strip() == 'stop':
+                    break
+        else:
+            for line in sys.stdin:
+                if line.strip() == 'stop':
+                    break
         server.restart_event.set()
 
     threading.Thread(target=stop_on_request, daemon=True).start()

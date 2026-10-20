@@ -92,7 +92,7 @@ class DictionaryEditorController:
                                      "--input", str(source / MAIN), "--categories", str(source / CATEGORIES),
                                      "--registry", str(source / REGISTRY), "--output", str(output)],
                                     cwd=self.service.repo, env=env,
-                                    capture_output=True, encoding="utf-8", errors="replace", timeout=300,
+                                    stdin=subprocess.DEVNULL, capture_output=True, encoding="utf-8", errors="replace", timeout=60,
                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
             if result.returncode:
                 raise EditorError("Entries were saved, but the IME refresh failed: " + (result.stderr or result.stdout)[-4000:])
@@ -120,7 +120,7 @@ class DictionaryEditorController:
             return self.server.open_dictionary_editor(payload.get('job'))
         if action == "snapshot":
             return {**self.service.snapshot(), "activeJob": self.active_job, "generation": self.generation,
-                    "tsvPending": self.server.tsv_sync_pending(),
+                    "tsvPending": self.server.local_entries_pending(),
                     "hasPublication": (self.service.state / 'publication.json').exists()}
         if action == "job":
             with self.lock:

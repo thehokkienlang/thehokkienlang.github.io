@@ -36,6 +36,7 @@ def git(repo, *arguments, timeout=120, check=True):
         env.pop(key, None)
     env["GIT_TERMINAL_PROMPT"] = "0"
     result = subprocess.run(["git", "-C", str(repo), *arguments], capture_output=True,
+                            stdin=subprocess.DEVNULL,
                             env=env, encoding="utf-8", errors="replace", timeout=timeout,
                             creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
     if check and result.returncode:
@@ -48,6 +49,7 @@ def revision_files(repo, ref):
     files = {}
     for name in DATA_FILES:
         result = subprocess.run(["git", "-C", str(repo), "show", f"{ref}:data/{name}"], capture_output=True,
+                                stdin=subprocess.DEVNULL,
                                 timeout=30, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
         if result.returncode == 0:
             files[name] = result.stdout
@@ -219,6 +221,7 @@ class DictionaryPublisher:
                 def check(*command):
                     try:
                         result = subprocess.run(command, cwd=staging, env=env, stdout=output,
+                                                stdin=subprocess.DEVNULL,
                                                 stderr=subprocess.STDOUT, encoding='utf-8', timeout=300,
                                                 creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
                     except subprocess.TimeoutExpired as error:
@@ -308,6 +311,7 @@ class DictionaryPublisher:
                 result = subprocess.run(["gh", "api", "--method", "GET", "repos/{owner}/{repo}/actions/runs",
                                          "-f", "head_sha=" + state["commit"], "-f", "per_page=20"],
                                         cwd=self.repo, capture_output=True, encoding="utf-8", timeout=20,
+                                        stdin=subprocess.DEVNULL,
                                         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
                 if result.returncode == 0:
                     payload = json.loads(result.stdout)

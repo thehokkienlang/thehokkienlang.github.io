@@ -16,6 +16,7 @@
 
   async function request(action, payload = {}) {
     const response = await fetch("/desktop-api/editor/" + action, { method: "POST", cache: "no-store",
+      signal: AbortSignal.timeout(action === "save" || action === "publish" ? 60000 : 10000),
       headers: { "Content-Type": "application/json", "X-Tangliengim-Editor": token }, body: JSON.stringify(payload) });
     const result = await response.json();
     if (!response.ok || !result.ok) throw Object.assign(new Error(result.error || `HTTP ${response.status}`), result);
@@ -125,6 +126,7 @@
   }
   function renderCategories() {
     const selectedFilter = $("categoryFilter").value;
+    const checked = new Set([...$("categoryChoices").querySelectorAll("input:checked")].map(input => input.value));
     $("categoryFilter").replaceChildren(new Option("All categories", ""));
     $("categoryChoices").replaceChildren();
     for (const [key, name] of Object.entries(state.categories)) {
@@ -133,6 +135,7 @@
       const input = document.createElement("input");
       input.type = "checkbox";
       input.value = key;
+      input.checked = checked.has(key);
       label.append(input, document.createTextNode(name));
       $("categoryChoices").append(label);
     }
@@ -144,9 +147,9 @@
     state.categories = result.categories;
     state.revision = result.revision;
     $("sourcePath").textContent = result.source;
+    renderCategories();
     if (!preserveForm) {
       const selected = state.entries.find(entry => entry.entry_id === state.selected);
-      renderCategories();
       fill(selected);
     } else renderEntries();
     return result;
@@ -195,10 +198,12 @@
       if (!result) return;
       resetAfterSave(result, batch);
       notice(result.message);
+      if (result.job) watchJob(result.job);
+      state.saving = false;
+      busy(Boolean(state.job), state.jobKind);
       await load({ preserveForm: true });
       notice(result.message);
-      $("publishState").textContent = "Waiting to publish";
-      if (result.job) watchJob(result.job);
+      if (!state.job) $("publishState").textContent = "Waiting to publish";
     } catch (error) {
       const text = error.code === "stale" ? `${error.message}\nCopy any unsaved text before using Reload.` : error.message;
       notice(text, true);
@@ -234,6 +239,7 @@
           channel?.postMessage({ type: "dictionary-updated" });
           if (!state.dirty) await load({ preserveForm: true });
           if (job.kind === "publish") await checkDeployment();
+          else $("publishState").textContent = "Waiting to publish";
           break;
         }
         await new Promise(resolve => setTimeout(resolve, 1100));
@@ -331,7 +337,7 @@
       enabled: () => $("keyboard").checked, onUpdate: () => setDirty(true), enterBehavior: "commit", toneInputStyle: "digits" }),
   ];
   async function refreshComposers() {
-    const response = await fetch("/public/data/hokkien-hanri-dict.json", { cache: "no-store" });
+    const response = await fetch("/public/data/hokkien-hanri-dict.json", { cache: "no-store", signal: AbortSignal.timeout(15000) });
     if (!response.ok) return;
     const data = await response.json();
     const index = core.createDictionaryIndex(data.entries || []);
@@ -397,36 +403,41 @@
     if (window.TangliengimDesktopRestart?.isReloading()) return;
     if (state.dirty || state.batch.length) { event.preventDefault(); event.returnValue = ""; }
   });
-  (async () => {
-    try {
-      const result = await load();
-      await refreshComposers();
-      await window.TangliengimDesktopRestart?.attach({
+  let restartDraft = null;
+  const restartAttachment = window.TangliengimDesktopRestart?.attach({
         notify: message => notice(message),
         canRestart: () => state.saving || state.job ? "Wait for the save or publication to finish before restarting."
           : $("conflictDialog").open ? "Finish resolving the dictionary conflict before restarting." : null,
-        capture: () => ({ entry: formEntry(), dirty: state.dirty, selected: state.selected, page: state.page,
+        capture: () => restartDraft || ({ entry: formEntry(), dirty: state.dirty, selected: state.selected, page: state.page,
           manual: simplifiedPairs.map(pair => pair.manual), keyboard: $("keyboard").checked,
           advanced: $("advanced").open, batch: state.batch, batchText: $("batchText").value,
           batchOpen: $("batchDialog").open, search: $("search").value,
           typeFilter: $("typeFilter").value, categoryFilter: $("categoryFilter").value }),
-        restore: draft => {
-          fill(draft.entry);
-          state.selected = draft.selected;
-          $("formTitle").textContent = draft.selected ? "Edit entry" : "New entry";
-          setDirty(Boolean(draft.dirty));
-          simplifiedPairs.forEach((pair, index) => { pair.manual = Boolean(draft.manual?.[index]); });
-          $("keyboard").checked = draft.keyboard;
-          $("advanced").open = draft.advanced;
-          state.batch = draft.batch || [];
-          $("batchText").value = draft.batchText || "";
-          renderBatch();
-          if (draft.batchOpen) $("batchDialog").showModal();
-          for (const field of ["search", "typeFilter", "categoryFilter"]) $(field).value = draft[field] || "";
-          state.page = draft.page || 0;
-          renderEntries();
-        },
-      });
+        restore: draft => { restartDraft = draft; },
+      }).catch(error => notice("Could not restore editor draft: " + error.message, true));
+  (async () => {
+    try {
+      await restartAttachment;
+      const result = await load({ preserveForm: state.dirty });
+      await refreshComposers();
+      if (restartDraft) {
+        const draft = restartDraft;
+        fill(draft.entry);
+        state.selected = draft.selected;
+        $("formTitle").textContent = draft.selected ? "Edit entry" : "New entry";
+        setDirty(Boolean(draft.dirty));
+        simplifiedPairs.forEach((pair, index) => { pair.manual = Boolean(draft.manual?.[index]); });
+        $("keyboard").checked = draft.keyboard;
+        $("advanced").open = draft.advanced;
+        state.batch = draft.batch || [];
+        $("batchText").value = draft.batchText || "";
+        renderBatch();
+        if (draft.batchOpen) $("batchDialog").showModal();
+        for (const field of ["search", "typeFilter", "categoryFilter"]) $(field).value = draft[field] || "";
+        state.page = draft.page || 0;
+        renderEntries();
+        restartDraft = null;
+      }
       const params = new URLSearchParams(location.search);
       const job = params.get("job") || result.activeJob;
       if (job) watchJob(job);

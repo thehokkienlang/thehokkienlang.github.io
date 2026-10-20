@@ -33,16 +33,17 @@
   window.TangliengimDesktopRestart = {
     isReloading: () => reloading,
     async attach(options) {
+      hooks = options;
       const draft = sessionStorage.getItem(draftKey);
       if (draft) {
         await options.restore(JSON.parse(draft));
         sessionStorage.removeItem(draftKey);
       }
-      hooks = options;
       setInterval(checkInstance, 2000);
     },
     async restart() {
-      if (!hooks || restarting) return;
+      if (!hooks) throw new Error("The editor is still loading. Please try restarting again in a moment.");
+      if (restarting) throw new Error("A restart is already in progress.");
       const reason = hooks.canRestart?.();
       if (reason) throw new Error(reason);
       preserveDraft();
