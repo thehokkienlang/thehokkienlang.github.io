@@ -25,6 +25,7 @@ from sort_dictionary_tsv import sort_tsv
 from validate_dictionary_tsv import validate
 from node_runtime import node_environment
 
+BASELINE = 'tests/fixtures/dictionary-baseline.json'
 
 def git(repo, *arguments, timeout=120, check=True):
     env = os.environ.copy()
@@ -195,15 +196,6 @@ class DictionaryPublisher:
                 value = git(repo, "config", "--get", setting, check=False).stdout.strip()
                 if value:
                     git(staging, "config", setting, value)
-            for name, raw in merged.items():
-                (staging / "data" / name).write_bytes(raw)
-            with redirect_stdout(io.StringIO()):
-                errors = validate(staging / "data" / MAIN)
-                if errors:
-                    raise EditorError("\n".join(errors))
-                sort_tsv(staging / "data" / MAIN)
-            merged = {name: (staging / "data" / name).read_bytes() for name in merged}
-            self.progress("Running dictionary, build, and release checks")
             log = self.service.state / "publish-checks.log"
             env = release_env.copy()
             env["HOKKIEN_GITHUB_REPO_PATH"] = str(staging)
@@ -217,14 +209,34 @@ class DictionaryPublisher:
                 if not interpreter.is_file():
                     raise EditorError('Publishing requires python.exe beside pythonw.exe. Repair the Python installation; local entries are saved.', code='dependency')
             with log.open("w", encoding="utf-8") as output:
-                check = subprocess.run([str(interpreter), "-X", "utf8", "tools/check_release.py"],
-                                       cwd=staging, env=env, stdout=output, stderr=subprocess.STDOUT,
-                                       encoding="utf-8", timeout=1800, creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
-            if check.returncode:
-                tail = "\n".join(log.read_text(encoding="utf-8", errors="replace").splitlines()[-35:])
-                raise EditorError("Release checks failed. Local entries are saved.\n" + tail)
+                def check(*command):
+                    result = subprocess.run(command, cwd=staging, env=env, stdout=output,
+                                            stderr=subprocess.STDOUT, encoding='utf-8', timeout=1800,
+                                            creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+                    if result.returncode:
+                        output.flush()
+                        tail = '\n'.join(log.read_text(encoding='utf-8', errors='replace').splitlines()[-35:])
+                        raise EditorError('Release checks failed. Local entries are saved.\n' + tail)
+
+                # Prove the unchanged remote code/data matches its baseline before accepting data edits.
+                self.progress('Verifying the existing dictionary baseline')
+                check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
+                check(env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs')
+                for name, raw in merged.items():
+                    (staging / 'data' / name).write_bytes(raw)
+                with redirect_stdout(io.StringIO()):
+                    errors = validate(staging / 'data' / MAIN)
+                    if errors:
+                        raise EditorError('\n'.join(errors))
+                    sort_tsv(staging / 'data' / MAIN)
+                merged = {name: (staging / 'data' / name).read_bytes() for name in merged}
+                self.progress('Updating the dictionary snapshot for the saved entries')
+                check(str(interpreter), '-X', 'utf8', 'tools/build_dictionary_json.py')
+                check(env['TANGLIENGIM_NODE'], 'tools/check_dictionary_baseline.cjs', '--capture')
+                self.progress('Running dictionary, build, and release checks')
+                check(str(interpreter), '-X', 'utf8', 'tools/check_release.py')
             paths = ["data/" + name for name in DATA_FILES if name in merged]
-            git(staging, "add", "--", *paths)
+            git(staging, "add", "--", *paths, BASELINE)
             changed = bool(git(staging, "diff", "--cached", "--name-only").stdout.strip())
             if changed:
                 git(staging, "commit", "-m", "Update dictionary entries with Tangliengim Dictionary Editor")

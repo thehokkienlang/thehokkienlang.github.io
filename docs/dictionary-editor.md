@@ -49,8 +49,12 @@ comparison dialog. Concurrent new entries receiving the same previously unused
 ID are preserved by allocating a fresh local ID and updating its category,
 priority and redirect references. The merged dictionary must pass validation.
 
-The full release gate runs in an isolated temporary checkout. Only canonical
-dictionary/registry/category/priority/redirect data is committed. There is no
+The full release gate runs in an isolated temporary checkout. The publisher first
+builds the unchanged remote dictionary and verifies its existing baseline. If
+that fails, publication stops before any snapshot can be refreshed. After applying
+the merged entries, it rebuilds the dictionary and captures the matching dictionary
+baseline, then runs every release check. The data and generated dictionary baseline
+are committed together. Other behavioral baselines are not refreshed. There is no
 force-push. A racing remote update or a new local save stops publishing and
 requests a retry. Saved local work remains available.
 

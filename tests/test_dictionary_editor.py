@@ -1,5 +1,6 @@
 """Entry saves and reconciliation must preserve meanings, identities and work."""
 import json
+import hashlib
 import io
 import os
 import subprocess
@@ -17,7 +18,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 sys.path.insert(0, str(ROOT / "desktop"))
 import dictionary_editor_service as editor
 from dictionary_editor_service import DictionaryEditorService, EditorError, MAIN, REGISTRY, CATEGORIES, read_table, table_bytes
-from dictionary_editor_publish import merge_sources, DictionaryPublisher, git
+from dictionary_editor_publish import merge_sources, DictionaryPublisher, git, BASELINE
 import dictionary_editor_publish as publishing
 from dictionary_schema import DICTIONARY_COLUMNS, ENTRY_ID_REGISTRY_COLUMNS
 from dictionary_references import CATEGORY_COLUMNS
@@ -387,10 +388,25 @@ class PublishTests(unittest.TestCase):
         self.repo.mkdir()
         subprocess.run(["git", "init", "--bare", "--initial-branch=main", str(self.remote)], check=True, capture_output=True)
         fixture(self.repo)
-        (self.repo / ".gitignore").write_text(".dictionary-editor/\n")
+        (self.repo / ".gitignore").write_text(".dictionary-editor/\npublic/\n")
         (self.repo / "README.md").write_text("original code\n")
         (self.repo / "tools").mkdir()
         (self.repo / "tools/check_release.py").write_text("print('fixture release checks passed')\n")
+        (self.repo / 'tools/build_dictionary_json.py').write_text(
+            "from pathlib import Path\n"
+            "out = Path('public/data/hokkien-hanri-dict.json')\n"
+            "out.parent.mkdir(parents=True, exist_ok=True)\n"
+            "out.write_bytes(Path('data/hokkien_hanri_dict.tsv').read_bytes())\n"
+        )
+        (self.repo / 'tools/check_dictionary_baseline.cjs').write_text(
+            "const fs = require('fs'), crypto = require('crypto'), assert = require('assert');\n"
+            "const hash = crypto.createHash('sha256').update(fs.readFileSync('public/data/hokkien-hanri-dict.json')).digest('hex');\n"
+            "const baseline = 'tests/fixtures/dictionary-baseline.json';\n"
+            "if (process.argv.includes('--capture')) fs.writeFileSync(baseline, hash);\n"
+            "else assert.equal(fs.readFileSync(baseline, 'utf8'), hash, 'Existing baseline mismatch');\n"
+        )
+        (self.repo / BASELINE).parent.mkdir(parents=True)
+        self.capture_fixture_baseline(self.repo)
         git(self.repo, "init", "--initial-branch=main")
         git(self.repo, "config", "user.name", "Dictionary editor test")
         git(self.repo, "config", "user.email", "editor@example.invalid")
@@ -399,6 +415,9 @@ class PublishTests(unittest.TestCase):
         git(self.repo, "remote", "add", "origin", str(self.remote))
         git(self.repo, "push", "-u", "origin", "main")
         self.service = DictionaryEditorService(self.repo)
+
+    def capture_fixture_baseline(self, repo):
+        (repo / BASELINE).write_text(hashlib.sha256((repo / 'data' / MAIN).read_bytes()).hexdigest())
 
     def remote_edit(self):
         clone = self.repo.parent / "other"
@@ -409,7 +428,8 @@ class PublishTests(unittest.TestCase):
         record = service.snapshot()["entries"][0]
         record["mandarin_trad"] = "房子"
         service.save([record])
-        git(clone, "add", "data")
+        self.capture_fixture_baseline(clone)
+        git(clone, "add", "data", BASELINE)
         git(clone, "commit", "-m", "Remote semantic edit")
         git(clone, "push", "origin", "main")
 
@@ -426,6 +446,20 @@ class PublishTests(unittest.TestCase):
         self.assertEqual(len(entries), 2)
         self.assertEqual(next(row for row in entries if row["hanri"] == "家")["mandarin_trad"], "房子")
         self.assertEqual(git(self.repo, "status", "--porcelain", "--", "data").stdout.strip(), "")
+        self.assertEqual((self.repo / BASELINE).read_text(), hashlib.sha256((self.repo / 'data' / MAIN).read_bytes()).hexdigest())
+
+    def test_existing_baseline_failure_blocks_recapture_and_publish(self):
+        (self.repo / BASELINE).write_text('broken baseline')
+        git(self.repo, 'add', BASELINE)
+        git(self.repo, 'commit', '-m', 'Broken original baseline')
+        git(self.repo, 'push', 'origin', 'main')
+        before = git(self.repo, 'rev-parse', 'origin/main').stdout
+        self.service.save([dict(hanri='新', reading='신1')])
+        with self.assertRaisesRegex(EditorError, 'Existing baseline mismatch'):
+            DictionaryPublisher(self.service).publish()
+        self.assertEqual(git(self.repo, 'rev-parse', 'origin/main').stdout, before)
+        self.assertEqual((self.repo / BASELINE).read_text(), 'broken baseline')
+        self.assertEqual(len(self.service.snapshot()['entries']), 2)
 
     def test_failed_checks_keep_local_entries_and_remote_unchanged(self):
         (self.repo / "tools/check_release.py").write_text("raise SystemExit('test validation failure')\n")
