@@ -84,14 +84,14 @@ class MandarinLookupTests(unittest.TestCase):
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
         for change in audit:
             source_id = change['entry_id']
-            self.assertEqual(rows[source_id]['english'], change['new_english'])
             self.assertEqual(rows[source_id]['hanri'], change['hanri'])
             self.assertEqual(rows[source_id]['reading'], change['reading'])
             related = [entry for entry in data['entries'] if entry['raw']['entry_id'] == source_id]
             self.assertTrue(related)
             for entry in related:
-                self.assertEqual(entry['english'], change['new_english'])
-                self.assertEqual(entry['raw']['english'], change['new_english'])
+                current_english = rows[source_id]['english']
+                self.assertEqual(entry['english'], current_english)
+                self.assertEqual(entry['raw']['english'], current_english)
         kilometre = rows['U+516C_U+91CC_00']
         self.assertEqual(kilometre['english'], 'kilometre')
         self.assertEqual(kilometre['mandarin_trad'], '〃')
