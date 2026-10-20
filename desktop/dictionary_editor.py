@@ -112,6 +112,8 @@ class DictionaryEditorController:
         return {"ok": True, "message": "Saved locally; IME candidates refreshed.", "generation": self.generation}
 
     def dispatch(self, action, payload):
+        if action == 'open':
+            return self.server.open_dictionary_editor(payload.get('job'))
         if action == "snapshot":
             return {**self.service.snapshot(), "activeJob": self.active_job, "generation": self.generation,
                     "tsvPending": self.server.tsv_sync_pending(),

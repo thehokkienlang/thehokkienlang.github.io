@@ -23,7 +23,7 @@ import uuid
 from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
-from urllib.parse import unquote, urlsplit
+from urllib.parse import unquote, urlsplit, urlencode
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -132,13 +132,11 @@ DESKTOP_SCRIPT = r"""
   syncButton.textContent = "Sync TSV";
   syncButton.disabled = true;
 
-  const editorButton = document.createElement("a");
+  const editorButton = document.createElement("button");
   editorButton.id = "desktopDictionaryEditor";
   editorButton.className = "desktop-action-button";
   editorButton.textContent = "Dictionary editor";
-  editorButton.href = "/editor/";
-  editorButton.target = "_blank";
-  editorButton.style.cssText = "display:inline-flex;align-items:center;text-decoration:none";
+  editorButton.type = "button";
   actions.append(htmlStyle, htmlButton, syncButton, editorButton);
 
   async function request(path, payload = {}, timeoutMs = 0) {
@@ -274,12 +272,23 @@ DESKTOP_SCRIPT = r"""
     }
   });
 
+  editorButton.addEventListener("click", async () => {
+    editorButton.disabled = true;
+    try {
+      await request("/desktop-api/editor/open");
+    } catch (error) {
+      showToast(`Could not open dictionary editor: ${error.message}`);
+    } finally {
+      editorButton.disabled = false;
+    }
+  });
+
   syncButton.addEventListener("click", async () => {
     syncButton.disabled = true;
     showToast("Syncing TSV...");
     try {
       const result = await request("/desktop-api/sync-tsv");
-      window.open("/editor/?job=" + encodeURIComponent(result.job), "tangliengim-dictionary-editor");
+      await request("/desktop-api/editor/open", { job: result.job });
       showToast("Publishing entries; see dictionary editor for progress");
     } catch (error) {
       showToast(`Could not sync TSV: ${error.message}`);
@@ -309,6 +318,14 @@ def _edge_candidates() -> list[Path]:
 
 def find_edge() -> Path | None:
     return next((path for path in _edge_candidates() if path.is_file()), None)
+
+
+def _edge_app_command(edge: Path, url: str, *, editor: bool = False) -> list[str]:
+    profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / ("DictionaryEditorProfile" if editor else "DesktopProfile")
+    profile.mkdir(parents=True, exist_ok=True)
+    return [str(edge), f"--app={url}", f"--user-data-dir={profile}",
+            "--window-size=1200,860" if editor else "--window-size=920,800",
+            "--no-first-run", "--disable-features=msEdgeFirstRunExperience"]
 
 
 def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
@@ -728,6 +745,21 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def sync_tsv(self) -> dict:
         return self.editor.dispatch('publish', {})
 
+    def open_dictionary_editor(self, job=None) -> dict:
+        if job is not None:
+            with self.editor.lock:
+                if not isinstance(job, str) or job not in self.editor.jobs:
+                    raise EditorError('The dictionary operation is no longer available.')
+        edge = find_edge()
+        if edge is None:
+            raise EditorError('Microsoft Edge could not be found to open the desktop editor window.')
+        url = f'http://127.0.0.1:{self.server_port}/editor/'
+        if job is not None:
+            url += '?' + urlencode({'job': job})
+        subprocess.Popen(_edge_app_command(edge, url, editor=True), close_fds=True,
+                         creationflags=getattr(subprocess, 'CREATE_NO_WINDOW', 0))
+        return {'ok': True}
+
     def open_classic_tools(self) -> None:
         if self.classic_process is not None and self.classic_process.poll() is None:
             return
@@ -782,18 +814,9 @@ def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = F
         if edge is None:
             _fallback_browser_host(url, editor=editor)
             return
-        profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / ("DictionaryEditorProfile" if editor else "DesktopProfile")
-        profile.mkdir(parents=True, exist_ok=True)
         started = time.monotonic()
         process = subprocess.Popen(
-            [
-                str(edge),
-                f"--app={url}",
-                f"--user-data-dir={profile}",
-                "--window-size=1200,860" if editor else "--window-size=920,800",
-                "--no-first-run",
-                "--disable-features=msEdgeFirstRunExperience",
-            ],
+            _edge_app_command(edge, url, editor=editor),
             close_fds=True,
         )
         process.wait()
