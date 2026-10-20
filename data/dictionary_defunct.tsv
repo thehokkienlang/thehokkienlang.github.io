@@ -1,3 +1,11 @@
 hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_type	entry_id	replacement_entry_id
 갈ˉ		갈5	和; 一起	〃	with; together		hangul_override	U+AC08_00	U+AC00_00
 뎋		뎋					hangul_override	U+B38B_00	U+B823_00
+우時	우时	우시4	有時候	有时候	sometimes		lexical	U+C6B0_U+6642_00	U+6709_U+6642_00
+우影	〃	우얄2	是真的	〃	real; tangible		lexical	U+C6B0_U+5F71_00	U+6709_U+5F71_00
+우影’뽀ˊ	〃	우얄2’뽀4	是真的嗎	是真的吗	is it for real		lexical	U+C6B0_U+5F71_U+2019_U+BF40_00	U+6709_U+5F71_U+2019_U+BF40_00
+뽀ˊ		뽀4	不	〃	not		hangul_override	U+BF40_00	
+뽀影	〃	뽀얄2	不是真的	〃	not real; not legitimate		lexical	U+BF40_U+5F71_00	U+7121_U+5F71_00
+뽀要緊	뽀要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+BF40_U+8981_U+7DCA_00	U+7121_U+8981_U+7DCA_00
+뽀插	〃	뽀찹	不要插入	〃	do not insert; not inserted		lexical	U+BF40_U+63D2_00	U+7121_U+63D2_00
+뽀彩工	〃	뽀채1강1	沒意思	没意思	pointless; meaningless		lexical	U+BF40_U+5F69_U+5DE5_00	U+7121_U+5F69_U+5DE5_00

@@ -27,7 +27,6 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 빼ˋ		빼2	壞	坏	bad		hangul_override	U+BE7C_00
 뻐ˋ		뻐2	妻子	〃	wife		hangul_override	U+BED0_00
 ’뽀ˊ		’뽀4	不	〃	not		hangul_override	U+2019_U+BF40_00
-뽀ˊ		뽀4	不	〃	not		hangul_override	U+BF40_00
 뾔ˉ		뾔5	不會	不会	won't; will not		hangul_override	U+BF94_00
 뾔당		뾔당	不能; 不會	不能; 不会	cannot; will not be able to		hangul_override	U+BF94_U+B2F9_00
 샹ˊ		샹4	誰	谁	who		hangul_override	U+C0F9_00
@@ -1135,10 +1134,10 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 明王	〃	뼹엉4	〃	〃	bright; clear; king		lexical	U+660E_U+738B_00
 明知	〃	뼹재1	〃	〃	know clearly		lexical	U+660E_U+77E5_00
 無	无	뽀4	沒有	没有	to not have; there is not		lexical	U+7121_01
-뽀影	〃	뽀얄2	不是真的	〃	not real; not legitimate		lexical	U+BF40_U+5F71_00
-뽀要緊	뽀要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+BF40_U+8981_U+7DCA_00
-뽀插	〃	뽀찹	不要插入	〃	do not insert; not inserted		lexical	U+BF40_U+63D2_00
-뽀彩工	〃	뽀채1강1	沒意思	没意思	pointless; meaningless		lexical	U+BF40_U+5F69_U+5DE5_00
+無影	无影	뽀얄2	不是真的	不是真的	not real; not legitimate		lexical	U+7121_U+5F71_00
+無要緊	無要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+7121_U+8981_U+7DCA_00
+無插	无插	뽀찹	不理睬	不理睬	don't care		lexical	U+7121_U+63D2_00
+無彩工	无彩工	뽀채1강1	沒意思	没意思	pointless; meaningless		lexical	U+7121_U+5F69_U+5DE5_00
 滿	满	뽠2	〃	满	full		lexical	U+6EFF_01
 買	买	뾔2	〃	买	buy		lexical	U+8CB7_00
 賣	卖	뾔5	〃	卖	sell		lexical	U+8CE3_00
@@ -1698,9 +1697,9 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 有	有	우5	有	有	have; there is		lexical	U+6709_00
 譽	誉	우5	〃	誉	praise; reputation		lexical	U+8B7D_00
 宇宙	〃	우1듀5	〃	〃	universe; house; time		lexical	U+5B87_U+5B99_00
-우時	우时	우시4	有時候	有时候	sometimes		lexical	U+C6B0_U+6642_00
-우影	〃	우얄2	是真的	〃	real; tangible		lexical	U+C6B0_U+5F71_00
-우影’뽀ˊ	〃	우얄2’뽀4	是真的嗎	是真的吗	is it for real		lexical	U+C6B0_U+5F71_U+2019_U+BF40_00
+有時	有时	우시4	有時	有时	sometimes		lexical	U+6709_U+6642_00
+有影	有影	우얄2	是真的	是真的	real; tangible		lexical	U+6709_U+5F71_00
+有影’뽀ˊ	有影’뽀ˊ	우얄2’뽀4	是真的嗎	是真的吗	is it for real		lexical	U+6709_U+5F71_U+2019_U+BF40_00
 恩	〃	운1	〃	〃	kindness; grace		lexical	U+6069_00
 溫	温	운2	〃	温	warm; gentle		lexical	U+6EAB_00
 穩	稳	운2	〃	稳	stable		lexical	U+7A69_00
