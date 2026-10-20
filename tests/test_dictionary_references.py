@@ -74,7 +74,7 @@ class RecordReferenceTests(unittest.TestCase):
         path = ROOT / 'data/dictionary_categories.tsv'
         expected = load_categories(path, records)
         self.assertEqual(load_categories(path, records[::-1]), expected)
-        self.assertEqual(sum(map(len, expected[1].values())), 178)
+        self.assertEqual(sum(map(len, expected[1].values())), 181)
         for identity in ('U+725B_U+5976_00', 'U+725B_U+5976_01', 'U+5976_00', 'U+5976_01'):
             self.assertEqual(expected[1][identity], ['food'])
         for identity in ('U+9577_U+6CF0_00', 'U+9577_U+6CF0_01',
