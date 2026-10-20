@@ -12,6 +12,11 @@ from tools.tangliengim_collation import row_sort_key
 ROOT = Path(__file__).resolve().parents[1]
 
 
+def source_records(filename):
+    with (ROOT / 'data' / filename).open(encoding='utf-8', newline='') as handle:
+        return {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
+
+
 class MandarinLookupTests(unittest.TestCase):
     def test_canonical_header_and_comment_columns(self):
         self.assertEqual(DICTIONARY_COLUMNS, (
@@ -82,10 +87,21 @@ class MandarinLookupTests(unittest.TestCase):
         data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
+        archived = source_records('dictionary_defunct.tsv')
         for change in audit:
             source_id = change['entry_id']
-            self.assertEqual(rows[source_id]['hanri'], change['hanri'])
-            self.assertEqual(rows[source_id]['reading'], change['reading'])
+            historical = rows.get(source_id) or archived[source_id]
+            self.assertEqual(historical['hanri'], change['hanri'])
+            self.assertEqual(historical['reading'], change['reading'])
+            # Historical audits retain the old identity after an editor rename.
+            visited = set()
+            while source_id and source_id not in rows:
+                self.assertNotIn(source_id, visited)
+                visited.add(source_id)
+                self.assertFalse(any(entry['raw']['entry_id'] == source_id for entry in data['entries']))
+                source_id = archived[source_id]['replacement_entry_id']
+            if not source_id:
+                continue
             related = [entry for entry in data['entries'] if entry['raw']['entry_id'] == source_id]
             self.assertTrue(related)
             for entry in related:
@@ -102,11 +118,12 @@ class MandarinLookupTests(unittest.TestCase):
         report = json.loads((ROOT / 'docs/mandarin-manual-review-completion.json').read_text(encoding='utf-8'))
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
+        archived = source_records('dictionary_defunct.tsv')
         merged_ids = {item['entry_id'] for item in report['merged']}
         remaining_ids = {item['entry_id'] for item in report['remaining']}
         self.assertTrue(merged_ids.isdisjoint(remaining_ids))
         for item in report['merged']:
-            row = rows[item['entry_id']]
+            row = rows.get(item['entry_id']) or archived[item['entry_id']]
             self.assertEqual(row['hanri'], item['hanri'])
             self.assertEqual(row['reading'], item['reading'])
             for field, value in item['after'].items():
