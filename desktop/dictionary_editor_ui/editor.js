@@ -3,7 +3,8 @@
   const $ = id => document.getElementById(id);
   const fields = ["hanri", "reading", "english", "mandarin_trad", "mandarin_simp", "simplified", "corrected", "entry_type", "entry_id"];
   const state = { entries: [], categories: {}, revision: null, page: 0, selected: null,
-    dirty: false, saving: false, batch: [], job: null, jobKind: null, preview: null, resolutions: {} };
+    dirty: false, saving: false, publishing: false, deploying: false, searchHangul: false,
+    batch: [], job: null, jobKind: null, preview: null, resolutions: {} };
   const pageSize = 30;
   const audioPlayer = window.TangliengimWebAudio.createPlayer();
   const token = document.querySelector('meta[name="editor-token"]').content;
@@ -90,10 +91,14 @@
   }
   function filtered() {
     const query = $("search").value.normalize("NFC").toLocaleLowerCase().trim();
+    const readingQuery = /[\u1100-\u11ff\u3130-\u318f\uac00-\ud7a3]/u.test(query)
+      ? window.TangliengimHangulIme.normalizeReadingBase(query) : "";
     return state.entries.filter(entry => (!$("typeFilter").value || entry.entry_type === $("typeFilter").value)
       && (!$("categoryFilter").value || entry.categories.includes($("categoryFilter").value))
       && (!query || [entry.hanri, entry.reading, entry.english, entry.mandarin_trad, entry.simplified, entry.entry_id]
-        .some(value => value.toLocaleLowerCase().includes(query))));
+        .some(value => value.toLocaleLowerCase().includes(query))
+        || readingQuery && [entry.hanri, entry.reading, entry.corrected]
+          .some(value => window.TangliengimHangulIme.normalizeReadingBase(value).includes(readingQuery))));
   }
   function renderEntries() {
     const entries = filtered();
@@ -213,10 +218,16 @@
       busy(Boolean(state.job), state.jobKind);
     }
   }
+  function updatePublishProgress() {
+    const active = state.publishing || state.deploying || Boolean(state.job && state.jobKind === "publish");
+    $("publishSpinner").hidden = !active;
+    $("publishStatus").setAttribute("aria-busy", String(active));
+  }
   function busy(value, kind = "publish") {
     for (const id of ["saveButton", "saveBatch", "parseBatch"]) $(id).disabled = state.saving || value && kind === "publish";
     $("publishButton").disabled = state.saving || value;
     $("saveBatch").disabled ||= !state.batch.length;
+    updatePublishProgress();
   }
   async function watchJob(identity, kind = "refresh") {
     if (state.job === identity) return;
@@ -251,6 +262,11 @@
     if (state.saving) return;
     if (state.dirty && !$("entryForm").reportValidity()) return;
     state.saving = true;
+    state.publishing = true;
+    state.deploying = false;
+    clearTimeout(deploymentTimer);
+    deploymentCheck++;
+    $("publishState").textContent = "Preparing dictionary updates...";
     busy(Boolean(state.job), state.jobKind);
     try {
       if (state.dirty) await flushSimplifiedFields();
@@ -261,17 +277,31 @@
       await load({ preserveForm: true });
       watchJob(result.job, "publish");
     } catch (error) { notice(error.message, true); }
-    finally { state.saving = false; busy(Boolean(state.job), state.jobKind); }
+    finally { state.saving = false; state.publishing = false; busy(Boolean(state.job), state.jobKind); }
   }
-  let deploymentTimer;
-  async function checkDeployment(attempt = 0) {
+  let deploymentTimer, deploymentCheck = 0;
+  async function checkDeployment(attempt = 0, version = deploymentCheck) {
+    if (version !== deploymentCheck) return;
     clearTimeout(deploymentTimer);
+    state.deploying = true;
+    updatePublishProgress();
     try {
       const result = await request("deployment");
+      if (version !== deploymentCheck) return;
       $("publishState").textContent = result.message;
+      state.deploying = result.status === "published";
       if (result.status === "deployment_failed") notice(result.message + (result.url ? "\n" + result.url : ""), true);
-      if (result.status === "published" && attempt < 20) deploymentTimer = setTimeout(() => checkDeployment(attempt + 1), 15000);
-    } catch { /* A saved/published result remains visible if status checks are unavailable. */ }
+      if (state.deploying && attempt < 60) deploymentTimer = setTimeout(() => checkDeployment(attempt + 1, version), 15000);
+      else if (state.deploying) {
+        state.deploying = false;
+        $("publishState").textContent = "Published; check deployment in GitHub Actions.";
+      }
+    } catch {
+      if (version === deploymentCheck) {
+        state.deploying = false;
+        $("publishState").textContent = "Published; deployment status unavailable.";
+      }
+    } finally { updatePublishProgress(); }
   }
   function showConflicts(conflicts) {
     $("conflicts").replaceChildren();
@@ -330,6 +360,24 @@
   }
 
   const core = window.TangliengimImeCore;
+  const searchCandidatePopup = core.createCandidatePopupPositioner({ control: $("search"),
+    container: $("searchCandidates"), placement: "below" });
+  const searchImeController = core.createTextImeController({ control: $("search"),
+    candidateContainer: $("searchCandidates"), enabled: () => state.searchHangul,
+    onUpdate: () => { state.page = 0; renderEntries(); },
+    onCandidatesChanged: searchCandidatePopup.schedule, enterBehavior: "none" });
+  function setSearchKeyboard(enabled) {
+    state.searchHangul = Boolean(enabled);
+    $("searchKeyboardToggle").setAttribute("aria-pressed", String(state.searchHangul));
+    $("search").classList.toggle("hangul-ime-active", state.searchHangul);
+    searchImeController.setEnabled();
+    state.page = 0;
+    renderEntries();
+  }
+  $("searchKeyboardToggle").addEventListener("click", () => {
+    setSearchKeyboard(!state.searchHangul);
+    $("search").focus({ preventScroll: true });
+  });
   const composers = [
     core.createTextImeController({ control: $("hanri"), candidateContainer: $("headwordCandidates"),
       enabled: () => $("keyboard").checked, onUpdate: () => { setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "symbols" }),
@@ -343,6 +391,7 @@
     const index = core.createDictionaryIndex(data.entries || []);
     composers[0].setEntries(data.entries || [], index);
     composers[1].setEntries([], core.createDictionaryIndex([]));
+    searchImeController.setEntries(data.entries || [], index);
   }
   channel?.addEventListener("message", () => refreshComposers().catch(() => {}));
   $("entryForm").addEventListener("input", event => { if (event.target.id !== "keyboard") setDirty(true); });
@@ -361,7 +410,7 @@
     if (!mayDiscard()) return;
     try { await load(); notice(""); } catch (error) { notice(error.message, true); }
   });
-  for (const id of ["search", "typeFilter", "categoryFilter"]) $(id).addEventListener(id === "search" ? "input" : "change", () => { state.page = 0; renderEntries(); });
+  for (const id of ["typeFilter", "categoryFilter"]) $(id).addEventListener("change", () => { state.page = 0; renderEntries(); });
   $("previous").addEventListener("click", () => { state.page--; renderEntries(); });
   $("next").addEventListener("click", () => { state.page++; renderEntries(); });
   $("publishButton").addEventListener("click", () => publish());
@@ -412,6 +461,7 @@
           manual: simplifiedPairs.map(pair => pair.manual), keyboard: $("keyboard").checked,
           advanced: $("advanced").open, batch: state.batch, batchText: $("batchText").value,
           batchOpen: $("batchDialog").open, search: $("search").value,
+          searchHangul: state.searchHangul,
           typeFilter: $("typeFilter").value, categoryFilter: $("categoryFilter").value }),
         restore: draft => { restartDraft = draft; },
       }).catch(error => notice("Could not restore editor draft: " + error.message, true));
@@ -434,6 +484,7 @@
         renderBatch();
         if (draft.batchOpen) $("batchDialog").showModal();
         for (const field of ["search", "typeFilter", "categoryFilter"]) $(field).value = draft[field] || "";
+        setSearchKeyboard(draft.searchHangul);
         state.page = draft.page || 0;
         renderEntries();
         restartDraft = null;
