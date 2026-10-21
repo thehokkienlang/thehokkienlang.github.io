@@ -1,3 +1,10 @@
+.site-logo {
+  display: block;
+  flex: 0 0 96px;
+  width: 96px;
+  height: 64px;
+  object-fit: contain;
+}
 .site-app-header {
   display: flex;
   flex: 0 0 auto;
@@ -33,6 +40,7 @@
 .site-app-nav a[aria-current] { border-bottom: 2px solid #08756b; }
 .site-app-nav a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
 @media (max-width: 640px) {
+  .site-logo { flex-basis: 72px; width: 72px; height: 48px; }
   .site-app-header { align-items: flex-start; flex-direction: column; min-height: 0; padding: 16px 20px; }
   .site-app-nav { justify-content: flex-start; margin-left: 0; }
 }
