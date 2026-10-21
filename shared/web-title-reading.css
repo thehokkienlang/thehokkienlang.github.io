@@ -20,7 +20,7 @@
 .title-reading .hanri-title { ruby-align: center; ruby-position: over; }
 .title-reading .hanri-title > rt {
   font-family: "TLI Western Punctuation", "Noto Sans KR", Calibri, sans-serif;
-  font-size: 57%;
+  font-size: 44%;
   font-weight: 500;
   line-height: 1.3;
   white-space: nowrap;
@@ -37,7 +37,7 @@
 }
 .title-reading .inline-upper-tone {
   font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
-  font-size: 0.82em;
+  font-size: 1.2em;
   font-weight: 800;
   margin-left: 0.02em;
   vertical-align: 0.08em;
