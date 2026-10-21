@@ -88,6 +88,12 @@ The Home (3082) and About (1258) page copy uses the approved site name
 `TheHokkienLang` in place of `HokkienLang`. Preservation checks allow only
 those two specific copy edits; all other text, readings, media counts and
 original source hashes still match the unchanged WordPress snapshots.
+The approved Traditional Chinese Home correction removes the trailing hyphen
+from `당ˉ롕임ˆ-` in the paragraph beginning with the system name and
+`以諺文為基礎`. The preservation check records that exact ruby edit; the source
+snapshot remains unchanged. Body reading ruby uses one shared vertical rule
+across pages and languages, with the same 3px upward adjustment on mobile.
+Standalone tone marks and main title ruby retain their separate positioning.
 
 `migration/wordpress-map.json` records the exact imported scope and deferred work.
 `migration/wordpress-media.json` maps copied WordPress media to stable local files.

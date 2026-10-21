@@ -45,8 +45,9 @@ def navigation_links(route, language=None, variants=True):
         if destination is not None:
             current = ' aria-current="page"' if code == language else ""
             choices.append(f'<a href="{html.escape(destination, quote=True)}" lang="{code}" hreflang="{code}" data-language-choice="{code}"{current}>{LANGUAGE_NAMES[code]}</a>')
+    language_title = {"en": "Language", "zh-Hant": "語言", "zh-Hans": "语言"}[language]
     items.append('<details class="site-nav-dropdown site-language-dropdown" name="site-navigation">'
-                 f'<summary class="site-nav-trigger">{LANGUAGE_NAMES[language]}</summary>'
+                 f'<summary class="site-nav-trigger" title="{language_title}"><span class="site-language-icon" aria-hidden="true"></span>{LANGUAGE_NAMES[language]}</summary>'
                  f'<div class="site-nav-panel">{"".join(choices)}</div></details>')
     if variants:
         for code in LANGUAGES:

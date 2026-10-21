@@ -17,11 +17,13 @@ from import_wordpress_final import approved_song_routes
 from site_languages import CHINESE_PAGES, LANGUAGES
 
 
-# Approved copy edits apply only to these source pages; reading markup stays exact.
+# Approved source edits are scoped to specific pages and ruby indices.
 APPROVED_COPY_EDITS = {
     3082: (("HokkienLang is a space", "TheHokkienLang is a space"),),
     1258: (("welcome to HokkienLang.", "welcome to TheHokkienLang."),),
+    6645: (("당ˉ롕임ˆ-", "당ˉ롕임ˆ"),),
 }
+APPROVED_RUBY_EDITS = {6645: {2: ("당ˉ롕임ˆ-", "당ˉ롕임ˆ")}}
 
 
 class Readings(HTMLParser):
@@ -87,7 +89,11 @@ class MigrationTests(unittest.TestCase):
                 before, after = Readings(), Readings()
                 before.feed(original["content"])
                 after.feed(imported["body"])
-                self.assertEqual(before.values, after.values)
+                expected_readings = before.values.copy()
+                for index, (old, new) in APPROVED_RUBY_EDITS.get(item["sourceId"], {}).items():
+                    self.assertEqual(expected_readings[index], old)
+                    expected_readings[index] = new
+                self.assertEqual(expected_readings, after.values)
                 expected_text = " ".join("".join(before.text).split())
                 for old, new in APPROVED_COPY_EDITS.get(item["sourceId"], ()):
                     self.assertEqual(expected_text.count(old), 1)

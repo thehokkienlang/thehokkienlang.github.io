@@ -51,6 +51,14 @@
   cursor: pointer;
 }
 .site-nav-trigger::-webkit-details-marker { display: none; }
+.site-language-icon {
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  background: currentColor;
+  -webkit-mask: url("/assets/icons/languages.svg") center / contain no-repeat;
+  mask: url("/assets/icons/languages.svg") center / contain no-repeat;
+}
 .site-nav-trigger::after {
   content: "";
   width: 6px;

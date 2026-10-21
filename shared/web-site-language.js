@@ -88,7 +88,7 @@
       "#lockDictionaryButton": "Lock dictionary", ".lock-note": "This dictionary is currently available to invited visitors.",
       ".construction-notice": "This website is still under construction. Entries, translations, and features are being actively refined.",
       ".pad-label": "Hanri + Hangul", ".sandhi-label": "Sandhi:", "#taipeiButton": "Taipei", "#singaporeButton": "Singapore",
-      "#keyboardGuideButton > span:first-child": "Keyboard guide", "#keyboardGuideOptions > span": "Lomari mode",
+      "#keyboardGuideButton > span:first-child": "Keyboard guide", "#keyboardGuideOptions > span:first-child": "Lomari mode",
       "#dataStatus": "Loading dictionary...", "#resultSummary": "Loading entries...",
     };
     for (const [selector, label] of Object.entries(labels)) root.querySelectorAll(selector).forEach(node => { node.textContent = text(label); });
