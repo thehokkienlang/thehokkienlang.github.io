@@ -22,6 +22,11 @@
     input[type="text"] { width: 100%; min-height: 46px; border: 1px solid #a9bdc5; border-radius: 4px; padding: 9px 12px; font: inherit; }
     input[aria-invalid="true"] { border-color: #b42318; }
     input:focus { outline: 2px solid #81bfb7; outline-offset: 2px; }
+    .url-field { display: flex; align-items: center; gap: 0; }
+    .url-prefix, .url-suffix { flex: none; color: #49646d; white-space: nowrap; }
+    .url-prefix { padding-right: 8px; }
+    .url-suffix { padding-left: 8px; }
+    .url-field input { min-width: 0; flex: 1; }
     .row-error { display: block; min-height: 20px; font-size: 13px; color: #b42318; margin-top: 6px; }
     #status { color: #49646d; margin-left: auto; }
     @media (max-width: 650px) { body { padding: 14px; } th,td { padding: 10px; } input[type="text"] { font-size: 15px; } #status { margin-left: 0; } }
@@ -30,7 +35,7 @@
 <body>
 <main>
   <h1>Song URLs</h1>
-  <p>Fill in the new link for each song. Use the standardised mixed Hanri–Hangul title without apostrophes or tone marks, for example <strong>/songs/生份에릐/</strong>. Full <strong>https://thehokkienlang.github.io/songs/…/</strong> links also work. Leave undecided links blank.</p>
+  <p>Enter each song's standardised mixed Hanri–Hangul title without apostrophes or tone marks, for example <strong>生份에릐</strong>. The <strong>/songs/</strong> prefix and final slash are supplied automatically. Leave undecided titles blank.</p>
   <p>Your work is saved in this browser where browser storage is available. Use <strong>Download completed form</strong> to keep a file and return your choices for migration. Song posts will be migrated last.</p>
   <div class="toolbar">
     <button class="primary" id="download" type="button">Download completed form</button>
@@ -66,7 +71,20 @@
     if (/[\s'’‘`ˆˋˊˉˇꞈˎˏˍ\\?#%\u0000-\u001f]/u.test(title)) throw Error("Remove spaces, apostrophes, tone marks, and URL punctuation.");
     return path;
   };
-  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: inputs.get(row.old_url).value.trim() })); }
+  function titleFromLink(value) {
+    const trimmed = value.trim();
+    for (const prefix of ["https://thehokkienlang.github.io/songs/", "/songs/"]) {
+      if (trimmed.startsWith(prefix)) return trimmed.slice(prefix.length).replace(/\/$/, "");
+    }
+    return trimmed;
+  }
+  function linkFromTitle(value) {
+    const title = value.trim();
+    if (!title) return "";
+    if (title.startsWith("/") || /^https?:/i.test(title)) return title;
+    return "/songs/" + title.replace(/\/$/, "") + "/";
+  }
+  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value) })); }
   function validate() {
     let complete = 0;
     let invalid = 0;
@@ -116,16 +134,26 @@
     input.autocomplete = "off";
     input.spellcheck = false;
     input.setAttribute("aria-label", `New URL for ${row.title}`);
-    input.value = saved[row.old_url] ?? row.new_url;
-    input.placeholder = "/songs/…/";
+    input.value = titleFromLink(saved[row.old_url] ?? row.new_url);
+    input.placeholder = "Song title";
+    const field = document.createElement("div");
+    field.className = "url-field";
+    const prefix = document.createElement("span");
+    prefix.className = "url-prefix";
+    prefix.textContent = "/songs/";
+    const suffix = document.createElement("span");
+    suffix.className = "url-suffix";
+    suffix.textContent = "/";
+    field.append(prefix, input, suffix);
     const error = document.createElement("span");
     error.className = "row-error";
     error.id = `error-${index}`;
     input.setAttribute("aria-describedby", error.id);
     input.addEventListener("input", persist);
+    input.addEventListener("change", () => { input.value = titleFromLink(input.value); persist(); });
     inputs.set(row.old_url, input);
     errors.set(row.old_url, error);
-    next.append(input, error);
+    next.append(field, error);
     tr.append(old, next);
     document.getElementById("rows").append(tr);
   }
@@ -148,7 +176,7 @@
     try {
       const data = JSON.parse(await event.target.files[0].text());
       if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string")) throw Error("This is not a saved song URL form.");
-      for (const row of data) inputs.get(row.old_url).value = row.new_url;
+      for (const row of data) inputs.get(row.old_url).value = titleFromLink(row.new_url);
       persist();
     } catch (error) { status.textContent = error.message; }
     event.target.value = "";

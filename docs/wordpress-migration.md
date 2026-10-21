@@ -20,7 +20,8 @@ until those records are migrated. They do not point to invented GitHub URLs.
 
 Open `migration/song-url-form.html` in a browser. It works directly from disk.
 There are two columns: the old WordPress link and an editable new GitHub link.
-Enter `/songs/生份에릐/` or the full GitHub URL. Use the standardised mixed
+Type only the title, for example `生份에릐`; the form supplies `/songs/` and the
+final slash. Previously saved full links still load correctly. Use the standardised mixed
 Hanri-Hangul title, omit apostrophes/tone marks, and distinguish duplicate titles
 with an artist name. WordPress IDs remain internal provenance only.
 
