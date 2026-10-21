@@ -24,9 +24,10 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     navigation = navigation_links(route)
     source = f'<p class="source-link"><a href="{html.escape(source_url, quote=True)}">Original WordPress page</a></p>' if source_url else ""
     tools = '<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" href="/dictionary/">Dictionary</a><a id="ime-link" href="/ime/">Open IME</a></aside>'
-    heading = "Tangliengim" if route == "/" else title
+    heading = "TheHokkienLang" if route == "/" else title
+    introduction = '<p class="site-introduction">Explore Hokkien with <a href="/learn/introduction/">TLI (Tangliengim)</a>.</p>' if route == "/" else ""
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
-    values = {"TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
+    values = {"TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
