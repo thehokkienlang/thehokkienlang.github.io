@@ -254,7 +254,13 @@ def audio_for_unit_tone(ime, audio_root: Path, unit: str, tone: str) -> dict[str
     return {"segments": segments, "files": files, "missing": list(dict.fromkeys(missing))}
 
 
-def with_singapore_audio_when_needed(ime, audio_root: Path, reading: str) -> dict[str, Any]:
+def with_singapore_audio_when_needed(
+    ime, audio_root: Path, reading: str, *, hanri: str = ""
+) -> dict[str, Any]:
+    # Annotation parsing preserves a resolved TSV reading, including unmarked
+    # tone 3, instead of looking its syllables up again as standalone words.
+    if hanri:
+        reading = f"[{hanri}{reading}]"
     audio = audio_for_reading(ime, audio_root, reading, getattr(ime, "AUDIO_MODE_TAIPEI", "taipei"))
     singapore_audio = audio_for_reading(
         ime,
@@ -403,7 +409,10 @@ def build_dictionary(
 
             lomari = reading_to_lomari(tone_marker, effective_reading)
             reading_base = tone_marker.strip_reading_tones(effective_reading)
-            audio = with_singapore_audio_when_needed(ime, audio_root, effective_reading)
+            audio = with_singapore_audio_when_needed(
+                ime, audio_root, effective_reading,
+                hanri=hanri if kind == "plain_hanri" else "",
+            )
             entry = {
                 "id": entry_id,
                 "row": row_number,
