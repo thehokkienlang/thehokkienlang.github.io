@@ -11,6 +11,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
 from build_content import build_content
+from import_wordpress import write_song_ime_data
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
@@ -37,6 +38,7 @@ def version_assets(html_path: Path) -> None:
 def main() -> int:
     # Generate data from the exact TSV and pronunciation code being deployed.
     build_dictionary_json()
+    write_song_ime_data(ROOT)
     if OUTPUT.is_symlink() or OUTPUT.resolve().parent != ROOT.resolve():
         raise RuntimeError("Build output must be the repository's own _site directory.")
     if OUTPUT.exists():

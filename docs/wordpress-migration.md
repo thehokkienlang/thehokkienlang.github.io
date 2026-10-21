@@ -32,6 +32,13 @@ duplicate destinations are flagged before download. Copy the reviewed completed
 JSON to `migration/song-urls.json` when preparing the final song batch. Filling
 the form alone does not publish any songs.
 
+The title fields use the same Hangul composer and Hanri candidate controller as
+the dictionary and IME. Enable Hangul keyboard is on by default and can be turned
+off for Latin titles. Shared scripts load directly from the checkout. The local
+`migration/song-ime-data.js` snapshot is generated from the canonical runtime
+dictionary when the form or site is built, so candidates work from `file://`
+without a server. This generated file is ignored by Git and is never deployed.
+
 ## Sources and media
 
 `content/` contains editable content records separated into pages, guides, and

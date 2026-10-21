@@ -170,6 +170,21 @@ class ImportedHTML(HTMLParser):
         return "".join(self.output)
 
 
+def write_song_ime_data(root):
+    """Classic-script data works on file://, where fetch(JSON) is blocked."""
+    data_path = root / "public/data/hokkien-hanri-dict.json"
+    if not data_path.exists():
+        return
+    data = json.loads(data_path.read_text(encoding="utf-8"))
+    payload = {
+        "sourceSha256": data["sourceSha256"],
+        "entries": [{key: value for key, value in entry.items() if key != "audio"} for entry in data["entries"]],
+    }
+    target = root / "migration/song-ime-data.js"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text("window.TliSongImeData = " + json.dumps(payload, ensure_ascii=False, separators=(",", ":")) + ";\n", encoding="utf-8")
+
+
 def make_song_form(posts, root):
     songs = [post for post in posts if post["type"] == "post" and post["ID"] not in {865, 7647}]
     path = root / "migration/song-urls.json"
@@ -181,6 +196,7 @@ def make_song_form(posts, root):
     payload = json.dumps(labels, ensure_ascii=False).replace("<", "\\u003c")
     template = (root / "apps/content-site/song-url-form.html").read_text(encoding="utf-8")
     (root / "migration/song-url-form.html").write_text(template.replace("__SONG_ROWS__", payload), encoding="utf-8")
+    write_song_ime_data(root)
     return len(rows)
 
 
