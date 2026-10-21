@@ -16,6 +16,13 @@ from import_wordpress import ImportedHTML, PAGES
 from import_wordpress_final import approved_song_routes
 
 
+# Approved copy edits apply only to these source pages; reading markup stays exact.
+APPROVED_COPY_EDITS = {
+    3082: (("HokkienLang is a space", "TheHokkienLang is a space"),),
+    1258: (("welcome to HokkienLang.", "welcome to TheHokkienLang."),),
+}
+
+
 class Readings(HTMLParser):
     def __init__(self):
         super().__init__()
@@ -80,7 +87,11 @@ class MigrationTests(unittest.TestCase):
                 before.feed(original["content"])
                 after.feed(imported["body"])
                 self.assertEqual(before.values, after.values)
-                self.assertEqual(" ".join("".join(before.text).split()), " ".join("".join(after.text).split()))
+                expected_text = " ".join("".join(before.text).split())
+                for old, new in APPROVED_COPY_EDITS.get(item["sourceId"], ()):
+                    self.assertEqual(expected_text.count(old), 1)
+                    expected_text = expected_text.replace(old, new, 1)
+                self.assertEqual(expected_text, " ".join("".join(after.text).split()))
                 self.assertEqual(before.media, after.media)
                 self.assertEqual(hashlib.sha256(original["content"].encode()).hexdigest(), imported["sourceSha256"])
                 self.assertIn(imported["orthography"]["review"], {"pending", "source-preserved"})

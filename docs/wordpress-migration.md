@@ -84,6 +84,11 @@ revision/hash, orthography review status, and HTML body. Original public HTML
 snapshots are retained under `migration/wordpress-source/`. The final batch
 was fetched fresh from WordPress after the user confirmed it was ready.
 
+The Home (3082) and About (1258) page copy uses the approved site name
+`TheHokkienLang` in place of `HokkienLang`. Preservation checks allow only
+those two specific copy edits; all other text, readings, media counts and
+original source hashes still match the unchanged WordPress snapshots.
+
 `migration/wordpress-map.json` records the exact imported scope and deferred work.
 `migration/wordpress-media.json` maps copied WordPress media to stable local files.
 Existing `/assets/` audio remains at its current path. Wikimedia pronunciation
