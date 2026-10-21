@@ -22,14 +22,14 @@ h4 { font-size: 18px; }
 .reading-tools { display: flex; gap: 24px; padding: 8px 0 16px; margin-bottom: 24px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .imported-content { overflow-wrap: anywhere; display: flow-root; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
-.content-songs .imported-content { font-size: 24px; }
-.content-songs .imported-content rt { font-family: "TLI Tone", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif; }
-.content-songs h1 { font-size: 48px; }
-.content-songs .imported-content h2 { font-size: 36px; }
-.content-songs .imported-content h3 { font-size: 30px; }
-.content-songs .imported-content h4 { font-size: 27px; }
-.content-songs .imported-content table[style*="font-size: 16px"], .content-songs .imported-content table[style*="font-size:16px"] { font-size: 24px !important; }
-.content-songs .imported-content table[style*="font-size: 14px"], .content-songs .imported-content table[style*="font-size:14px"] { font-size: 21px !important; }
+:is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
+:is(.content-songs, .content-stories) .imported-content rt { font-family: "TLI Tone", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif; }
+:is(.content-songs, .content-stories) h1 { font-size: 48px; }
+:is(.content-songs, .content-stories) .imported-content h2 { font-size: 36px; }
+:is(.content-songs, .content-stories) .imported-content h3 { font-size: 30px; }
+:is(.content-songs, .content-stories) .imported-content h4 { font-size: 27px; }
+:is(.content-songs, .content-stories) .imported-content table[style*="font-size: 16px"], :is(.content-songs, .content-stories) .imported-content table[style*="font-size:16px"] { font-size: 24px !important; }
+:is(.content-songs, .content-stories) .imported-content table[style*="font-size: 14px"], :is(.content-songs, .content-stories) .imported-content table[style*="font-size:14px"] { font-size: 21px !important; }
 .imported-content img { max-width: 100%; height: auto; }
 .imported-content iframe { max-width: 100%; border: 0; }
 .imported-content .is-provider-youtube iframe { width: 100%; height: auto; aspect-ratio: 16 / 9; }
@@ -63,7 +63,7 @@ h4 { font-size: 18px; }
   .site-header nav { gap: 10px 20px; }
   .content-shell { width: calc(100% - 40px); margin-top: 28px; }
   h1 { font-size: 28px; }
-  .content-songs h1 { font-size: 42px; }
+  :is(.content-songs, .content-stories) h1 { font-size: 42px; }
   .page-list li { display: block; }
   .external-note { display: block; }
 }
