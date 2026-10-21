@@ -48,7 +48,9 @@ Song pages now use the first source Hangul heading as pronunciation evidence for
 Hanri in the main title. The duplicate heading is omitted from the published
 body; the stored source body remains intact. Existing Hangul in the approved
 title keeps its authored tones. Decomposed syllables use the shared dictionary
-reading renderer. Alternative header readings are retained in the title ruby.
+reading renderer. Alternative header readings are retained in the title ruby
+unless a record selects one with `titleReadingVariant` (zero-based). 月下煮茶
+selects its first, Teochew reading only.
 The Mandarin title 敢傻敢衝 has an explicit Bopomofo `titleRuby` annotation instead.
 Song-index labels continue to use the third-column display titles.
 

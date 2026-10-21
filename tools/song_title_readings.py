@@ -129,6 +129,11 @@ def song_title(record):
     if heading.end is None or not reading_units(reading):
         raise ValueError(f'No title reading available for {record["id"]}')
     variants = [part.strip(" )）") for part in re.split(r"[（(]", reading) if part.strip(" )）")]
+    if "titleReadingVariant" in record:
+        selected = record["titleReadingVariant"]
+        if not isinstance(selected, int) or not 0 <= selected < len(variants):
+            raise ValueError(f'Invalid title reading selection for {record["id"]}')
+        variants = [variants[selected]]
     units = title_units(title)
     aligned = []
     for variant in variants:

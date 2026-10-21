@@ -34,6 +34,12 @@ class SongTitleTests(unittest.TestCase):
         title, _ = song_title(self.record("月下 煮茶", '뀋에ˏ 즈ˏ데ꞈ (뀋에ˍ 주ꞈ데ˏ)'))
         self.assertIn('下<rt>에ˊ / 에ˉ</rt>', title)
         self.assertIn('煮<rt>즈ˊ / 주ˆ</rt>', title)
+        record = self.record("月下 煮茶", '뀋에ˏ 즈ˏ데ꞈ (뀋에ˍ 주ꞈ데ˏ)')
+        record["titleReadingVariant"] = 0
+        title, _ = song_title(record)
+        self.assertIn('煮<rt>즈ˊ</rt>', title)
+        self.assertNotIn('주ˆ', title)
+        self.assertNotIn(' / ', title)
 
     def test_roman_source_prefix_and_hangul_only_title_are_not_duplicated(self):
         title, _ = song_title(self.record("헤ˉ비ˆ!!! 運將 情歌", 'Happy!!! 운ˎ쟝 졩과ꞈ'))

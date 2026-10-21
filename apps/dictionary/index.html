@@ -16,17 +16,18 @@
     <script src="gate.js" defer></script>
   </head>
   <body class="dictionary-locked">
-    <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
-    <main id="lockScreen" class="lock-screen">
-      <section class="lock-panel" aria-labelledby="lockTitle">
-        <div class="lock-brand">
-          <img class="lock-brand-mark" src="/assets/tangliengim-mark.svg" alt="" aria-hidden="true">
+    <header class="site-app-header">
+        <div class="brand">
+          <img class="brand-mark" src="/assets/tangliengim-mark.svg" alt="" aria-hidden="true">
           <div>
             <p class="eyebrow">Hokkien Tangliengim</p>
             <h1 id="lockTitle">Dictionary</h1>
           </div>
         </div>
-
+        <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
+    </header>
+    <main id="lockScreen" class="lock-screen">
+      <section class="lock-panel" aria-labelledby="lockTitle">
         <p class="lock-note">This dictionary is currently available to invited visitors.</p>
 
         <form id="accessForm" class="access-form">
