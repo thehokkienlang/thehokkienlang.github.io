@@ -90,11 +90,38 @@ def reading_units(text):
     return units
 
 
-def title_units(title):
+def word_reading_at(title, index, word_readings):
+    for word, reading in word_readings.items():
+        if word and title.startswith(word, index):
+            return word, reading
+    return None
+
+
+def word_title(title, word_readings):
+    result = []
+    index = 0
+    while index < len(title):
+        if word := word_reading_at(title, index, word_readings):
+            base, reading = word
+            result.append(ruby(base, ["".join(reading_units(reading))]))
+            index += len(base)
+        else:
+            result.append(html.escape(title[index]))
+            index += 1
+    return "".join(result)
+
+
+def title_units(title, word_readings=None):
+    word_readings = word_readings or {}
     units = []
     index = 0
     while index < len(title):
-        if phonetics().is_cjk_char(title[index]):
+        if word := word_reading_at(title, index, word_readings):
+            base, reading = word
+            end = index + len(base)
+            units.extend((index, end, unit, False) for unit in reading_units(reading))
+            index = end
+        elif phonetics().is_cjk_char(title[index]):
             units.append((index, index + 1, title[index], True))
             index += 1
         elif unit := phonetics().hangul_reading_unit_at(title, index):
@@ -118,6 +145,7 @@ def ruby(base, readings, system="hangul"):
 
 def song_title(record):
     title, body = record["title"], record["body"]
+    word_readings = record.get("titleWordReadings", {})
     if annotations := record.get("titleRuby"):
         if "".join(item["base"] for item in annotations) != title:
             raise ValueError(f'Explicit title ruby does not match {record["id"]}')
@@ -134,12 +162,12 @@ def song_title(record):
         if not isinstance(selected, int) or not 0 <= selected < len(variants):
             raise ValueError(f'Invalid title reading selection for {record["id"]}')
         variants = [variants[selected]]
-    units = title_units(title)
+    units = title_units(title, word_readings)
     aligned = []
     for variant in variants:
         readings = reading_units(variant)
         skipped = 0
-        # A Latin source prefix such as Happy!!! is already Hangul in the new title.
+        # A Latin source prefix may have no Hangul transcription in its header.
         if len(readings) < len(units) and re.match(r"[A-Za-z]", variant):
             skipped = next((index for index, unit in enumerate(units) if unit[3]), 0)
         if len(readings) != len(units) - skipped:
@@ -152,6 +180,11 @@ def song_title(record):
     result = []
     index = 0
     while index < len(title):
+        if word := word_reading_at(title, index, word_readings):
+            base, reading = word
+            result.append(ruby(base, ["".join(reading_units(reading))]))
+            index += len(base)
+            continue
         if not phonetics().is_cjk_char(title[index]):
             result.append(html.escape(title[index]))
             index += 1

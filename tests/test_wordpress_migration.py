@@ -1,7 +1,6 @@
 """Content preservation and scope checks for the first English migration batch."""
 
 import hashlib
-import html
 import json
 import sys
 import tempfile
@@ -42,6 +41,33 @@ class Readings(HTMLParser):
             self.values[-1] += value
 
 
+class SongLinks(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.links = {}
+        self.href = None
+        self.parts = []
+        self.in_reading = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            self.href = dict(attrs).get("href")
+            self.parts = []
+        elif tag == "rt":
+            self.in_reading = True
+
+    def handle_endtag(self, tag):
+        if tag == "rt":
+            self.in_reading = False
+        elif tag == "a" and self.href is not None:
+            self.links[self.href] = "".join(self.parts)
+            self.href = None
+
+    def handle_data(self, text):
+        if self.href is not None and not self.in_reading:
+            self.parts.append(text)
+
+
 class MigrationTests(unittest.TestCase):
     def test_all_imported_pronunciations_match_the_original(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
@@ -74,8 +100,10 @@ class MigrationTests(unittest.TestCase):
                 self.assertTrue(all(row["new_url"] in routes for row in choices))
                 self.assertIn("/read/stories/the-egg/", routes)
                 self.assertNotIn("https://hokkienlang.wordpress.com/2026/", songs)
+                labels = SongLinks()
+                labels.feed(songs)
                 for row in choices:
-                    self.assertIn(f'>{html.escape(row["display_title"])}</a>', songs)
+                    self.assertEqual(labels.links[row["new_url"]], row["display_title"])
 
     def test_import_rewrites_known_links_but_keeps_pending_targets_on_wordpress(self):
         parser = ImportedHTML("https://hokkienlang.wordpress.com/about/", {("hokkienlang.wordpress.com", "/tangliengim"): "/learn/introduction/"}, {}, ROOT, False)

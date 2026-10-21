@@ -58,6 +58,19 @@ class SongTitleTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             song_title(self.record("生份", "첼"))
 
+    def test_english_words_keep_their_spelling_with_hangul_ruby(self):
+        record = self.record("Maybe Maybe", "메ˍ삐ꞈ 메ˍ삐ꞈ")
+        record["titleWordReadings"] = {"Maybe": "메ˉ삐ˆ"}
+        title, body = song_title(record)
+        self.assertEqual(title.count('Maybe<rt>메ˉ삐ˆ</rt>'), 2)
+        self.assertNotIn("<h2>", body)
+        record = self.record("Happy!!! 運將 情歌", "Happy!!! 운ˎ쟝 졩과ꞈ")
+        record["titleWordReadings"] = {"Happy": "헤ˉ비ˆ"}
+        title, _ = song_title(record)
+        self.assertIn('Happy<rt>헤ˉ비ˆ</rt>', title)
+        self.assertIn('運<rt>운ˋ</rt>', title)
+        self.assertIn('歌<rt>과ˆ</rt>', title)
+
 
 if __name__ == "__main__":
     unittest.main()

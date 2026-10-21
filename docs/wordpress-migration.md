@@ -53,6 +53,10 @@ unless a record selects one with `titleReadingVariant` (zero-based). 月下煮�
 selects its first, Teochew reading only.
 The Mandarin title 敢傻敢衝 has an explicit Bopomofo `titleRuby` annotation instead.
 Song-index labels continue to use the third-column display titles.
+English title words remain in their original spelling with Hangul ruby supplied
+by `titleWordReadings`. This applies to Maybe Maybe, Aphrodite, Happy!!! and
+Girlfriend, in both page headings and the Songs index. Their published URL
+slugs remain unchanged.
 
 `shared/web-punctuation.css` provides a Unicode-limited Western punctuation font
 for content, dictionary, IME and candidate text. It prefers locally available

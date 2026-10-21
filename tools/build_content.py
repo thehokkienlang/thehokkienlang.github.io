@@ -8,7 +8,7 @@ import re
 import shutil
 from pathlib import Path
 
-from song_title_readings import song_title
+from song_title_readings import song_title, word_title
 
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 
@@ -62,7 +62,8 @@ def build_content(root: Path, output: Path):
         imported = songs_by_route.get(row["new_url"])
         if imported:
             title = row.get("display_title") or imported["title"]
-            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{html.escape(title)}</a></li>')
+            label = word_title(title, imported.get("titleWordReadings", {}))
+            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{label}</a></li>')
         else:
             song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
     stories = [item for item in records if item["type"] == "stories"]

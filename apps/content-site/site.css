@@ -55,6 +55,7 @@ h4 { font-size: 18px; }
 .has-text-align-right { text-align: right; }
 .page-list { list-style: none; margin: 16px 0 32px; padding: 0; }
 .song-list a { text-decoration: none; }
+.song-list .title-reading .hanri-title > rt { font-size: 75%; }
 .page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
 .external-note, .source-link { color: var(--muted); font-size: 14px; }
 .source-link { clear: both; margin-top: 48px; }
