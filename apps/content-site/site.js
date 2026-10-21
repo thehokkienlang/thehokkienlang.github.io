@@ -2,7 +2,16 @@
   const toneRenderer = window.TangliengimImeCore;
   if (toneRenderer) {
     document.querySelectorAll(".title-reading").forEach(title => {
-      title.replaceChildren(toneRenderer.renderToneMarkedReading(title.textContent));
+      title.querySelectorAll(".hanri-title:not(.bopomofo-title) > rt").forEach(reading => {
+        reading.replaceChildren(toneRenderer.renderInlineUpperToneReading(reading.textContent));
+      });
+      const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT, {
+        acceptNode: node => node.parentElement.closest("rt, rp, .hangul-tone")
+          ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+      });
+      const textNodes = [];
+      while (walker.nextNode()) textNodes.push(walker.currentNode);
+      textNodes.forEach(node => node.replaceWith(toneRenderer.renderToneMarkedReading(node.textContent)));
     });
   }
   const article = document.querySelector(".imported-content");

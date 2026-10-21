@@ -44,6 +44,14 @@ validated before any titles are written.
 The completed 70-title form was applied on 2026-10-21, preserving spacing,
 apostrophes, punctuation and tone marks independently of the published URL slugs.
 
+Song pages now use the first source Hangul heading as pronunciation evidence for
+Hanri in the main title. The duplicate heading is omitted from the published
+body; the stored source body remains intact. Existing Hangul in the approved
+title keeps its authored tones. Decomposed syllables use the shared dictionary
+reading renderer. Alternative header readings are retained in the title ruby.
+The Mandarin title 敢傻敢衝 has an explicit Bopomofo `titleRuby` annotation instead.
+Song-index labels continue to use the third-column display titles.
+
 `shared/web-punctuation.css` provides a Unicode-limited Western punctuation font
 for content, dictionary, IME and candidate text. It prefers locally available
 Calibri with Western fallbacks; Hanri/Hangul retain their existing font families.

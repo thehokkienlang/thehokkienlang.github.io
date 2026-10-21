@@ -8,10 +8,12 @@ import re
 import shutil
 from pathlib import Path
 
+from song_title_readings import song_title
+
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 
 
-def document(root, title, route, body, content_type="index", source_url=None):
+def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     navigation = "".join(
         f'<a href="{href}"' + (' aria-current="page"' if route == href or href != "/" and route.startswith(href) else "") + f'>{label}</a>'
         for href, label in NAV
@@ -20,7 +22,7 @@ def document(root, title, route, body, content_type="index", source_url=None):
     tools = '<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" href="/dictionary/">Dictionary</a><a id="ime-link" href="/ime/">Open IME</a></aside>'
     heading = "Tangliengim" if route == "/" else title
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
-    values = {"TITLE": html.escape(title), "HEADING": html.escape(heading), "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
+    values = {"TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
@@ -44,7 +46,8 @@ def build_content(root: Path, output: Path):
             raise ValueError(f"Invalid or duplicate content route: {route}")
         paths.add(route)
         target.parent.mkdir(parents=True, exist_ok=True)
-        target.write_text(document(root, record["title"], route, record["body"], record["type"], record["sourceUrl"]), encoding="utf-8")
+        heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
+        target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
