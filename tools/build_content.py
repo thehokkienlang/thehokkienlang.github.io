@@ -62,7 +62,7 @@ def build_content(root: Path, output: Path):
     sections = {
         "/learn/": ("Learn Tangliengim", listing([item for item in records if item["route"].startswith("/learn/")])),
         "/read/": ("Read in Hokkien", '<h2>Literature</h2>' + listing([item for item in records if item["type"] == "literature"]) + '<h2>Stories</h2>' + (listing(stories) if stories else '<p><a href="https://hokkienlang.wordpress.com/2025/01/26/the-egg/">The Egg</a> is available on WordPress.</p>')),
-        "/songs/": ("Songs", '<ul class="page-list">' + "".join(song_links) + "</ul>"),
+        "/songs/": ("Songs", '<ul class="page-list song-list">' + "".join(song_links) + "</ul>"),
     }
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"
