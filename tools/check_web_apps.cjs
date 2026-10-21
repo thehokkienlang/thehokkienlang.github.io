@@ -892,7 +892,9 @@ async function loadApp(route, script) {
       imeController.updateControlFromComposer();
       const first = imeController.activeCandidates[0];
       const last = imeController.activeCandidates.at(-1);
-      if (first?.entry?.kind !== 'hangul_override' || first.entry.reading !== '칟1토4' ||
+      // 𨑨迌 replaced the retired Hangul-only entry for this reading.
+      if (first?.entry?.kind !== 'plain_hanri' || first.entry.hanri !== '𨑨迌' ||
+        first.entry.reading !== '칟1토4' ||
         last?.entry?.kind !== 'hangul_plain' || last.entry.reading !== '칟토' ||
         !last.entry.generatedCandidate ||
         imeController.activeCandidates.slice(0, -1).some(({ entry }) => entry.generatedCandidate)) return false;
@@ -901,8 +903,8 @@ async function loadApp(route, script) {
         key: 'Enter', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
         isComposing: false, preventDefault() { prevented = true; },
       });
-      return prevented && imeText.value === '칟토' && imeController.activeCandidates.length === 0 &&
-        candidateBar.hidden && imeController.getRememberedHangulReadings()[0]?.reading === '칟1토4';
+      return prevented && imeText.value === '𨑨迌' && imeController.activeCandidates.length === 0 &&
+        candidateBar.hidden && imeController.getRememberedHanriReadings()[0]?.reading === '칟1토4';
     })()`, context),
     'TSV candidates must precede the unrecorded toneless fallback and Enter must close the popup'
   );
@@ -922,9 +924,9 @@ async function loadApp(route, script) {
       });
       const cleanWhileChoosing = imeText.value === '칟토';
       const filtered = imeController.activeCandidates.some(
-        ({ entry }) => entry.kind === 'hangul_override' && entry.reading === '칟1토4'
+        ({ entry }) => !entry.generatedCandidate && entry.reading === '칟1토4'
       ) && !imeController.activeCandidates.some(
-        ({ entry }) => entry.kind === 'hangul_override' && entry.reading === '칟1토3'
+        ({ entry }) => !entry.generatedCandidate && entry.reading === '칟1토3'
       );
       imeController.backspace();
       const hiddenToneUndo = imeText.value === '칟토' &&
@@ -933,7 +935,10 @@ async function loadApp(route, script) {
         key: '4', shiftKey: false, ctrlKey: false, metaKey: false, altKey: false,
         isComposing: false, preventDefault() {},
       });
-      imeController.applyCandidate(imeController.activeCandidates[0]);
+      const hangulChoice = imeController.activeCandidates.find(({ entry }) =>
+        entry.kind === 'hangul_plain' && entry.reading === '칟1토4');
+      if (!hangulChoice) return false;
+      imeController.applyCandidate(hangulChoice);
       const remembered = imeController.findRememberedHangulEntryAt('칟토', 0)?.entry?.reading === '칟1토4';
       const lomari = lomariRenderer.render('칟토') === 'chît-thó';
       const tones = audioPlanFromText('칟토').segments.map(segment => segment.tone).join(',') === '1,4';
@@ -958,8 +963,9 @@ async function loadApp(route, script) {
   for (const [input, expected] of [
     ['愛릐', 'ài-lì'],
     ['릐호', 'lî-ho'],
-    // Use the current aspect-marker entry, which replaced the retired 뎋 default.
-    ['릐 시렣哭', 'lì si-lêh-khau'],
+    // 咧 now carries the dictionary reading; bare 렣 is literal Hangul input.
+    ['릐 시咧哭', 'lì si-lêh-khau'],
+    ['릐 시렣哭', 'lì si-leh-khau'],
     ['到尾仔 來到CMPB', 'kàu-buê-à lai-kàu-CMPB'],
     ['賣票', 'boe-phio'],
     ['廈門', 'e-mńg'],
