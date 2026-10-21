@@ -33,6 +33,17 @@ with an artist name. WordPress IDs remain internal provenance only.
 The form preserves edits in browser storage where available and can download
 `song-urls.json` or a three-column CSV. The JSON adds a `display_title` field;
 older two-field downloads still load without clearing entered page titles.
+Apply a completed three-column form with `python tools/apply_song_titles.py PATH`.
+It updates page headings and song-index titles while preserving published URLs,
+lyric bodies, original WordPress titles, and source snapshots. All 70 rows are
+validated before any titles are written.
+The completed 70-title form was applied on 2026-10-21, preserving spacing,
+apostrophes, punctuation and tone marks independently of the published URL slugs.
+
+`shared/web-punctuation.css` provides a Unicode-limited Western punctuation font
+for content, dictionary, IME and candidate text. It prefers locally available
+Calibri with Western fallbacks; Hanri/Hangul retain their existing font families.
+It changes presentation only and does not replace punctuation characters.
 Download the form to keep a portable copy;
 loading the JSON restores it. Blank rows are allowed. Invalid, reserved, and
 duplicate destinations are flagged before download. Copy the reviewed completed

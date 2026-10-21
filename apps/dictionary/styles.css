@@ -1,3 +1,4 @@
+@import url("/shared/web-punctuation.css");
 :root {
   color-scheme: light;
   --bg: #f6f8fb;
@@ -10,7 +11,7 @@
   --accent-strong: #0b5d56;
   --focus: #2563eb;
   --warning: #a85518;
-  font-family: "Noto Sans", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "Noto Sans", Arial, sans-serif;
 }
 
 * {
@@ -246,7 +247,7 @@ h1 {
 }
 
 .search-input.hangul-ime-active {
-  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
 .search-input:focus {
@@ -256,13 +257,13 @@ h1 {
 
 .search-input::placeholder {
   color: #8390a2;
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "Segoe UI", Arial, sans-serif;
   font-size: 1.08rem;
   font-style: italic;
 }
 
 .search-input.hangul-ime-active::placeholder {
-  font-family: "Segoe UI", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "Segoe UI", Arial, sans-serif;
   font-size: 1.08rem;
 }
 
@@ -468,7 +469,7 @@ h1 {
 
 .hanri {
   margin: 0;
-  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: clamp(1.5rem, 4vw, 2.2rem);
   font-weight: 800;
   line-height: 1.08;
@@ -481,7 +482,7 @@ h1 {
 
 .entry-headword-ruby rt {
   color: #334155;
-  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
   font-size: 0.44em;
   font-weight: 750;
   line-height: 1;
@@ -497,11 +498,11 @@ h1 {
 }
 
 .entry-headword-hangul {
-  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
 .latin-apostrophe {
-  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", Calibri, "Segoe UI", Arial, sans-serif;
   font-variant-east-asian: normal;
   letter-spacing: 0;
 }
@@ -557,7 +558,7 @@ h1 {
   left: calc(50% - 1px);
   transform: translateX(-50%);
   color: #1f2937;
-  font-family: Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
   font-size: 1.02em;
   font-weight: 700;
   line-height: 1;
@@ -565,7 +566,7 @@ h1 {
 }
 
 .inline-upper-tone {
-  font-family: Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
   font-size: 0.82em;
   font-weight: 800;
   margin-left: 0.02em;
@@ -573,7 +574,7 @@ h1 {
 }
 
 .lomari {
-  font-family: Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
   color: #475569;
   font-size: 1.02rem;
   overflow-wrap: anywhere;

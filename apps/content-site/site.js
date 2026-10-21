@@ -1,4 +1,10 @@
 (() => {
+  const toneRenderer = window.TangliengimImeCore;
+  if (toneRenderer) {
+    document.querySelectorAll(".title-reading").forEach(title => {
+      title.replaceChildren(toneRenderer.renderToneMarkedReading(title.textContent));
+    });
+  }
   const article = document.querySelector(".imported-content");
   if (!article) return;
   const lookup = document.querySelector("#lookup-link");

@@ -41,7 +41,7 @@ def build_content(root: Path, output: Path):
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(document(root, record["title"], route, record["body"], record["type"], record["sourceUrl"]), encoding="utf-8")
     def listing(items):
-        return '<ul class="page-list">' + "".join(f'<li><a href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
+        return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
     source_titles = json.loads((root / "migration/song-titles.json").read_text(encoding="utf-8"))
     songs_by_route = {item["route"]: item for item in records if item["type"] == "songs"}
@@ -49,7 +49,7 @@ def build_content(root: Path, output: Path):
     for row in song_rows:
         imported = songs_by_route.get(row["new_url"])
         if imported:
-            song_links.append(f'<li><a href="{html.escape(imported["route"], quote=True)}">{html.escape(imported["title"])}</a></li>')
+            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{html.escape(imported["title"])}</a></li>')
         else:
             song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
     stories = [item for item in records if item["type"] == "stories"]

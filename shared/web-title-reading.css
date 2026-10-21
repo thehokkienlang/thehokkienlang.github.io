@@ -1,0 +1,28 @@
+.title-reading .hangul-tone {
+  position: relative;
+  display: inline-block;
+  min-width: 1em;
+  line-height: 1.15;
+}
+.title-reading .hangul-tone rt {
+  position: absolute;
+  top: calc(-0.84em - 4px);
+  left: calc(50% - 1px);
+  transform: translateX(-50%);
+  color: inherit;
+  font-family: Calibri, Arial, sans-serif;
+  font-size: 1.02em;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+}
+.title-reading:has(.hangul-tone) { padding-top: 0.4em; }
+.title-preview {
+  margin-top: 10px;
+  font-family: "Noto Sans TC", "Noto Sans KR", sans-serif;
+  font-size: 24px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.title-preview[hidden] { display: none; }

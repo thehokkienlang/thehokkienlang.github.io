@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Song links and page titles · Tangliengim</title>
   <link rel="stylesheet" href="../shared/web-ime-menu.css">
+  <link rel="stylesheet" href="../shared/web-title-reading.css">
   <script src="../shared/web-hangul-ime.js"></script>
   <script src="../shared/web-ime-core.js"></script>
   <script src="song-ime-data.js"></script>
@@ -78,6 +79,7 @@
   const titleStorageKey = "tli-song-display-titles-v1";
   const inputs = new Map();
   const titleInputs = new Map();
+  const titlePreviews = new Map();
   const errors = new Map();
   const status = document.getElementById("status");
   const core = window.TangliengimImeCore;
@@ -126,6 +128,13 @@
   }
   function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value), display_title: titleInputs.get(row.old_url).value })); }
   function validate() {
+    for (const [oldUrl, input] of titleInputs) {
+      const preview = titlePreviews.get(oldUrl);
+      if (preview.dataset.titleText === input.value) continue;
+      preview.dataset.titleText = input.value;
+      preview.hidden = !input.value;
+      preview.replaceChildren(core ? core.renderToneMarkedReading(input.value) : document.createTextNode(input.value));
+    }
     let complete = 0;
     let invalid = 0;
     const seen = new Map();
@@ -243,7 +252,12 @@
     titleInputs.set(row.old_url, pageTitle);
     titleField.append(pageTitle);
     attachIme(pageTitle, titleField, `Page title candidates for ${row.title}`, "symbols");
-    titleCell.append(titleField);
+    const preview = document.createElement("div");
+    preview.className = "title-preview title-reading";
+    preview.setAttribute("aria-label", `Page title preview for ${row.title}`);
+    preview.hidden = true;
+    titlePreviews.set(row.old_url, preview);
+    titleCell.append(titleField, preview);
     tr.append(old, next, titleCell);
     document.getElementById("rows").append(tr);
   }

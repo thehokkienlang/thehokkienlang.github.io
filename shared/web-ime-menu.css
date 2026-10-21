@@ -1,3 +1,4 @@
+@import url("web-punctuation.css");
 /* Only the missing glyph uses this Source-Han-Sans-based fallback. */
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
@@ -61,13 +62,13 @@
 .hanri-candidate-menu .candidate-number {
   flex: 0 0 auto;
   color: var(--blue, #1d70d7);
-  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", Calibri, "Segoe UI", Arial, sans-serif;
   font-weight: 800;
 }
 
 .hanri-candidate-menu .candidate-hanri {
   flex: 0 0 auto;
-  font-family: "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
   white-space: nowrap;
@@ -75,7 +76,7 @@
 
 .hanri-candidate-menu .candidate-hangul,
 .hanri-candidate-menu .candidate-reading {
-  font-family: "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;

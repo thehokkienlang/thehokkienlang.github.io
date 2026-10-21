@@ -101,6 +101,20 @@ class MigrationTests(unittest.TestCase):
         rows[1]["display_title"] = "𣍐散，同行！"
         self.assertEqual(approved_song_routes(rows, posts)[1][1], "/songs/𣍐散/")
 
+    def test_approved_display_titles_do_not_replace_routes_or_original_titles(self):
+        manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
+        records = {item["route"]: item for item in manifest["records"]}
+        rows = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
+        for row in rows:
+            if "display_title" not in row:
+                continue
+            with self.subTest(route=row["new_url"]):
+                content = json.loads((ROOT / records[row["new_url"]]["file"]).read_text(encoding="utf-8"))
+                source = json.loads((ROOT / "migration/wordpress-source" / f'{content["sourceId"]}.json').read_text(encoding="utf-8"))
+                self.assertEqual(content["title"], row["display_title"])
+                self.assertEqual(content["route"], row["new_url"])
+                self.assertEqual(content["originalTitle"], source["title"])
+
 
 if __name__ == "__main__":
     unittest.main()
