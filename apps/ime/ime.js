@@ -1,4 +1,5 @@
 const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+const siteText = window.TliSiteLanguage?.text || (value => value);
 
 const imeText = document.querySelector("#imeText");
 const clearButton = document.querySelector("#clearButton");
@@ -231,7 +232,7 @@ function copyText(text) {
 }
 
 function showToast(message) {
-  toast.textContent = message;
+  toast.textContent = siteText(message);
   toast.classList.add("visible");
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
@@ -310,8 +311,8 @@ function audioPlanFromText(text) {
 }
 
 function updateAudioButton(playing) {
-  audioButton.setAttribute("aria-label", playing ? "Stop audio" : "Play audio");
-  audioButton.setAttribute("title", playing ? "Stop" : "Listen");
+  audioButton.setAttribute("aria-label", siteText(playing ? "Stop audio" : "Play audio"));
+  audioButton.setAttribute("title", siteText(playing ? "Stop" : "Listen"));
   audioButton.classList.toggle("playing", playing);
 }
 
@@ -382,7 +383,7 @@ async function loadDictionary() {
     statusLine.textContent = "";
     statusLine.hidden = true;
   } catch {
-    statusLine.textContent = "Dictionary candidates unavailable; Hangul typing still works";
+    statusLine.textContent = siteText("Dictionary candidates unavailable; Hangul typing still works");
     statusLine.hidden = false;
   }
 }

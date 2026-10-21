@@ -1,4 +1,4 @@
-"""Content preservation and scope checks for the first English migration batch."""
+"""Content preservation and scope checks for the authored WordPress presentations."""
 
 import hashlib
 import json
@@ -14,6 +14,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 from build_content import build_content
 from import_wordpress import ImportedHTML, PAGES
 from import_wordpress_final import approved_song_routes
+from site_languages import CHINESE_PAGES, LANGUAGES
 
 
 # Approved copy edits apply only to these source pages; reading markup stays exact.
@@ -96,13 +97,15 @@ class MigrationTests(unittest.TestCase):
                 self.assertEqual(hashlib.sha256(original["content"].encode()).hexdigest(), imported["sourceSha256"])
                 self.assertIn(imported["orthography"]["review"], {"pending", "source-preserved"})
 
-    def test_build_publishes_approved_sources_and_keeps_chinese_pages_deferred(self):
+    def test_build_publishes_authored_languages_and_keeps_unpublished_content_out(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             routes = build_content(ROOT, Path(directory))
-            self.assertEqual(len(routes), len(manifest["records"]) + 2)
-            self.assertFalse(any(route.startswith("/zh-") for route in routes))
-            self.assertNotIn(7647, {item["sourceId"] for item in manifest["records"]})
+            self.assertEqual(len(routes), len(manifest["records"]) - 1 + 3 * len(LANGUAGES))
+            self.assertEqual(set(manifest["languages"]), set(LANGUAGES))
+            self.assertTrue({spec[0] for spec in CHINESE_PAGES}.issubset({item["sourceId"] for item in manifest["records"]}))
+            self.assertIn("/zh-hant/read/stories/the-egg/", routes)
+            self.assertNotIn("/zh-hans/read/stories/the-egg/", routes)
             self.assertNotIn("/songs/translation-notes/", routes)
             self.assertFalse((Path(directory) / "songs/translation-notes/index.html").exists())
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")

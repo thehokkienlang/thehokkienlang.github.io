@@ -1,6 +1,7 @@
 // This is a client-side courtesy lock, not secure server-side authentication.
 const ACCESS_STORAGE_KEY = "tangliengim.dictionary.access.v1";
 const ACCESS_DIGEST = "05331485ce6bb8b1f8f233be48788c8bb5355cfa1e79362754cd82cbdcb293d9";
+const gateText = window.TliSiteLanguage?.text || (value => value);
 const APP_SCRIPTS = [
   "/shared/web-hangul-ime.js",
   "/shared/web-ime-core.js",
@@ -67,6 +68,7 @@ async function openDictionary() {
     const response = await fetch("dictionary-view.html", { cache: "no-cache" });
     if (!response.ok) throw new Error(`Dictionary view returned ${response.status}`);
     dictionaryRoot.innerHTML = await response.text();
+    window.TliSiteLanguage?.apply(dictionaryRoot);
     dictionaryRoot.hidden = false;
     lockScreen.hidden = true;
     document.body.classList.remove("dictionary-locked");
@@ -81,7 +83,7 @@ async function openDictionary() {
     dictionaryRoot.hidden = true;
     lockScreen.hidden = false;
     document.body.classList.add("dictionary-locked");
-    accessError.textContent = "The dictionary could not be opened. Please try again.";
+    accessError.textContent = gateText("The dictionary could not be opened. Please try again.");
     accessError.hidden = false;
     enterButton.disabled = false;
     dictionaryLoading = false;
@@ -99,7 +101,7 @@ accessForm.addEventListener("submit", async (event) => {
   if (digest !== ACCESS_DIGEST) {
     passwordInput.value = "";
     passwordInput.setAttribute("aria-invalid", "true");
-    accessError.textContent = "That password is not correct.";
+    accessError.textContent = gateText("That password is not correct.");
     accessError.hidden = false;
     enterButton.disabled = false;
     passwordInput.focus();

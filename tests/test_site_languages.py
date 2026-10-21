@@ -1,0 +1,58 @@
+"""Language equivalence, shared routes, and Chinese publication boundaries."""
+
+import json
+import sys
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tools"))
+from build_content import build_content, navigation_links
+from site_languages import LANGUAGES, base_route, language_for_route, language_url
+
+
+class SiteLanguageTests(unittest.TestCase):
+    def test_equivalent_pages_and_unavailable_translation(self):
+        for language, prefix in (("en", ""), ("zh-Hant", "/zh-hant"), ("zh-Hans", "/zh-hans")):
+            route = prefix + "/learn/spelling/"
+            self.assertEqual(language_for_route(route), language)
+            self.assertEqual(base_route(route), "/learn/spelling/")
+            self.assertEqual(language_url(route, "zh-Hant"), "/zh-hant/learn/spelling/")
+        self.assertIsNone(language_url("/read/stories/the-egg/", "zh-Hans"))
+        self.assertEqual(language_url("/ime/", "zh-Hans"), "/ime/?lang=zh-Hans")
+        self.assertEqual(language_url("/songs/example/", "zh-Hant"), "/songs/example/?lang=zh-Hant")
+
+    def test_menu_translations_and_shared_destinations(self):
+        nav = navigation_links("/zh-hant/learn/spelling/", variants=False)
+        self.assertIn('href="/zh-hant/learn/spelling/" aria-current="page"', nav)
+        self.assertIn('href="/dictionary/?lang=zh-Hant"', nav)
+        self.assertIn('>學習</summary>', nav)
+        self.assertIn('data-language-choice="en"', nav)
+        self.assertIn('href="/zh-hans/learn/spelling/"', nav)
+        egg = navigation_links("/zh-hant/read/stories/the-egg/", variants=False)
+        self.assertNotIn('data-language-choice="zh-Hans"', egg)
+        self.assertIn('>卵（繁體中文）</a>', navigation_links("/zh-hans/", variants=False))
+
+    def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            routes = build_content(ROOT, output)
+            for language, folder in (("zh-Hant", "zh-hant"), ("zh-Hans", "zh-hans")):
+                home = (output / folder / "index.html").read_text(encoding="utf-8")
+                self.assertIn(f'<html lang="{language}">', home)
+                article = home.split('<article class="imported-content">', 1)[1].split("</article>", 1)[0]
+                self.assertNotIn('href="https://hokkienlang.wordpress.com/zh-', article)
+                songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
+                choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
+                for row in choices:
+                    self.assertIn(f'href="{row["new_url"]}?lang={language}"', songs)
+                    self.assertNotIn(f'/{folder}{row["new_url"]}', routes)
+            manifest = json.loads((output / "content-manifest.json").read_text(encoding="utf-8"))
+            self.assertEqual(manifest["languages"], list(LANGUAGES))
+            self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hant"]), 7)
+            self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hans"]), 6)
+
+
+if __name__ == "__main__":
+    unittest.main()

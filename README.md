@@ -6,17 +6,18 @@ pronunciation data, and audio.
 - [Dictionary](https://thehokkienlang.github.io/dictionary/)
 - [Web IME Pad](https://thehokkienlang.github.io/ime/)
 
-The root website hosts the English home page. English learning/reference pages,
-literature, the dictionary, and IME are built together by one GitHub Pages workflow.
-The English migration includes 70 song posts and The Egg. Chinese presentations
-remain on WordPress for a later batch; all original WordPress pages are retained.
+The root website hosts the English home page. Traditional Chinese pages live at
+`/zh-hant/` and Simplified Chinese pages at `/zh-hans/`. Learning pages, literature,
+70 songs, the dictionary and IME are built together by one GitHub Pages workflow.
+All 13 authored Chinese presentations, including the Traditional Chinese Egg,
+have been imported. All original WordPress pages are retained.
 
 ## Source layout
 
 ```text
 apps/dictionary/       Dictionary interface, published at /dictionary/
 apps/ime/              Standalone web IME, published at /ime/
-apps/content-site/     Shared English content shell and local song URL form template
+apps/content-site/     Shared multilingual shell and local song URL form template
 content/               Imported pages, learning guides, and literature
 migration/             Original snapshots, link map, media map, and song URL form
 shared/                Browser keyboard composer and shared IME controller
@@ -106,8 +107,8 @@ The former `thehokkienlang/dictionary` repository is retained as a historical
 archive. Its history was merged here; active edits and publishing happen here.
 Existing root-site assets are preserved at their original `/assets/` paths.
 
-See [the English WordPress migration](docs/wordpress-migration.md) for the imported
-scope, deferred Chinese pages, and the two-column song URL form at
+See [the WordPress migration](docs/wordpress-migration.md) for the imported
+scope, language routes, and the three-column song URL form at
 `migration/song-url-form.html`. WordPress is not modified by importing or building.
 
 Copyright 2026 Zhen Dong Woo. All rights reserved.

@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 FIXTURES = ROOT / "tests" / "fixtures"
 JAVASCRIPT_FILES = (
     "apps/content-site/site.js",
+    "shared/web-site-language.js",
+    "shared/web-site-navigation.js",
     "desktop/desktop_restart.js",
     "desktop/dictionary_editor_ui/editor.js",
     "apps/dictionary/gate.js",
@@ -31,6 +33,8 @@ JAVASCRIPT_FILES = (
 )
 PYTHON_FILES = (
     "tools/build_content.py",
+    "tools/site_languages.py",
+    "tools/import_wordpress_chinese.py",
     "tools/import_wordpress.py",
     "tools/node_runtime.py",
     "desktop/dictionary_editor.py",

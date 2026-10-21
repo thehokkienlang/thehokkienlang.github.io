@@ -74,7 +74,7 @@ def main() -> int:
         },
     }
     (OUTPUT / "build-info.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print(f"Built dictionary, IME, and {len(content_routes)} English content routes with shared resources.")
+    print(f"Built dictionary, IME, and {len(content_routes)} content routes with shared resources.")
     return 0
 
 

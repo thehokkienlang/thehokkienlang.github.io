@@ -1,4 +1,4 @@
-"""Render imported English content into the existing GitHub Pages artifact."""
+"""Render authored English and Chinese content into the Pages artifact."""
 
 from __future__ import annotations
 
@@ -9,6 +9,8 @@ import shutil
 from pathlib import Path
 
 from song_title_readings import song_title, word_title
+from import_wordpress import ImportedHTML, source_key
+from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
 
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 NAV_SECTIONS = {
@@ -17,34 +19,53 @@ NAV_SECTIONS = {
 }
 
 
-def navigation_links(route):
+def navigation_links(route, language=None, variants=True):
+    language = language or language_for_route(route)
+
     def link(href, label):
-        current = ' aria-current="page"' if route == href or href != "/" and route.startswith(href) else ""
-        return f'<a href="{href}"{current}>{html.escape(label)}</a>'
+        destination = language_url(href, language) or language_url(href, "zh-Hant")
+        current = ' aria-current="page"' if base_route(route) == href or href != "/" and base_route(route).startswith(href) else ""
+        return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}</a>'
 
     items = []
     for href, label in NAV:
         if href in NAV_SECTIONS:
-            active = " is-current" if route.startswith(href) else ""
+            active = " is-current" if base_route(route).startswith(href) else ""
             children = "".join(link(path, title) for path, title in NAV_SECTIONS[href])
             items.append(
                 '<details class="site-nav-dropdown" name="site-navigation">'
-                f'<summary class="site-nav-trigger{active}">{label}</summary>'
+                f'<summary class="site-nav-trigger{active}">{text(label, language)}</summary>'
                 f'<div class="site-nav-panel">{children}</div></details>'
             )
         else:
             items.append(link(href, label))
+    choices = []
+    for code in LANGUAGES:
+        destination = language_url(route, code)
+        if destination is not None:
+            current = ' aria-current="page"' if code == language else ""
+            choices.append(f'<a href="{html.escape(destination, quote=True)}" lang="{code}" hreflang="{code}" data-language-choice="{code}"{current}>{LANGUAGE_NAMES[code]}</a>')
+    items.append('<details class="site-nav-dropdown site-language-dropdown" name="site-navigation">'
+                 f'<summary class="site-nav-trigger">{LANGUAGE_NAMES[language]}</summary>'
+                 f'<div class="site-nav-panel">{"".join(choices)}</div></details>')
+    if variants:
+        for code in LANGUAGES:
+            if code != language:
+                items.append(f'<template data-navigation-language="{code}">{navigation_links(route, code, variants=False)}</template>')
     return "".join(items)
 
 
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
+    language = language_for_route(route)
     navigation = navigation_links(route)
-    source = f'<p class="source-link"><a href="{html.escape(source_url, quote=True)}">Original WordPress page</a></p>' if source_url else ""
-    tools = '<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" href="/dictionary/">Dictionary</a><a id="ime-link" href="/ime/">Open IME</a></aside>'
-    heading = "TheHokkienLang" if route == "/" else title
-    introduction = '<p class="site-introduction">Explore Hokkien with <a href="/learn/introduction/">TLI (Tangliengim)</a>.</p>' if route == "/" else ""
+    source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url else ""
+    tools = f'<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" data-site-text="Dictionary" href="{language_url("/dictionary/", language)}">{text("Dictionary", language)}</a><a id="ime-link" data-site-text="Open IME" href="{language_url("/ime/", language)}">{text("Open IME", language)}</a></aside>'
+    heading = "TheHokkienLang" if base_route(route) == "/" else title
+    introductions = {"en": "Explore Hokkien with", "zh-Hant": "透過以下系統探索閩南語：", "zh-Hans": "通过以下系统探索闽南语："}
+    introduction = f'<p class="site-introduction">{introductions[language]} <a href="{language_url("/learn/introduction/", language)}">TLI (Tangliengim)</a>.</p>' if base_route(route) == "/" else ""
+    alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
-    values = {"TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
@@ -60,6 +81,24 @@ def build_content(root: Path, output: Path):
         for item in manifest["records"]
         if item["route"] not in unpublished_routes
     ]
+    source_routes = {source_key(item["sourceUrl"]): item["route"] for item in records}
+    media = json.loads((root / "migration/wordpress-media.json").read_text(encoding="utf-8"))
+
+    class PresentationHTML(ImportedHTML):
+        def __init__(self, record):
+            super().__init__(record["sourceUrl"], source_routes, media, root, False)
+            self.language = record["language"]
+
+        def rewrite(self, value, media=False):
+            result = super().rewrite(value, media)
+            if not media and self.language != "en" and result and result.startswith(("/songs/", "/dictionary/", "/ime/", "/read/literature/")) and "?" not in result:
+                path, marker, fragment = result.partition("#")
+                result = (language_url(path, self.language) or path) + (marker + fragment if marker else "")
+            return result
+
+        def handle_data(self, data):
+            super().handle_data(re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data))
+
     paths = set()
     for record in records:
         route = record["route"]
@@ -69,6 +108,7 @@ def build_content(root: Path, output: Path):
         paths.add(route)
         target.parent.mkdir(parents=True, exist_ok=True)
         heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
+        body = PresentationHTML(record).render(body)
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
@@ -84,12 +124,20 @@ def build_content(root: Path, output: Path):
             song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{label}</a></li>')
         else:
             song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
-    stories = [item for item in records if item["type"] == "stories"]
-    sections = {
-        "/learn/": ("Learn Tangliengim", listing([item for item in records if item["route"].startswith("/learn/")])),
-        "/read/": ("Read in Hokkien", '<h2>Literature</h2>' + listing([item for item in records if item["type"] == "literature"]) + '<h2>Stories</h2>' + (listing(stories) if stories else '<p><a href="https://hokkienlang.wordpress.com/2025/01/26/the-egg/">The Egg</a> is available on WordPress.</p>')),
-        "/songs/": ("Songs", '<ul class="page-list song-list">' + "".join(song_links) + "</ul>"),
-    }
+    sections = {}
+    languages = manifest.get("languages", ["en"])
+    for language in languages:
+        prefix = PREFIXES[language]
+        guides = [item for item in records if item["type"] == "guides" and item["language"] == language and base_route(item["route"]).startswith("/learn/")]
+        story_language = "zh-Hant" if language == "zh-Hans" else language
+        stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == story_language]
+        literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in records if item["type"] == "literature"]
+        localized_songs = "".join(song_links)
+        if language != "en":
+            localized_songs = re.sub(r'href="(/songs/[^"?]+/)"', lambda match: f'href="{html.escape(language_url(match[1], language), quote=True)}"', localized_songs)
+        sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
+        sections[prefix + "/read/"] = (text("Read in Hokkien", language), f'<h2>{text("Literature", language)}</h2>' + listing(literature) + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
+        sections[prefix + "/songs/"] = (text("Songs", language), '<ul class="page-list song-list">' + localized_songs + "</ul>")
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
@@ -99,5 +147,5 @@ def build_content(root: Path, output: Path):
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copy2(root / "apps/content-site" / name, target / name)
-    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "routes": sorted(paths), "pages": [{key: item[key] for key in ("title", "route", "type", "sourceId", "sourceUrl", "orthography")} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return sorted(paths)

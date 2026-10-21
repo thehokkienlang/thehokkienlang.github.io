@@ -52,7 +52,12 @@ def main():
         assert 'class="site-header"' in root_html and 'http-equiv="refresh"' not in root_html
         content = json.loads(local_file("/content-manifest.json").read_text(encoding="utf-8"))
         assert content["language"] == "en"
-        assert not any(route.startswith(("/zh-hant/", "/zh-hans/")) for route in content["routes"])
+        assert set(content["languages"]) == {"en", "zh-Hant", "zh-Hans"}
+        for prefix in ("/zh-hant", "/zh-hans"):
+            for path in ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/read/", "/songs/"):
+                assert prefix + path in content["routes"], f"Missing Chinese page: {prefix + path}"
+        assert "/zh-hant/read/stories/the-egg/" in content["routes"]
+        assert "/zh-hans/read/stories/the-egg/" not in content["routes"]
         deferred_ids = set(content["deferred"]["theEgg"])
         assert not deferred_ids.intersection(page["sourceId"] for page in content["pages"])
         imported_songs = {page["route"] for page in content["pages"] if page["type"] == "songs"}

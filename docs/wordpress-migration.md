@@ -1,22 +1,22 @@
-# English WordPress migration
+# WordPress migration
 
 The English source archive contains 79 records: Home, About, four learning
 guides, Lyrics Translation, Tale of the Lychee Mirror, 70 songs, and the English
 presentation of The Egg. Lyrics Translation is retained in the source archive
 but is not published. The completed song URL form supplies all 70 public song
 paths and their displayed titles. WordPress is read only throughout this
-workflow.
+workflow. All 13 authored Chinese presentations have also been imported:
+seven Traditional Chinese records (including The Egg) and six Simplified
+Chinese records. The archive now holds all 92 published source items.
 
 ## Deferred work
 
-- The Traditional Chinese presentation of The Egg (WordPress ID 7647) is deferred.
-- Traditional and Simplified Chinese presentations will be migrated later.
 - Imported source is preserved; its v3.1 compliance review is still pending.
   Apply approved v3.2 linguistic changes after the migration and v3.1 review.
 
 The Songs and Read indexes now link to the imported GitHub pages. Links in the
-first batch have also been updated. Chinese presentation links remain on
-WordPress. No WordPress redirects or deletions have been performed.
+first batch have also been updated. Language links now point to the corresponding
+GitHub pages. No WordPress redirects or deletions have been performed.
 The Songs index uses each song's separate page title from the form's third
 column; its URL continues to use the approved second-column route.
 
@@ -105,8 +105,12 @@ destinations, and reserved paths before importing. It refuses to overwrite
 existing song/story records. User-approved URLs are preserved in the migration
 map, and existing content receives link updates without recalculating readings.
 
-`tools/build_content.py` renders the records through the shared English shell,
-with Learn, Songs, and Read indexes. `tools/build_site.py` includes the output in
+`tools/import_wordpress_chinese.py --download-media` reads the latest authored
+Chinese pages, archives their original HTML, and copies missing media. It
+refuses to overwrite previously imported editorial content.
+
+`tools/build_content.py` renders all three languages through the shared shell,
+with Learn, Songs, and Read indexes in each language. `tools/build_site.py` includes the output in
 the same artifact as the dictionary and IME. Migration exports, source archives,
 and the local URL form are not copied into the published artifact.
 
@@ -114,12 +118,22 @@ Selecting text in a content page prepares Dictionary and Open IME links for that
 text. This uses the existing shared keyboard/pronunciation engines. Imported
 readings remain stored HTML and are not recalculated when the dictionary changes.
 
+Traditional Chinese pages use `/zh-hant/`; Simplified Chinese pages use
+`/zh-hans/`. English URLs remain unchanged. Language switching keeps readers
+on the equivalent page. Song pages, the Lychee Mirror, dictionary and IME keep
+one canonical route with `?lang=zh-Hant` or `?lang=zh-Hans` for their interface.
+Search and IME text query parameters survive language switching. The Simplified
+Chinese reading menu explicitly labels The Egg as a Traditional Chinese source;
+no Simplified Chinese story has been fabricated. Navigation includes hover,
+touch and keyboard dropdowns in all three languages. The dictionary gate remains.
+
 ## Verification
 
 Run the focused import checks and the existing build validation:
 
 ```sh
 python -X utf8 -m unittest discover -s tests -p test_wordpress_migration.py
+python -X utf8 -m unittest discover -s tests -p test_site_languages.py
 python -X utf8 tools/build_site.py
 python -X utf8 tools/check_site.py
 node tools/check_web_apps.cjs
@@ -127,7 +141,7 @@ node tools/check_web_apps.cjs
 
 Manual review: compare lyrics, story paragraphs, ruby layout, YouTube/SoundCloud
 playback, guide tables/audio, and illustrations with the WordPress sources.
-Chinese-language links should still reach WordPress. Original source links are
+Language links should reach their corresponding GitHub pages. Original source links are
 retained at each page's foot. Source preservation is verified separately from
 the pending full v3.1 editorial audit and subsequent v3.2 work.
 
@@ -147,10 +161,15 @@ thehokkienlang.github.io/
 |   |-- stories/the-egg/               Imported: English presentation
 |   `-- literature/lychee-mirror/      Imported: Tale of the Lychee Mirror
 |-- /dictionary/                       Existing shared dictionary
-`-- /ime/                              Existing shared IME
+|-- /ime/                              Existing shared IME
+|-- /zh-hant/                          Imported: Home, About, four guides
+|   |-- songs/                        Shared song destinations
+|   `-- read/stories/the-egg/          Imported: authored Chinese Egg
+`-- /zh-hans/                          Imported: Home, About, four guides
+    |-- songs/                        Shared song destinations
+    `-- read/                         Chinese Egg clearly marked Traditional
 
 Remaining work
-|-- Chinese presentations              13 source records, including Chinese Egg
 |-- Complete v3.1 editorial audit       Separate from source-preservation checks
 |-- Apply approved v3.2 changes         After migration
 |-- Content Editor                     Not yet built
@@ -158,7 +177,8 @@ Remaining work
 `-- English-Hokkien translator         Not yet built
 ```
 
-Source records: 79 of the 92 published WordPress items. Lyrics Translation is
+Source records: all 92 published WordPress items; 100 generated content routes.
+Lyrics Translation is
 archived but unpublished. Original WordPress content is retained. GitHub
 publication/deployment status is recorded separately from this source
 inventory. The existing Dictionary Editor remains available;

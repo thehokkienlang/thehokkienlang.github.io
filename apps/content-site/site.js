@@ -25,8 +25,9 @@
     fragment.querySelectorAll("rt, rp").forEach(node => node.remove());
     const text = fragment.textContent.trim().slice(0, 12000);
     if (!text) return;
-    lookup.href = "/dictionary/?q=" + encodeURIComponent(text);
-    ime.href = "/ime/?text=" + encodeURIComponent(text);
+    const languageHref = window.TliSiteLanguage?.href || (value => value);
+    lookup.href = languageHref("/dictionary/?q=" + encodeURIComponent(text));
+    ime.href = languageHref("/ime/?text=" + encodeURIComponent(text));
   });
   article.querySelectorAll("table").forEach(table => {
     if (table.parentElement.matches(".wp-block-table")) return;

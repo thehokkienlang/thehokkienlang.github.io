@@ -1,4 +1,5 @@
 const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+const siteText = window.TliSiteLanguage?.text || (value => value);
 const RESULTS_PER_PAGE = 10;
 const ImeCore = window.TangliengimImeCore;
 const webAudio = window.TangliengimWebAudio;
@@ -211,7 +212,7 @@ function searchGroups() {
 }
 
 function activeCategoryLabel() {
-  return state.categories.find((category) => category.id === state.activeCategory)?.label || "";
+  return siteText(state.categories.find((category) => category.id === state.activeCategory)?.label || "");
 }
 
 function renderCategoryFilters() {
@@ -220,7 +221,7 @@ function renderCategoryFilters() {
     const button = document.createElement("button");
     button.type = "button";
     button.className = "category-button";
-    button.textContent = category.label;
+    button.textContent = siteText(category.label);
     button.setAttribute("aria-pressed", String(state.activeCategory === category.id));
     button.addEventListener("click", () => {
       state.activeCategory = state.activeCategory === category.id ? "" : category.id;
@@ -376,7 +377,7 @@ function showToast(message) {
     document.body.append(toast);
   }
 
-  toast.textContent = message;
+  toast.textContent = siteText(message);
   toast.classList.add("visible");
   window.clearTimeout(showToast.timer);
   showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
@@ -401,7 +402,7 @@ function renderReading(entry) {
   lomariField.className = "reading-field";
   const lomariLabel = document.createElement("span");
   lomariLabel.className = "field-label";
-  lomariLabel.textContent = "Lomari";
+  lomariLabel.textContent = siteText("Lomari");
   const lomari = document.createElement("span");
   lomari.className = "lomari";
   lomari.textContent = normalizeApostrophes(entry.lomari || " ");
@@ -411,7 +412,7 @@ function renderReading(entry) {
   englishField.className = "reading-field english-field";
   const englishLabel = document.createElement("span");
   englishLabel.className = "field-label";
-  englishLabel.textContent = "English";
+  englishLabel.textContent = siteText("English");
   const english = document.createElement("span");
   english.className = "english-gloss";
   english.textContent = entry.english || " ";
@@ -425,11 +426,11 @@ function renderReading(entry) {
   const playButton = document.createElement("button");
   playButton.className = "audio-reading";
   playButton.type = "button";
-  playButton.textContent = "Listen";
-  playButton.setAttribute("aria-label", `Listen to ${normalizeApostrophes(entry.reading)}`);
+  playButton.textContent = siteText("Listen");
+  playButton.setAttribute("aria-label", `${siteText("Listen to")} ${normalizeApostrophes(entry.reading)}`);
   if (!audioSegments.length) {
     playButton.disabled = true;
-    playButton.title = missingAudio.length ? `No audio for ${missingAudio.join(", ")}` : "No audio for this reading";
+    playButton.title = missingAudio.length ? `${siteText("No audio for")} ${missingAudio.join(", ")}` : siteText("No audio for this reading");
   }
   playButton.addEventListener("click", async () => {
     if (!audioSegments.length) {
@@ -451,8 +452,8 @@ function renderReading(entry) {
   const copyButton = document.createElement("button");
   copyButton.className = "copy-reading";
   copyButton.type = "button";
-  copyButton.textContent = "Copy";
-  copyButton.setAttribute("aria-label", `Copy ${normalizeApostrophes(entry.reading)} ${normalizeApostrophes(entry.lomari || "")}`.trim());
+  copyButton.textContent = siteText("Copy");
+  copyButton.setAttribute("aria-label", `${siteText("Copy")} ${normalizeApostrophes(entry.reading)} ${normalizeApostrophes(entry.lomari || "")}`.trim());
   copyButton.addEventListener("click", async () => {
     const value = entry.lomari
       ? `${normalizeApostrophes(entry.reading)}\t${normalizeApostrophes(entry.lomari)}`
@@ -545,14 +546,14 @@ function renderResults() {
     const empty = document.createElement("div");
     empty.className = "empty-state";
     const title = document.createElement("strong");
-    title.textContent = "No matching entries yet";
+    title.textContent = siteText("No matching entries yet");
     const note = document.createElement("span");
     note.textContent = state.activeCategory
-      ? `No entries in ${activeCategoryLabel()} match this search.`
-      : "Try Hanri, Tangliengim Hangul, Lomari, or English meanings.";
+      ? siteText(`No entries in ${activeCategoryLabel()} match this search.`)
+      : siteText("Try Hanri, Tangliengim Hangul, Lomari, or English meanings.");
     empty.append(title, note);
     results.append(empty);
-    resultSummary.textContent = "0 results";
+    resultSummary.textContent = siteText("0 results");
     pagination.hidden = true;
     pagination.replaceChildren();
     return;
@@ -562,13 +563,13 @@ function renderResults() {
     const node = template.content.firstElementChild.cloneNode(true);
     const hanri = node.querySelector(".hanri");
     hanri.replaceChildren(renderEntryHeadword(group));
-    node.querySelector(".entry-meta").textContent = `${visibleKind(group.kind)} · ${group.readings.length} reading${group.readings.length === 1 ? "" : "s"}`;
+    node.querySelector(".entry-meta").textContent = siteText(`${visibleKind(group.kind)} · ${group.readings.length} reading${group.readings.length === 1 ? "" : "s"}`);
     const readings = node.querySelector(".readings");
     group.readings.slice(0, 8).forEach((entry) => readings.append(renderReading(entry)));
     if (group.readings.length > 8) {
       const more = document.createElement("div");
       more.className = "more-readings";
-      more.textContent = `+${group.readings.length - 8} more readings`;
+      more.textContent = siteText(`+${group.readings.length - 8} more readings`);
       readings.append(more);
     }
     results.append(node);
@@ -577,7 +578,7 @@ function renderResults() {
   const rangeStart = (page - 1) * RESULTS_PER_PAGE + 1;
   const rangeEnd = rangeStart + shown.length - 1;
   const categoryPrefix = state.activeCategory ? `${activeCategoryLabel()} · ` : "";
-  resultSummary.textContent = `${categoryPrefix}${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`;
+  resultSummary.textContent = siteText(`${categoryPrefix}${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`);
   renderPagination(page, totalPages);
 }
 
@@ -586,7 +587,7 @@ function setInputMode(mode) {
   if (hangulKeyboardToggle) {
     hangulKeyboardToggle.setAttribute("aria-pressed", String(state.inputMode === "hanri-hangul"));
   }
-  searchInput.placeholder = "Type 漢字, 한글, Lomari, or English...";
+  searchInput.placeholder = siteText("Type 漢字, 한글, Lomari, or English...");
   searchInput.classList.toggle("hangul-ime-active", state.inputMode === "hanri-hangul");
   searchImeController?.setEnabled();
   state.currentPage = 1;
@@ -607,15 +608,15 @@ async function loadDictionary() {
     state.groups = groupEntries(state.entries);
     searchImeController?.setEntries(state.entries, state.dictionaryIndex);
     state.loaded = true;
-    dataStatus.textContent = `${data.counts?.active_entries || state.entries.length} active TSV entries`;
+    dataStatus.textContent = siteText(`${data.counts?.active_entries || state.entries.length} active TSV entries`);
     renderCategoryFilters();
     renderResults();
   } catch (error) {
     state.loaded = true;
-    dataStatus.textContent = "Dictionary failed to load";
+    dataStatus.textContent = siteText("Dictionary failed to load");
     summaryBar.hidden = false;
     pagination.hidden = true;
-    resultSummary.textContent = "The dictionary could not load. Please refresh and try again.";
+    resultSummary.textContent = siteText("The dictionary could not load. Please refresh and try again.");
     results.replaceChildren();
     const empty = document.createElement("div");
     empty.className = "empty-state error";
