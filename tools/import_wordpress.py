@@ -194,8 +194,14 @@ def write_song_ime_data(root):
 def make_song_form(posts, root):
     songs = [post for post in posts if post["type"] == "post" and post["ID"] not in {865, 7647}]
     path = root / "migration/song-urls.json"
-    existing = {row["old_url"]: row.get("new_url", "") for row in json.loads(path.read_text(encoding="utf-8"))} if path.exists() else {}
-    rows = [{"old_url": post["URL"], "new_url": existing.get(post["URL"], "")} for post in songs]
+    existing = {row["old_url"]: row for row in json.loads(path.read_text(encoding="utf-8"))} if path.exists() else {}
+    rows = []
+    for post in songs:
+        previous = existing.get(post["URL"], {})
+        row = {"old_url": post["URL"], "new_url": previous.get("new_url", "")}
+        if "display_title" in previous:
+            row["display_title"] = previous["display_title"]
+        rows.append(row)
     write_json(path, rows)
     write_json(root / "migration/song-titles.json", {post["URL"]: html.unescape(post["title"]) for post in songs})
     labels = [{**row, "title": html.unescape(post["title"])} for row, post in zip(rows, songs)]

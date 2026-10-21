@@ -23,8 +23,10 @@ def approved_song_routes(rows, posts):
         raise ValueError(f"Expected {len(songs)} song URL rows, received {len(rows)}")
     seen_sources, seen_routes, result = set(), set(), []
     for row in rows:
-        if set(row) != {"old_url", "new_url"}:
-            raise ValueError("Each song row must have only old_url and new_url")
+        if not {"old_url", "new_url"} <= set(row) <= {"old_url", "new_url", "display_title"}:
+            raise ValueError("Each song row needs old_url and new_url, with an optional display_title")
+        if "display_title" in row and not isinstance(row["display_title"], str):
+            raise ValueError("display_title must be plain text")
         key = source_key(row["old_url"])
         if key not in songs or key in seen_sources:
             raise ValueError(f"Unknown or repeated source: {row['old_url']}")
@@ -62,7 +64,8 @@ def main():
     manifest_path = ROOT / "migration/wordpress-map.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     existing_ids = {item["sourceId"] for item in manifest["records"]}
-    new_specs = [(post, "songs", f'song-{post["ID"]}', route, route[7:-1]) for post, route, _ in songs]
+    titles_by_source = {source_key(row["old_url"]): row.get("display_title", "") for row in chosen}
+    new_specs = [(post, "songs", f'song-{post["ID"]}', route, titles_by_source.get(source_key(old_url)) or route[7:-1]) for post, route, old_url in songs]
     new_specs.append((by_id[865], "stories", "the-egg", "/read/stories/the-egg/", "The Egg"))
     duplicates = existing_ids & {post["ID"] for post, *_ in new_specs}
     if duplicates:
@@ -106,6 +109,10 @@ def main():
         record["body"] = ImportedHTML(record["sourceUrl"], routes, media, ROOT, args.download_media, args.existing_site).render(record["body"])
         write_json(path, record)
     canonical_rows = [{"old_url": old, "new_url": route} for _, route, old in songs]
+    for row in canonical_rows:
+        matching = next(item for item in chosen if source_key(item["old_url"]) == source_key(row["old_url"]))
+        if "display_title" in matching:
+            row["display_title"] = matching["display_title"]
     write_json(ROOT / "migration/song-urls.json", canonical_rows)
     titles = {old: html.unescape(post["title"]) for post, _, old in songs}
     write_json(ROOT / "migration/song-titles.json", titles)

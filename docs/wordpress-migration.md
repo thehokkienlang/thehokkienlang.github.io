@@ -19,14 +19,21 @@ WordPress. No WordPress redirects or deletions have been performed.
 ## Choose song URLs
 
 Open `migration/song-url-form.html` in a browser. It works directly from disk.
-There are two columns: the old WordPress link and an editable new GitHub link.
+There are three columns: the old WordPress link, an editable new GitHub link,
+and a separate displayed page title. Titles whose chosen URL slug consists
+entirely of Hanri are prefilled; mixed Hangul titles are left blank for manual
+entry. Page titles retain spaces, punctuation and tone marks. Both editable
+columns support the shared Hangul IME. URL choices and displayed titles are
+saved separately in browser storage, preserving earlier saved links.
 Type only the title, for example `生份에릐`; the form supplies `/songs/` and the
 final slash. Previously saved full links still load correctly. Use the standardised mixed
 Hanri-Hangul title, omit apostrophes/tone marks, and distinguish duplicate titles
 with an artist name. WordPress IDs remain internal provenance only.
 
 The form preserves edits in browser storage where available and can download
-`song-urls.json` or a two-column CSV. Download the form to keep a portable copy;
+`song-urls.json` or a three-column CSV. The JSON adds a `display_title` field;
+older two-field downloads still load without clearing entered page titles.
+Download the form to keep a portable copy;
 loading the JSON restores it. Blank rows are allowed. Invalid, reserved, and
 duplicate destinations are flagged before download. Copy the reviewed completed
 JSON to `migration/song-urls.json` when preparing a song batch. The user's

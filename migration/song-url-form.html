@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Song URL form · Tangliengim</title>
+  <title>Song links and page titles · Tangliengim</title>
   <link rel="stylesheet" href="../shared/web-ime-menu.css">
   <script src="../shared/web-hangul-ime.js"></script>
   <script src="../shared/web-ime-core.js"></script>
@@ -12,7 +12,7 @@
     :root { font-family: "Segoe UI", "Noto Sans TC", "Noto Sans KR", sans-serif; color: #182a30; background: #f7fafb; }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 28px; }
-    main { max-width: 1320px; margin: auto; }
+    main { max-width: 1680px; margin: auto; }
     h1 { font-size: 25px; margin: 0 0 12px; }
     p { line-height: 1.6; }
     .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
@@ -21,12 +21,15 @@
     table { border-collapse: collapse; width: 100%; table-layout: fixed; background: #fff; }
     th, td { padding: 16px; border: 1px solid #d5e0e4; text-align: left; vertical-align: top; }
     th { background: #edf5f3; position: sticky; top: 0; z-index: 1; }
-    th:first-child { width: 51%; }
+    th:first-child { width: 34%; }
+    th:nth-child(2), th:nth-child(3) { width: 33%; }
+    .form-table-scroll { overflow-x: auto; }
+    table { min-width: 900px; }
     a { display: block; font-size: 13px; line-height: 1.6; color: #08756b; overflow-wrap: anywhere; margin-top: 8px; }
     input[type="text"] { width: 100%; min-height: 46px; border: 1px solid #a9bdc5; border-radius: 4px; padding: 9px 12px; font: inherit; }
     input[aria-invalid="true"] { border-color: #b42318; }
     input:focus { outline: 2px solid #81bfb7; outline-offset: 2px; }
-    .url-field { display: flex; align-items: center; gap: 0; position: relative; }
+    .url-field, .title-field { display: flex; align-items: center; gap: 0; position: relative; }
     .url-prefix, .url-suffix { flex: none; color: #49646d; white-space: nowrap; }
     .url-prefix { padding-right: 8px; }
     .url-suffix { padding-left: 8px; }
@@ -48,9 +51,9 @@
 </head>
 <body>
 <main>
-  <h1>Song URLs</h1>
+  <h1>Song links and page titles</h1>
   <p>Enter each song's standardised mixed Hanri–Hangul title without apostrophes or tone marks, for example <strong>生份에릐</strong>. The <strong>/songs/</strong> prefix and final slash are supplied automatically. Leave undecided titles blank.</p>
-  <p>Your work is saved in this browser where browser storage is available. Use <strong>Download completed form</strong> to keep a file and return your choices for migration. Song posts will be migrated last.</p>
+  <p>The page title can include spaces, punctuation and tone marks. Titles made entirely of Hanri are copied from the chosen URL; fill in the remaining titles yourself. Your work is saved in this browser where storage is available. Use <strong>Download completed form</strong> to return your choices.</p>
   <div class="toolbar">
     <button class="primary" id="download" type="button">Download completed form</button>
     <button id="csv" type="button">Download CSV</button>
@@ -60,17 +63,21 @@
     <span id="imeStatus" role="status" hidden></span>
     <span id="status" role="status" aria-live="polite"></span>
   </div>
-  <table aria-label="Old and new song links">
-    <thead><tr><th scope="col">Old WordPress link</th><th scope="col">New GitHub link</th></tr></thead>
+  <div class="form-table-scroll">
+  <table aria-label="Song links and displayed page titles">
+    <thead><tr><th scope="col">Old WordPress link</th><th scope="col">New GitHub link</th><th scope="col">Page title</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
+  </div>
 </main>
 <script type="application/json" id="song-data">[{"old_url": "https://hokkienlang.wordpress.com/2026/09/05/%e7%94%9f%e4%bb%bd%e7%9a%84%e4%bd%a0-%ec%b2%bc%ed%9b%88%ec%97%90%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/生份에릐/", "title": "生份的你 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/08/05/%e7%88%b6%e5%ad%90%e6%83%85%e6%b7%b1-%eb%b2%a0%ea%b1%80%ec%a1%a9%ec%b9%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/爸囝情深/", "title": "父子情深 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/08/05/%e9%96%80-%eb%af%95-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/門/", "title": "門 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/08/02/%e5%8f%b0%e7%81%a3%e8%a9%b1-%eb%8c%80%ec%99%84%ec%9b%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/台灣話/", "title": "台灣話 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/17/maybe-maybe-%eb%a9%94%ec%82%90%eb%a9%94%ec%82%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/메삐메삐/", "title": "Maybe Maybe 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/13/%ce%b1%cf%86%cf%81%ce%bf%ce%b4%ce%af%cf%84%ce%b7-%ec%97%90%ed%9d%90%eb%a1%9c%eb%95%8c%eb%94%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/에흐로때디/", "title": "Αφροδίτη 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/12/%e5%a7%8a%e5%a6%b9%e4%bb%94-%ec%a7%80%eb%ad%ac%ec%95%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/姊妹仔/", "title": "姊妹仔 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/12/%e8%8a%ad%e6%a8%82-%eb%b0%9b%ec%95%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/菝仔/", "title": "芭樂 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/12/%e6%83%a6%e6%83%a6%e7%9a%84%e5%a4%a2-%eb%8c%ac%eb%8c%ac%ec%97%90%eb%b9%b5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/恬恬에夢/", "title": "惦惦的夢 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/12/%e6%89%8b%e6%8d%a7%e4%b8%80%e6%9d%af%e9%85%92-%ec%b8%84%ed%8c%a1%ec%a7%87%eb%b6%b8%ec%a5%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/手捧一杯酒/", "title": "手捧一杯酒 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/07/09/%e4%b8%96%e7%95%8c%e7%ac%ac%e4%b8%80%e7%ad%89-%ec%84%b8%ea%b0%9c%eb%8d%b0%ec%9d%bb%eb%8e%bd-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/世界第一等/", "title": "世界第一等 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/06/10/%e8%90%bd%e9%9b%a8%e8%81%b2-%eb%a1%b7%ed%97%88%ec%83%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/落雨聲/", "title": "落雨聲 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/06/09/%e6%9c%88%e4%b8%8b%e7%85%ae%e8%8c%b6-%eb%80%8b%ec%97%90%ec%a6%88%eb%8d%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/月下煮茶/", "title": "月下煮茶 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/06/03/%e9%9b%a8%e6%b0%b4%e6%88%91%e5%95%8f%e4%bd%a0-%ed%97%88%ec%a5%90%ea%bd%88%eb%af%95%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/雨水꽈問릐/", "title": "雨水我問你 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/06/02/%e6%84%9b%e6%83%85%e7%9a%84%e9%a8%99%e5%ad%90%e6%88%91%e5%95%8f%e4%bd%a0-%ec%95%a0%ec%a1%a9%ec%97%90%ed%8f%94%ec%a3%bc%ea%bd%88%eb%af%95%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛情에騙子꽈問릐/", "title": "愛情的騙子我問你 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/04/30/%e6%84%9b%e4%bd%a0%e7%84%a1%e6%a2%9d%e4%bb%b6-%ec%95%a0%eb%a6%90%eb%bd%80%e1%84%83%e1%86%a4%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛릐無條件/", "title": "愛你無條件 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/04/06/%e9%9a%a8%e7%b7%a3-%ec%89%ac%ec%98%8c-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/隨緣/", "title": "隨緣 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2026/03/24/happy%e9%81%8b%e5%b0%87%e6%83%85%e6%ad%8c-happy%ec%9a%b4%ec%9f%9d%ec%a1%a9%ea%b3%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/헤비運將情歌/", "title": "Happy!!! 運將情歌 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/24/%e8%b6%b3%e8%8a%b3%e8%b6%b3%e8%8a%b3-%ec%a0%b9%ed%8c%a1%ec%a0%b9%ed%8c%a1-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/足芳足芳/", "title": "足芳足芳 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/19/%e6%b0%b4-%ec%89%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/水/", "title": "水 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/18/%e6%b5%aa%e5%ad%90%e7%9a%84%e5%bf%83%e6%83%85-%eb%a0%81%ec%a3%bc%ec%97%90%ec%8b%ac%ec%a1%a9-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/浪子에心情/", "title": "浪子的心情 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/16/%e7%84%a1%e7%9c%a0-%eb%bd%80%ec%82%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/無眠/", "title": "無眠 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/14/%e8%ab%8b%e5%95%8f%e4%bd%a0%e6%95%a2%e6%ac%b2%e5%81%9a%e6%88%91%e7%9a%84girlfriend-%ec%b1%a8%eb%af%95%eb%a6%90%ea%b0%90%eb%bc%87%ec%a3%84%ea%bd%88%ec%97%90girlfriend/", "new_url": "/songs/請問릐감欲做꽈에ᄁힻ흐렌/", "title": "請問你敢欲做我的Girlfriend 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/12/%e6%83%9c%e5%88%a5%e7%9a%84%e6%b5%b7%e5%b2%b8-%ec%88%97%eb%b3%9f%ec%97%90%ed%95%b4%ed%99%9c-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/惜別에海岸/", "title": "惜別的海岸 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/09/%e8%90%ac%e5%8d%83%e8%8a%b1%e8%95%8a%e6%85%88%e6%af%8d%e6%82%b2%e5%93%80-%eb%b9%a4%ec%b3%b0%ed%9b%bc%eb%a4%bc%ec%a3%bc%eb%be%b0%eb%b9%84%ec%95%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/萬千花蕊慈母悲哀/", "title": "萬千花蕊慈母悲哀 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/09/%e9%9d%a0%e7%ab%99-%ec%bd%94%ec%9e%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/靠站/", "title": "靠站 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/08/%e6%bc%82%e6%b5%aa%e7%9a%84%e4%ba%ba-%e1%84%91%e1%86%a4%eb%a0%81%ec%97%90%eb%9e%91-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/飄浪에人/", "title": "漂浪的人 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/08/%e4%b8%80%e5%90%8b%e7%9b%b8%e6%80%9d%e4%b8%80%e5%90%8b%e6%b7%9a-%ec%a7%87%ec%b6%98%ec%8a%90%ec%8b%80%ec%a7%87%ec%b6%98%eb%a4%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/一吋相思一吋淚/", "title": "一吋相思一吋淚 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/07/%e8%bf%b7%e9%ad%82%e9%a6%99-%eb%bb%ac%ed%9b%88%ed%8c%a1-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/迷魂芳/", "title": "迷魂香 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/07/%e5%aa%bd%e5%aa%bd%e6%ad%8c%e6%98%9f-%eb%a7%88%eb%a7%88%ea%b3%bc%ec%b9%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/媽媽歌星/", "title": "媽媽歌星 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/07/%e6%98%a5%e5%a4%8f%e7%a7%8b%e5%86%ac-%ec%b6%98%ed%95%98%ec%b8%84%eb%8b%b9-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/春夏秋冬/", "title": "春夏秋冬 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/06/%e6%84%9b%e5%88%b0%e7%84%a1%e5%91%bd%e4%b8%8d%e7%9f%a5%e9%a9%9a-%ec%95%a0%ea%b0%80%eb%bd%80%eb%a8%80%ec%9d%8c%ec%9e%ac%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛徦無命毋知驚/", "title": "愛到無命不知驚 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/06/%e5%86%8d%e6%9c%83%e5%95%a6%e5%bf%83%e6%84%9b%e7%9a%84%e7%84%a1%e7%b7%a3%e7%9a%84%e4%ba%ba-%ec%9e%ac%ed%9b%bc%eb%9e%97%ec%8b%ac%ec%95%a0%ec%97%90%eb%bd%80%ec%98%8c%ec%97%90%eb%9e%91-%e8%ab%ba%e6%96%87/", "new_url": "/songs/再會랗心愛에無緣에人/", "title": "再會啦心愛的無緣的人 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/04/%e6%9c%89%e5%bd%b1%e7%84%a1-%ec%9a%b0%ec%96%84%eb%bd%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/有影뽀/", "title": "有影無 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/04/%e8%85%b3%e8%b8%8f%e8%bb%8a-%ec%b9%b4%eb%8b%bf%ec%b1%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/跤踏車/", "title": "腳踏車 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/12/04/%e9%9b%aa%e4%b8%ad%e8%8a%b1-%ec%86%af%eb%8e%a1%ed%9b%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/雪中花/", "title": "雪中花 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/30/%e6%84%9b%e6%83%85%e4%b8%80%e9%99%a3%e9%a2%a8-%ec%95%a0%ec%a1%a9%ec%a7%87%ec%a4%80%ed%97%9d-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛情一陣風/", "title": "愛情一陣風 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/30/%e7%87%92%e8%82%89%e7%b2%bd-%ec%87%bc%eb%b9%bb%ec%9e%a5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/燒肉粽/", "title": "燒肉粽 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/29/%e5%b0%8f%e9%9b%a8%e5%82%98-%ec%87%bc%ed%97%88%ec%86%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/小雨傘/", "title": "小雨傘 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/29/%e9%87%91%e5%8c%85%e9%8a%80-%ea%b9%80%e1%84%87%e1%85%b7%eb%81%a4-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/金包銀/", "title": "金包銀 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/24/%e9%96%a3%e6%84%9b%e5%a6%b3%e4%b8%80%e6%93%ba-%ea%b3%bb%ec%95%a0%eb%a6%90%ec%a7%87%eb%b0%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/곻愛릐一擺/", "title": "閣愛妳一擺 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/16/%e8%81%b2%e8%81%b2%e5%8f%ab%e8%91%97%e4%bd%a0-%ec%83%ac%ec%83%ac%ea%b5%90%eb%90%b4%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/聲聲叫됴릐/", "title": "聲聲叫著你 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/11/16/%e5%a4%b1%e8%90%bd%e7%9a%84%e5%a4%a2-%ec%8b%a3%eb%a1%b7%ec%97%90%eb%b9%b5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/失落에夢/", "title": "失落的夢 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/27/%e8%93%ae%e8%8a%b1%e7%a9%ba%e8%a1%8c%e8%ba%ab%e6%9f%93%e6%84%9b-%eb%a1%84%ed%9b%bc%ec%bb%b9%ed%98%b1%ec%8b%a0%ec%a8%a4%ec%95%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/蓮花空行身染愛/", "title": "蓮花空行身染愛 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/27/%e6%84%9b%e6%83%85%e4%bd%a0%e6%af%94%e6%88%91%e6%83%b3%e7%9a%84%e9%96%a3%e8%bc%83%e5%81%89%e5%a4%a7-%ec%95%a0%ec%a1%a9%eb%a6%90%eb%b9%84%ea%bd%88%ec%8a%90%ec%97%90%ea%b3%bb%ec%ba%8f%ec%9c%84%eb%8c%80/", "new_url": "/songs/愛情릐比꽈想에곻較偉大/", "title": "愛情你比我想的閣較偉大 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/21/%e6%83%85%e9%9b%a3%e5%bf%98-%ec%a1%a9%eb%9e%80%eb%bb%a5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/情難忘/", "title": "情難忘 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/21/%e5%a4%9c%e5%b8%82%e4%ba%ba%e7%94%9f-%ec%95%bc%ec%b9%98%ec%b0%90%ec%86%85-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/夜市人生/", "title": "夜市人生 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/21/%e5%a0%85%e6%8c%81-%ea%b3%88%ec%b9%98-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/堅持/", "title": "堅持 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/21/%e6%88%91%e5%95%8f%e5%a4%a9-%ea%bd%88%eb%af%95%ed%8b%b8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/꽈問天/", "title": "我問天 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/10/08/%e9%9b%b2%e4%b8%ad%e6%9c%88%e5%9c%93-%ed%9b%88%eb%8e%a1%eb%80%8b%ec%9d%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/雲中月圓/", "title": "雲中月圓 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/08/09/%e5%99%af%e5%96%b2%e5%99%af%e5%96%b2%e5%99%af%e5%99%af%e5%96%b2-%ec%95%a0%ec%9a%94%ec%95%a0%ec%9a%94%ec%95%a0%ec%95%a0%ec%9a%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/애요애요애애요/", "title": "噯喲 噯喲 噯噯喲 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/07/18/%e4%b8%8a%e6%b0%b4%e7%9a%84%e8%8a%b1-%ec%85%a9%ec%89%ac%ec%97%90%ed%9b%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/上媠에花/", "title": "上水的花 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/07/18/%e6%84%9b%e6%83%85%e6%81%b0%e6%81%b0-%ec%95%a0%ec%a1%a9%ec%b1%bb%ec%b1%bb-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛情챻챻/", "title": "愛情恰恰 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/07/09/%e5%b0%8f%e9%9b%a8-%ec%87%bc%ed%97%88-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/小雨/", "title": "小雨 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/07/09/%e5%90%91%e5%89%8d%e8%b5%b0-%ed%98%95%ec%a1%98%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/向前行/", "title": "向前走 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/07/06/%e5%82%b7%e5%bf%83%e5%9c%b0%e7%8d%84%e8%8a%b3%e8%8a%b1%e5%bc%95%e9%ad%82-%ec%85%a9%ec%8b%ac%eb%8d%b0%ea%b9%8d%ed%8c%a1%ed%9b%bc%ec%9d%b8%ed%9b%88-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/傷心地獄芳花引魂/", "title": "傷心地獄芳花引魂 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/06/28/%e6%b5%aa%e6%b5%81%e9%80%a3-%eb%a0%81%eb%a5%98%eb%a1%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/浪溜嗹/", "title": "浪流連 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/04/08/%e5%af%ab%e4%b8%80%e6%a2%9d%e6%ad%8c%e5%af%ab%e4%bd%a0%e6%88%91%e7%88%be%e7%88%be-%ec%83%a4%ec%a7%87%e1%84%83%e1%86%a4%ea%b3%bc%ec%83%a4%eb%a6%90%ea%bd%88%eb%83%90%eb%83%90-%e8%ab%ba%e6%96%87%e6%ad%8c/", "new_url": "/songs/寫一條歌寫릐꽈爾爾/", "title": "寫一條歌，寫你我爾爾 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/01/12/%e6%9c%9b%e6%98%a5%e9%a2%a8-%eb%b9%b5%ec%b6%98%ed%97%9d-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/望春風/", "title": "望春風 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2025/01/05/%e9%85%92%e5%be%8c%e7%9a%84%e5%bf%83%e8%81%b2-%ec%a5%ac%e1%84%8b%e1%85%b7%ec%97%90%ec%8b%ac%ec%83%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/酒後에心聲/", "title": "酒後的心聲 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/15/%e6%84%9b%e6%8b%9a%e6%89%8d%e6%9c%83%e8%b4%8f-%ec%95%a0%eb%b1%94%ec%9f%a3%ec%97%90%ec%96%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/愛拚才會贏/", "title": "愛拚才會贏 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/15/%e9%98%bf%e5%ac%a4%e7%9a%84%e8%a9%b1-%ec%95%84%eb%a7%88%ec%97%90%ec%9b%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/阿媽에話/", "title": "阿嬤的話 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/10/%e9%a2%a8%e7%9c%9f%e9%80%8f-%ed%97%9d%ec%a7%84%e1%84%90%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/風真透/", "title": "風真透 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/08/%e4%b8%80%e4%ba%ba%e4%b8%80%e5%8d%8a%e6%84%9f%e6%83%85%e8%a2%82%e6%95%a3-%ec%a7%87%eb%9e%91%ec%a7%87%eb%b4%98%ea%b0%90%ec%a1%a9%ec%80%84%ec%86%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/一人一半感情𣍐散/", "title": "一人一半感情袂散 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/08/%e4%bf%9d%e5%ba%87-%eb%b3%b4%eb%b9%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/保庇/", "title": "保庇 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/07/%e6%95%a2%e5%82%bb%e6%95%a2%e8%a1%9d-%e8%ab%ba%e6%96%87-%e4%b8%ad%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/敢傻敢衝/", "title": "敢傻敢衝 諺文/中文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/12/07/%e6%b5%aa%e5%ad%90%e5%9b%9e%e9%a0%ad-%eb%a0%81%ec%a3%bc%ed%9b%bc%e1%84%90%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/浪子回頭/", "title": "浪子回頭 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/11/30/%e6%ad%a1%e5%96%9c%e5%b0%b1%e5%a5%bd-%ed%99%9c%ed%9e%88%eb%90%b4%ed%98%b8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/歡喜就好/", "title": "歡喜就好 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/11/24/%e5%a4%a9%e7%83%8f%e7%83%8f-%ed%8b%b8%ec%96%b4%ec%96%b4-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/天烏烏/", "title": "天烏烏 諺文歌詞"}, {"old_url": "https://hokkienlang.wordpress.com/2024/11/17/%e5%ae%b6%e5%be%8c-%ea%b2%8c%e1%84%8b%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/", "new_url": "/songs/家後/", "title": "家後 諺文歌詞"}]</script>
 <script>
 (() => {
   const source = JSON.parse(document.getElementById("song-data").textContent);
   const storageKey = "tli-song-url-form-v1";
+  const titleStorageKey = "tli-song-display-titles-v1";
   const inputs = new Map();
+  const titleInputs = new Map();
   const errors = new Map();
   const status = document.getElementById("status");
   const core = window.TangliengimImeCore;
@@ -90,7 +97,9 @@
   }
   let storageWorks = true;
   let saved = {};
+  let savedTitles = {};
   try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { storageWorks = false; }
+  try { savedTitles = JSON.parse(localStorage.getItem(titleStorageKey) || "{}"); } catch { storageWorks = false; }
   const normalise = value => {
     if (!value.trim()) return "";
     const url = new URL(value.trim(), "https://thehokkienlang.github.io");
@@ -115,7 +124,7 @@
     if (title.startsWith("/") || /^https?:/i.test(title)) return title;
     return "/songs/" + title.replace(/\/$/, "") + "/";
   }
-  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value) })); }
+  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value), display_title: titleInputs.get(row.old_url).value })); }
   function validate() {
     let complete = 0;
     let invalid = 0;
@@ -141,12 +150,36 @@
         invalid++;
       }
     }
-    status.textContent = `${complete} / ${source.length} filled${invalid ? ` · ${invalid} URL problem(s)` : ""}${storageWorks ? " · saved in browser" : " · download to save"}`;
+    const titleCount = rows().filter(row => row.display_title.trim()).length;
+    status.textContent = `${complete} / ${source.length} links · ${titleCount} / ${source.length} titles${invalid ? ` · ${invalid} URL problem(s)` : ""}${storageWorks ? " · saved in browser" : " · download to save"}`;
     return invalid === 0;
   }
   function persist() {
     try { localStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(rows().map(row => [row.old_url, row.new_url])))); } catch { storageWorks = false; }
+    try { localStorage.setItem(titleStorageKey, JSON.stringify(Object.fromEntries(rows().map(row => [row.old_url, row.display_title])))); } catch { storageWorks = false; }
     validate();
+  }
+  function attachIme(input, field, label, toneInputStyle = "hidden") {
+    const candidates = document.createElement("div");
+    candidates.className = "hanri-candidate-menu";
+    candidates.hidden = true;
+    candidates.setAttribute("role", "listbox");
+    candidates.setAttribute("aria-label", label);
+    field.append(candidates);
+    input.addEventListener("focus", () => {
+      lastInput = input;
+      if (!core || controllers.has(input)) return;
+      const popup = core.createCandidatePopupPositioner({ control: input, container: candidates, boundary: field, placement: "below" });
+      const controller = core.createTextImeController({
+        control: input, candidateContainer: candidates, entries: imeEntries, dictionaryIndex, preferences,
+        enabled: () => hangulEnabled && document.activeElement === input,
+        onUpdate: persist, onCandidatesChanged: popup.schedule,
+        enterBehavior: "commit", recomposeNativeKoreanInput: true, toneInputStyle,
+      });
+      controllers.set(input, controller);
+      controller.setEnabled();
+      preferences.ready.then(() => controller.renderCandidates());
+    });
   }
   for (const [index, row] of source.entries()) {
     const tr = document.createElement("tr");
@@ -168,6 +201,7 @@
     input.setAttribute("autocorrect", "off");
     input.setAttribute("writingsuggestions", "false");
     input.setAttribute("aria-label", `New URL for ${row.title}`);
+    input.className = "url-input";
     input.value = titleFromLink(saved[row.old_url] ?? row.new_url);
     input.placeholder = "Song title";
     const field = document.createElement("div");
@@ -179,26 +213,7 @@
     suffix.className = "url-suffix";
     suffix.textContent = "/";
     field.append(prefix, input, suffix);
-    const candidates = document.createElement("div");
-    candidates.className = "hanri-candidate-menu";
-    candidates.hidden = true;
-    candidates.setAttribute("role", "listbox");
-    candidates.setAttribute("aria-label", `Hanri candidates for ${row.title}`);
-    field.append(candidates);
-    input.addEventListener("focus", () => {
-      lastInput = input;
-      if (!core || controllers.has(input)) return;
-      const popup = core.createCandidatePopupPositioner({ control: input, container: candidates, boundary: field, placement: "below" });
-      const controller = core.createTextImeController({
-        control: input, candidateContainer: candidates, entries: imeEntries, dictionaryIndex, preferences,
-        enabled: () => hangulEnabled && document.activeElement === input,
-        onUpdate: persist, onCandidatesChanged: popup.schedule,
-        enterBehavior: "commit", recomposeNativeKoreanInput: true,
-      });
-      controllers.set(input, controller);
-      controller.setEnabled();
-      preferences.ready.then(() => controller.renderCandidates());
-    });
+    attachIme(input, field, `Hanri candidates for ${row.title}`);
     const error = document.createElement("span");
     error.className = "row-error";
     error.id = `error-${index}`;
@@ -208,7 +223,28 @@
     inputs.set(row.old_url, input);
     errors.set(row.old_url, error);
     next.append(field, error);
-    tr.append(old, next);
+    const titleCell = document.createElement("td");
+    const titleField = document.createElement("div");
+    titleField.className = "title-field";
+    const pageTitle = document.createElement("input");
+    pageTitle.type = "text";
+    pageTitle.className = "display-title-input";
+    pageTitle.autocomplete = "off";
+    pageTitle.spellcheck = false;
+    pageTitle.autocapitalize = "off";
+    pageTitle.setAttribute("autocorrect", "off");
+    pageTitle.setAttribute("writingsuggestions", "false");
+    pageTitle.setAttribute("aria-label", `Page title for ${row.title}`);
+    const slug = titleFromLink(input.value);
+    pageTitle.value = Object.hasOwn(savedTitles, row.old_url) ? savedTitles[row.old_url]
+      : row.display_title ?? (/^[\p{Unified_Ideograph}\u3007]+$/u.test(slug) ? slug : "");
+    pageTitle.placeholder = "Enter the displayed title";
+    pageTitle.addEventListener("input", persist);
+    titleInputs.set(row.old_url, pageTitle);
+    titleField.append(pageTitle);
+    attachIme(pageTitle, titleField, `Page title candidates for ${row.title}`, "symbols");
+    titleCell.append(titleField);
+    tr.append(old, next, titleCell);
     document.getElementById("rows").append(tr);
   }
   keyboardToggle.addEventListener("click", () => {
@@ -229,17 +265,22 @@
   document.getElementById("download").addEventListener("click", () => download("song-urls.json", JSON.stringify(rows(), null, 2) + "\n", "application/json;charset=utf-8"));
   document.getElementById("csv").addEventListener("click", () => {
     const cell = value => '"' + value.replaceAll('"', '""') + '"';
-    const csv = ["Old WordPress link,New GitHub link", ...rows().map(row => [row.old_url, row.new_url].map(cell).join(","))].join("\r\n");
+    const csv = ["Old WordPress link,New GitHub link,Page title", ...rows().map(row => [row.old_url, row.new_url, row.display_title].map(cell).join(","))].join("\r\n");
     download("song-urls.csv", "\ufeff" + csv, "text/csv;charset=utf-8");
   });
   document.getElementById("restore").addEventListener("change", async event => {
     try {
       const data = JSON.parse(await event.target.files[0].text());
-      if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string")) throw Error("This is not a saved song URL form.");
+      if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string" || (Object.hasOwn(row, "display_title") && typeof row.display_title !== "string"))) throw Error("This is not a saved song URL form.");
       for (const row of data) {
         const input = inputs.get(row.old_url);
         input.value = titleFromLink(row.new_url);
         controllers.get(input)?.syncComposerFromControl();
+        if (Object.hasOwn(row, "display_title")) {
+          const titleInput = titleInputs.get(row.old_url);
+          titleInput.value = row.display_title;
+          controllers.get(titleInput)?.syncComposerFromControl();
+        }
       }
       persist();
     } catch (error) { status.textContent = error.message; }

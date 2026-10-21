@@ -80,13 +80,14 @@ class MigrationTests(unittest.TestCase):
         self.assertNotIn("bad()", result)
         self.assertIn("ᄋᅷˉ-", result)
 
-    def test_song_form_has_exactly_two_fields(self):
+    def test_song_form_retains_link_fields_and_separate_page_titles(self):
         rows = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
         self.assertEqual(len(rows), len({row["old_url"] for row in rows}))
-        self.assertTrue(all(set(row) == {"old_url", "new_url"} for row in rows))
+        self.assertTrue(all({"old_url", "new_url"} <= set(row) <= {"old_url", "new_url", "display_title"} for row in rows))
         form = (ROOT / "migration/song-url-form.html").read_text(encoding="utf-8")
         self.assertNotIn("__SONG_ROWS__", form)
         self.assertNotIn("the-egg/", form)
+        self.assertIn('scope="col">Page title', form)
 
     def test_approved_routes_reject_collisions_and_missing_destinations(self):
         posts = [{"ID": 1, "type": "post", "URL": "https://hokkienlang.wordpress.com/song-a/"}, {"ID": 2, "type": "post", "URL": "https://hokkienlang.wordpress.com/song-b/"}]
@@ -97,6 +98,7 @@ class MigrationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             approved_song_routes(rows, posts)
         rows[1]["new_url"] = "/songs/𣍐散/"
+        rows[1]["display_title"] = "𣍐散，同行！"
         self.assertEqual(approved_song_routes(rows, posts)[1][1], "/songs/𣍐散/")
 
 

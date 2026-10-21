@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Song URL form · Tangliengim</title>
+  <title>Song links and page titles · Tangliengim</title>
   <link rel="stylesheet" href="../shared/web-ime-menu.css">
   <script src="../shared/web-hangul-ime.js"></script>
   <script src="../shared/web-ime-core.js"></script>
@@ -12,7 +12,7 @@
     :root { font-family: "Segoe UI", "Noto Sans TC", "Noto Sans KR", sans-serif; color: #182a30; background: #f7fafb; }
     * { box-sizing: border-box; }
     body { margin: 0; padding: 28px; }
-    main { max-width: 1320px; margin: auto; }
+    main { max-width: 1680px; margin: auto; }
     h1 { font-size: 25px; margin: 0 0 12px; }
     p { line-height: 1.6; }
     .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
@@ -21,12 +21,15 @@
     table { border-collapse: collapse; width: 100%; table-layout: fixed; background: #fff; }
     th, td { padding: 16px; border: 1px solid #d5e0e4; text-align: left; vertical-align: top; }
     th { background: #edf5f3; position: sticky; top: 0; z-index: 1; }
-    th:first-child { width: 51%; }
+    th:first-child { width: 34%; }
+    th:nth-child(2), th:nth-child(3) { width: 33%; }
+    .form-table-scroll { overflow-x: auto; }
+    table { min-width: 900px; }
     a { display: block; font-size: 13px; line-height: 1.6; color: #08756b; overflow-wrap: anywhere; margin-top: 8px; }
     input[type="text"] { width: 100%; min-height: 46px; border: 1px solid #a9bdc5; border-radius: 4px; padding: 9px 12px; font: inherit; }
     input[aria-invalid="true"] { border-color: #b42318; }
     input:focus { outline: 2px solid #81bfb7; outline-offset: 2px; }
-    .url-field { display: flex; align-items: center; gap: 0; position: relative; }
+    .url-field, .title-field { display: flex; align-items: center; gap: 0; position: relative; }
     .url-prefix, .url-suffix { flex: none; color: #49646d; white-space: nowrap; }
     .url-prefix { padding-right: 8px; }
     .url-suffix { padding-left: 8px; }
@@ -48,9 +51,9 @@
 </head>
 <body>
 <main>
-  <h1>Song URLs</h1>
+  <h1>Song links and page titles</h1>
   <p>Enter each song's standardised mixed Hanri–Hangul title without apostrophes or tone marks, for example <strong>生份에릐</strong>. The <strong>/songs/</strong> prefix and final slash are supplied automatically. Leave undecided titles blank.</p>
-  <p>Your work is saved in this browser where browser storage is available. Use <strong>Download completed form</strong> to keep a file and return your choices for migration. Song posts will be migrated last.</p>
+  <p>The page title can include spaces, punctuation and tone marks. Titles made entirely of Hanri are copied from the chosen URL; fill in the remaining titles yourself. Your work is saved in this browser where storage is available. Use <strong>Download completed form</strong> to return your choices.</p>
   <div class="toolbar">
     <button class="primary" id="download" type="button">Download completed form</button>
     <button id="csv" type="button">Download CSV</button>
@@ -60,17 +63,21 @@
     <span id="imeStatus" role="status" hidden></span>
     <span id="status" role="status" aria-live="polite"></span>
   </div>
-  <table aria-label="Old and new song links">
-    <thead><tr><th scope="col">Old WordPress link</th><th scope="col">New GitHub link</th></tr></thead>
+  <div class="form-table-scroll">
+  <table aria-label="Song links and displayed page titles">
+    <thead><tr><th scope="col">Old WordPress link</th><th scope="col">New GitHub link</th><th scope="col">Page title</th></tr></thead>
     <tbody id="rows"></tbody>
   </table>
+  </div>
 </main>
 <script type="application/json" id="song-data">__SONG_ROWS__</script>
 <script>
 (() => {
   const source = JSON.parse(document.getElementById("song-data").textContent);
   const storageKey = "tli-song-url-form-v1";
+  const titleStorageKey = "tli-song-display-titles-v1";
   const inputs = new Map();
+  const titleInputs = new Map();
   const errors = new Map();
   const status = document.getElementById("status");
   const core = window.TangliengimImeCore;
@@ -90,7 +97,9 @@
   }
   let storageWorks = true;
   let saved = {};
+  let savedTitles = {};
   try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { storageWorks = false; }
+  try { savedTitles = JSON.parse(localStorage.getItem(titleStorageKey) || "{}"); } catch { storageWorks = false; }
   const normalise = value => {
     if (!value.trim()) return "";
     const url = new URL(value.trim(), "https://thehokkienlang.github.io");
@@ -115,7 +124,7 @@
     if (title.startsWith("/") || /^https?:/i.test(title)) return title;
     return "/songs/" + title.replace(/\/$/, "") + "/";
   }
-  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value) })); }
+  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: linkFromTitle(inputs.get(row.old_url).value), display_title: titleInputs.get(row.old_url).value })); }
   function validate() {
     let complete = 0;
     let invalid = 0;
@@ -141,12 +150,36 @@
         invalid++;
       }
     }
-    status.textContent = `${complete} / ${source.length} filled${invalid ? ` · ${invalid} URL problem(s)` : ""}${storageWorks ? " · saved in browser" : " · download to save"}`;
+    const titleCount = rows().filter(row => row.display_title.trim()).length;
+    status.textContent = `${complete} / ${source.length} links · ${titleCount} / ${source.length} titles${invalid ? ` · ${invalid} URL problem(s)` : ""}${storageWorks ? " · saved in browser" : " · download to save"}`;
     return invalid === 0;
   }
   function persist() {
     try { localStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(rows().map(row => [row.old_url, row.new_url])))); } catch { storageWorks = false; }
+    try { localStorage.setItem(titleStorageKey, JSON.stringify(Object.fromEntries(rows().map(row => [row.old_url, row.display_title])))); } catch { storageWorks = false; }
     validate();
+  }
+  function attachIme(input, field, label, toneInputStyle = "hidden") {
+    const candidates = document.createElement("div");
+    candidates.className = "hanri-candidate-menu";
+    candidates.hidden = true;
+    candidates.setAttribute("role", "listbox");
+    candidates.setAttribute("aria-label", label);
+    field.append(candidates);
+    input.addEventListener("focus", () => {
+      lastInput = input;
+      if (!core || controllers.has(input)) return;
+      const popup = core.createCandidatePopupPositioner({ control: input, container: candidates, boundary: field, placement: "below" });
+      const controller = core.createTextImeController({
+        control: input, candidateContainer: candidates, entries: imeEntries, dictionaryIndex, preferences,
+        enabled: () => hangulEnabled && document.activeElement === input,
+        onUpdate: persist, onCandidatesChanged: popup.schedule,
+        enterBehavior: "commit", recomposeNativeKoreanInput: true, toneInputStyle,
+      });
+      controllers.set(input, controller);
+      controller.setEnabled();
+      preferences.ready.then(() => controller.renderCandidates());
+    });
   }
   for (const [index, row] of source.entries()) {
     const tr = document.createElement("tr");
@@ -168,6 +201,7 @@
     input.setAttribute("autocorrect", "off");
     input.setAttribute("writingsuggestions", "false");
     input.setAttribute("aria-label", `New URL for ${row.title}`);
+    input.className = "url-input";
     input.value = titleFromLink(saved[row.old_url] ?? row.new_url);
     input.placeholder = "Song title";
     const field = document.createElement("div");
@@ -179,26 +213,7 @@
     suffix.className = "url-suffix";
     suffix.textContent = "/";
     field.append(prefix, input, suffix);
-    const candidates = document.createElement("div");
-    candidates.className = "hanri-candidate-menu";
-    candidates.hidden = true;
-    candidates.setAttribute("role", "listbox");
-    candidates.setAttribute("aria-label", `Hanri candidates for ${row.title}`);
-    field.append(candidates);
-    input.addEventListener("focus", () => {
-      lastInput = input;
-      if (!core || controllers.has(input)) return;
-      const popup = core.createCandidatePopupPositioner({ control: input, container: candidates, boundary: field, placement: "below" });
-      const controller = core.createTextImeController({
-        control: input, candidateContainer: candidates, entries: imeEntries, dictionaryIndex, preferences,
-        enabled: () => hangulEnabled && document.activeElement === input,
-        onUpdate: persist, onCandidatesChanged: popup.schedule,
-        enterBehavior: "commit", recomposeNativeKoreanInput: true,
-      });
-      controllers.set(input, controller);
-      controller.setEnabled();
-      preferences.ready.then(() => controller.renderCandidates());
-    });
+    attachIme(input, field, `Hanri candidates for ${row.title}`);
     const error = document.createElement("span");
     error.className = "row-error";
     error.id = `error-${index}`;
@@ -208,7 +223,28 @@
     inputs.set(row.old_url, input);
     errors.set(row.old_url, error);
     next.append(field, error);
-    tr.append(old, next);
+    const titleCell = document.createElement("td");
+    const titleField = document.createElement("div");
+    titleField.className = "title-field";
+    const pageTitle = document.createElement("input");
+    pageTitle.type = "text";
+    pageTitle.className = "display-title-input";
+    pageTitle.autocomplete = "off";
+    pageTitle.spellcheck = false;
+    pageTitle.autocapitalize = "off";
+    pageTitle.setAttribute("autocorrect", "off");
+    pageTitle.setAttribute("writingsuggestions", "false");
+    pageTitle.setAttribute("aria-label", `Page title for ${row.title}`);
+    const slug = titleFromLink(input.value);
+    pageTitle.value = Object.hasOwn(savedTitles, row.old_url) ? savedTitles[row.old_url]
+      : row.display_title ?? (/^[\p{Unified_Ideograph}\u3007]+$/u.test(slug) ? slug : "");
+    pageTitle.placeholder = "Enter the displayed title";
+    pageTitle.addEventListener("input", persist);
+    titleInputs.set(row.old_url, pageTitle);
+    titleField.append(pageTitle);
+    attachIme(pageTitle, titleField, `Page title candidates for ${row.title}`, "symbols");
+    titleCell.append(titleField);
+    tr.append(old, next, titleCell);
     document.getElementById("rows").append(tr);
   }
   keyboardToggle.addEventListener("click", () => {
@@ -229,17 +265,22 @@
   document.getElementById("download").addEventListener("click", () => download("song-urls.json", JSON.stringify(rows(), null, 2) + "\n", "application/json;charset=utf-8"));
   document.getElementById("csv").addEventListener("click", () => {
     const cell = value => '"' + value.replaceAll('"', '""') + '"';
-    const csv = ["Old WordPress link,New GitHub link", ...rows().map(row => [row.old_url, row.new_url].map(cell).join(","))].join("\r\n");
+    const csv = ["Old WordPress link,New GitHub link,Page title", ...rows().map(row => [row.old_url, row.new_url, row.display_title].map(cell).join(","))].join("\r\n");
     download("song-urls.csv", "\ufeff" + csv, "text/csv;charset=utf-8");
   });
   document.getElementById("restore").addEventListener("change", async event => {
     try {
       const data = JSON.parse(await event.target.files[0].text());
-      if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string")) throw Error("This is not a saved song URL form.");
+      if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string" || (Object.hasOwn(row, "display_title") && typeof row.display_title !== "string"))) throw Error("This is not a saved song URL form.");
       for (const row of data) {
         const input = inputs.get(row.old_url);
         input.value = titleFromLink(row.new_url);
         controllers.get(input)?.syncComposerFromControl();
+        if (Object.hasOwn(row, "display_title")) {
+          const titleInput = titleInputs.get(row.old_url);
+          titleInput.value = row.display_title;
+          controllers.get(titleInput)?.syncComposerFromControl();
+        }
       }
       persist();
     } catch (error) { status.textContent = error.message; }
