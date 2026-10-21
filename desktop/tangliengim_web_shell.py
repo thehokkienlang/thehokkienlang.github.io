@@ -146,7 +146,8 @@ DESKTOP_SCRIPT = r"""
   restartButton.type = "button";
   restartButton.textContent = "Restart";
   restartButton.title = "Restart with the latest local code";
-  document.querySelector(".ime-header").append(restartButton);
+  const header = document.querySelector(".site-app-header, .ime-header");
+  (header || actions).append(restartButton);
 
   async function request(path, payload = {}, timeoutMs = 0) {
     const abort = new AbortController();
