@@ -1,4 +1,5 @@
 (() => {
+  const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
   document.querySelectorAll('nav[aria-label="Main navigation"]').forEach(nav => {
     const dropdowns = [...nav.querySelectorAll(".site-nav-dropdown")];
     const closeOthers = current => dropdowns.forEach(dropdown => {
@@ -7,6 +8,21 @@
 
     dropdowns.forEach(dropdown => {
       const trigger = dropdown.querySelector("summary");
+      let closeTimer;
+      dropdown.addEventListener("pointerenter", event => {
+        if (event.pointerType !== "mouse" || !hoverPointer.matches) return;
+        clearTimeout(closeTimer);
+        closeOthers(dropdown);
+        dropdown.open = true;
+      });
+      dropdown.addEventListener("pointerleave", event => {
+        if (event.pointerType !== "mouse" || !hoverPointer.matches) return;
+        clearTimeout(closeTimer);
+        // Allow the pointer to cross the small gap between the label and panel.
+        closeTimer = setTimeout(() => {
+          if (!dropdown.matches(":focus-within")) dropdown.open = false;
+        }, 180);
+      });
       dropdown.addEventListener("toggle", () => {
         if (dropdown.open) closeOthers(dropdown);
       });

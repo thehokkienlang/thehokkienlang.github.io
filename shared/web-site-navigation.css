@@ -77,6 +77,14 @@
   box-shadow: 0 6px 18px #17252b1a;
   line-height: 1.5;
 }
+.site-nav-panel::before {
+  content: "";
+  position: absolute;
+  top: -9px;
+  left: 0;
+  right: 0;
+  height: 9px;
+}
 .site-nav-dropdown .site-nav-panel a {
   display: block;
   padding: 10px 12px;
