@@ -29,8 +29,13 @@ def build_content(root: Path, output: Path):
     content = root / "content"
     if not content.exists():
         return []
+    unpublished_routes = {"/songs/translation-notes/"}
     manifest = json.loads((root / "migration/wordpress-map.json").read_text(encoding="utf-8"))
-    records = [json.loads((root / item["file"]).read_text(encoding="utf-8")) for item in manifest["records"]]
+    records = [
+        json.loads((root / item["file"]).read_text(encoding="utf-8"))
+        for item in manifest["records"]
+        if item["route"] not in unpublished_routes
+    ]
     paths = set()
     for record in records:
         route = record["route"]
@@ -49,14 +54,15 @@ def build_content(root: Path, output: Path):
     for row in song_rows:
         imported = songs_by_route.get(row["new_url"])
         if imported:
-            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{html.escape(imported["title"])}</a></li>')
+            title = row.get("display_title") or imported["title"]
+            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{html.escape(title)}</a></li>')
         else:
             song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
     stories = [item for item in records if item["type"] == "stories"]
     sections = {
         "/learn/": ("Learn Tangliengim", listing([item for item in records if item["route"].startswith("/learn/")])),
         "/read/": ("Read in Hokkien", '<h2>Literature</h2>' + listing([item for item in records if item["type"] == "literature"]) + '<h2>Stories</h2>' + (listing(stories) if stories else '<p><a href="https://hokkienlang.wordpress.com/2025/01/26/the-egg/">The Egg</a> is available on WordPress.</p>')),
-        "/songs/": ("Songs", listing([item for item in records if item["route"] == "/songs/translation-notes/"]) + '<ul class="page-list">' + "".join(song_links) + "</ul>"),
+        "/songs/": ("Songs", '<ul class="page-list">' + "".join(song_links) + "</ul>"),
     }
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"

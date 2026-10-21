@@ -1,6 +1,7 @@
 """Content preservation and scope checks for the first English migration batch."""
 
 import hashlib
+import html
 import json
 import sys
 import tempfile
@@ -62,15 +63,19 @@ class MigrationTests(unittest.TestCase):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             routes = build_content(ROOT, Path(directory))
-            self.assertEqual(len(routes), len(manifest["records"]) + 3)
+            self.assertEqual(len(routes), len(manifest["records"]) + 2)
             self.assertFalse(any(route.startswith("/zh-") for route in routes))
             self.assertNotIn(7647, {item["sourceId"] for item in manifest["records"]})
+            self.assertNotIn("/songs/translation-notes/", routes)
+            self.assertFalse((Path(directory) / "songs/translation-notes/index.html").exists())
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")
             choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
             if manifest["deferred"]["songs"] == 0:
                 self.assertTrue(all(row["new_url"] in routes for row in choices))
                 self.assertIn("/read/stories/the-egg/", routes)
                 self.assertNotIn("https://hokkienlang.wordpress.com/2026/", songs)
+                for row in choices:
+                    self.assertIn(f'>{html.escape(row["display_title"])}</a>', songs)
 
     def test_import_rewrites_known_links_but_keeps_pending_targets_on_wordpress(self):
         parser = ImportedHTML("https://hokkienlang.wordpress.com/about/", {("hokkienlang.wordpress.com", "/tangliengim"): "/learn/introduction/"}, {}, ROOT, False)

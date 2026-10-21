@@ -1,9 +1,11 @@
 # English WordPress migration
 
-The English import now contains 79 records: Home, About, four learning guides,
-Lyrics Translation, Tale of the Lychee Mirror, 70 songs, and the English
-presentation of The Egg. The completed song URL form supplies all 70 public
-song paths. WordPress is read only throughout this workflow.
+The English source archive contains 79 records: Home, About, four learning
+guides, Lyrics Translation, Tale of the Lychee Mirror, 70 songs, and the English
+presentation of The Egg. Lyrics Translation is retained in the source archive
+but is not published. The completed song URL form supplies all 70 public song
+paths and their displayed titles. WordPress is read only throughout this
+workflow.
 
 ## Deferred work
 
@@ -15,6 +17,8 @@ song paths. WordPress is read only throughout this workflow.
 The Songs and Read indexes now link to the imported GitHub pages. Links in the
 first batch have also been updated. Chinese presentation links remain on
 WordPress. No WordPress redirects or deletions have been performed.
+The Songs index uses each song's separate page title from the form's third
+column; its URL continues to use the approved second-column route.
 
 ## Choose song URLs
 
@@ -119,8 +123,7 @@ thehokkienlang.github.io/
 |   |-- spelling/
 |   |-- tone-sandhi/
 |   `-- romanisation/
-|-- /songs/                            Imported: 70 approved title URLs
-|   `-- translation-notes/             Imported: Lyrics Translation
+|-- /songs/                            70 approved song titles from the form
 |-- /read/
 |   |-- stories/the-egg/               Imported: English presentation
 |   `-- literature/lychee-mirror/      Imported: Tale of the Lychee Mirror
@@ -136,7 +139,8 @@ Remaining work
 `-- English-Hokkien translator         Not yet built
 ```
 
-Imported records: 79 of the 92 published WordPress items. Original WordPress
-content is retained. GitHub publication/deployment status is recorded separately
-from this source inventory. The existing Dictionary Editor remains available;
+Source records: 79 of the 92 published WordPress items. Lyrics Translation is
+archived but unpublished. Original WordPress content is retained. GitHub
+publication/deployment status is recorded separately from this source
+inventory. The existing Dictionary Editor remains available;
 the Content Editor listed above is a separate future authoring tool.
