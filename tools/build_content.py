@@ -11,13 +11,30 @@ from pathlib import Path
 from song_title_readings import song_title, word_title
 
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
+NAV_SECTIONS = {
+    "/learn/": (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation")),
+    "/read/": (("/read/stories/the-egg/", "The Egg"), ("/read/literature/lychee-mirror/", "Tale of the Lychee Mirror")),
+}
 
 
 def navigation_links(route):
-    return "".join(
-        f'<a href="{href}"' + (' aria-current="page"' if route == href or href != "/" and route.startswith(href) else "") + f'>{label}</a>'
-        for href, label in NAV
-    )
+    def link(href, label):
+        current = ' aria-current="page"' if route == href or href != "/" and route.startswith(href) else ""
+        return f'<a href="{href}"{current}>{html.escape(label)}</a>'
+
+    items = []
+    for href, label in NAV:
+        if href in NAV_SECTIONS:
+            active = " is-current" if route.startswith(href) else ""
+            children = "".join(link(path, title) for path, title in NAV_SECTIONS[href])
+            items.append(
+                '<details class="site-nav-dropdown" name="site-navigation">'
+                f'<summary class="site-nav-trigger{active}">{label}</summary>'
+                f'<div class="site-nav-panel">{children}</div></details>'
+            )
+        else:
+            items.append(link(href, label))
+    return "".join(items)
 
 
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
