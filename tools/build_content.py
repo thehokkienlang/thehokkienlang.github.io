@@ -44,10 +44,19 @@ def build_content(root: Path, output: Path):
         return '<ul class="page-list">' + "".join(f'<li><a href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
     source_titles = json.loads((root / "migration/song-titles.json").read_text(encoding="utf-8"))
+    songs_by_route = {item["route"]: item for item in records if item["type"] == "songs"}
+    song_links = []
+    for row in song_rows:
+        imported = songs_by_route.get(row["new_url"])
+        if imported:
+            song_links.append(f'<li><a href="{html.escape(imported["route"], quote=True)}">{html.escape(imported["title"])}</a></li>')
+        else:
+            song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
+    stories = [item for item in records if item["type"] == "stories"]
     sections = {
         "/learn/": ("Learn Tangliengim", listing([item for item in records if item["route"].startswith("/learn/")])),
-        "/read/": ("Read in Hokkien", listing([item for item in records if item["type"] == "literature"]) + '<h2>Stories</h2><p><a href="https://hokkienlang.wordpress.com/2025/01/26/the-egg/">The Egg</a> is available on WordPress while its revision is in progress.</p>'),
-        "/songs/": ("Songs", '<p>Song posts remain on WordPress while revisions are in progress.</p>' + listing([item for item in records if item["route"] == "/songs/translation-notes/"]) + '<ul class="page-list">' + "".join(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>' for row in song_rows) + "</ul>"),
+        "/read/": ("Read in Hokkien", '<h2>Literature</h2>' + listing([item for item in records if item["type"] == "literature"]) + '<h2>Stories</h2>' + (listing(stories) if stories else '<p><a href="https://hokkienlang.wordpress.com/2025/01/26/the-egg/">The Egg</a> is available on WordPress.</p>')),
+        "/songs/": ("Songs", listing([item for item in records if item["route"] == "/songs/translation-notes/"]) + '<ul class="page-list">' + "".join(song_links) + "</ul>"),
     }
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"
@@ -58,5 +67,5 @@ def build_content(root: Path, output: Path):
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copy2(root / "apps/content-site" / name, target / name)
-    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "routes": sorted(paths), "pages": [{key: item[key] for key in ("title", "route", "sourceUrl", "orthography")} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "routes": sorted(paths), "pages": [{key: item[key] for key in ("title", "route", "type", "sourceId", "sourceUrl", "orthography")} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return sorted(paths)

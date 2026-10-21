@@ -49,17 +49,445 @@
       "sourceId": 7204,
       "route": "/read/literature/lychee-mirror/",
       "file": "content/literature/lychee-mirror.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/09/05/%e7%94%9f%e4%bb%bd%e7%9a%84%e4%bd%a0-%ec%b2%bc%ed%9b%88%ec%97%90%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 11533,
+      "route": "/songs/生份에릐/",
+      "file": "content/songs/song-11533.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/08/05/%e7%88%b6%e5%ad%90%e6%83%85%e6%b7%b1-%eb%b2%a0%ea%b1%80%ec%a1%a9%ec%b9%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 11187,
+      "route": "/songs/爸囝情深/",
+      "file": "content/songs/song-11187.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/08/05/%e9%96%80-%eb%af%95-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 11143,
+      "route": "/songs/門/",
+      "file": "content/songs/song-11143.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/08/02/%e5%8f%b0%e7%81%a3%e8%a9%b1-%eb%8c%80%ec%99%84%ec%9b%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 10965,
+      "route": "/songs/台灣話/",
+      "file": "content/songs/song-10965.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/17/maybe-maybe-%eb%a9%94%ec%82%90%eb%a9%94%ec%82%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 10294,
+      "route": "/songs/메삐메삐/",
+      "file": "content/songs/song-10294.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/13/%ce%b1%cf%86%cf%81%ce%bf%ce%b4%ce%af%cf%84%ce%b7-%ec%97%90%ed%9d%90%eb%a1%9c%eb%95%8c%eb%94%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 10120,
+      "route": "/songs/에흐로때디/",
+      "file": "content/songs/song-10120.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/12/%e5%a7%8a%e5%a6%b9%e4%bb%94-%ec%a7%80%eb%ad%ac%ec%95%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 10064,
+      "route": "/songs/姊妹仔/",
+      "file": "content/songs/song-10064.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/12/%e8%8a%ad%e6%a8%82-%eb%b0%9b%ec%95%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 10032,
+      "route": "/songs/菝仔/",
+      "file": "content/songs/song-10032.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/12/%e6%83%a6%e6%83%a6%e7%9a%84%e5%a4%a2-%eb%8c%ac%eb%8c%ac%ec%97%90%eb%b9%b5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 9996,
+      "route": "/songs/恬恬에夢/",
+      "file": "content/songs/song-9996.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/12/%e6%89%8b%e6%8d%a7%e4%b8%80%e6%9d%af%e9%85%92-%ec%b8%84%ed%8c%a1%ec%a7%87%eb%b6%b8%ec%a5%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 9973,
+      "route": "/songs/手捧一杯酒/",
+      "file": "content/songs/song-9973.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/09/%e4%b8%96%e7%95%8c%e7%ac%ac%e4%b8%80%e7%ad%89-%ec%84%b8%ea%b0%9c%eb%8d%b0%ec%9d%bb%eb%8e%bd-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 9833,
+      "route": "/songs/世界第一等/",
+      "file": "content/songs/song-9833.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/06/10/%e8%90%bd%e9%9b%a8%e8%81%b2-%eb%a1%b7%ed%97%88%ec%83%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 8647,
+      "route": "/songs/落雨聲/",
+      "file": "content/songs/song-8647.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/06/09/%e6%9c%88%e4%b8%8b%e7%85%ae%e8%8c%b6-%eb%80%8b%ec%97%90%ec%a6%88%eb%8d%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 8597,
+      "route": "/songs/月下煮茶/",
+      "file": "content/songs/song-8597.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/06/03/%e9%9b%a8%e6%b0%b4%e6%88%91%e5%95%8f%e4%bd%a0-%ed%97%88%ec%a5%90%ea%bd%88%eb%af%95%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 8567,
+      "route": "/songs/雨水꽈問릐/",
+      "file": "content/songs/song-8567.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/06/02/%e6%84%9b%e6%83%85%e7%9a%84%e9%a8%99%e5%ad%90%e6%88%91%e5%95%8f%e4%bd%a0-%ec%95%a0%ec%a1%a9%ec%97%90%ed%8f%94%ec%a3%bc%ea%bd%88%eb%af%95%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 8502,
+      "route": "/songs/愛情에騙子꽈問릐/",
+      "file": "content/songs/song-8502.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/04/30/%e6%84%9b%e4%bd%a0%e7%84%a1%e6%a2%9d%e4%bb%b6-%ec%95%a0%eb%a6%90%eb%bd%80%e1%84%83%e1%86%a4%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 8035,
+      "route": "/songs/愛릐無條件/",
+      "file": "content/songs/song-8035.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/04/06/%e9%9a%a8%e7%b7%a3-%ec%89%ac%ec%98%8c-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 7997,
+      "route": "/songs/隨緣/",
+      "file": "content/songs/song-7997.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2026/03/24/happy%e9%81%8b%e5%b0%87%e6%83%85%e6%ad%8c-happy%ec%9a%b4%ec%9f%9d%ec%a1%a9%ea%b3%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 7884,
+      "route": "/songs/헤비運將情歌/",
+      "file": "content/songs/song-7884.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/24/%e8%b6%b3%e8%8a%b3%e8%b6%b3%e8%8a%b3-%ec%a0%b9%ed%8c%a1%ec%a0%b9%ed%8c%a1-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6384,
+      "route": "/songs/足芳足芳/",
+      "file": "content/songs/song-6384.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/19/%e6%b0%b4-%ec%89%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6339,
+      "route": "/songs/水/",
+      "file": "content/songs/song-6339.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/18/%e6%b5%aa%e5%ad%90%e7%9a%84%e5%bf%83%e6%83%85-%eb%a0%81%ec%a3%bc%ec%97%90%ec%8b%ac%ec%a1%a9-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6301,
+      "route": "/songs/浪子에心情/",
+      "file": "content/songs/song-6301.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/16/%e7%84%a1%e7%9c%a0-%eb%bd%80%ec%82%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6247,
+      "route": "/songs/無眠/",
+      "file": "content/songs/song-6247.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/14/%e8%ab%8b%e5%95%8f%e4%bd%a0%e6%95%a2%e6%ac%b2%e5%81%9a%e6%88%91%e7%9a%84girlfriend-%ec%b1%a8%eb%af%95%eb%a6%90%ea%b0%90%eb%bc%87%ec%a3%84%ea%bd%88%ec%97%90girlfriend/",
+      "sourceId": 6204,
+      "route": "/songs/請問릐감欲做꽈에ᄁힻ흐렌/",
+      "file": "content/songs/song-6204.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/12/%e6%83%9c%e5%88%a5%e7%9a%84%e6%b5%b7%e5%b2%b8-%ec%88%97%eb%b3%9f%ec%97%90%ed%95%b4%ed%99%9c-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6179,
+      "route": "/songs/惜別에海岸/",
+      "file": "content/songs/song-6179.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/09/%e8%90%ac%e5%8d%83%e8%8a%b1%e8%95%8a%e6%85%88%e6%af%8d%e6%82%b2%e5%93%80-%eb%b9%a4%ec%b3%b0%ed%9b%bc%eb%a4%bc%ec%a3%bc%eb%be%b0%eb%b9%84%ec%95%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6135,
+      "route": "/songs/萬千花蕊慈母悲哀/",
+      "file": "content/songs/song-6135.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/09/%e9%9d%a0%e7%ab%99-%ec%bd%94%ec%9e%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6115,
+      "route": "/songs/靠站/",
+      "file": "content/songs/song-6115.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/08/%e6%bc%82%e6%b5%aa%e7%9a%84%e4%ba%ba-%e1%84%91%e1%86%a4%eb%a0%81%ec%97%90%eb%9e%91-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6097,
+      "route": "/songs/飄浪에人/",
+      "file": "content/songs/song-6097.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/08/%e4%b8%80%e5%90%8b%e7%9b%b8%e6%80%9d%e4%b8%80%e5%90%8b%e6%b7%9a-%ec%a7%87%ec%b6%98%ec%8a%90%ec%8b%80%ec%a7%87%ec%b6%98%eb%a4%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6057,
+      "route": "/songs/一吋相思一吋淚/",
+      "file": "content/songs/song-6057.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/07/%e8%bf%b7%e9%ad%82%e9%a6%99-%eb%bb%ac%ed%9b%88%ed%8c%a1-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 6035,
+      "route": "/songs/迷魂芳/",
+      "file": "content/songs/song-6035.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/07/%e5%aa%bd%e5%aa%bd%e6%ad%8c%e6%98%9f-%eb%a7%88%eb%a7%88%ea%b3%bc%ec%b9%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5960,
+      "route": "/songs/媽媽歌星/",
+      "file": "content/songs/song-5960.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/07/%e6%98%a5%e5%a4%8f%e7%a7%8b%e5%86%ac-%ec%b6%98%ed%95%98%ec%b8%84%eb%8b%b9-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5947,
+      "route": "/songs/春夏秋冬/",
+      "file": "content/songs/song-5947.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/06/%e6%84%9b%e5%88%b0%e7%84%a1%e5%91%bd%e4%b8%8d%e7%9f%a5%e9%a9%9a-%ec%95%a0%ea%b0%80%eb%bd%80%eb%a8%80%ec%9d%8c%ec%9e%ac%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5921,
+      "route": "/songs/愛徦無命毋知驚/",
+      "file": "content/songs/song-5921.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/06/%e5%86%8d%e6%9c%83%e5%95%a6%e5%bf%83%e6%84%9b%e7%9a%84%e7%84%a1%e7%b7%a3%e7%9a%84%e4%ba%ba-%ec%9e%ac%ed%9b%bc%eb%9e%97%ec%8b%ac%ec%95%a0%ec%97%90%eb%bd%80%ec%98%8c%ec%97%90%eb%9e%91-%e8%ab%ba%e6%96%87/",
+      "sourceId": 5887,
+      "route": "/songs/再會랗心愛에無緣에人/",
+      "file": "content/songs/song-5887.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/04/%e6%9c%89%e5%bd%b1%e7%84%a1-%ec%9a%b0%ec%96%84%eb%bd%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5865,
+      "route": "/songs/有影뽀/",
+      "file": "content/songs/song-5865.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/04/%e8%85%b3%e8%b8%8f%e8%bb%8a-%ec%b9%b4%eb%8b%bf%ec%b1%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5846,
+      "route": "/songs/跤踏車/",
+      "file": "content/songs/song-5846.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/04/%e9%9b%aa%e4%b8%ad%e8%8a%b1-%ec%86%af%eb%8e%a1%ed%9b%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5819,
+      "route": "/songs/雪中花/",
+      "file": "content/songs/song-5819.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/30/%e6%84%9b%e6%83%85%e4%b8%80%e9%99%a3%e9%a2%a8-%ec%95%a0%ec%a1%a9%ec%a7%87%ec%a4%80%ed%97%9d-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5747,
+      "route": "/songs/愛情一陣風/",
+      "file": "content/songs/song-5747.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/30/%e7%87%92%e8%82%89%e7%b2%bd-%ec%87%bc%eb%b9%bb%ec%9e%a5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5723,
+      "route": "/songs/燒肉粽/",
+      "file": "content/songs/song-5723.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/29/%e5%b0%8f%e9%9b%a8%e5%82%98-%ec%87%bc%ed%97%88%ec%86%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5696,
+      "route": "/songs/小雨傘/",
+      "file": "content/songs/song-5696.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/29/%e9%87%91%e5%8c%85%e9%8a%80-%ea%b9%80%e1%84%87%e1%85%b7%eb%81%a4-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5672,
+      "route": "/songs/金包銀/",
+      "file": "content/songs/song-5672.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/24/%e9%96%a3%e6%84%9b%e5%a6%b3%e4%b8%80%e6%93%ba-%ea%b3%bb%ec%95%a0%eb%a6%90%ec%a7%87%eb%b0%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5643,
+      "route": "/songs/곻愛릐一擺/",
+      "file": "content/songs/song-5643.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/16/%e8%81%b2%e8%81%b2%e5%8f%ab%e8%91%97%e4%bd%a0-%ec%83%ac%ec%83%ac%ea%b5%90%eb%90%b4%eb%a6%90-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5619,
+      "route": "/songs/聲聲叫됴릐/",
+      "file": "content/songs/song-5619.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/11/16/%e5%a4%b1%e8%90%bd%e7%9a%84%e5%a4%a2-%ec%8b%a3%eb%a1%b7%ec%97%90%eb%b9%b5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5599,
+      "route": "/songs/失落에夢/",
+      "file": "content/songs/song-5599.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/27/%e8%93%ae%e8%8a%b1%e7%a9%ba%e8%a1%8c%e8%ba%ab%e6%9f%93%e6%84%9b-%eb%a1%84%ed%9b%bc%ec%bb%b9%ed%98%b1%ec%8b%a0%ec%a8%a4%ec%95%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5524,
+      "route": "/songs/蓮花空行身染愛/",
+      "file": "content/songs/song-5524.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/27/%e6%84%9b%e6%83%85%e4%bd%a0%e6%af%94%e6%88%91%e6%83%b3%e7%9a%84%e9%96%a3%e8%bc%83%e5%81%89%e5%a4%a7-%ec%95%a0%ec%a1%a9%eb%a6%90%eb%b9%84%ea%bd%88%ec%8a%90%ec%97%90%ea%b3%bb%ec%ba%8f%ec%9c%84%eb%8c%80/",
+      "sourceId": 5458,
+      "route": "/songs/愛情릐比꽈想에곻較偉大/",
+      "file": "content/songs/song-5458.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/21/%e6%83%85%e9%9b%a3%e5%bf%98-%ec%a1%a9%eb%9e%80%eb%bb%a5-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5437,
+      "route": "/songs/情難忘/",
+      "file": "content/songs/song-5437.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/21/%e5%a4%9c%e5%b8%82%e4%ba%ba%e7%94%9f-%ec%95%bc%ec%b9%98%ec%b0%90%ec%86%85-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5413,
+      "route": "/songs/夜市人生/",
+      "file": "content/songs/song-5413.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/21/%e5%a0%85%e6%8c%81-%ea%b3%88%ec%b9%98-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5396,
+      "route": "/songs/堅持/",
+      "file": "content/songs/song-5396.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/21/%e6%88%91%e5%95%8f%e5%a4%a9-%ea%bd%88%eb%af%95%ed%8b%b8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5375,
+      "route": "/songs/꽈問天/",
+      "file": "content/songs/song-5375.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/10/08/%e9%9b%b2%e4%b8%ad%e6%9c%88%e5%9c%93-%ed%9b%88%eb%8e%a1%eb%80%8b%ec%9d%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5345,
+      "route": "/songs/雲中月圓/",
+      "file": "content/songs/song-5345.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/08/09/%e5%99%af%e5%96%b2%e5%99%af%e5%96%b2%e5%99%af%e5%99%af%e5%96%b2-%ec%95%a0%ec%9a%94%ec%95%a0%ec%9a%94%ec%95%a0%ec%95%a0%ec%9a%94-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 5160,
+      "route": "/songs/애요애요애애요/",
+      "file": "content/songs/song-5160.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/07/18/%e4%b8%8a%e6%b0%b4%e7%9a%84%e8%8a%b1-%ec%85%a9%ec%89%ac%ec%97%90%ed%9b%bc-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4885,
+      "route": "/songs/上媠에花/",
+      "file": "content/songs/song-4885.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/07/18/%e6%84%9b%e6%83%85%e6%81%b0%e6%81%b0-%ec%95%a0%ec%a1%a9%ec%b1%bb%ec%b1%bb-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4851,
+      "route": "/songs/愛情챻챻/",
+      "file": "content/songs/song-4851.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/07/09/%e5%b0%8f%e9%9b%a8-%ec%87%bc%ed%97%88-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4649,
+      "route": "/songs/小雨/",
+      "file": "content/songs/song-4649.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/07/09/%e5%90%91%e5%89%8d%e8%b5%b0-%ed%98%95%ec%a1%98%ea%b1%80-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4601,
+      "route": "/songs/向前行/",
+      "file": "content/songs/song-4601.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/07/06/%e5%82%b7%e5%bf%83%e5%9c%b0%e7%8d%84%e8%8a%b3%e8%8a%b1%e5%bc%95%e9%ad%82-%ec%85%a9%ec%8b%ac%eb%8d%b0%ea%b9%8d%ed%8c%a1%ed%9b%bc%ec%9d%b8%ed%9b%88-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4274,
+      "route": "/songs/傷心地獄芳花引魂/",
+      "file": "content/songs/song-4274.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/06/28/%e6%b5%aa%e6%b5%81%e9%80%a3-%eb%a0%81%eb%a5%98%eb%a1%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 4025,
+      "route": "/songs/浪溜嗹/",
+      "file": "content/songs/song-4025.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/04/08/%e5%af%ab%e4%b8%80%e6%a2%9d%e6%ad%8c%e5%af%ab%e4%bd%a0%e6%88%91%e7%88%be%e7%88%be-%ec%83%a4%ec%a7%87%e1%84%83%e1%86%a4%ea%b3%bc%ec%83%a4%eb%a6%90%ea%bd%88%eb%83%90%eb%83%90-%e8%ab%ba%e6%96%87%e6%ad%8c/",
+      "sourceId": 1848,
+      "route": "/songs/寫一條歌寫릐꽈爾爾/",
+      "file": "content/songs/song-1848.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/01/12/%e6%9c%9b%e6%98%a5%e9%a2%a8-%eb%b9%b5%ec%b6%98%ed%97%9d-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 727,
+      "route": "/songs/望春風/",
+      "file": "content/songs/song-727.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/01/05/%e9%85%92%e5%be%8c%e7%9a%84%e5%bf%83%e8%81%b2-%ec%a5%ac%e1%84%8b%e1%85%b7%ec%97%90%ec%8b%ac%ec%83%ac-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 655,
+      "route": "/songs/酒後에心聲/",
+      "file": "content/songs/song-655.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/15/%e6%84%9b%e6%8b%9a%e6%89%8d%e6%9c%83%e8%b4%8f-%ec%95%a0%eb%b1%94%ec%9f%a3%ec%97%90%ec%96%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 530,
+      "route": "/songs/愛拚才會贏/",
+      "file": "content/songs/song-530.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/15/%e9%98%bf%e5%ac%a4%e7%9a%84%e8%a9%b1-%ec%95%84%eb%a7%88%ec%97%90%ec%9b%a8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 486,
+      "route": "/songs/阿媽에話/",
+      "file": "content/songs/song-486.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/10/%e9%a2%a8%e7%9c%9f%e9%80%8f-%ed%97%9d%ec%a7%84%e1%84%90%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 414,
+      "route": "/songs/風真透/",
+      "file": "content/songs/song-414.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/08/%e4%b8%80%e4%ba%ba%e4%b8%80%e5%8d%8a%e6%84%9f%e6%83%85%e8%a2%82%e6%95%a3-%ec%a7%87%eb%9e%91%ec%a7%87%eb%b4%98%ea%b0%90%ec%a1%a9%ec%80%84%ec%86%b0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 361,
+      "route": "/songs/一人一半感情𣍐散/",
+      "file": "content/songs/song-361.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/08/%e4%bf%9d%e5%ba%87-%eb%b3%b4%eb%b9%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 271,
+      "route": "/songs/保庇/",
+      "file": "content/songs/song-271.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/07/%e6%95%a2%e5%82%bb%e6%95%a2%e8%a1%9d-%e8%ab%ba%e6%96%87-%e4%b8%ad%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 248,
+      "route": "/songs/敢傻敢衝/",
+      "file": "content/songs/song-248.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/12/07/%e6%b5%aa%e5%ad%90%e5%9b%9e%e9%a0%ad-%eb%a0%81%ec%a3%bc%ed%9b%bc%e1%84%90%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 231,
+      "route": "/songs/浪子回頭/",
+      "file": "content/songs/song-231.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/11/30/%e6%ad%a1%e5%96%9c%e5%b0%b1%e5%a5%bd-%ed%99%9c%ed%9e%88%eb%90%b4%ed%98%b8-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 192,
+      "route": "/songs/歡喜就好/",
+      "file": "content/songs/song-192.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/11/24/%e5%a4%a9%e7%83%8f%e7%83%8f-%ed%8b%b8%ec%96%b4%ec%96%b4-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 173,
+      "route": "/songs/天烏烏/",
+      "file": "content/songs/song-173.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2024/11/17/%e5%ae%b6%e5%be%8c-%ea%b2%8c%e1%84%8b%e1%85%b7-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
+      "sourceId": 50,
+      "route": "/songs/家後/",
+      "file": "content/songs/song-50.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/2025/01/26/the-egg/",
+      "sourceId": 865,
+      "route": "/read/stories/the-egg/",
+      "file": "content/stories/the-egg.json"
     }
   ],
   "deferred": {
-    "songs": 70,
+    "songs": 0,
     "theEgg": [
-      865,
       7647
     ],
     "chinesePresentations": "later"
   },
   "songUrls": "migration/song-urls.json",
   "wordpressChanges": "none",
-  "compliance": "Preserved source; complete the v3.1 review before declaring compliance. v3.2 remains deferred."
+  "compliance": "Preserved source; complete the v3.1 review before declaring compliance. v3.2 remains deferred.",
+  "completedEnglishAt": "2026-10-21T07:58:44.255879+00:00",
+  "importedSongs": 70,
+  "status": "English source import complete; visual/editorial review and v3.2 work remain separate."
 }

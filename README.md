@@ -8,7 +8,8 @@ pronunciation data, and audio.
 
 The root website hosts the English home page. English learning/reference pages,
 literature, the dictionary, and IME are built together by one GitHub Pages workflow.
-Song posts, The Egg, and Chinese presentations remain on WordPress for later batches.
+The English migration includes 70 song posts and The Egg. Chinese presentations
+remain on WordPress for a later batch; all original WordPress pages are retained.
 
 ## Source layout
 
@@ -106,7 +107,7 @@ archive. Its history was merged here; active edits and publishing happen here.
 Existing root-site assets are preserved at their original `/assets/` paths.
 
 See [the English WordPress migration](docs/wordpress-migration.md) for the imported
-scope, deferred songs/Egg/Chinese pages, and the two-column song URL form at
+scope, deferred Chinese pages, and the two-column song URL form at
 `migration/song-url-form.html`. WordPress is not modified by importing or building.
 
 Copyright 2026 Zhen Dong Woo. All rights reserved.

@@ -77,6 +77,12 @@ class ImportedHTML(HTMLParser):
     def rewrite(self, value, media=False):
         if not value or value.startswith("#"):
             return value
+        if value.startswith("/") and not value.startswith("//"):
+            local_path = urlsplit(value).path
+            if local_path in self.routes.values() or local_path.startswith(("/dictionary/", "/ime/")):
+                return value
+            if local_path.startswith("/assets/") and any((root / unquote(local_path).lstrip("/")).is_file() for root in (self.root, self.existing_site)):
+                return value
         absolute = urljoin(self.source_url, value)
         parsed = urlsplit(absolute)
         if parsed.scheme not in {"https", "http", "mailto", "tel"}:
@@ -126,7 +132,7 @@ class ImportedHTML(HTMLParser):
                 result.append(key)
             else:
                 result.append(f'{key}="{html.escape(value, quote=True)}"')
-        if tag in {"audio", "video"}:
+        if tag in {"audio", "video"} and "preload" not in attributes:
             result.append('preload="none"')
         if tag in {"img", "iframe"} and "loading" not in attributes:
             result.append('loading="lazy"')

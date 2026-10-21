@@ -53,8 +53,13 @@ def main():
         content = json.loads(local_file("/content-manifest.json").read_text(encoding="utf-8"))
         assert content["language"] == "en"
         assert not any(route.startswith(("/zh-hant/", "/zh-hans/")) for route in content["routes"])
-        assert not any("the-egg" in route for route in content["routes"])
-        assert content["deferred"]["theEgg"] == [865, 7647]
+        deferred_ids = set(content["deferred"]["theEgg"])
+        assert not deferred_ids.intersection(page["sourceId"] for page in content["pages"])
+        imported_songs = {page["route"] for page in content["pages"] if page["type"] == "songs"}
+        if content["deferred"]["songs"] == 0:
+            choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
+            assert imported_songs == {row["new_url"] for row in choices}
+            assert "/read/stories/the-egg/" in content["routes"]
         assert not (SITE / "migration").exists(), "Migration sources and URL form must remain local"
     else:
         assert 'url=/ime/' in root_html and 'window.location.replace("/ime/")' in root_html

@@ -1,20 +1,20 @@
 # English WordPress migration
 
-The first batch imports eight pages into the shared GitHub Pages build: Home,
-About, Introduction, Spelling, Tone Sandhi, Romanisation, Lyrics Translation,
-and Tale of the Lychee Mirror. WordPress is read only throughout this workflow.
+The English import now contains 79 records: Home, About, four learning guides,
+Lyrics Translation, Tale of the Lychee Mirror, 70 songs, and the English
+presentation of The Egg. The completed song URL form supplies all 70 public
+song paths. WordPress is read only throughout this workflow.
 
 ## Deferred work
 
-- All 70 song posts are the final batch. Their text is still being edited; fetch
-  their latest source only when that work is complete.
-- Both presentations of The Egg are also deferred while revision is in progress.
+- The Traditional Chinese presentation of The Egg (WordPress ID 7647) is deferred.
 - Traditional and Simplified Chinese presentations will be migrated later.
 - Imported source is preserved; its v3.1 compliance review is still pending.
   Apply approved v3.2 linguistic changes after the migration and v3.1 review.
 
-The Songs index and relevant reading links point to the current WordPress pages
-until those records are migrated. They do not point to invented GitHub URLs.
+The Songs and Read indexes now link to the imported GitHub pages. Links in the
+first batch have also been updated. Chinese presentation links remain on
+WordPress. No WordPress redirects or deletions have been performed.
 
 ## Choose song URLs
 
@@ -29,8 +29,9 @@ The form preserves edits in browser storage where available and can download
 `song-urls.json` or a two-column CSV. Download the form to keep a portable copy;
 loading the JSON restores it. Blank rows are allowed. Invalid, reserved, and
 duplicate destinations are flagged before download. Copy the reviewed completed
-JSON to `migration/song-urls.json` when preparing the final song batch. Filling
-the form alone does not publish any songs.
+JSON to `migration/song-urls.json` when preparing a song batch. The user's
+completed form was accepted for all 70 songs on 2026-10-21. Later URL changes
+need explicit redirects from the already published paths.
 
 The title fields use the same Hangul composer and Hanri candidate controller as
 the dictionary and IME. Enable Hangul keyboard is on by default and can be turned
@@ -41,11 +42,11 @@ without a server. This generated file is ignored by Git and is never deployed.
 
 ## Sources and media
 
-`content/` contains editable content records separated into pages, guides, and
-literature. Each record has its public route, language, original URL, source
+`content/` contains editable content records separated into pages, guides,
+literature, songs, and stories. Each record has its public route, language, original URL, source
 revision/hash, orthography review status, and HTML body. Original public HTML
-snapshots are retained under `migration/wordpress-source/`. No original song or
-Egg body is included in this first batch.
+snapshots are retained under `migration/wordpress-source/`. The final batch
+was fetched fresh from WordPress after the user confirmed it was ready.
 
 `migration/wordpress-map.json` records the exact imported scope and deferred work.
 `migration/wordpress-media.json` maps copied WordPress media to stable local files.
@@ -56,6 +57,12 @@ examples and the original external links remain external. No assets are deleted.
 can create the initial records. It refuses to overwrite editorial records.
 Source refreshes must be reviewed separately. The normal site build is offline
 and never contacts or edits WordPress.
+
+`tools/import_wordpress_final.py --song-urls PATH --download-media` imports the
+approved final batch. It validates complete source coverage, unique title-based
+destinations, and reserved paths before importing. It refuses to overwrite
+existing song/story records. User-approved URLs are preserved in the migration
+map, and existing content receives link updates without recalculating readings.
 
 `tools/build_content.py` renders the records through the shared English shell,
 with Learn, Songs, and Read indexes. `tools/build_site.py` includes the output in
@@ -77,7 +84,41 @@ python -X utf8 tools/check_site.py
 node tools/check_web_apps.cjs
 ```
 
-Manual review: compare each guide's tables, ruby and audio with its WordPress
-source; review literature paragraphs and illustrations; confirm Chinese-language,
-song, and Egg links still reach WordPress; and exercise the form's edit, download,
-and restore actions. Original source links are retained at each page's foot.
+Manual review: compare lyrics, story paragraphs, ruby layout, YouTube/SoundCloud
+playback, guide tables/audio, and illustrations with the WordPress sources.
+Chinese-language links should still reach WordPress. Original source links are
+retained at each page's foot. Source preservation is verified separately from
+the pending full v3.1 editorial audit and subsequent v3.2 work.
+
+## Completion tree
+
+```text
+thehokkienlang.github.io/
+|-- /                                  Imported: English Home
+|-- /about/                            Imported: English About
+|-- /learn/                            Imported: four English guides
+|   |-- introduction/
+|   |-- spelling/
+|   |-- tone-sandhi/
+|   `-- romanisation/
+|-- /songs/                            Imported: 70 approved title URLs
+|   `-- translation-notes/             Imported: Lyrics Translation
+|-- /read/
+|   |-- stories/the-egg/               Imported: English presentation
+|   `-- literature/lychee-mirror/      Imported: Tale of the Lychee Mirror
+|-- /dictionary/                       Existing shared dictionary
+`-- /ime/                              Existing shared IME
+
+Remaining work
+|-- Chinese presentations              13 source records, including Chinese Egg
+|-- Complete v3.1 editorial audit       Separate from source-preservation checks
+|-- Apply approved v3.2 changes         After migration
+|-- Content Editor                     Not yet built
+|-- TLI rebranding                     Not yet completed
+`-- English-Hokkien translator         Not yet built
+```
+
+Imported records: 79 of the 92 published WordPress items. Original WordPress
+content is retained. GitHub publication/deployment status is recorded separately
+from this source inventory. The existing Dictionary Editor remains available;
+the Content Editor listed above is a separate future authoring tool.

@@ -23,6 +23,7 @@ h4 { font-size: 18px; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 .imported-content img { max-width: 100%; height: auto; }
 .imported-content iframe { max-width: 100%; border: 0; }
+.imported-content .is-provider-youtube iframe { width: 100%; height: auto; aspect-ratio: 16 / 9; }
 .imported-content audio { max-width: 100%; min-width: 100px; vertical-align: middle; }
 .imported-content figure { margin: 24px 0; }
 .imported-content figure.wp-block-table, .table-scroll { overflow-x: auto; padding: 18px 0 6px; }
