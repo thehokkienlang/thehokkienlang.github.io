@@ -1,0 +1,28 @@
+.site-app-nav {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 12px 18px;
+  width: 100%;
+  max-width: 1200px;
+  min-height: 84px;
+  margin: 0 auto;
+  padding: 20px 28px;
+  border-bottom: 1px solid #dce4e7;
+  font-family: "TLI Western Punctuation", "Noto Sans KR", Calibri, sans-serif;
+  font-size: 15px;
+  line-height: 1.8;
+}
+.site-app-nav a {
+  padding: 4px 0;
+  color: #08756b;
+  text-decoration: none;
+}
+.site-app-nav a:hover { color: #07594f; }
+.site-app-nav a[aria-current] { border-bottom: 2px solid #08756b; }
+.site-app-nav a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
+@media (max-width: 640px) {
+  .site-app-nav { justify-content: flex-start; min-height: 0; padding: 16px 20px; }
+}

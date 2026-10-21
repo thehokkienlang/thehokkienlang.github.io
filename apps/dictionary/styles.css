@@ -30,13 +30,14 @@ body {
 }
 
 .dictionary-locked {
-  display: grid;
-  place-items: center;
-  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 .lock-screen {
-  width: min(100%, 430px);
+  width: min(calc(100% - 48px), 430px);
+  margin: auto;
 }
 
 .lock-panel {
@@ -697,13 +698,9 @@ h1 {
 }
 
 @media (max-width: 720px) {
-  .dictionary-locked {
-    align-items: start;
-    padding: 18px;
-  }
-
-  .lock-panel {
-    margin-top: 8vh;
+  .lock-screen {
+    width: min(calc(100% - 36px), 430px);
+    margin: 24px auto;
   }
 
   .app-header {

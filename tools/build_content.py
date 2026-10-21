@@ -13,11 +13,15 @@ from song_title_readings import song_title
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 
 
-def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
-    navigation = "".join(
+def navigation_links(route):
+    return "".join(
         f'<a href="{href}"' + (' aria-current="page"' if route == href or href != "/" and route.startswith(href) else "") + f'>{label}</a>'
         for href, label in NAV
     )
+
+
+def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
+    navigation = navigation_links(route)
     source = f'<p class="source-link"><a href="{html.escape(source_url, quote=True)}">Original WordPress page</a></p>' if source_url else ""
     tools = '<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" href="/dictionary/">Dictionary</a><a id="ime-link" href="/ime/">Open IME</a></aside>'
     heading = "Tangliengim" if route == "/" else title

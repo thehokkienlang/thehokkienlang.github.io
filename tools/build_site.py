@@ -10,7 +10,7 @@ from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
 
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
-from build_content import build_content
+from build_content import build_content, navigation_links
 from import_wordpress import write_song_ime_data
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -50,6 +50,8 @@ def main() -> int:
         shutil.copytree(ROOT / folder, OUTPUT / folder)
     for app in ("dictionary", "ime"):
         shutil.copytree(ROOT / "apps" / app, OUTPUT / app)
+        index = OUTPUT / app / "index.html"
+        index.write_text(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")), encoding="utf-8")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     (OUTPUT / "public" / "data").mkdir(parents=True)
