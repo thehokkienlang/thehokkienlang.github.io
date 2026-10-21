@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Song URL form · Tangliengim</title>
+  <style>
+    :root { font-family: "Segoe UI", "Noto Sans TC", "Noto Sans KR", sans-serif; color: #182a30; background: #f7fafb; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 28px; }
+    main { max-width: 1320px; margin: auto; }
+    h1 { font-size: 25px; margin: 0 0 12px; }
+    p { line-height: 1.6; }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; margin: 24px 0; }
+    button, .file-label { border: 1px solid #a9bdc5; border-radius: 4px; padding: 10px 16px; background: #fff; color: #17453e; cursor: pointer; font: inherit; }
+    button.primary { background: #08756b; color: #fff; border-color: #08756b; }
+    table { border-collapse: collapse; width: 100%; table-layout: fixed; background: #fff; }
+    th, td { padding: 16px; border: 1px solid #d5e0e4; text-align: left; vertical-align: top; }
+    th { background: #edf5f3; position: sticky; top: 0; z-index: 1; }
+    th:first-child { width: 51%; }
+    a { display: block; font-size: 13px; line-height: 1.6; color: #08756b; overflow-wrap: anywhere; margin-top: 8px; }
+    input[type="text"] { width: 100%; min-height: 46px; border: 1px solid #a9bdc5; border-radius: 4px; padding: 9px 12px; font: inherit; }
+    input[aria-invalid="true"] { border-color: #b42318; }
+    input:focus { outline: 2px solid #81bfb7; outline-offset: 2px; }
+    .row-error { display: block; min-height: 20px; font-size: 13px; color: #b42318; margin-top: 6px; }
+    #status { color: #49646d; margin-left: auto; }
+    @media (max-width: 650px) { body { padding: 14px; } th,td { padding: 10px; } input[type="text"] { font-size: 15px; } #status { margin-left: 0; } }
+  </style>
+</head>
+<body>
+<main>
+  <h1>Song URLs</h1>
+  <p>Fill in the new link for each song. Use the standardised mixed Hanri–Hangul title without apostrophes or tone marks, for example <strong>/songs/生份에릐/</strong>. Full <strong>https://thehokkienlang.github.io/songs/…/</strong> links also work. Leave undecided links blank.</p>
+  <p>Your work is saved in this browser where browser storage is available. Use <strong>Download completed form</strong> to keep a file and return your choices for migration. Song posts will be migrated last.</p>
+  <div class="toolbar">
+    <button class="primary" id="download" type="button">Download completed form</button>
+    <button id="csv" type="button">Download CSV</button>
+    <label class="file-label" for="restore">Load saved form</label>
+    <input id="restore" type="file" accept=".json,application/json" hidden>
+    <span id="status" role="status" aria-live="polite"></span>
+  </div>
+  <table aria-label="Old and new song links">
+    <thead><tr><th scope="col">Old WordPress link</th><th scope="col">New GitHub link</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+<script type="application/json" id="song-data">__SONG_ROWS__</script>
+<script>
+(() => {
+  const source = JSON.parse(document.getElementById("song-data").textContent);
+  const storageKey = "tli-song-url-form-v1";
+  const inputs = new Map();
+  const errors = new Map();
+  const status = document.getElementById("status");
+  let storageWorks = true;
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(storageKey) || "{}"); } catch { storageWorks = false; }
+  const normalise = value => {
+    if (!value.trim()) return "";
+    const url = new URL(value.trim(), "https://thehokkienlang.github.io");
+    if (url.origin !== "https://thehokkienlang.github.io" || url.search || url.hash) throw Error("Use this site's /songs/ path without a query or fragment.");
+    const path = decodeURIComponent(url.pathname).normalize("NFC");
+    if (!/^\/songs\/[^/]+\/$/.test(path)) throw Error("Use /songs/your-title/ with one title and a trailing slash.");
+    const title = path.slice(7, -1);
+    if (/^[0-9]+$/.test(title) || title === "translation-notes") throw Error("Use the song title; this path is reserved or numeric.");
+    if (/[\s'’‘`ˆˋˊˉˇꞈˎˏˍ\\?#%\u0000-\u001f]/u.test(title)) throw Error("Remove spaces, apostrophes, tone marks, and URL punctuation.");
+    return path;
+  };
+  function rows() { return source.map(row => ({ old_url: row.old_url, new_url: inputs.get(row.old_url).value.trim() })); }
+  function validate() {
+    let complete = 0;
+    let invalid = 0;
+    const seen = new Map();
+    for (const row of rows()) {
+      const input = inputs.get(row.old_url);
+      errors.get(row.old_url).textContent = "";
+      input.removeAttribute("aria-invalid");
+      try {
+        const path = normalise(row.new_url);
+        if (!path) continue;
+        complete++;
+        if (seen.has(path)) {
+          for (const old of [row.old_url, seen.get(path)]) {
+            errors.get(old).textContent = "This new URL is also assigned to another song.";
+            inputs.get(old).setAttribute("aria-invalid", "true");
+          }
+          invalid++;
+        } else seen.set(path, row.old_url);
+      } catch (error) {
+        input.setAttribute("aria-invalid", "true");
+        errors.get(row.old_url).textContent = error.message;
+        invalid++;
+      }
+    }
+    status.textContent = `${complete} / ${source.length} filled${invalid ? ` · ${invalid} URL problem(s)` : ""}${storageWorks ? " · saved in browser" : " · download to save"}`;
+    return invalid === 0;
+  }
+  function persist() {
+    try { localStorage.setItem(storageKey, JSON.stringify(Object.fromEntries(rows().map(row => [row.old_url, row.new_url])))); } catch { storageWorks = false; }
+    validate();
+  }
+  for (const [index, row] of source.entries()) {
+    const tr = document.createElement("tr");
+    const old = document.createElement("td");
+    const title = document.createElement("strong");
+    title.textContent = row.title;
+    const link = document.createElement("a");
+    link.href = row.old_url;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = decodeURI(row.old_url);
+    old.append(title, link);
+    const next = document.createElement("td");
+    const input = document.createElement("input");
+    input.type = "text";
+    input.autocomplete = "off";
+    input.spellcheck = false;
+    input.setAttribute("aria-label", `New URL for ${row.title}`);
+    input.value = saved[row.old_url] ?? row.new_url;
+    input.placeholder = "/songs/…/";
+    const error = document.createElement("span");
+    error.className = "row-error";
+    error.id = `error-${index}`;
+    input.setAttribute("aria-describedby", error.id);
+    input.addEventListener("input", persist);
+    inputs.set(row.old_url, input);
+    errors.set(row.old_url, error);
+    next.append(input, error);
+    tr.append(old, next);
+    document.getElementById("rows").append(tr);
+  }
+  function download(filename, content, type) {
+    if (!validate()) { document.querySelector('[aria-invalid="true"]').focus(); return; }
+    const url = URL.createObjectURL(new Blob([content], { type }));
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+  document.getElementById("download").addEventListener("click", () => download("song-urls.json", JSON.stringify(rows(), null, 2) + "\n", "application/json;charset=utf-8"));
+  document.getElementById("csv").addEventListener("click", () => {
+    const cell = value => '"' + value.replaceAll('"', '""') + '"';
+    const csv = ["Old WordPress link,New GitHub link", ...rows().map(row => [row.old_url, row.new_url].map(cell).join(","))].join("\r\n");
+    download("song-urls.csv", "\ufeff" + csv, "text/csv;charset=utf-8");
+  });
+  document.getElementById("restore").addEventListener("change", async event => {
+    try {
+      const data = JSON.parse(await event.target.files[0].text());
+      if (!Array.isArray(data) || data.some(row => !row || !inputs.has(row.old_url) || typeof row.new_url !== "string")) throw Error("This is not a saved song URL form.");
+      for (const row of data) inputs.get(row.old_url).value = row.new_url;
+      persist();
+    } catch (error) { status.textContent = error.message; }
+    event.target.value = "";
+  });
+  validate();
+})();
+</script>
+</body>
+</html>

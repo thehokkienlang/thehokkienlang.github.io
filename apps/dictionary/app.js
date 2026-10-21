@@ -647,5 +647,12 @@ hangulKeyboardToggle?.addEventListener("click", () => {
   searchInput.focus();
 });
 
+if (typeof URLSearchParams === "function" && window.location?.search) {
+  const initialQuery = new URLSearchParams(window.location.search).get("q");
+  if (initialQuery) {
+    searchImeController.composer.setText(initialQuery.slice(0, 12000), Math.min(initialQuery.length, 12000));
+    searchImeController.updateControlFromComposer({ allowCandidateMenu: false });
+  }
+}
 loadDictionary();
 setInputMode("lomari");

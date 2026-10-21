@@ -1,0 +1,65 @@
+{
+  "importedAt": "2026-10-21T07:17:19.687599+00:00",
+  "language": "en",
+  "records": [
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/",
+      "sourceId": 3082,
+      "route": "/",
+      "file": "content/pages/home.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/about/",
+      "sourceId": 1258,
+      "route": "/about/",
+      "file": "content/pages/about.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/tangliengim/",
+      "sourceId": 571,
+      "route": "/learn/introduction/",
+      "file": "content/guides/introduction.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/spelling-guidelines-of-tangliengim/",
+      "sourceId": 9583,
+      "route": "/learn/spelling/",
+      "file": "content/guides/spelling.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/tone-sandhi-in-hokkien/",
+      "sourceId": 8714,
+      "route": "/learn/tone-sandhi/",
+      "file": "content/guides/tone-sandhi.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/tangliengim-romanisation/",
+      "sourceId": 10790,
+      "route": "/learn/romanisation/",
+      "file": "content/guides/romanisation.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/%e6%ad%8c%e8%a9%9e%e7%bf%bb%e8%ad%af-lyrics-translation/",
+      "sourceId": 433,
+      "route": "/songs/translation-notes/",
+      "file": "content/guides/lyrics-translation.json"
+    },
+    {
+      "sourceUrl": "https://hokkienlang.wordpress.com/tale-of-the-lychee-mirror/",
+      "sourceId": 7204,
+      "route": "/read/literature/lychee-mirror/",
+      "file": "content/literature/lychee-mirror.json"
+    }
+  ],
+  "deferred": {
+    "songs": 70,
+    "theEgg": [
+      865,
+      7647
+    ],
+    "chinesePresentations": "later"
+  },
+  "songUrls": "migration/song-urls.json",
+  "wordpressChanges": "none",
+  "compliance": "Preserved source; complete the v3.1 review before declaring compliance. v3.2 remains deferred."
+}

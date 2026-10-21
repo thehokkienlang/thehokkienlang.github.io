@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
 
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
+from build_content import build_content
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
@@ -51,11 +52,12 @@ def main() -> int:
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     (OUTPUT / "public" / "data").mkdir(parents=True)
     shutil.copy2(DEFAULT_OUTPUT_PATH, OUTPUT / "public" / "data" / DEFAULT_OUTPUT_PATH.name)
-    for html_path in (OUTPUT / "index.html", OUTPUT / "dictionary" / "index.html", OUTPUT / "ime" / "index.html"):
+    content_routes = build_content(ROOT, OUTPUT)
+    for html_path in OUTPUT.rglob("*.html"):
         version_assets(html_path)
     data = json.loads(DEFAULT_OUTPUT_PATH.read_text(encoding="utf-8"))
     manifest = {
-        "routes": ["/dictionary/", "/ime/"],
+        "routes": sorted(set(["/dictionary/", "/ime/", *content_routes])),
         "sourceSha256": data["sourceSha256"],
         "headwordAliasesSourceSha256": data['headwordAliasesSourceSha256'],
         "idRegistrySourceSha256": data["idRegistrySourceSha256"],
@@ -68,7 +70,7 @@ def main() -> int:
         },
     }
     (OUTPUT / "build-info.json").write_text(json.dumps(manifest, indent=2) + "\n", encoding="utf-8")
-    print("Built /dictionary/ and /ime/ with shared code, dictionary data, and audio.")
+    print(f"Built dictionary, IME, and {len(content_routes)} English content routes with shared resources.")
     return 0
 
 

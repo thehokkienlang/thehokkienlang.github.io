@@ -1,0 +1,58 @@
+@font-face { font-family: "TLI Hanri"; src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei"); unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
+@font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-hanri-fallback-v1.woff2") format("woff2"); unicode-range: U+24EAA; }
+:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: #fff; line-height: 1.8; }
+a { color: var(--accent); text-underline-offset: .18em; }
+a:hover { color: #07594f; }
+a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
+.site-header { max-width: 1200px; margin: 0 auto; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
+.site-brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-size: 20px; font-weight: 700; }
+.site-brand img { flex: 0 0 44px; }
+.site-header nav { display: flex; gap: 18px; flex-wrap: wrap; font-size: 15px; }
+.site-header nav a { text-decoration: none; padding: 4px 0; }
+.site-header nav [aria-current] { border-bottom: 2px solid var(--accent); color: var(--ink); }
+.content-shell { width: min(100% - 56px, 1000px); margin: 40px auto 72px; }
+h1 { margin: 0 0 18px; font-size: 32px; line-height: 1.4; font-weight: 700; }
+h2 { margin-top: 2em; font-size: 24px; line-height: 1.6; }
+h3 { margin-top: 1.8em; font-size: 20px; }
+h4 { font-size: 18px; }
+.reading-tools { display: flex; gap: 24px; padding: 8px 0 16px; margin-bottom: 24px; border-bottom: 1px solid var(--line); font-size: 14px; }
+.imported-content { overflow-wrap: anywhere; display: flow-root; }
+.imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
+.imported-content img { max-width: 100%; height: auto; }
+.imported-content iframe { max-width: 100%; border: 0; }
+.imported-content audio { max-width: 100%; min-width: 100px; vertical-align: middle; }
+.imported-content figure { margin: 24px 0; }
+.imported-content figure.wp-block-table, .table-scroll { overflow-x: auto; padding: 18px 0 6px; }
+.imported-content table { border-collapse: collapse; width: 100%; }
+.imported-content th, .imported-content td { padding: 14px 12px; border: 1px solid var(--line); vertical-align: middle; min-width: 80px; }
+.imported-content th { background: #edf5f3; text-align: left; }
+.imported-content figcaption { font-size: 14px; color: var(--muted); }
+.imported-content ruby { isolation: isolate; }
+.imported-content rt[style*="120%"] { z-index: 0 !important; }
+.imported-content [style*="font-family:Sans-serif"], .imported-content [style*="font-family: sans-serif"], .imported-content [style*="font-family:Sans-Serif"] { font-family: "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
+.imported-content blockquote { border-left: 3px solid var(--accent); margin: 24px 0; padding: 0 24px; }
+.imported-content hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; clear: both; }
+.wp-block-buttons { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 20px 0; }
+.wp-block-columns { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 24px; }
+.wp-block-cover { position: relative; margin: 30px 0; }
+.wp-block-cover__image-background { width: 160px; height: 140px !important; object-fit: contain; }
+.has-text-align-center { text-align: center; }
+.has-text-align-right { text-align: right; }
+.page-list { list-style: none; margin: 16px 0 32px; padding: 0; }
+.page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
+.external-note, .source-link { color: var(--muted); font-size: 14px; }
+.source-link { clear: both; margin-top: 48px; }
+.site-footer { padding: 24px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; text-align: center; }
+.skip-link { position: absolute; top: -100px; left: 12px; background: #fff; padding: 8px 16px; z-index: 5; }
+.skip-link:focus { top: 8px; }
+@media (max-width: 700px) {
+  .site-header { padding: 16px 20px; align-items: flex-start; flex-direction: column; gap: 12px; }
+  .site-header nav { gap: 10px 20px; }
+  .content-shell { width: calc(100% - 40px); margin-top: 28px; }
+  h1 { font-size: 28px; }
+  .page-list li { display: block; }
+  .external-note { display: block; }
+}

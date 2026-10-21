@@ -6,14 +6,18 @@ pronunciation data, and audio.
 - [Dictionary](https://thehokkienlang.github.io/dictionary/)
 - [Web IME Pad](https://thehokkienlang.github.io/ime/)
 
-The root website redirects to the web IME Pad. Both interfaces are built and
-published together by one GitHub Pages workflow.
+The root website hosts the English home page. English learning/reference pages,
+literature, the dictionary, and IME are built together by one GitHub Pages workflow.
+Song posts, The Egg, and Chinese presentations remain on WordPress for later batches.
 
 ## Source layout
 
 ```text
 apps/dictionary/       Dictionary interface, published at /dictionary/
 apps/ime/              Standalone web IME, published at /ime/
+apps/content-site/     Shared English content shell and local song URL form template
+content/               Imported pages, learning guides, and literature
+migration/             Original snapshots, link map, media map, and song URL form
 shared/                Browser keyboard composer and shared IME controller
 data/                  Canonical hokkien_hanri_dict.tsv
 public/audio/          Shared recordings grouped by initial consonant
@@ -66,6 +70,7 @@ python -m http.server 8000 --directory _site
 ```
 
 Open `http://localhost:8000/dictionary/` or `http://localhost:8000/ime/`.
+The English home page is at `http://localhost:8000/`.
 Preview the built `_site`; the source `apps/` folders are not the public URLs.
 No Python source or raw TSV is copied into the published site.
 
@@ -99,5 +104,9 @@ Use tags such as `desktop-v1.3.0` for desktop releases.
 The former `thehokkienlang/dictionary` repository is retained as a historical
 archive. Its history was merged here; active edits and publishing happen here.
 Existing root-site assets are preserved at their original `/assets/` paths.
+
+See [the English WordPress migration](docs/wordpress-migration.md) for the imported
+scope, deferred songs/Egg/Chinese pages, and the two-column song URL form at
+`migration/song-url-form.html`. WordPress is not modified by importing or building.
 
 Copyright 2026 Zhen Dong Woo. All rights reserved.

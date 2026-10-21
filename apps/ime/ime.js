@@ -467,6 +467,13 @@ if (typeof window.addEventListener === "function") {
 }
 
 renderKeyboardGuide();
+if (typeof URLSearchParams === "function" && window.location?.search) {
+  const initialText = new URLSearchParams(window.location.search).get("text");
+  if (initialText) {
+    imeController.composer.setText(initialText.slice(0, 12000), Math.min(initialText.length, 12000));
+    imeController.updateControlFromComposer({ allowCandidateMenu: false });
+  }
+}
 updateImePresentation();
 
 loadDictionary();

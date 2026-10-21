@@ -37,7 +37,8 @@ def local_file(url):
 
 def main():
     route_scripts = {}
-    for route in ("/", "/dictionary/", "/ime/"):
+    build_info = json.loads(local_file("/build-info.json").read_text(encoding="utf-8"))
+    for route in sorted(set(["/", "/dictionary/", "/ime/", *build_info["routes"]])):
         parser = References()
         parser.feed(local_file(route).read_text(encoding="utf-8"))
         for reference in parser.urls:
@@ -47,8 +48,16 @@ def main():
         route_scripts[route] = parser.scripts
 
     root_html = local_file("/").read_text(encoding="utf-8")
-    assert 'url=/ime/' in root_html and 'window.location.replace("/ime/")' in root_html
-    assert 'url=/dictionary/' not in root_html and 'window.location.replace("/dictionary/")' not in root_html
+    if (ROOT / "migration/wordpress-map.json").exists():
+        assert 'class="site-header"' in root_html and 'http-equiv="refresh"' not in root_html
+        content = json.loads(local_file("/content-manifest.json").read_text(encoding="utf-8"))
+        assert content["language"] == "en"
+        assert not any(route.startswith(("/zh-hant/", "/zh-hans/")) for route in content["routes"])
+        assert not any("the-egg" in route for route in content["routes"])
+        assert content["deferred"]["theEgg"] == [865, 7647]
+        assert not (SITE / "migration").exists(), "Migration sources and URL form must remain local"
+    else:
+        assert 'url=/ime/' in root_html and 'window.location.replace("/ime/")' in root_html
 
     dictionary_html = local_file("/dictionary/").read_text(encoding="utf-8")
     dictionary_view = local_file("/dictionary/dictionary-view.html").read_text(encoding="utf-8")
