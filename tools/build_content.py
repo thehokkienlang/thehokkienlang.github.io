@@ -18,6 +18,14 @@ NAV_SECTIONS = {
     "/read/": (("/read/stories/the-egg/", "The Egg"), ("/read/literature/lychee-mirror/", "Tale of the Lychee Mirror")),
 }
 
+# Render the whole grapheme in one font, including any stacked tone marks.
+# Restrict this to text nodes; URLs, attributes and authored source stay intact.
+NASAL_GRAPHEME = re.compile(r'[A-Za-z\u00c0-\u02ff\u1e00-\u1eff\u25cc][\u0300-\u036f]*\u0330[\u0300-\u036f]*')
+
+
+def nasal_font_text(value):
+    return NASAL_GRAPHEME.sub(lambda match: '<span class="nasal-grapheme">' + match.group() + '</span>', value)
+
 
 def navigation_links(route, language=None, variants=True):
     language = language or language_for_route(route)
@@ -98,7 +106,7 @@ def build_content(root: Path, output: Path):
             return result
 
         def handle_data(self, data):
-            super().handle_data(re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data))
+            super().handle_data(nasal_font_text(re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data)))
 
     paths = set()
     for record in records:

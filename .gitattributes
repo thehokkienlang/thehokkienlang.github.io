@@ -9,3 +9,4 @@ docs/dictionary-redirects.md text eol=lf
 # Retain the vendored font license exactly as published upstream.
 assets/fonts/OFL.txt -text whitespace=-blank-at-eol,cr-at-eol
 assets/fonts/OFL-NotoSansKR.txt -text whitespace=-blank-at-eol,cr-at-eol
+assets/fonts/OFL-NotoSans.txt -text whitespace=-blank-at-eol,cr-at-eol

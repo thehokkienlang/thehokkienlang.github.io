@@ -58,3 +58,31 @@ Optional reproduction (not a build or runtime dependency):
 python -m pip install 'fonttools[woff]'
 python tools/subset_hangul_fallback.py /path/to/NotoSansKR.ttf
 ```
+
+## Nasalized Latin and 𣍐 in content pages
+
+`tangliengim-nasal-latin-v1.woff2` is a renamed Noto Sans subset with the
+Latin, combining-mark and dotted-circle glyphs needed for `◌̰`, `â̰`, `ḭ́`,
+and related Lomari text. It retains `ccmp`, `mark`, and `mkmk` positioning and
+the variable weight axis, so regular and bold stacked marks work together.
+The content renderer assigns a font to the **whole marked grapheme**, not
+just U+0330: a mark and its base letter must shape in the same font. Only
+nasalized graphemes receive this font; the original text and other letters'
+font selection remain unchanged. Attributes and source JSON are unchanged.
+
+- Upstream: [Noto Sans, Google Fonts](https://github.com/google/fonts/tree/8b0a1d0f5983c89bc2b93f1b5fb55f9e252744b5/ofl/notosans).
+- Source: `NotoSans[wdth,wght].ttf`, SHA-256 `bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d`.
+- License: unchanged `OFL-NotoSans.txt` (SIL OFL 1.1).
+
+`tangliengim-content-hanri-v1.woff2` supplies U+23350 (`𣍐`, 勿會) and the
+existing U+24EAA (`𤺪`) fallback to the content site. It is derived from the
+same Plangothic P1 V2.9.5795 release and license documented above, renamed
+**Tangliengim Content Hanri**, and restricted to those characters by CSS.
+The dictionary and classic Pad's existing single-glyph font is unchanged.
+
+Modified 2026-10-22. Optional reproduction:
+
+```sh
+python -m pip install 'fonttools[woff]'
+python tools/subset_content_fallbacks.py /path/to/NotoSans.ttf /path/to/PlangothicP1-Regular.ttf
+```

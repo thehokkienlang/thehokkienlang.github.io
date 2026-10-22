@@ -11,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content
+from build_content import build_content, nasal_font_text
 from import_wordpress import ImportedHTML, PAGES
 from import_wordpress_final import approved_song_routes
 from site_languages import CHINESE_PAGES, LANGUAGES
@@ -167,6 +167,24 @@ class MigrationTests(unittest.TestCase):
                 self.assertEqual(content["title"], row["display_title"])
                 self.assertEqual(content["route"], row["new_url"])
                 self.assertEqual(content["originalTitle"], source["title"])
+
+
+
+class ContentFontTests(unittest.TestCase):
+    def test_stacked_nasal_marks_keep_exact_visible_text(self):
+        value = '◌̰ a̰ â̰ ḭ́ oà̰ á̰ 𣍐 勿會 ᄁᅷ'
+        rendered = nasal_font_text(value)
+        self.assertEqual(rendered.count('class="nasal-grapheme"'), 6)
+        for group in ['◌̰', 'â̰', 'ḭ́', 'à̰', 'á̰']:
+            self.assertIn('>' + group + '</span>', rendered)
+        text = Readings()
+        text.feed(rendered)
+        self.assertEqual(''.join(text.text), value)
+        self.assertTrue(rendered.endswith('𣍐 勿會 ᄁᅷ'))
+
+    def test_other_tones_keep_existing_font_selection(self):
+        value = 'á â ā 漢字 ᄁᅷ ABC'
+        self.assertEqual(nasal_font_text(value), value)
 
 
 if __name__ == "__main__":
