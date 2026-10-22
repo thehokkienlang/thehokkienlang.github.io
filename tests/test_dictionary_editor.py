@@ -252,6 +252,39 @@ class SaveTests(unittest.TestCase):
         with self.assertRaises(EditorError):
             self.service.make_defunct('U+5BB6_00')
 
+    def test_restore_reactivates_original_record_and_id(self):
+        original = self.service.files()
+        self.service.make_defunct('U+5BB6_00')
+        result = self.service.restore_entry('U+5BB6_00', revision=self.service.snapshot()['revision'])
+        snapshot = self.service.snapshot()
+        self.assertEqual(result['restored']['entry_id'], 'U+5BB6_00')
+        self.assertEqual(snapshot['entries'][0]['hanri'], '家')
+        self.assertEqual(snapshot['defunctEntries'], [])
+        self.assertEqual(self.service.files()[MAIN], original[MAIN])
+        self.assertEqual(self.service.files()[REGISTRY], original[REGISTRY])
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+        with self.assertRaises(EditorError):
+            self.service.restore_entry('U+5BB6_00')
+
+    def test_restore_keeps_replacement_active(self):
+        self.service.save([entry() | {'hanri': '新'}])
+        self.service.restore_entry('U+5BB6_00')
+        self.assertEqual({row['entry_id'] for row in self.service.snapshot()['entries']},
+                         {'U+5BB6_00', 'U+65B0_00'})
+        self.assertEqual(validate(self.root / 'data' / MAIN), [])
+
+    def test_restore_rejects_duplicate_and_stale_state_without_writing(self):
+        self.service.make_defunct('U+5BB6_00')
+        revision = self.service.snapshot()['revision']
+        self.service.save([entry() | {'entry_id': ''}])
+        before = self.service.files()
+        with self.assertRaises(EditorError) as caught:
+            self.service.restore_entry('U+5BB6_00', revision=revision)
+        self.assertEqual(caught.exception.code, 'stale')
+        with self.assertRaisesRegex(EditorError, 'identical entry'):
+            self.service.restore_entry('U+5BB6_00')
+        self.assertEqual(self.service.files(), before)
+
     def test_make_defunct_rejects_stale_revision(self):
         old = self.service.snapshot()['revision']
         self.service.save([{'entry_id': 'U+5BB6_00', 'english': 'house'}])

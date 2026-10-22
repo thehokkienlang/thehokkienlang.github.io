@@ -20,7 +20,7 @@
 
   async function request(action, payload = {}) {
     const response = await fetch("/desktop-api/editor/" + action, { method: "POST", cache: "no-store",
-      signal: AbortSignal.timeout(["save", "publish", "retire"].includes(action) ? 60000 : 10000),
+      signal: AbortSignal.timeout(["save", "publish", "retire", "restore"].includes(action) ? 60000 : 10000),
       headers: { "Content-Type": "application/json", "X-Tangliengim-Editor": token }, body: JSON.stringify(payload) });
     const result = await response.json();
     if (!response.ok || !result.ok) throw Object.assign(new Error(result.error || `HTTP ${response.status}`), result);
@@ -103,6 +103,8 @@
     $("keyboard").disabled = state.selectedDefunct;
     $("saveButton").disabled = state.selectedDefunct || state.saving || Boolean(state.job && state.jobKind === "publish");
     $("retireButton").hidden = !state.selected || state.selectedDefunct;
+    $("restoreButton").hidden = !state.selectedDefunct;
+    $("restoreButton").disabled = state.saving || Boolean(state.job && state.jobKind === "publish");
     $("retireButton").disabled = state.saving || Boolean(state.job && state.jobKind === "publish");
     $("formTitle").textContent = state.selectedDefunct ? "Defunct entry" : entry ? "Edit entry" : "New entry";
     $("entryStatus").hidden = !state.selectedDefunct;
@@ -279,6 +281,7 @@
     for (const id of ["saveButton", "saveBatch", "parseBatch"]) $(id).disabled = state.saving || value && kind === "publish";
     $("saveButton").disabled ||= state.selectedDefunct;
     $("retireButton").disabled = state.saving || Boolean(value && kind === "publish");
+    $("restoreButton").disabled = state.saving || Boolean(value && kind === "publish");
     $("publishButton").disabled = state.saving || value;
     $("saveBatch").disabled ||= !state.batch.length;
     updatePublishProgress();
@@ -481,6 +484,26 @@
       await load({ preserveForm: true });
       state.page = Math.max(0, Math.floor(filtered().findIndex(row => row.entry_id === entry.entry_id) / pageSize));
       fill(state.defunctEntries.find(row => row.entry_id === entry.entry_id));
+      document.querySelector("#entryRows tr.selected")?.scrollIntoView({ block: "nearest" });
+      notice(result.message);
+      $("publishState").textContent = "Waiting to publish";
+      if (result.job) watchJob(result.job);
+    } catch (error) { notice(error.message, true); }
+    finally { state.saving = false; busy(Boolean(state.job), state.jobKind); }
+  });
+  $("restoreButton").addEventListener("click", async () => {
+    if (!state.selectedDefunct || state.saving) return;
+    const identity = state.selected;
+    state.saving = true;
+    busy(Boolean(state.job), state.jobKind);
+    try {
+      const result = await request("restore", { entry_id: identity, revision: state.revision });
+      state.statusFilter = $("statusFilter").value = "all";
+      $("typeFilter").value = $("categoryFilter").value = "";
+      searchImeController.clear();
+      await load({ preserveForm: true });
+      state.page = Math.max(0, Math.floor(filtered().findIndex(row => row.entry_id === identity) / pageSize));
+      fill(state.entries.find(row => row.entry_id === identity));
       document.querySelector("#entryRows tr.selected")?.scrollIntoView({ block: "nearest" });
       notice(result.message);
       $("publishState").textContent = "Waiting to publish";

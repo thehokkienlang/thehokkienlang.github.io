@@ -397,6 +397,38 @@ class DictionaryEditorService:
                     "retired": retired,
                     "message": f"Saved {len(saved)} entries locally; marked {len(retired)} previous entries defunct; skipped {len(skipped)} identical entries."}
 
+    def restore_entry(self, identity, *, revision=None):
+        with self.locked():
+            before = self.files()
+            if revision is not None and revision != fingerprint(before):
+                raise EditorError("Dictionary changed in another window. Reload before restoring.", code="stale")
+            archived = read_table(before[DEFUNCT])[1] if DEFUNCT in before else []
+            previous = next((row for row in archived if row['entry_id'] == identity), None)
+            if previous is None:
+                raise EditorError("This entry is no longer defunct. Reload the editor.", code="stale")
+            header, rows = read_table(before[MAIN])
+            record = {key: previous[key] for key in DICTIONARY_COLUMNS}
+            signature = lambda row: tuple(row.get(key, '') for key in DICTIONARY_COLUMNS if key != 'entry_id')
+            for row in rows:
+                if row.get('entry_id') == identity or signature(row) == signature(record):
+                    raise EditorError("An identical entry is already active; select that entry instead.")
+            after = dict(before)
+            after[MAIN] = table_bytes(header, [*rows, record])
+            after[DEFUNCT] = table_bytes(DEFUNCT_COLUMNS, [row for row in archived if row['entry_id'] != identity])
+            with tempfile.TemporaryDirectory(prefix='tangliengim-restore-') as folder:
+                data = Path(folder)
+                for name, raw in after.items():
+                    (data / name).write_bytes(raw)
+                with redirect_stdout(io.StringIO()):
+                    sort_tsv(data / MAIN)
+                    errors = validate(data / MAIN)
+                if errors:
+                    raise EditorError('Cannot restore this entry:\n' + '\n'.join(errors))
+                after[MAIN] = (data / MAIN).read_bytes()
+            self.commit_files(before, after)
+            return {'ok': True, 'restored': record, 'revision': fingerprint(after),
+                    'message': f'Restored “{record["hanri"]}” locally. Ready to publish.'}
+
     def make_defunct(self, identity, *, revision=None):
         with self.locked():
             before = self.files()

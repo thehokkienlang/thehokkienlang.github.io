@@ -19,6 +19,14 @@ active record. The archive participates in editor save recovery and publication,
 but is never loaded into generated runtime dictionary entries or normalization
 indexes. The main dictionary retains its nine-column schema and canonical order.
 
+Selecting a defunct entry shows **Restore** in place of **Make defunct**.
+Restore moves its saved row back into the active dictionary with the same ID,
+removes it from the archive, and refreshes IME data. An existing replacement
+remains active. Identical active duplicates and stale editor revisions prevent
+restoration without writing files. Removed category memberships and priority
+overrides are not inferred from the archived row; they can be assigned afterward.
+Restoration is saved locally and uses the normal publication workflow.
+
 ## 1. Scope
 
 This is the authoritative current schema and maintenance reference after Exodus

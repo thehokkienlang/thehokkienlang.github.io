@@ -151,13 +151,15 @@ class DictionaryEditorController:
                     self.preview_ime = load_ime_module()
                 playback = audio_for_reading(self.preview_ime, self.service.repo / "public/audio", record["corrected"] or record["reading"])
             return {"ok": True, "entry": record, "lomari": roman, "audio": playback}
-        if action in ("save", "retire"):
+        if action in ("save", "retire", "restore"):
             with self.lock:
                 if self.server.restarting:
                     raise EditorError("Restart in progress. Your form is retained.", code="busy")
                 if self.active_job and self.jobs[self.active_job]['kind'] != 'refresh':
                     raise EditorError("A dictionary operation is running. Your form is retained.", code="busy")
-                if action == "retire":
+                if action == "restore":
+                    result = self.service.restore_entry(payload.get('entry_id'), revision=payload.get('revision'))
+                elif action == "retire":
                     result = self.service.make_defunct(payload.get('entry_id'), revision=payload.get('revision'))
                 else:
                     result = self.service.save(payload.get("entries"), revision=payload.get("revision"),
