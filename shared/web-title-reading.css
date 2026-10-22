@@ -19,7 +19,7 @@
 .title-reading:has(.hangul-tone) { padding-top: 0.4em; }
 .title-reading .hanri-title { ruby-align: center; ruby-position: over; }
 .title-reading .hanri-title > rt {
-  font-family: "TLI Western Punctuation", "Noto Sans KR", Calibri, sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", Calibri, sans-serif;
   font-size: 44%;
   font-weight: 500;
   line-height: 1.3;
