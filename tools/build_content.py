@@ -64,6 +64,33 @@ def navigation_links(route, language=None, variants=True):
     return "".join(items)
 
 
+def home_launch(language):
+    labels = {
+        "en": ("Search the dictionary", "Search Hanri, Hangul, Lomari, or English...", "Search", "Start learning", "Read and listen"),
+        "zh-Hant": ("搜尋詞典", "搜尋漢字、諺文、羅馬字或英文…", "搜尋", "開始學習", "閱讀與聆聽"),
+        "zh-Hans": ("搜索词典", "搜索汉字、谚文、罗马字或英文…", "搜索", "开始学习", "阅读与聆听"),
+    }
+    search_label, placeholder, submit, start, read = labels[language]
+    lang_input = f'<input type="hidden" name="lang" value="{language}">' if language != "en" else ""
+
+    def destination(path, label):
+        url = language_url(path, language) or language_url(path, "zh-Hant")
+        return f'<a href="{html.escape(url, quote=True)}"><span>{html.escape(label)}</span><span aria-hidden="true">&#8594;</span></a>'
+
+    learning = "".join(destination(path, text(label, language)) for path, label in NAV_SECTIONS["/learn/"])
+    reading = destination("/songs/", text("Songs", language)) + "".join(destination(path, text(label, language)) for path, label in NAV_SECTIONS["/read/"])
+    return (
+        '<section class="home-launch">'
+        f'<form class="home-search" action="/dictionary/" method="get" role="search" aria-label="{search_label}">'
+        f'<label for="home-query">{search_label}</label><div class="home-search-row">'
+        f'<input id="home-query" name="q" type="search" placeholder="{placeholder}" required maxlength="12000">'
+        f'{lang_input}<button type="submit">{submit}</button></div></form>'
+        '<div class="home-actions">' + destination("/ime/", text("Open IME", language)) + destination("/learn/introduction/", start) + '</div>'
+        f'<div class="home-paths"><section><h2>{text("Learn Tangliengim", language)}</h2>{learning}</section>'
+        f'<section><h2>{read}</h2>{reading}</section></div></section>'
+    )
+
+
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
@@ -74,7 +101,8 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     introduction = f'<p class="site-introduction">{introductions[language]} <a href="{language_url("/learn/introduction/", language)}">TLI (Tangliengim)</a>.</p>' if base_route(route) == "/" else ""
     alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools}
+    section = base_route(route).strip("/").split("/")[0] or "home"
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else ""}
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 

@@ -16,6 +16,33 @@
   }
   const article = document.querySelector(".imported-content");
   if (!article) return;
+  if (document.body.dataset.siteSection === "learn") {
+    const headings = [...article.querySelectorAll("h2")];
+    if (headings.length > 2) {
+      const contents = document.createElement("details");
+      contents.className = "article-contents";
+      const summary = document.createElement("summary");
+      summary.textContent = {"zh-Hant": "本頁內容", "zh-Hans": "本页内容"}[document.documentElement.lang] || "On this page";
+      const list = document.createElement("ol");
+      headings.forEach((heading, index) => {
+        if (!heading.id) {
+          let id = `article-section-${index + 1}`;
+          while (document.getElementById(id)) id += "-section";
+          heading.id = id;
+        }
+        const label = heading.cloneNode(true);
+        label.querySelectorAll("rt, rp").forEach(node => node.remove());
+        const link = document.createElement("a");
+        link.href = "#" + encodeURIComponent(heading.id);
+        link.textContent = label.textContent.trim();
+        const item = document.createElement("li");
+        item.append(link);
+        list.append(item);
+      });
+      contents.append(summary, list);
+      article.before(contents);
+    }
+  }
   const lookup = document.querySelector("#lookup-link");
   const ime = document.querySelector("#ime-link");
   document.addEventListener("selectionchange", () => {

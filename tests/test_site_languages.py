@@ -8,11 +8,39 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, navigation_links
+from build_content import build_content, navigation_links, home_launch
 from site_languages import LANGUAGES, base_route, language_for_route, language_url
 
 
 class SiteLanguageTests(unittest.TestCase):
+    def test_home_search_keeps_language_and_dictionary_gate_destination(self):
+        from html.parser import HTMLParser
+
+        class Tags(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.tags = []
+
+            def handle_starttag(self, tag, attrs):
+                self.tags.append((tag, dict(attrs)))
+
+        for language in LANGUAGES:
+            parser = Tags()
+            parser.feed(home_launch(language))
+            form = next(attrs for tag, attrs in parser.tags if tag == "form")
+            self.assertEqual(form["action"], "/dictionary/")
+            self.assertEqual(form["method"], "get")
+            inputs = {attrs["name"]: attrs for tag, attrs in parser.tags if tag == "input"}
+            self.assertEqual(inputs["q"]["type"], "search")
+            if language == "en":
+                self.assertNotIn("lang", inputs)
+            else:
+                self.assertEqual(inputs["lang"]["value"], language)
+            links = [attrs["href"] for tag, attrs in parser.tags if tag == "a"]
+            self.assertIn(language_url("/ime/", language), links)
+            self.assertIn(language_url("/songs/", language), links)
+            self.assertIn(language_url("/read/stories/the-egg/", "zh-Hant" if language == "zh-Hans" else language), links)
+
     def test_equivalent_pages_and_unavailable_translation(self):
         for language, prefix in (("en", ""), ("zh-Hant", "/zh-hant"), ("zh-Hans", "/zh-hans")):
             route = prefix + "/learn/spelling/"

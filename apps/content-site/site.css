@@ -8,7 +8,7 @@
 @font-face { font-family: "TLI Tone"; src: local("Calibri"); unicode-range: U+005E-0060, U+02C6-02CF, U+02EC, U+A788; }
 :root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
-body { margin: 0; color: var(--ink); background: #fff; line-height: 1.8; }
+body { margin: 0; color: var(--ink); background: var(--site-background, #f6f8fb); line-height: 1.8; }
 a { color: var(--accent); text-underline-offset: .18em; }
 a:hover { color: #07594f; }
 a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
@@ -69,6 +69,60 @@ h4 { font-size: 18px; }
 .site-footer { padding: 24px 28px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; text-align: center; }
 .skip-link { position: absolute; top: -100px; left: 12px; background: #fff; padding: 8px 16px; z-index: 5; }
 .skip-link:focus { top: 8px; }
+
+/* Directory layouts share navigation and type, but retain their own character. */
+.content-shell { width: min(100% - 56px, 1120px); }
+.site-brand { color: #173d43; }
+.content-shell > h1 { color: var(--site-accent); overflow-wrap: anywhere; }
+.imported-content { background: #fff; padding: 30px 36px; border-top: 3px solid var(--site-accent); }
+.imported-content h2, .imported-content h3 { color: var(--site-accent); }
+.imported-content h2 { padding-bottom: 8px; border-bottom: 1px solid var(--line); }
+.imported-content a { color: var(--site-accent); }
+.reading-tools { gap: 12px 24px; flex-wrap: wrap; }
+.reading-tools a { color: var(--site-accent); padding: 4px 0; }
+.imported-content th { background: var(--site-accent-soft); }
+.imported-content blockquote { border-color: var(--site-accent); background: var(--site-accent-soft); padding: 18px 24px; }
+.imported-content blockquote > :last-child { margin-bottom: 0; }
+.content-stories, .content-literature { max-width: 900px; }
+.content-songs { max-width: 1000px; }
+.content-songs .imported-content, .content-stories .imported-content { padding-top: 36px; }
+.content-index .imported-content { background: transparent; border-top: 0; padding: 0; }
+.page-list li { padding: 0; align-items: center; }
+.page-list li > a { flex: 1; min-width: 0; padding: 20px 12px; color: var(--site-accent); }
+.page-list li:hover { background: var(--site-accent-soft); }
+.page-list a { text-decoration: none; }
+.song-list li > a { font-size: 24px; line-height: 1.8; padding-top: 28px; padding-bottom: 24px; }
+.song-list { border-top: 3px solid var(--site-accent); }
+.source-link { font-size: 13px; }
+.article-contents { margin: 0 0 24px; padding: 12px 18px; border-left: 3px solid var(--site-accent); background: var(--site-accent-soft); }
+.article-contents summary { cursor: pointer; color: var(--site-accent); font-weight: 700; }
+.article-contents ol { margin: 12px 0 0; padding-left: 24px; columns: 2; column-gap: 32px; }
+.article-contents li { break-inside: avoid; padding: 3px 0; }
+.imported-content h2[id] { scroll-margin-top: 24px; }
+body[data-site-section="home"] .content-shell > h1 { font-size: 40px; }
+body[data-site-section="home"] .reading-tools { display: none; }
+body[data-site-section="home"] .imported-content { margin-top: 36px; }
+body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child { display: none; }
+.home-search { max-width: 760px; margin-top: 28px; }
+.home-search label { display: block; font-size: 14px; font-weight: 700; color: #46666a; margin-bottom: 8px; }
+.home-search-row { display: flex; border: 1px solid #82ada9; border-left: 4px solid #0f766e; border-radius: 5px; background: #fff; overflow: hidden; box-shadow: 0 3px 12px #153d3510; }
+.home-search input[type="search"] { min-width: 0; width: 100%; border: 0; padding: 16px; font: 18px Calibri, "Segoe UI", sans-serif; background: transparent; }
+.home-search input::placeholder { color: #69788a; font-style: italic; }
+.home-search button { border: 0; border-left: 1px solid #d8e0ea; background: #fff; color: #0b5d56; font: 700 16px Calibri, "Segoe UI", sans-serif; padding: 0 20px; cursor: pointer; }
+.home-search button:hover { background: #edf6f3; }
+.home-search-row:focus-within { outline: 2px solid #2563eb; outline-offset: 3px; }
+.home-search input:focus-visible { outline: none; }
+.home-actions { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin: 20px 0 32px; }
+.home-actions a { display: inline-flex; gap: 16px; align-items: center; }
+.home-actions a:first-child { background: #0f766e; color: #fff; padding: 9px 18px; border-radius: 5px; }
+.home-paths { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; padding: 28px; background: #edf4fa; border-top: 3px solid #c6dbe9; }
+.home-paths h2 { margin: 0 0 12px; font-size: 22px; color: #215d9c; }
+.home-paths a { display: flex; justify-content: space-between; gap: 18px; padding: 14px 0; border-bottom: 1px solid #d4e0e7; color: #215d9c; }
+.home-paths section + section h2, .home-paths section + section a { color: #953454; }
+.home-actions a, .home-paths a { text-decoration: none; }
+.home-paths a:hover { background: #ffffff80; }
+.wp-block-buttons a { display: inline-block; padding: 9px 14px; border-bottom: 2px solid var(--site-accent); text-decoration: none; }
+.wp-block-buttons a:hover { background: var(--site-accent-soft); }
 @media (max-width: 700px) {
   .imported-content rt:not([style*="120%"]) { top: calc(-1.1em - 1px) !important; }
   .site-header { padding: 16px 20px; align-items: flex-start; flex-direction: column; gap: 12px; }
@@ -78,4 +132,12 @@ h4 { font-size: 18px; }
   :is(.content-songs, .content-stories) h1 { font-size: 42px; }
   .page-list li { display: block; }
   .external-note { display: block; }
+  .imported-content { padding: 24px 16px; }
+  .content-songs .imported-content, .content-stories .imported-content { padding: 28px 16px; }
+  .home-paths { grid-template-columns: 1fr; gap: 28px; padding: 24px 18px; }
+  body[data-site-section="home"] .content-shell > h1 { font-size: 32px; }
+  .home-search input[type="search"] { font-size: 16px; padding: 14px 10px; }
+  .home-search button { padding: 0 12px; }
+  .article-contents ol { columns: 1; }
+  .song-list li > a { font-size: 22px; }
 }

@@ -41,9 +41,7 @@
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(244, 247, 251, 0.96)),
-    var(--bg);
+  background: var(--bg);
   color: var(--text);
   font-family: "TLI Western Punctuation", Calibri, "Segoe UI", Arial, sans-serif;
 }
@@ -98,15 +96,15 @@ body {
 
 h1 {
   margin: 0;
-  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-size: 32px;
   line-height: 1;
 }
 
 .pad {
   border: 1px solid var(--line);
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--panel);
-  box-shadow: 0 18px 44px rgba(15, 23, 42, 0.08);
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.03);
   overflow: hidden;
 }
 
@@ -135,7 +133,7 @@ h1 {
   resize: vertical;
   color: var(--text);
   font-family: "TLI Western Punctuation", "Tangliengim Tone", "Tangliengim Hanri Fallback", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
-  font-size: clamp(1.35rem, 3.2vw, 1.85rem);
+  font-size: 26px;
   line-height: 1.42;
 }
 
@@ -283,6 +281,13 @@ h1 {
   border-color: #d2e3fc;
   background: #e8f0fe;
   outline: none;
+}
+
+.tool-button:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+@media (max-width: 700px) {
+  .ime-tone-overlay, .ime-text { font-size: 24px; }
+  .tool-button { height: 44px; }
 }
 
 .tool-icon {
