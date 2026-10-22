@@ -1,4 +1,5 @@
 @import url("/shared/web-punctuation.css");
+@import url("/shared/web-hangul-font.css");
 :root {
   color-scheme: light;
   --bg: #f6f8fb;
@@ -11,7 +12,7 @@
   --accent-strong: #0b5d56;
   --focus: #2563eb;
   --warning: #a85518;
-  font-family: "TLI Western Punctuation", "Noto Sans", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans", Arial, sans-serif;
 }
 
 * {
@@ -248,7 +249,7 @@ h1 {
 }
 
 .search-input.hangul-ime-active {
-  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
 .search-input:focus {
@@ -470,7 +471,7 @@ h1 {
 
 .hanri {
   margin: 0;
-  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: 34px;
   font-weight: 800;
   line-height: 1.08;
@@ -483,7 +484,7 @@ h1 {
 
 .entry-headword-ruby rt {
   color: #334155;
-  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
   font-size: 0.44em;
   font-weight: 750;
   line-height: 1;
@@ -499,7 +500,7 @@ h1 {
 }
 
 .entry-headword-hangul {
-  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
 .latin-apostrophe {
