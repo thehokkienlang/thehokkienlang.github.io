@@ -27,6 +27,8 @@ h3 { margin-top: 1.8em; font-size: 20px; }
 h4 { font-size: 18px; }
 .reading-tools { display: flex; gap: 24px; padding: 8px 0 16px; margin-bottom: 24px; border-bottom: 1px solid var(--line); font-size: 14px; }
 .imported-content { overflow-wrap: anywhere; display: flow-root; }
+/* Code examples also need a font that shapes archaic conjoining jamo. */
+.imported-content code { font-family: "Tangliengim Conjoining Hangul", monospace; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
 :is(.content-songs, .content-stories) .imported-content rt { font-family: "TLI Western Punctuation", "TLI Tone", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif; }
