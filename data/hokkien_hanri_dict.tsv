@@ -259,8 +259,10 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 舅	〃	구5	〃	〃	maternal uncle		lexical	U+8205_00
 舊年	旧年	구니4	去年	〃	year		lexical	U+820A_U+5E74_00
 久長	久长	구1등4	〃	久长	long (time)		lexical	U+4E45_U+9577_00
+龜嶼	龟屿	구5수5	龜嶼	龟屿	Kusu Island, Singapore		lexical	U+9F9C_U+5DBC_00
 舊早	旧早	구자2	從前	从前	early; morning		lexical	U+820A_U+65E9_00
 君	〃	군1	〃	〃	gentleman		lexical	U+541B_00
+群島	群岛	군도2	群島	群岛	archipelago		lexical	U+7FA4_U+5CF6_00
 君王	〃	군5엉4	〃	〃	lord; ruler; king		lexical	U+541B_U+738B_00
 君子	〃	군5주2	〃	〃	lord; ruler; child; son		lexical	U+541B_U+5B50_00
 掘	〃	굳1	〃	〃	dig		lexical	U+6398_00
@@ -595,6 +597,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 燈火	灯火	뎽5훼2	〃	灯火	lights		lexical	U+71C8_U+706B_00
 刀	〃	도1	〃	〃	knife		lexical	U+5200_00
 多	〃	도1	〃	〃	many; much		lexical	U+591A_00
+島	岛	도2	島	岛	island		lexical	U+5CF6_00
 底	〃	도2	哪裡; 哪個	哪里; 哪个	where; which		lexical	U+5E95_01
 倒	〃	도	〃	〃	fall; reverse		lexical	U+5012_00
 道	〃	도5	〃	〃	road; way		lexical	U+9053_00
@@ -1014,6 +1017,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 婆	〃	보4	〃	〃	old woman; grandmother		lexical	U+5A46_00
 寶貴	宝贵	보1귀	〃	宝贵	precious		lexical	U+5BF6_U+8CB4_00
 保重	〃	보1뎡5	〃	〃	heavy; again		lexical	U+4FDD_U+91CD_00
+寶島	宝岛	보1도2	寶島	宝岛	treasure island; Formosa (Taiwan)		lexical	U+5BF6_U+5CF6_00
 坡底	〃	보5되2	市中心	〃	downtown		lexical	U+5761_U+5E95_00
 玻璃	〃	보5레4	〃	〃	glass		lexical	U+73BB_U+7483_00
 玻璃杯	〃	보5레붸1	〃	〃	glass cup		lexical	U+73BB_U+7483_U+676F_00
@@ -1079,11 +1083,13 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 筆	笔	빋	〃	笔	pen; brush		lexical	U+7B46_00
 邊	边	빌1	〃	边	side; edge		lexical	U+908A_00
 鱉	鳖	빟	〃	鳖	softshell turtle		lexical	U+9C49_00
+木	木	빡1	木	木	wood		lexical	U+6728_00
 目	〃	빡1	眼睛	〃	eye		lexical	U+76EE_00
 目鏡	目镜	빡걀	眼鏡	眼镜	eye		lexical	U+76EE_U+93E1_00
 茉莉	〃	빡니5	〃	〃	jasmine		lexical	U+8309_U+8389_00
 目眉	〃	빡빼4	眉毛	〃	eye		lexical	U+76EE_U+7709_00
 目尾	〃	빡쀄2	眼角	〃	corner of the eye		lexical	U+76EE_U+5C3E_00
+木蝨	木虱	빡삳	臭蟲	臭虫	bed bug		lexical	U+6728_U+8768_00
 目滓	〃	빡새2	眼淚	眼泪	tears		lexical	U+76EE_U+6ED3_00
 目睭	〃	빡쥬1	眼睛	〃	eye		lexical	U+76EE_U+776D_00
 閩	闽	빤4	〃	闽	Min; Fujian		lexical	U+95A9_00
@@ -1118,6 +1124,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 肉體	肉体	빻1테2	〃	肉体	body; flesh		lexical	U+8089_U+9AD4_00
 䆀	䆀	빼2	壞; 醜	坏; 丑	bad; ugly		lexical	U+4180_00
 模樣	模样	뻐율5	〃	模样	model; pattern; appearance; manner		lexical	U+6A21_U+6A23_00
+木	木	뻑1	木	木	wood		lexical	U+6728_01
+木瓜	木瓜	뻑궤1	木瓜	木瓜	papaya		lexical	U+6728_U+74DC_00
 目的	〃	뻑뎩1	〃	〃	purpose; motive		lexical	U+76EE_U+7684_00
 目前	〃	뻑졩4	〃	〃	at present; before one's eyes		lexical	U+76EE_U+524D_00
 茫	〃	뻥4	〃	〃	hazy; confused		lexical	U+832B_01
@@ -1178,6 +1186,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 美德	〃	삐1뎩	〃	〃	virtue; noble attribute; United States–Germany		lexical	U+7F8E_U+5FB7_00
 未來	未来	삐래4	〃	未来	future		lexical	U+672A_U+4F86_00
 美麗	美丽	삐1레5	〃	美丽	beautiful		lexical	U+7F8E_U+9E97_00
+美麗島	美丽岛	삐1레도2	美麗島	美丽岛	Formosa		lexical	U+7F8E_U+9E97_U+5CF6_00
 美夢	美梦	삐1빵5	〃	美梦	beautiful dream		lexical	U+7F8E_U+5922_00
 微微	〃	삐삐5	〃	〃	slight; faint		lexical	U+5FAE_U+5FAE_00
 美世界	〃	삐1세2개	〃	〃	Beauty World		lexical	U+7F8E_U+4E16_U+754C_00
@@ -1396,6 +1405,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 駛	驶	수2	〃	驶	drive; use		lexical	U+99DB_01
 事	〃	수5	〃	〃	matter; thing		lexical	U+4E8B_00
 士	〃	수5	〃	〃	scholar; specialist		lexical	U+58EB_00
+嶼	屿	수5	嶼	屿	island		lexical	U+5DBC_00
 舒佮	〃	수5갛	舒服	〃	comfortable; stretch; and; with		lexical	U+8212_U+4F6E_00
 事到如今	〃	수ᄀᅷ2뚜김1	〃	〃	matter; affair; arrive; reach; as		lexical	U+4E8B_U+5230_U+5982_U+4ECA_00
 使然	〃	수1뗸4	〃	〃	caused by; result of		lexical	U+4F7F_U+7136_00
@@ -1530,6 +1540,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 阿媽	阿妈	아5마2	〃	阿妈	grandmother		lexical	U+963F_U+5ABD_00
 阿婆	〃	아5보4	〃	〃	grandmother; old woman		lexical	U+963F_U+5A46_00
 阿母	〃	아5뿌2	母親	母亲	mother		lexical	U+963F_U+6BCD_00
+阿舍	阿舍	아5샤	公子哥	公子哥	rich man's son		lexical	U+963F_U+820D_00
+阿舍囝	阿舍囝	아5샤2걀2	公子哥	公子哥	rich man's son		lexical	U+963F_U+820D_U+56DD_00
 阿修羅	阿修罗	아5슈5로4	〃	阿修罗	prefix for names; repair; cultivate; net; gather		lexical	U+963F_U+4FEE_U+7F85_00
 阿姨	〃	아5이4	〃	〃	aunt		lexical	U+963F_U+59E8_00
 阿祖	〃	아5저2	曾祖父母	〃	great-grandparent		lexical	U+963F_U+7956_00
@@ -2223,9 +2235,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 喙舌	〃	취2짛1	舌頭	舌头	tongue		lexical	U+5599_U+820C_00
 秋	〃	츄1	〃	〃	autumn		lexical	U+79CB_00
 手	〃	츄2	〃	〃	hand		lexical	U+624B_00
+樹	树	츄5	樹	树	tree		lexical	U+6A39_00
 手巾	〃	츄1긘1	〃	〃	hand		lexical	U+624B_U+5DFE_00
 手機	手机	츄1기1	〃	手机	mobile phone		lexical	U+624B_U+6A5F_00
 手機仔	手机仔	츄1기5아2	手機	手机	mobile phone		lexical	U+624B_U+6A5F_U+4ED4_00
+樹林	树林	츄나4	樹林	树林	woods; forest		lexical	U+6A39_U+6797_00
 樹頂	树顶	츄뎽2	〃	树顶	treetop		lexical	U+6A39_U+9802_00
 手內	手内	츄1래5	〃	手内	in hand; at hand		lexical	U+624B_U+5167_00
 樹木	树木	츄빡1	〃	树木	tree; wood		lexical	U+6A39_U+6728_00
