@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Hokkien Tangliengim IME Pad</title>
+    <title>IME · TheHokkienLang</title>
     <meta
       name="description"
-      content="A browser-based Hokkien Tangliengim IME pad for typing Tangliengim Hangul and Hanri."
+      content="TheHokkienLang browser-based TLI IME pad for typing Tangliengim Hangul and Hanri."
     >
     <link rel="icon" type="image/png" href="favicon.png">
     <link rel="stylesheet" href="styles.css">
@@ -17,17 +17,15 @@
   </head>
   <body data-site-section="ime">
       <header class="site-app-header">
-        <div class="brand">
+        <a class="brand" href="/" aria-label="TheHokkienLang home">
           <img class="site-logo" src="/assets/tangliengim-hokkienlang-logo.png" width="96" height="64" alt="" aria-hidden="true">
-          <div>
-            <p class="eyebrow">Hokkien Tangliengim</p>
-            <h1>IME Pad</h1>
-          </div>
-        </div>
+          <span class="site-brand-names"><span>TheHokkienLang</span><small>Powered by TLI</small></span>
+        </a>
         <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
       </header>
 
     <main class="ime-shell">
+      <h1 class="visually-hidden">IME Pad</h1>
       <section class="pad" aria-label="Hokkien Tangliengim IME Pad">
         <label class="pad-label" for="imeText">Hanri + Hangul</label>
         <div class="text-wrap">

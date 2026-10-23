@@ -8,12 +8,21 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, navigation_links, home_launch
+from build_content import build_content, navigation_links, home_launch, remove_leading_language_switcher
 from site_languages import LANGUAGES, base_route, language_for_route, language_url
 
 
 class SiteLanguageTests(unittest.TestCase):
-    def test_home_search_keeps_language_and_dictionary_gate_destination(self):
+    def test_legacy_language_switcher_is_removed_without_touching_page_actions(self):
+        legacy = '''\n<div class="wp-block-buttons is-layout-flex">
+<div class="wp-block-button"><a href="https://hokkienlang.wordpress.com/zh-tw/">繁體中文</a></div>
+<div class="wp-block-button"><a href="https://hokkienlang.wordpress.com/zh-cn/">简体中文</a></div>
+</div>\n<p>Article</p>'''
+        self.assertEqual(remove_leading_language_switcher(legacy), '<p>Article</p>')
+        action = '<div class="wp-block-buttons"><div class="wp-block-button"><a href="/learn/">Learn</a></div></div>'
+        self.assertEqual(remove_leading_language_switcher(action), action)
+
+    def test_home_paths_keep_language_without_exposing_a_gated_search(self):
         from html.parser import HTMLParser
 
         class Tags(HTMLParser):
@@ -27,19 +36,13 @@ class SiteLanguageTests(unittest.TestCase):
         for language in LANGUAGES:
             parser = Tags()
             parser.feed(home_launch(language))
-            form = next(attrs for tag, attrs in parser.tags if tag == "form")
-            self.assertEqual(form["action"], "/dictionary/")
-            self.assertEqual(form["method"], "get")
-            inputs = {attrs["name"]: attrs for tag, attrs in parser.tags if tag == "input"}
-            self.assertEqual(inputs["q"]["type"], "search")
-            if language == "en":
-                self.assertNotIn("lang", inputs)
-            else:
-                self.assertEqual(inputs["lang"]["value"], language)
+            self.assertFalse(any(tag == "form" for tag, _ in parser.tags))
+            self.assertFalse(any(tag == "input" for tag, _ in parser.tags))
             links = [attrs["href"] for tag, attrs in parser.tags if tag == "a"]
             self.assertIn(language_url("/ime/", language), links)
+            self.assertIn(language_url("/dictionary/", language), links)
             self.assertIn(language_url("/songs/", language), links)
-            self.assertIn(language_url("/read/stories/the-egg/", "zh-Hant" if language == "zh-Hans" else language), links)
+            self.assertIn(language_url("/read/", language), links)
 
     def test_equivalent_pages_and_unavailable_translation(self):
         for language, prefix in (("en", ""), ("zh-Hant", "/zh-hant"), ("zh-Hans", "/zh-hans")):

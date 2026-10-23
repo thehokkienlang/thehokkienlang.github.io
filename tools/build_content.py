@@ -66,43 +66,83 @@ def navigation_links(route, language=None, variants=True):
 
 def home_launch(language):
     labels = {
-        "en": ("Search the dictionary", "Search Hanri, Hangul, Lomari, or English...", "Search", "Start learning", "Read and listen"),
-        "zh-Hant": ("搜尋詞典", "搜尋漢字、諺文、羅馬字或英文…", "搜尋", "開始學習", "閱讀與聆聽"),
-        "zh-Hans": ("搜索词典", "搜索汉字、谚文、罗马字或英文…", "搜索", "开始学习", "阅读与聆听"),
+        "en": (
+            "Learn TLI", "Understand the script, spelling, and tone sandhi.", "Start with the introduction",
+            "Read Hokkien", "Stories and literature with pronunciation kept close to the text.", "Browse reading",
+            "Hear the language", "Songs with Hangul readings and Lomari.", "Explore songs", "Writing tools", "student",
+        ),
+        "zh-Hant": (
+            "學習東寧音", "了解文字、拼寫與變調。", "從使用說明開始",
+            "閱讀閩南語", "讓故事與文學的讀音緊貼原文。", "瀏覽讀物",
+            "聆聽語言", "附有諺文讀音與羅馬字的歌曲。", "探索歌曲", "書寫工具", "學生",
+        ),
+        "zh-Hans": (
+            "学习东宁音", "了解文字、拼写与变调。", "从使用说明开始",
+            "阅读闽南语", "让故事与文学的读音紧贴原文。", "浏览读物",
+            "聆听语言", "附有谚文读音与罗马字的歌曲。", "探索歌曲", "书写工具", "学生",
+        ),
     }
-    search_label, placeholder, submit, start, read = labels[language]
-    lang_input = f'<input type="hidden" name="lang" value="{language}">' if language != "en" else ""
+    learn, learn_note, learn_link, read, read_note, read_link, hear, hear_note, hear_link, tools, student = labels[language]
 
-    def destination(path, label):
+    def destination(path, label, class_name=""):
         url = language_url(path, language) or language_url(path, "zh-Hant")
-        return f'<a href="{html.escape(url, quote=True)}"><span>{html.escape(label)}</span><span aria-hidden="true">&#8594;</span></a>'
+        class_attr = f' class="{class_name}"' if class_name else ""
+        return f'<a{class_attr} href="{html.escape(url, quote=True)}"><span>{html.escape(label)}</span><span aria-hidden="true">&#8594;</span></a>'
 
-    learning = "".join(destination(path, text(label, language)) for path, label in NAV_SECTIONS["/learn/"])
-    reading = destination("/songs/", text("Songs", language)) + "".join(destination(path, text(label, language)) for path, label in NAV_SECTIONS["/read/"])
+    paths = (
+        ("01", learn, learn_note, "/learn/introduction/", learn_link),
+        ("02", read, read_note, "/read/", read_link),
+        ("03", hear, hear_note, "/songs/", hear_link),
+    )
+    path_html = "".join(
+        '<article class="home-path">'
+        f'<span class="home-path-number">{number}</span><h2>{html.escape(title)}</h2>'
+        f'<p>{html.escape(note)}</p>{destination(path, label)}</article>'
+        for number, title, note, path, label in paths
+    )
     return (
         '<section class="home-launch">'
-        f'<form class="home-search" action="/dictionary/" method="get" role="search" aria-label="{search_label}">'
-        f'<label for="home-query">{search_label}</label><div class="home-search-row">'
-        f'<input id="home-query" name="q" type="search" placeholder="{placeholder}" required maxlength="12000">'
-        f'{lang_input}<button type="submit">{submit}</button></div></form>'
-        '<div class="home-actions">' + destination("/ime/", text("Open IME", language)) + destination("/learn/introduction/", start) + '</div>'
-        f'<div class="home-paths"><section><h2>{text("Learn Tangliengim", language)}</h2>{learning}</section>'
-        f'<section><h2>{read}</h2>{reading}</section></div></section>'
+        '<aside class="home-specimen" aria-label="Tangliengim writing specimen">'
+        '<ruby><span lang="zh-Hant">學生</span><rt lang="ko">학솅ˆ</rt></ruby>'
+        f'<span class="home-specimen-lomari">hak-siêng</span><span class="home-specimen-meaning">{html.escape(student)}</span></aside>'
+        f'<div class="home-paths">{path_html}</div>'
+        f'<div class="home-tools"><h2>{html.escape(tools)}</h2><div>{destination("/ime/", text("Open IME", language))}{destination("/dictionary/", text("Dictionary", language))}</div></div>'
+        '</section>'
     )
+
+
+LEADING_LANGUAGE_SWITCHER = re.compile(
+    r'^\s*<div class="wp-block-buttons[^"]*">\s*'
+    r'(?:<div class="wp-block-button[^"]*">.*?</div>\s*)+</div>\s*',
+    re.DOTALL,
+)
+
+
+def remove_leading_language_switcher(body):
+    match = LEADING_LANGUAGE_SWITCHER.match(body)
+    if match and re.search(r'href="https://hokkienlang\.wordpress\.com/zh-(?:tw|cn)', match.group(0)):
+        return body[match.end():]
+    return body
 
 
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
     source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url else ""
-    tools = f'<aside class="reading-tools" aria-label="Reading tools"><a id="lookup-link" data-site-text="Dictionary" href="{language_url("/dictionary/", language)}">{text("Dictionary", language)}</a><a id="ime-link" data-site-text="Open IME" href="{language_url("/ime/", language)}">{text("Open IME", language)}</a></aside>'
-    heading = "TheHokkienLang" if base_route(route) == "/" else title
-    introductions = {"en": "Explore Hokkien with", "zh-Hant": "透過以下系統探索閩南語：", "zh-Hans": "通过以下系统探索闽南语："}
-    introduction = f'<p class="site-introduction">{introductions[language]} <a href="{language_url("/learn/introduction/", language)}">TLI (Tangliengim)</a>.</p>' if base_route(route) == "/" else ""
+    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "閩南語的書寫之聲。", "zh-Hans": "闽南语的书写之声。"}
+    home_introductions = {
+        "en": "Tangliengim brings pronunciation, tone, and meaning into one readable system.",
+        "zh-Hant": "東寧音把發音、聲調與意義結合在一套易讀的系統中。",
+        "zh-Hans": "东宁音把发音、声调与意义结合在一套易读的系统中。",
+    }
+    home_kickers = {"en": "Hokkien language · writing · culture", "zh-Hant": "閩南語 · 文字 · 文化", "zh-Hans": "闽南语 · 文字 · 文化"}
+    heading = home_headings[language] if base_route(route) == "/" else title
+    introduction = f'<p class="site-introduction">{home_introductions[language]}</p>' if base_route(route) == "/" else ""
+    eyebrow = f'<p class="home-kicker">{home_kickers[language]}</p>' if base_route(route) == "/" else ""
     alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "TOOLS": tools, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else ""}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else ""}
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
@@ -145,7 +185,7 @@ def build_content(root: Path, output: Path):
         paths.add(route)
         target.parent.mkdir(parents=True, exist_ok=True)
         heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
-        body = PresentationHTML(record).render(body)
+        body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"

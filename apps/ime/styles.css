@@ -1,14 +1,14 @@
 @import url("/shared/web-punctuation.css");
 :root {
-  --bg: #f4f7fb;
+  --bg: #f5f8f7;
   --panel: #ffffff;
-  --text: #102033;
-  --muted: #6b7788;
-  --line: #ccd7e5;
-  --accent: #0f766e;
-  --accent-strong: #0b5f58;
-  --accent-soft: #e8f5f2;
-  --blue: #1d70d7;
+  --text: #19272a;
+  --muted: #5d6c70;
+  --line: #ccd9d7;
+  --accent: #08756b;
+  --accent-strong: #07594f;
+  --accent-soft: #e8f2ef;
+  --blue: #08756b;
 }
 
 /* Mirror the Local IME's per-script font tags inside the plain textarea. */
@@ -89,7 +89,7 @@ body {
 
 .eyebrow {
   margin: 0 0 2px;
-  color: var(--blue);
+  color: var(--accent);
   font-size: 0.9rem;
   font-weight: 800;
 }
@@ -152,7 +152,7 @@ h1 {
   position: relative;
   z-index: 2;
   background: transparent;
-  caret-color: rgba(29, 78, 216, 0.75);
+  caret-color: rgba(8, 117, 107, 0.78);
 }
 
 .text-wrap.native-composition-active .ime-tone-overlay {
@@ -236,7 +236,7 @@ h1 {
   overflow-y: auto;
   border-top: 1px solid #e4ebf3;
   border-bottom: 1px solid #e4ebf3;
-  background: #fbfcfe;
+  background: #f7faf9;
   color: #667386;
   font-family: "TLI Western Punctuation", "Google Sans", "Product Sans", "Noto Sans", "Segoe UI", Arial, sans-serif;
   font-size: 1.08rem;
@@ -278,8 +278,8 @@ h1 {
 
 .tool-button:hover,
 .tool-button:focus-visible {
-  border-color: #d2e3fc;
-  background: #e8f0fe;
+  border-color: #b8d8d3;
+  background: #e8f2ef;
   outline: none;
 }
 
@@ -338,8 +338,8 @@ h1 {
 }
 
 .sandhi-button.active {
-  border-color: #b8d0f6;
-  background: #eaf2ff;
+  border-color: #b8d8d3;
+  background: #e8f2ef;
   color: var(--blue);
 }
 
@@ -376,8 +376,8 @@ h1 {
 .keyboard-guide-button:hover,
 .keyboard-guide-button:focus-visible,
 .keyboard-guide-button[aria-expanded="true"] {
-  border-color: rgba(29, 112, 215, 0.45);
-  background: #eaf2ff;
+  border-color: rgba(8, 117, 107, 0.45);
+  background: #e8f2ef;
   color: var(--blue);
   outline: none;
 }
