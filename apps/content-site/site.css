@@ -131,6 +131,38 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
 .home-tools h2 { margin: 0; color: var(--ink); font-size: 18px; }
 .home-tools div { display: flex; gap: 28px; }
 .home-tools a { display: inline-flex; gap: 14px; color: var(--accent); text-decoration: none; }
+.home-showcase { margin-top: 88px; border-top: 4px solid var(--ink); }
+.home-feature-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.home-feature { min-width: 0; }
+.home-feature-pair .home-feature { display: flex; min-height: 340px; flex-direction: column; align-items: flex-start; padding: 46px 48px 42px; border-bottom: 1px solid var(--line); }
+.home-feature-pair .home-feature:first-child { padding-left: 0; border-right: 1px solid var(--line); }
+.home-feature-meta { color: var(--site-voice, #b33b46); font-family: Calibri, "Segoe UI", sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+body[data-site-section="home"] .home-feature h2 { max-width: 520px; margin: 18px 0 16px; padding: 0; border: 0; color: var(--ink); font-size: 34px; line-height: 1.18; }
+body[data-site-section="home"] .home-feature h2::before { display: none; }
+.home-feature > p, .home-feature-heading > p { max-width: 520px; margin: 0 0 28px; color: var(--muted); font-size: 17px; line-height: 1.65; }
+.home-feature-link { display: flex; width: 100%; max-width: 320px; align-items: center; justify-content: space-between; gap: 18px; margin-top: auto; padding: 12px 0; border-top: 1px solid currentColor; color: var(--accent); text-decoration: none; font-weight: 700; }
+.home-feature-link span:last-child { font-family: Calibri, "Segoe UI", sans-serif; font-size: 20px; transition: transform .18s ease; }
+.home-feature-link:hover span:last-child { transform: translateX(4px); }
+.home-feature-literature { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 1.45fr); gap: 54px; padding: 76px 0 82px; border-bottom: 1px solid var(--line); }
+.home-feature-heading { align-self: start; }
+.home-literature-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px; }
+.home-literature-work { display: grid; min-width: 0; grid-template-rows: auto auto auto 1fr; align-content: start; color: var(--ink); text-decoration: none; }
+.home-literature-work img { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 22px; object-fit: cover; object-position: center; filter: saturate(.82) contrast(.96); transition: filter .2s ease, transform .2s ease; }
+.home-literature-work:hover img { filter: saturate(1) contrast(1); transform: translateY(-3px); }
+.home-work-kind { color: var(--site-voice, #b33b46); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.home-literature-work h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 9px 0 4px; font-size: 23px; line-height: 1.45; }
+.home-literature-work h3 ruby { ruby-position: over; }
+.home-literature-work h3 rt { color: var(--ink); font-family: "Tangliengim Conjoining Hangul", "Noto Sans KR", Calibri, sans-serif; font-size: 38%; }
+.home-literature-work h3 span { color: var(--muted); font-size: 14px; font-weight: 500; }
+.home-literature-work p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+.home-feature-songs { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 1.45fr); gap: 54px; margin-top: 0; padding: 70px 48px; background: #f3e9ea; }
+.home-feature-songs .home-feature-link { color: var(--site-voice, #9d303b); }
+.home-songbook { border-top: 2px solid var(--ink); }
+.home-songbook-label { display: block; padding: 13px 0 10px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--site-voice, #9d303b); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.home-songbook a { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--ink); text-decoration: none; }
+.home-songbook a:hover { color: var(--site-voice, #9d303b); }
+.home-songbook a span { font-size: 21px; font-weight: 700; }
+.home-songbook a small { color: var(--muted); font-family: Calibri, "Segoe UI", sans-serif; font-size: 14px; }
 @media (max-width: 900px) {
   body[data-site-section="home"] .content-shell > h1 { max-width: 680px; font-size: 48px; }
   body[data-site-section="home"] .site-introduction { max-width: 680px; }
@@ -139,6 +171,13 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
   .home-paths { grid-template-columns: 1fr; }
   .home-path, .home-path:first-child { padding: 26px 0; border-right: 0; }
   .home-path p { min-height: 0; }
+  .home-showcase { margin-top: 64px; }
+  .home-feature-pair { grid-template-columns: 1fr; }
+  .home-feature-pair .home-feature { min-height: 0; padding: 42px 0 46px; border-right: 0; }
+  .home-feature-pair .home-feature:first-child { padding-left: 0; border-right: 0; }
+  .home-feature-literature, .home-feature-songs { grid-template-columns: 1fr; gap: 34px; }
+  .home-feature-literature { padding: 58px 0 64px; }
+  .home-feature-songs { padding: 52px 40px; }
 }
 @media (max-width: 700px) {
   .imported-content rt:not([style*="120%"]) { top: calc(-1.1em - 1px) !important; }
@@ -158,6 +197,12 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
   .home-specimen { max-width: 260px; padding-left: 20px; }
   .home-specimen ruby { font-size: 44px; }
   .home-tools { align-items: flex-start; flex-direction: column; }
+  .home-showcase { margin-top: 52px; }
+  body[data-site-section="home"] .home-feature h2 { font-size: 30px; }
+  .home-literature-grid { grid-template-columns: 1fr; gap: 44px; }
+  .home-literature-work img { aspect-ratio: 16 / 10; }
+  .home-feature-songs { margin-right: -20px; margin-left: -20px; padding: 46px 20px 50px; }
+  .home-songbook a { grid-template-columns: 1fr; gap: 0; }
   .article-contents ol { columns: 1; }
   .song-list li > a { font-size: 22px; }
 }

@@ -111,6 +111,153 @@ def home_launch(language):
     )
 
 
+def home_showcase(language):
+    labels = {
+        "en": {
+            "label": "Explore TheHokkienLang",
+            "learn_meta": "01 · Learn",
+            "learn_title": "Learn TLI",
+            "learn_copy": "Begin with the script, then move through spelling, romanisation, and tone.",
+            "learn_link": "Start learning",
+            "tone_meta": "02 · Listen closely",
+            "tone_title": "Guide to Hokkien tone sandhi",
+            "tone_copy": "Follow the sound changes that give a Hokkien phrase its rhythm, and see how TLI records what is heard.",
+            "tone_link": "Read the tone-sandhi guide",
+            "read_meta": "03 · Read",
+            "read_title": "Literature works",
+            "read_copy": "Meet Hokkien on the page through short fiction and dramatic literature, with pronunciation kept close to the text.",
+            "egg_kind": "Short story",
+            "egg_title": "The Egg",
+            "egg_note": "A philosophical story presented in Hokkien.",
+            "mirror_kind": "Classical literature",
+            "mirror_title": "Tale of the Lychee Mirror",
+            "mirror_note": "A Hokkien dramatic tradition in a reading edition.",
+            "songs_meta": "04 · Hear",
+            "songs_title": "Songs",
+            "songs_copy": "From timeless classics to newer voices, explore lyrics with Hanri-Hangul readings and Lomari.",
+            "songs_link": "Browse the songbook",
+            "selection": "From the songbook",
+        },
+        "zh-Hant": {
+            "label": "探索 TheHokkienLang",
+            "learn_meta": "01 · 學習",
+            "learn_title": "學習東寧音",
+            "learn_copy": "從文字系統開始，再逐步認識拼寫、羅馬字與聲調。",
+            "learn_link": "開始學習",
+            "tone_meta": "02 · 細聽",
+            "tone_title": "閩南語變調解析",
+            "tone_copy": "了解變調如何構成閩南語詞句的節奏，以及東寧音如何記錄實際讀音。",
+            "tone_link": "閱讀變調指南",
+            "read_meta": "03 · 閱讀",
+            "read_title": "文學讀物",
+            "read_copy": "透過短篇小說與戲曲文學閱讀閩南語，讓讀音緊貼原文。",
+            "egg_kind": "短篇小說",
+            "egg_title": "《卵》",
+            "egg_note": "以閩南語呈現的哲思故事。",
+            "mirror_kind": "古典文學",
+            "mirror_title": "《荔鏡記》",
+            "mirror_note": "閩南戲曲傳統的閱讀版本。",
+            "songs_meta": "04 · 聆聽",
+            "songs_title": "歌曲",
+            "songs_copy": "從歷久不衰的經典到新世代聲音，閱讀附有漢諺讀音與羅馬字的歌詞。",
+            "songs_link": "瀏覽歌本",
+            "selection": "歌本選讀",
+        },
+        "zh-Hans": {
+            "label": "探索 TheHokkienLang",
+            "learn_meta": "01 · 学习",
+            "learn_title": "学习东宁音",
+            "learn_copy": "从文字系统开始，再逐步认识拼写、罗马字与声调。",
+            "learn_link": "开始学习",
+            "tone_meta": "02 · 细听",
+            "tone_title": "闽南语变调解析",
+            "tone_copy": "了解变调如何构成闽南语词句的节奏，以及东宁音如何记录实际读音。",
+            "tone_link": "阅读变调指南",
+            "read_meta": "03 · 阅读",
+            "read_title": "文学读物",
+            "read_copy": "通过短篇小说与戏曲文学阅读闽南语，让读音紧贴原文。",
+            "egg_kind": "短篇小说",
+            "egg_title": "《卵》",
+            "egg_note": "以闽南语呈现的哲思故事。",
+            "mirror_kind": "古典文学",
+            "mirror_title": "《荔镜记》",
+            "mirror_note": "闽南戏曲传统的阅读版本。",
+            "songs_meta": "04 · 聆听",
+            "songs_title": "歌曲",
+            "songs_copy": "从历久不衰的经典到新世代声音，阅读附有汉谚读音与罗马字的歌词。",
+            "songs_link": "浏览歌本",
+            "selection": "歌本选读",
+        },
+    }[language]
+
+    def link(path, label, class_name="home-feature-link"):
+        destination = language_url(path, language) or language_url(path, "zh-Hant")
+        return (
+            f'<a class="{class_name}" href="{html.escape(destination, quote=True)}">'
+            f'<span>{html.escape(label)}</span><span aria-hidden="true">&#8594;</span></a>'
+        )
+
+    literature = (
+        '<div class="home-literature-grid">'
+        f'<a class="home-literature-work" href="{html.escape(language_url("/read/stories/the-egg/", language) or language_url("/read/stories/the-egg/", "zh-Hant"), quote=True)}">'
+        '<img src="/assets/content/wordpress/a544aeacfa20-the-egg.png" alt="">'
+        f'<span class="home-work-kind">{html.escape(labels["egg_kind"])}</span>'
+        f'<h3><ruby>卵<rt>능ˉ</rt></ruby> <span>{html.escape(labels["egg_title"])}</span></h3>'
+        f'<p>{html.escape(labels["egg_note"])}</p></a>'
+        f'<a class="home-literature-work" href="{html.escape(language_url("/read/literature/lychee-mirror/", language), quote=True)}">'
+        '<img src="/assets/content/wordpress/c9a8f25fedf3-naikiengki.png" alt="">'
+        f'<span class="home-work-kind">{html.escape(labels["mirror_kind"])}</span>'
+        f'<h3><ruby>荔鏡記<rt>내곙`기</rt></ruby> <span>{html.escape(labels["mirror_title"])}</span></h3>'
+        f'<p>{html.escape(labels["mirror_note"])}</p></a></div>'
+    )
+    songs = (
+        '<div class="home-songbook">'
+        f'<span class="home-songbook-label">{html.escape(labels["selection"])}</span>'
+        f'<a href="{html.escape(language_url("/songs/望春風/", language), quote=True)}"><span>望春風</span><small>Bang-chūn-hông</small></a>'
+        f'<a href="{html.escape(language_url("/songs/金包銀/", language), quote=True)}"><span>金包銀</span><small>Kîm pāu-gín</small></a>'
+        f'<a href="{html.escape(language_url("/songs/月下煮茶/", language), quote=True)}"><span>月下煮茶</span><small>Gueh-é j́-tê</small></a>'
+        '</div>'
+    )
+    return (
+        f'<section class="home-showcase" aria-label="{html.escape(labels["label"], quote=True)}">'
+        '<div class="home-feature-pair">'
+        '<article class="home-feature home-feature-learn">'
+        f'<span class="home-feature-meta">{html.escape(labels["learn_meta"])}</span>'
+        f'<h2>{html.escape(labels["learn_title"])}</h2><p>{html.escape(labels["learn_copy"])}</p>'
+        f'{link("/learn/introduction/", labels["learn_link"])}</article>'
+        '<article class="home-feature home-feature-tone">'
+        f'<span class="home-feature-meta">{html.escape(labels["tone_meta"])}</span>'
+        f'<h2>{html.escape(labels["tone_title"])}</h2><p>{html.escape(labels["tone_copy"])}</p>'
+        f'{link("/learn/tone-sandhi/", labels["tone_link"])}</article></div>'
+        '<section class="home-feature home-feature-literature">'
+        '<div class="home-feature-heading">'
+        f'<span class="home-feature-meta">{html.escape(labels["read_meta"])}</span>'
+        f'<h2>{html.escape(labels["read_title"])}</h2><p>{html.escape(labels["read_copy"])}</p></div>{literature}</section>'
+        '<section class="home-feature home-feature-songs"><div class="home-feature-heading">'
+        f'<span class="home-feature-meta">{html.escape(labels["songs_meta"])}</span>'
+        f'<h2>{html.escape(labels["songs_title"])}</h2><p>{html.escape(labels["songs_copy"])}</p>'
+        f'{link("/songs/", labels["songs_link"])}</div>{songs}</section></section>'
+    )
+
+
+def curate_home_body(body, language):
+    marker = {"en": "Learn TLI", "zh-Hant": "學習東寧音", "zh-Hans": "学习东宁音"}[language]
+    marker_position = body.find(marker)
+    if marker_position == -1:
+        raise ValueError(f"Homepage feature marker is missing for {language}: {marker}")
+    feature_start = body.rfind("<h2", 0, marker_position)
+    if feature_start == -1:
+        raise ValueError(f"Homepage feature heading is missing for {language}: {marker}")
+    introduction = body[:feature_start]
+    introduction = re.sub(
+        r'(?:\s*<div[^>]*style="[^"]*margin-bottom[^"]*"[^>]*></div>|\s*<hr[^>]*>)+\s*$',
+        '',
+        introduction,
+        flags=re.IGNORECASE,
+    )
+    return introduction.rstrip() + home_showcase(language)
+
+
 LEADING_LANGUAGE_SWITCHER = re.compile(
     r'^\s*<div class="wp-block-buttons[^"]*">\s*'
     r'(?:<div class="wp-block-button[^"]*">.*?</div>\s*)+</div>\s*',
@@ -120,23 +267,35 @@ LEADING_LANGUAGE_SWITCHER = re.compile(
 
 def remove_leading_language_switcher(body):
     match = LEADING_LANGUAGE_SWITCHER.match(body)
-    if match and re.search(r'href="https://hokkienlang\.wordpress\.com/zh-(?:tw|cn)', match.group(0)):
-        return body[match.end():]
+    if match:
+        targets = re.findall(r'href="([^"]+)"', match.group(0))
+        language_roots = {"/", "/zh-hant/", "/zh-hans/", "https://hokkienlang.wordpress.com/zh-tw/", "https://hokkienlang.wordpress.com/zh-cn/"}
+        if len(targets) >= 2 and all(target in language_roots for target in targets):
+            return body[match.end():]
     return body
+
+
+def introduce_tli(text):
+    before, name, after = text.partition("Tangliengim")
+    if not name:
+        return text
+    return before + "Tangliengim (TLI)" + after.replace("Tangliengim", "TLI")
 
 
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
-    source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url else ""
+    source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url and base_route(route) != "/" else ""
     home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "閩南語的書寫之聲。", "zh-Hans": "闽南语的书写之声。"}
     home_introductions = {
-        "en": "Tangliengim brings pronunciation, tone, and meaning into one readable system.",
+        "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
         "zh-Hant": "東寧音把發音、聲調與意義結合在一套易讀的系統中。",
         "zh-Hans": "东宁音把发音、声调与意义结合在一套易读的系统中。",
     }
     home_kickers = {"en": "Hokkien language · writing · culture", "zh-Hant": "閩南語 · 文字 · 文化", "zh-Hans": "闽南语 · 文字 · 文化"}
     heading = home_headings[language] if base_route(route) == "/" else title
+    if language == "en" and base_route(route) != "/" and heading_html is None:
+        heading = introduce_tli(heading)
     introduction = f'<p class="site-introduction">{home_introductions[language]}</p>' if base_route(route) == "/" else ""
     eyebrow = f'<p class="home-kicker">{home_kickers[language]}</p>' if base_route(route) == "/" else ""
     alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
@@ -165,6 +324,7 @@ def build_content(root: Path, output: Path):
         def __init__(self, record):
             super().__init__(record["sourceUrl"], source_routes, media, root, False)
             self.language = record["language"]
+            self.tli_introduced = self.language != "en" or "Tangliengim" in record["title"] or base_route(record["route"]) == "/"
 
         def rewrite(self, value, media=False):
             result = super().rewrite(value, media)
@@ -174,7 +334,14 @@ def build_content(root: Path, output: Path):
             return result
 
         def handle_data(self, data):
-            super().handle_data(nasal_font_text(re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data)))
+            data = re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data)
+            if self.language == "en" and "Tangliengim" in data:
+                if self.tli_introduced:
+                    data = data.replace("Tangliengim", "TLI")
+                else:
+                    data = introduce_tli(data)
+                    self.tli_introduced = True
+            super().handle_data(nasal_font_text(data))
 
     paths = set()
     for record in records:
@@ -186,9 +353,11 @@ def build_content(root: Path, output: Path):
         target.parent.mkdir(parents=True, exist_ok=True)
         heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
         body = PresentationHTML(record).render(remove_leading_language_switcher(body))
+        if base_route(route) == "/":
+            body = curate_home_body(body, record["language"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
     def listing(items):
-        return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"])}</a></li>' for item in items) + "</ul>"
+        return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
     source_titles = json.loads((root / "migration/song-titles.json").read_text(encoding="utf-8"))
     songs_by_route = {item["route"]: item for item in records if item["type"] == "songs"}
