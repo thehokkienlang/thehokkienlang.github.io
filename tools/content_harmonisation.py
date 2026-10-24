@@ -33,7 +33,6 @@ HANRI = {
     "심": ("心", "4.1/dictionary"), "래": ("來", "4.1/dictionary"),
     "킁": ("囥", "4.1/dictionary"), "ᄁᅷ": ("𠢕", "4.1/dictionary"),
     "ᄃᅷ": ("兜", "4.1/dictionary"),
-    "도": ("就", "4.3.1/22-regional-to"),
 }
 RETAIN = {
     "꽈", "꽌", "꾼", "란", "릐", "린", "이", "인", "쟈", "햐", "제", "헤",
@@ -290,6 +289,8 @@ def propose(record):
             assigned[index] = ("卵", "4.1/dictionary")
         elif atom.base == "촿":
             assigned[index] = ("掣", "user:2026-10-25")
+        elif atom.base == "도" and "小學" in atom.block.visible():
+            assigned[index] = ("底", "user:2026-10-25-which")
         elif atom.base == "쉬":
             assigned[index] = ("媠", "user:2026-10-25")
         elif atom.base == "캉" and previous.endswith("好"):

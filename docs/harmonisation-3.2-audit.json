@@ -245,8 +245,8 @@
     },
     {
       "base": "도",
-      "hanri": "就",
-      "rule": "4.3.1/22-regional-to",
+      "hanri": "底",
+      "rule": "user:2026-10-25-which",
       "count": 2
     },
     {
@@ -20020,7 +20020,7 @@
       "route": "/read/stories/the-egg/",
       "sourceId": 865,
       "beforeSha256": "b46017165d45bd9e0faed426949d175cf7538d7aae7ad3edb8212190df99cfc8",
-      "afterSha256": "8f6b65efdcec9615062f3287f0ac72915c477198d1a40098ed2f87b64725840b",
+      "afterSha256": "221029c6ce3f13a072b82fa80aa45d3788e396316a28a0872de14ac16e289f29",
       "edits": [
         {
           "start": 67,
@@ -20366,11 +20366,11 @@
           "start": 52002,
           "end": 52133,
           "before": "<ruby style=\"position: relative\">도<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
-          "after": "<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">도`</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">底<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">도`</rt></ruby>",
           "base": "도",
-          "hanri": "就",
+          "hanri": "底",
           "reading": "도`",
-          "rule": "4.3.1/22-regional-to"
+          "rule": "user:2026-10-25-which"
         },
         {
           "start": 53186,
@@ -21742,7 +21742,7 @@
       "route": "/zh-hant/read/stories/the-egg/",
       "sourceId": 7647,
       "beforeSha256": "4a99769a1f75156f54e6ec9cc3a0f26d3c9316dd611f722c18f7b104a33e8ae7",
-      "afterSha256": "dd53741377c075e202766f6645bf8130a226f175c0f28d302ab83044e7c367fb",
+      "afterSha256": "6da06cccaec8e90b9c719b65f6b8e40c453b785e48acf5b65cd2952599069856",
       "edits": [
         {
           "start": 67,
@@ -22088,11 +22088,11 @@
           "start": 51871,
           "end": 52002,
           "before": "<ruby style=\"position: relative\">도<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
-          "after": "<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">도`</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">底<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">도`</rt></ruby>",
           "base": "도",
-          "hanri": "就",
+          "hanri": "底",
           "reading": "도`",
-          "rule": "4.3.1/22-regional-to"
+          "rule": "user:2026-10-25-which"
         },
         {
           "start": 53055,

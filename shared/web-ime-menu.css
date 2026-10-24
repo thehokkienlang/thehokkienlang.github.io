@@ -1,10 +1,16 @@
 @import url("web-punctuation.css");
-/* Only the missing glyph uses this Source-Han-Sans-based fallback. */
+/* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-hanri-fallback-v1.woff2") format("woff2");
   font-display: swap;
   unicode-range: U+24EAA;
+}
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
+  font-display: swap;
+  unicode-range: U+20895, U+23350, U+28468, U+28617, U+2C9B0;
 }
 
 .hanri-candidate-menu {

@@ -109,6 +109,12 @@ same Plangothic P1 V2.9.5795 release and license documented above, renamed
 **Tangliengim Content Hanri v2**, and restricted to those characters by CSS.
 The dictionary and classic Pad's existing single-glyph font is unchanged.
 
+The dictionary and Web IME now reuse the v2 WOFF2 through a Unicode-scoped
+fallback face for its additional glyphs. The classic Windows Pad privately
+loads the matching `tangliengim-content-hanri-v2.ttf` and tags only these six
+supplementary characters. The original single-glyph files remain available;
+ordinary Hanri retain Noto Sans TC and 㩼 retains Noto Sans SC.
+
 Modified 2026-10-25; the previous v1 asset is retained. Optional reproduction:
 
 ```sh

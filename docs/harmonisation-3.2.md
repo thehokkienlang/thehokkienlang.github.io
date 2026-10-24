@@ -67,6 +67,7 @@ apostrophes and explicit line breaks are covered by regression tests.
 | 뽀대뽀지 | 無代無誌 |
 | 뽀내제 全部是 | 無奈제 全部是; retain independent 제 |
 | Happy's destination 欲위底去 | 對; preserve the authored reading |
+| The Egg's 應該是도2 一个小學’에 老師 | 底 “which”, not 就; existing dictionary reading 도2 |
 
 Native interjections and sung sound-symbolic refrains remain phonetic, not
 guessed from homophonous Hanri. Japanese 仕上げ (시아껳), taxi (덱시),
@@ -111,3 +112,11 @@ python -X utf8 tools/check_site.py
 The optional Chromium/WebKit rendering check remains
 `tools/check_content_rendering.py`. New source edits require an explicit
 review of the ledger, not an automatic replacement of the reviewed baseline.
+
+## Dictionary Follow-Up
+
+The author subsequently requested matching dictionary/IME updates and removal
+of superseded pure-Hangul entries. That separate, reviewed data migration is
+documented in [Dictionary Sync](harmonisation-3.2-dictionary.md). It supersedes
+the original content-only checkpoint's statement that dictionary data was
+unchanged; the pronunciation algorithms and audio recordings remain unchanged.

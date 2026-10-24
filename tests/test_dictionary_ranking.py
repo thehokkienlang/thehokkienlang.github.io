@@ -99,8 +99,11 @@ class StaticRankingTests(unittest.TestCase):
             self.assertEqual(retained['entry_type'],'lexical')
         self.assertNotIn('U+C2DC_00',entries)
         self.assertEqual((entries['U+662F_00']['hanri'],entries['U+662F_00']['reading']),('是','시5'))
-        for identity in ('U+AC10_00','U+BF94_00','U+C560_00','U+D5C8_00'):
+        for identity in ('U+AC10_00','U+C560_00'):
             self.assertEqual(entries[identity]['entry_type'],'hangul_override')
+        for old, target, reading in (('U+BF94_00','U+23350_00','뾔5'), ('U+D5C8_00','U+4E88_00','허5')):
+            self.assertNotIn(old, entries)
+            self.assertEqual((entries[target]['entry_type'], entries[target]['reading']), ('lexical', reading))
 
     def test_polyphonic_and_segmentation_defaults(self):
         data=json.loads((ROOT/'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))

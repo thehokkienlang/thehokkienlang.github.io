@@ -1542,7 +1542,7 @@ def is_cjk_char(ch: str) -> bool:
     return (
         0x3400 <= code <= 0x4DBF      # CJK Extension A
         or 0x4E00 <= code <= 0x9FFF   # CJK Unified Ideographs
-        or 0x20000 <= code <= 0x2A6DF # CJK Extension B
+        or 0x20000 <= code <= 0x2EBEF # CJK Extensions B-F, matching the shared Web engine
     )
 
 

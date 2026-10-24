@@ -47,6 +47,9 @@ def main():
     assert {0x330,0x25CC,ord('a'),ord('i')} <= latin
     subset_font(args.latin_source, latin, 'Tangliengim Nasal Latin', args.output_dir / 'tangliengim-nasal-latin-v1.woff2', {'wdth':100})
     subset_font(args.hanri_source, HANRI_CODEPOINTS, 'Tangliengim Content Hanri v2', args.output_dir / 'tangliengim-content-hanri-v2.woff2')
+    hanri = TTFont(args.output_dir / 'tangliengim-content-hanri-v2.woff2')
+    hanri.flavor = None
+    hanri.save(args.output_dir / 'tangliengim-content-hanri-v2.ttf')
 
 if __name__ == '__main__':
     main()

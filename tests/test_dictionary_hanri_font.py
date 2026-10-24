@@ -13,6 +13,9 @@ class HanriFallbackTests(unittest.TestCase):
         css = (ROOT / 'shared/web-ime-menu.css').read_text(encoding='utf-8')
         self.assertIn('unicode-range: U+24EAA;', css)
         self.assertIn('/assets/fonts/tangliengim-hanri-fallback-v1.woff2', css)
+        self.assertIn('/assets/fonts/tangliengim-content-hanri-v2.woff2', css)
+        self.assertIn('U+2C9B0', css)
+        self.assertTrue((ROOT / 'assets/fonts/tangliengim-content-hanri-v2.ttf').is_file())
         for extension in ('ttf', 'woff2'):
             self.assertGreater((ROOT / f'assets/fonts/tangliengim-hanri-fallback-v1.{extension}').stat().st_size, 100)
         self.assertIn('SIL OPEN FONT LICENSE Version 1.1', (ROOT / 'assets/fonts/OFL.txt').read_text())
@@ -23,7 +26,7 @@ class HanriFallbackTests(unittest.TestCase):
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
         self.assertEqual(module.SC_FONT_HANRI_CHARS, {'㩼'})
-        self.assertEqual(module.FALLBACK_FONT_HANRI_CHARS, {'𤺪'})
+        self.assertEqual(module.FALLBACK_FONT_HANRI_CHARS, {'𤺪', '𠢕', '𣍐', '𨑨', '𨘗', '𬦰'})
 
         class Text:
             def __init__(self):

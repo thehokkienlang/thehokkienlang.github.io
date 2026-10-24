@@ -186,20 +186,21 @@ TEXT_CURSOR_BLINK_OFF_MS = 300
 TEXT_CURSOR_TYPING_STEADY_MS = 450
 HTML_JOINABLE_SUFFIX_HANRI = {'仔', '上', '中', '內'}
 SC_FONT_HANRI_CHARS = {'㩼'}
-FALLBACK_FONT_HANRI_CHARS = {'𤺪'}
+FALLBACK_FONT_HANRI_CHARS = {'𤺪', '𠢕', '𣍐', '𨑨', '𨘗', '𬦰'}
 
 
 def load_hanri_fallback_font() -> None:
-    """Make the bundled glyph available to this Windows process only."""
+    """Make bundled supplementary glyphs available to this Windows process only."""
     if os.name != 'nt':
         return
-    path = source_repo_root() / 'assets' / 'fonts' / 'tangliengim-hanri-fallback-v1.ttf'
-    if path.is_file():
-        try:
-            import ctypes
-            ctypes.windll.gdi32.AddFontResourceExW(str(path), 0x10, None)
-        except (AttributeError, OSError):
-            pass
+    for filename in ('tangliengim-hanri-fallback-v1.ttf', 'tangliengim-content-hanri-v2.ttf'):
+        path = source_repo_root() / 'assets' / 'fonts' / filename
+        if path.is_file():
+            try:
+                import ctypes
+                ctypes.windll.gdi32.AddFontResourceExW(str(path), 0x10, None)
+            except (AttributeError, OSError):
+                pass
 
 
 def is_cjk_extension_b_char(ch: str) -> bool:
@@ -6980,7 +6981,7 @@ class HokkienIMEPad:
         self.extension_b_hanri_font_family = 'Noto Sans TC'
         load_hanri_fallback_font()
         self.fallback_hanri_font_family = self.pick_font([
-            'Tangliengim Hanri Fallback', 'Plangothic P1', 'MingLiU-ExtB', 'SimSun-ExtB',
+            'Tangliengim Content Hanri v2', 'Tangliengim Hanri Fallback', 'Plangothic P1', 'MingLiU-ExtB', 'SimSun-ExtB',
         ], fallback=self.hanri_font_family)
         self.sc_hanri_font_family = self.pick_font([
             'Noto Sans SC',

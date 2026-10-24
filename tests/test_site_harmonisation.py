@@ -72,6 +72,11 @@ class HarmonisationTests(unittest.TestCase):
         self.assertIn('>𨘗<', result)
         self.assertIn('>對<', result)
 
+    def test_which_is_not_regional_then(self):
+        result = self.convert('<p>應該是도ˋ 一个小學’에 老師</p>')
+        self.assertIn('>底<', result)
+        self.assertNotIn('>就<', result)
+
     def test_free_and_bound_demonstratives_differ(self):
         result = self.convert('<p>제 是꽈 짇兩世人 헤 是꽈 힏縛著’에 鐵鏈</p>')
         self.assertIn('제 是꽈 ', result)

@@ -12,3 +12,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 빼ˋ		빼2	壞	坏	bad		hangul_override	U+BE7C_00	U+4180_00
 렣		렣			in the process of		hangul_override	U+B823_00	U+54A7_00
 칟ˆ토ˊ		칟1토4	玩; 遊玩	玩; 游玩	to play; to have a good time		hangul_override	U+CE5F_U+D1A0_00	
+뾔ˉ		뾔5	不會	不会	won't; will not		hangul_override	U+BF94_00	U+23350_00
+뾔당		뾔당	不能; 不會	不能; 不会	cannot; will not be able to		hangul_override	U+BF94_U+B2F9_00	U+23350_U+B2F9_00
+음시ˉ		음시5	不是	〃	is not		hangul_override	U+C74C_U+C2DC_00	U+6BCB_U+662F_00
+캏		캏	更	〃	more; even more		hangul_override	U+CE8F_00	U+8F03_00
+허ˉ		허5	給	给	give		hangul_override	U+D5C8_00	U+4E88_00
+뾔打限	〃	뾔다1한	受不了	受不了	unbearable; unable to endure any longer		lexical	U+BF94_U+6253_U+9650_00	U+23350_U+6253_U+9650_00
+뾔要緊	뾔要紧	뾔ᄋᆤ2긴2	不會重要; 不會緊急	不会重要; 不会紧急	won't be important; won't be urgent		lexical	U+BF94_U+8981_U+7DCA_00	U+23350_U+8981_U+7DCA_00
+음著	음着	음둏1	不對	不对	not right; wrong		lexical	U+C74C_U+8457_00	U+6BCB_U+8457_00
