@@ -16,6 +16,27 @@ from import_wordpress import write_song_ime_data
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 ASSET_ATTRIBUTE = re.compile(r'(?P<prefix>\b(?:src|href)=")(?P<url>[^"#]+)(?P<suffix>")')
+CSS_IMPORT = re.compile(r'(@import\s+url\(")([^"]+)("\))')
+
+
+def version_css_imports(css_path: Path, visited: set[Path]) -> None:
+    if css_path in visited:
+        return
+    visited.add(css_path)
+    page_url = "/" + css_path.relative_to(OUTPUT).as_posix()
+
+    def replace(match: re.Match) -> str:
+        url = urlsplit(match[2])
+        if url.scheme or url.netloc:
+            return match[0]
+        dependency = OUTPUT / unquote(urljoin(page_url, url.path)).lstrip("/")
+        if not dependency.is_file():
+            raise FileNotFoundError(f"Missing CSS import in {page_url}: {match[2]}")
+        version_css_imports(dependency, visited)
+        digest = hashlib.sha256(dependency.read_bytes()).hexdigest()[:12]
+        return f'{match[1]}{url.path}?v={digest}{match[3]}'
+
+    css_path.write_text(CSS_IMPORT.sub(replace, css_path.read_text(encoding="utf-8")), encoding="utf-8")
 
 
 def version_assets(html_path: Path) -> None:
@@ -57,6 +78,9 @@ def main() -> int:
     (OUTPUT / "public" / "data").mkdir(parents=True)
     shutil.copy2(DEFAULT_OUTPUT_PATH, OUTPUT / "public" / "data" / DEFAULT_OUTPUT_PATH.name)
     content_routes = build_content(ROOT, OUTPUT)
+    visited_css = set()
+    for css_path in OUTPUT.rglob("*.css"):
+        version_css_imports(css_path, visited_css)
     for html_path in OUTPUT.rglob("*.html"):
         version_assets(html_path)
     data = json.loads(DEFAULT_OUTPUT_PATH.read_text(encoding="utf-8"))

@@ -635,7 +635,7 @@ h1 {
   ruby-position: over;
 }
 
-.hangul-tone rt {
+.hangul-tone .tone-mark {
   position: absolute;
   top: calc(-0.84em - 4px);
   left: calc(50% - 1px);

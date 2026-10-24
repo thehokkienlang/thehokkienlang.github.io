@@ -1,6 +1,6 @@
 # Shared Noto Sans Symbols and Branding
 
-`tli-noto-sans-{regular,bold}-v1.woff2` are renamed subsets of Noto Sans.
+`tli-noto-sans-{regular,bold}-v2.woff2` are renamed subsets of Noto Sans.
 The shared brand template uses these same files on content pages, Dictionary
 and IME. The punctuation face selects Western-width punctuation and the entire
 TLI tone set, including U+A788, without borrowing CJK or Calibri tone glyphs.
@@ -14,6 +14,11 @@ fullwidth Chinese punctuation keeps its original glyph and semantics.
 - License: SIL OFL 1.1, in `OFL-NotoSans.txt`; embedded copyright retained.
 - Modified 2026-10-24: glyph subset, hints removed, family renamed to
   **TLI Noto Sans**, encoded as WOFF2. No glyph outlines or widths changed.
+  Version 2 gives Regular and Bold distinct internal PostScript identities and
+  matching style names; CSS declares static 400/700 faces for WebKit portability.
+  The punctuation aliases use `tli-noto-symbols-{regular,bold}-v2.woff2`, separate
+  subsets with unique internal identities and the same Noto Sans glyph outlines.
+  This avoids WebKit cache collisions between full Latin and Unicode-scoped faces.
 
 Optional reproduction with FontTools installed:
 

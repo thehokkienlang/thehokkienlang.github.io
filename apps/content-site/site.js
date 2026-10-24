@@ -24,6 +24,31 @@
       textNodes.forEach(node => node.replaceWith(toneRenderer.renderToneMarkedReading(node.textContent)));
     });
   }
+  // WebKit can place positioned rt boxes below their base; use ordinary boxes for display.
+  [...document.querySelectorAll('.title-reading ruby, .imported-content ruby[style*="position"]')].reverse().forEach(ruby => {
+    const annotation = document.createElement("span");
+    for (const { name, value } of ruby.attributes) annotation.setAttribute(name, value);
+    annotation.classList.add("tli-ruby");
+    const base = document.createElement("span");
+    base.className = "tli-ruby-base";
+    const readings = [];
+    for (const child of [...ruby.childNodes]) {
+      if (child.nodeName === "RT") {
+        const reading = document.createElement("span");
+        for (const { name, value } of child.attributes) reading.setAttribute(name, value);
+        reading.classList.add("tli-rt");
+        reading.append(...child.childNodes);
+        readings.push(reading);
+      } else if (child.nodeName !== "RP") {
+        base.append(child);
+      }
+    }
+    annotation.append(base, ...readings);
+    ruby.replaceWith(annotation);
+  });
+  document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
+    node.textContent = node.textContent.normalize("NFC");
+  });
   const article = document.querySelector(".imported-content");
   if (!article) return;
   if (document.body.dataset.siteSection === "learn") {
@@ -41,7 +66,7 @@
           heading.id = id;
         }
         const label = heading.cloneNode(true);
-        label.querySelectorAll("rt, rp").forEach(node => node.remove());
+        label.querySelectorAll("rt, rp, .tli-rt, .tone-mark").forEach(node => node.remove());
         const link = document.createElement("a");
         link.href = "#" + encodeURIComponent(heading.id);
         link.textContent = label.textContent.trim();
@@ -59,7 +84,7 @@
     const selection = window.getSelection();
     if (!selection || !selection.rangeCount || selection.isCollapsed || !article.contains(selection.anchorNode) || !article.contains(selection.focusNode)) return;
     const fragment = selection.getRangeAt(0).cloneContents();
-    fragment.querySelectorAll("rt, rp").forEach(node => node.remove());
+    fragment.querySelectorAll("rt, rp, .tli-rt, .tone-mark").forEach(node => node.remove());
     const text = fragment.textContent.trim().slice(0, 12000);
     if (!text) return;
     const languageHref = window.TliSiteLanguage?.href || (value => value);

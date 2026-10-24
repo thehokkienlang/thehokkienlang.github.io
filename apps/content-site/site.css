@@ -29,9 +29,9 @@ h4 { font-size: 18px; }
 .imported-content code { font-family: "Tangliengim Conjoining Hangul", monospace; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
-.imported-content rt { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
+.imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
 .imported-content [style*="font-family: Calibri" i], .imported-content [style*="font-family:Calibri" i] { font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif !important; }
-.imported-content rt:not([style*="120%"]) { top: calc(-1.1em + 2px) !important; transform: none; }
+.imported-content :is(rt, .tli-rt):not([style*="120%"]) { top: calc(-1.1em + 2px) !important; transform: none; }
 :is(.content-songs, .content-stories) h1 { font-size: 48px; }
 :is(.content-songs, .content-stories) .imported-content h2 { font-size: 36px; }
 :is(.content-songs, .content-stories) .imported-content h3 { font-size: 30px; }
@@ -49,7 +49,7 @@ h4 { font-size: 18px; }
 .imported-content th { background: #edf5f3; text-align: left; }
 .imported-content figcaption { font-size: 14px; color: var(--muted); }
 .imported-content ruby { isolation: isolate; }
-.imported-content rt[style*="120%"] { z-index: 0 !important; }
+.imported-content :is(rt, .tli-rt)[style*="120%"] { z-index: 0 !important; }
 .imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
 .imported-content blockquote { border-left: 3px solid var(--accent); margin: 24px 0; padding: 0 24px; }
 .imported-content hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; clear: both; }
@@ -62,8 +62,8 @@ h4 { font-size: 18px; }
 .page-list { list-style: none; margin: 16px 0 32px; padding: 0; }
 .song-list a { text-decoration: none; }
 .song-list .title-reading .hanri-title { position: relative; display: inline-block; vertical-align: baseline; }
-.song-list .title-reading .hanri-title > rt { position: absolute; display: block; top: auto !important; bottom: calc(100% - 2px); left: 50%; width: max-content; transform: translateX(-50%); font-size: 52%; line-height: 1; }
-.song-list .title-reading .bopomofo-title > rt { font-size: 38%; }
+.song-list .title-reading .hanri-title > :is(rt, .tli-rt) { position: absolute; display: block; top: auto !important; bottom: calc(100% - 2px); left: 50%; width: max-content; transform: translateX(-50%); font-size: 52%; line-height: 1; }
+.song-list .title-reading .bopomofo-title > :is(rt, .tli-rt) { font-size: 38%; }
 .page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
 .external-note, .source-link { color: var(--muted); font-size: 14px; }
 .source-link { clear: both; margin-top: 48px; }
@@ -112,7 +112,7 @@ h4 { font-size: 18px; }
 .song-entry-title ruby { ruby-position: over; }
 .song-entry-lomari { display: block; align-self: start; min-height: 21px; margin-top: 0; color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 15px; line-height: 1.35; }
 .song-list .hangul-tone { line-height: inherit; }
-.song-list .hangul-tone > rt { display: block; }
+.song-list .hangul-tone > .tone-mark { display: block; }
 .source-link { font-size: 13px; }
 .article-contents { max-width: 780px; margin: 0 0 32px; padding: 14px 20px; border-left: 3px solid var(--accent); background: #e8f2ef; }
 .article-contents summary { cursor: pointer; color: var(--accent); font-weight: 700; }

@@ -348,12 +348,13 @@ const TangliengimImeCore = (() => {
       return document.createTextNode(unit);
     }
 
-    const ruby = document.createElement("ruby");
+    const ruby = document.createElement("span");
     ruby.className = "hangul-tone";
     ruby.setAttribute("aria-label", `${unit}${tone}`);
     ruby.append(document.createTextNode(unit));
 
-    const rt = document.createElement("rt");
+    const rt = document.createElement("span");
+    rt.className = "tone-mark";
     rt.textContent = mark;
     ruby.append(rt);
     return ruby;

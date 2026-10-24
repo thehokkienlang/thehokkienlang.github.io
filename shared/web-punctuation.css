@@ -1,32 +1,32 @@
 /* One self-hosted Western face for punctuation and every TLI tone symbol. */
 @font-face {
   font-family: "TLI Noto Sans";
-  src: url("/assets/fonts/tli-noto-sans-regular-v1.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-sans-regular-v2.woff2") format("woff2");
   font-style: normal;
-  font-weight: 100 500;
+  font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "TLI Noto Sans";
-  src: url("/assets/fonts/tli-noto-sans-bold-v1.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-sans-bold-v2.woff2") format("woff2");
   font-style: normal;
-  font-weight: 600 900;
+  font-weight: 700;
   font-display: swap;
 }
 @font-face {
   font-family: "TLI Western Punctuation";
-  src: url("/assets/fonts/tli-noto-sans-regular-v1.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-symbols-regular-v2.woff2") format("woff2");
   font-style: normal;
-  font-weight: 100 500;
-  font-display: swap;
+  font-weight: 400;
+  font-display: block;
   unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1, U+00A7, U+00AB, U+00B6-00B7, U+00BB, U+00BF, U+02C6-02CF, U+02EC, U+2010-2027, U+2030-205E, U+A788;
 }
 @font-face {
   font-family: "TLI Western Punctuation";
-  src: url("/assets/fonts/tli-noto-sans-bold-v1.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-symbols-bold-v2.woff2") format("woff2");
   font-style: normal;
-  font-weight: 600 900;
-  font-display: swap;
+  font-weight: 700;
+  font-display: block;
   unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1, U+00A7, U+00AB, U+00B6-00B7, U+00BB, U+00BF, U+02C6-02CF, U+02EC, U+2010-2027, U+2030-205E, U+A788;
 }
 :root .title-preview {

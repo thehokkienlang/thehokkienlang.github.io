@@ -271,12 +271,12 @@ function appendHanriRuby(fragment, hanriText, readingText) {
     return;
   }
 
-  const ruby = document.createElement("ruby");
+  const ruby = document.createElement("span");
   ruby.className = "entry-headword-ruby";
   const base = document.createElement("span");
   base.className = "entry-headword-base";
   base.append(displayTextNode(hanriText));
-  const rt = document.createElement("rt");
+  const rt = document.createElement("span");
   rt.className = "entry-headword-reading";
   rt.append(renderInlineUpperToneReading(readingText));
   ruby.append(base, rt);
@@ -337,12 +337,12 @@ function renderEntryHeadword(group) {
     return fragment;
   }
 
-  const ruby = document.createElement("ruby");
+  const ruby = document.createElement("span");
   ruby.className = "entry-headword-ruby";
   const base = document.createElement("span");
   base.className = "entry-headword-base";
   base.append(displayTextNode(group.hanri));
-  const rt = document.createElement("rt");
+  const rt = document.createElement("span");
   rt.className = "entry-headword-reading";
   rt.append(renderInlineUpperToneReading(primaryReading));
   ruby.append(base, rt);

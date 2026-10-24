@@ -479,10 +479,19 @@ h1 {
 }
 
 .entry-headword-ruby {
-  ruby-position: over;
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  white-space: nowrap;
 }
 
-.entry-headword-ruby rt {
+.entry-headword-ruby .entry-headword-reading {
+  position: absolute;
+  bottom: calc(100% - 0.05em);
+  left: 50%;
+  width: max-content;
+  transform: translateX(-50%);
+  white-space: nowrap;
   color: #334155;
   font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
   font-size: 0.44em;
@@ -554,7 +563,7 @@ h1 {
   ruby-position: over;
 }
 
-.hangul-tone rt {
+.hangul-tone .tone-mark {
   position: absolute;
   top: calc(-0.84em - 4px);
   left: calc(50% - 1px);

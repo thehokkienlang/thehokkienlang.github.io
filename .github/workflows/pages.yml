@@ -49,7 +49,7 @@ jobs:
         run: |
           python3 -m unittest discover -s tests -p test_wordpress_migration.py
           python3 -m unittest discover -s tests -p test_song_title_readings.py
-          python3 -m unittest discover -s tests -p test_site_languages.py
+          python3 -m unittest discover -s tests -p 'test_site_*.py'
       - name: Validate routes, shared resources, and audio
         run: python3 tools/check_site.py
       - name: Check built keyboard and sandhi integration
