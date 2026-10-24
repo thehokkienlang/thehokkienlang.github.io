@@ -60,6 +60,20 @@ def main():
                     result.update(engine=engine_name, width=width, errors=errors)
                     page.locator('.song-category').first.screenshot(path=str(args.output / f"{engine_name}-{width}.png"))
                     results.append(result)
+                    for language, homepage in (("en", "/"), ("zh-hant", "/zh-hant/"), ("zh-hans", "/zh-hans/")):
+                        page.goto(args.url.rstrip("/") + homepage, wait_until="domcontentloaded")
+                        student = page.locator('.imported-content ul.wp-block-list .tli-rt').filter(has_text="학솅")
+                        student.wait_for()
+                        page.evaluate("document.fonts.ready")
+                        offset = student.evaluate("""node => {
+                            const style = getComputedStyle(node);
+                            return {actual: parseFloat(style.top), expected: -0.85 * parseFloat(style.fontSize) + 5};
+                        }""")
+                        if not args.diagnose:
+                            assert abs(offset["actual"] - offset["expected"]) < 0.1, (
+                                f"Student ruby offset ignored after DOM conversion: {engine_name}/{width}/{language}: {offset}")
+                        student.locator("xpath=ancestor::ul[1]").screenshot(
+                            path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
                     context.close()
                 context = browser.new_context(viewport={"width": 390, "height": 844}, is_mobile=True)
                 context.route("https://**/*", lambda route: route.abort())
