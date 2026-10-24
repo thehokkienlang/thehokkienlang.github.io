@@ -374,10 +374,12 @@ def build_content(root: Path, output: Path):
     song_items = {}
     for route, imported in songs_by_route.items():
         label, _ = song_title(imported)
+        outside_ruby = html.unescape(re.sub(r"<ruby\b.*?</ruby>", "", label, flags=re.DOTALL))
         sort_reading = song_sort_reading(imported)
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
+            "ruby_only": not any(character.isalnum() for character in outside_ruby),
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
         }
 
@@ -389,8 +391,9 @@ def build_content(root: Path, output: Path):
             for route in items:
                 destination = language_url(route, language) or route
                 item = song_items[route]
+                entry_class = "title-reading song-entry" + (" song-entry--ruby-only" if item["ruby_only"] else "")
                 links.append(
-                    '<li><a class="title-reading song-entry" '
+                    f'<li><a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
                     f'<span class="song-entry-title">{item["label"]}</span>'
                     f'<span class="song-entry-lomari">{html.escape(item["lomari"])}</span>'
@@ -402,7 +405,8 @@ def build_content(root: Path, output: Path):
                 '<section class="song-category" '
                 f'data-song-category="{html.escape(category["id"], quote=True)}" '
                 f'style="--category-accent:{html.escape(category["accent"], quote=True)};'
-                f'--category-tint:{html.escape(category["tint"], quote=True)}">'
+                f'--category-tint:{html.escape(category["tint"], quote=True)};'
+                f'--category-tint-end:{html.escape(category["tintEnd"], quote=True)}">'
                 '<header class="song-category-heading">'
                 f'<h2>{html.escape(title)}</h2><span>{len(items):02d}</span></header>'
                 f'<ol class="song-list">{"".join(links)}</ol></section>'

@@ -122,8 +122,11 @@ class MigrationTests(unittest.TestCase):
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")
             choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
             categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))
+            self.assertTrue(all({"accent", "tint", "tintEnd"} <= set(category) for category in categories))
             self.assertEqual(songs.count('class="song-category"'), len(categories))
+            self.assertEqual(songs.count("--category-tint-end:"), len(categories))
             self.assertEqual(songs.count('class="song-entry-lomari"'), len(choices))
+            self.assertIn('class="title-reading song-entry song-entry--ruby-only"', songs)
             self.assertGreater(songs.count('class="hanri-title"'), len(choices))
             if manifest["deferred"]["songs"] == 0:
                 self.assertTrue(all(row["new_url"] in routes for row in choices))

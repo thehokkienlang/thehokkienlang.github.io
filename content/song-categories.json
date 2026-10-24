@@ -3,7 +3,8 @@
     "id": "modern",
     "labels": {"en": "Modern & Contemporary", "zh-Hant": "當代流行", "zh-Hans": "当代流行"},
     "accent": "#247b76",
-    "tint": "#eaf4f2",
+    "tint": "#c9f2e6",
+    "tintEnd": "#d7eaff",
     "routes": [
       "/songs/向前行/", "/songs/浪溜嗹/", "/songs/敢傻敢衝/", "/songs/곻愛릐一擺/",
       "/songs/헤비運將情歌/", "/songs/一吋相思一吋淚/", "/songs/寫一條歌寫릐꽈爾爾/", "/songs/愛情릐比꽈想에곻較偉大/"
@@ -13,14 +14,16 @@
     "id": "urban",
     "labels": {"en": "Urban Ballads", "zh-Hant": "都市抒情", "zh-Hans": "都市抒情"},
     "accent": "#53698f",
-    "tint": "#eef1f7",
+    "tint": "#d9e5ff",
+    "tintEnd": "#eadcff",
     "routes": ["/songs/門/", "/songs/메삐메삐/", "/songs/에흐로때디/", "/songs/手捧一杯酒/"]
   },
   {
     "id": "popular",
     "labels": {"en": "Popular Classics", "zh-Hant": "熱播金曲", "zh-Hans": "热播金曲"},
     "accent": "#ad5a4d",
-    "tint": "#f7eeeb",
+    "tint": "#ffd8cf",
+    "tintEnd": "#ffe9b9",
     "routes": [
       "/songs/家後/", "/songs/堅持/", "/songs/꽈問天/", "/songs/小雨傘/",
       "/songs/愛情챻챻/", "/songs/歡喜就好/", "/songs/愛拚才會贏/", "/songs/酒後에心聲/"
@@ -30,7 +33,8 @@
     "id": "midnight",
     "labels": {"en": "Midnight Musings", "zh-Hant": "深夜獨白", "zh-Hans": "深夜独白"},
     "accent": "#40566f",
-    "tint": "#edf1f5",
+    "tint": "#d8e4f5",
+    "tintEnd": "#e6dcf2",
     "routes": [
       "/songs/無眠/", "/songs/落雨聲/", "/songs/浪子回頭/", "/songs/阿媽에話/",
       "/songs/生份에릐/", "/songs/再會랗心愛에無緣에人/"
@@ -40,14 +44,16 @@
     "id": "feel-good",
     "labels": {"en": "Feel-Good Favourites", "zh-Hant": "療癒暖心", "zh-Hans": "疗愈暖心"},
     "accent": "#5d7850",
-    "tint": "#eef3ea",
+    "tint": "#d8f1d1",
+    "tintEnd": "#f5edb8",
     "routes": ["/songs/姊妹仔/", "/songs/跤踏車/", "/songs/恬恬에夢/"]
   },
   {
     "id": "playful",
     "labels": {"en": "Playful Beats", "zh-Hant": "俏皮節拍", "zh-Hans": "俏皮节拍"},
     "accent": "#a5546b",
-    "tint": "#f7edf1",
+    "tint": "#ffd7e4",
+    "tintEnd": "#ffe2c2",
     "routes": [
       "/songs/水/", "/songs/菝仔/", "/songs/保庇/", "/songs/足芳足芳/", "/songs/애요애요애애요/",
       "/songs/愛情에騙子꽈問릐/", "/songs/請問릐감欲做꽈에ᄁힻ흐렌/"
@@ -57,14 +63,16 @@
     "id": "rock",
     "labels": {"en": "Rock Anthems", "zh-Hant": "搖滾聲浪", "zh-Hans": "摇滚声浪"},
     "accent": "#843e45",
-    "tint": "#f4ebec",
+    "tint": "#f2cbd0",
+    "tintEnd": "#e2d0e5",
     "routes": ["/songs/世界第一等/", "/songs/蓮花空行身染愛/", "/songs/萬千花蕊慈母悲哀/", "/songs/傷心地獄芳花引魂/"]
   },
   {
     "id": "golden",
     "labels": {"en": "Golden Classics", "zh-Hant": "經典金曲", "zh-Hans": "经典金曲"},
     "accent": "#986d2b",
-    "tint": "#f7f1e6",
+    "tint": "#ffe2a9",
+    "tintEnd": "#f8c9a5",
     "routes": [
       "/songs/小雨/", "/songs/隨緣/", "/songs/金包銀/", "/songs/台灣話/", "/songs/雪中花/", "/songs/有影뽀/", "/songs/風真透/",
       "/songs/爸囝情深/", "/songs/夜市人生/", "/songs/雲中月圓/", "/songs/愛情一陣風/", "/songs/惜別에海岸/",
@@ -75,7 +83,8 @@
     "id": "after-dark",
     "labels": {"en": "After-Dark Classics", "zh-Hant": "夜愁金曲", "zh-Hans": "夜愁金曲"},
     "accent": "#675271",
-    "tint": "#f2eef4",
+    "tint": "#e6d4ee",
+    "tintEnd": "#d1dff0",
     "routes": [
       "/songs/靠站/", "/songs/迷魂芳/", "/songs/情難忘/", "/songs/媽媽歌星/", "/songs/上媠에花/", "/songs/失落에夢/",
       "/songs/春夏秋冬/", "/songs/飄浪에人/", "/songs/聲聲叫됴릐/", "/songs/愛릐無條件/", "/songs/雨水꽈問릐/", "/songs/愛徦無命毋知驚/"
@@ -85,14 +94,16 @@
     "id": "vintage",
     "labels": {"en": "Vintage Roots", "zh-Hant": "懷舊源聲", "zh-Hans": "怀旧源声"},
     "accent": "#6b7350",
-    "tint": "#f1f3e9",
+    "tint": "#e8e7bd",
+    "tintEnd": "#d2e9d1",
     "routes": ["/songs/天烏烏/", "/songs/望春風/", "/songs/燒肉粽/"]
   },
   {
     "id": "teochew",
     "labels": {"en": "Voice of Teochew", "zh-Hant": "潮汕之聲", "zh-Hans": "潮汕之声"},
     "accent": "#3f718b",
-    "tint": "#eaf3f7",
+    "tint": "#cdeef5",
+    "tintEnd": "#dbe5ff",
     "routes": ["/songs/月下煮茶/"]
   }
 ]
