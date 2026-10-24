@@ -25,8 +25,19 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertEqual(remove_leading_language_switcher(legacy), '<p>Article</p>')
         local = '''<div class="wp-block-buttons"><div class="wp-block-button"><a href="/zh-hans/">简体中文</a></div><div class="wp-block-button"><a href="/">English</a></div></div><p>文章</p>'''
         self.assertEqual(remove_leading_language_switcher(local), '<p>文章</p>')
+        guide = legacy.replace("/zh-tw/", "/zh-tw-tangliengim/").replace("/zh-cn/", "/zh-cn-tangliengim/")
+        self.assertEqual(remove_leading_language_switcher(guide), '<p>Article</p>')
+        guide_local = local.replace('href="/zh-hans/"', 'href="/zh-hans/learn/introduction/"').replace('href="/"', 'href="/learn/introduction/"')
+        self.assertEqual(remove_leading_language_switcher(guide_local), '<p>文章</p>')
         action = '<div class="wp-block-buttons"><div class="wp-block-button"><a href="/learn/">Learn</a></div></div>'
         self.assertEqual(remove_leading_language_switcher(action), action)
+        egg = '<h2>능</h2><div class="wp-block-buttons"><div class="wp-block-button"><a href="/zh-hant/read/stories/the-egg/">繁體中文</a></div></div><p>Story</p>'
+        self.assertEqual(remove_leading_language_switcher(egg), '<h2>능</h2><p>Story</p>')
+        for path in ("content/stories/the-egg.json", "content/zh-hant/stories/the-egg.json"):
+            source = json.loads((ROOT / path).read_text(encoding="utf-8"))
+            cleaned = remove_leading_language_switcher(source["body"])
+            self.assertNotIn('class="wp-block-buttons ', cleaned)
+            self.assertIn('<h2 class="wp-block-heading">', cleaned)
 
     def test_home_paths_keep_language_without_exposing_a_gated_search(self):
         from html.parser import HTMLParser
@@ -56,7 +67,8 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertEqual(body.count('class="home-feature '), 4)
             self.assertIn(language_url("/learn/introduction/", language), body)
             self.assertIn(language_url("/learn/tone-sandhi/", language), body)
-            self.assertIn(language_url("/read/literature/lychee-mirror/", language), body)
+            self.assertNotIn("lychee-mirror", body)
+            self.assertIn("/read/stories/the-egg/", body)
             self.assertIn(language_url("/songs/", language), body)
             self.assertNotIn("hokkienlang.wordpress.com", body)
 

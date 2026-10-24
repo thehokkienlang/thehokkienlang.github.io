@@ -112,13 +112,21 @@ class MigrationTests(unittest.TestCase):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             routes = build_content(ROOT, Path(directory))
-            self.assertEqual(len(routes), len(manifest["records"]) - 1 + 3 * len(LANGUAGES))
+            self.assertEqual(len(routes), len(manifest["records"]) - 2 + 3 * len(LANGUAGES))
             self.assertEqual(set(manifest["languages"]), set(LANGUAGES))
             self.assertTrue({spec[0] for spec in CHINESE_PAGES}.issubset({item["sourceId"] for item in manifest["records"]}))
             self.assertIn("/zh-hant/read/stories/the-egg/", routes)
             self.assertNotIn("/zh-hans/read/stories/the-egg/", routes)
             self.assertNotIn("/songs/translation-notes/", routes)
             self.assertFalse((Path(directory) / "songs/translation-notes/index.html").exists())
+            self.assertNotIn("/read/literature/lychee-mirror/", routes)
+            self.assertFalse((Path(directory) / "read/literature/lychee-mirror/index.html").exists())
+            for prefix in ("", "zh-hant", "zh-hans"):
+                homepage = (Path(directory) / prefix / "index.html").read_text(encoding="utf-8")
+                self.assertNotIn("lychee-mirror", homepage)
+                pool = homepage.split('<template data-home-song-pool>', 1)[1].split('</template>', 1)[0]
+                self.assertEqual(pool.count('<a '), 69)
+                self.assertNotIn("月下煮茶", pool)
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")
             choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
             categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))
@@ -126,7 +134,7 @@ class MigrationTests(unittest.TestCase):
             self.assertEqual(songs.count('class="song-category"'), len(categories))
             self.assertEqual(songs.count("--category-tint-end:"), len(categories))
             self.assertEqual(songs.count('class="song-entry-lomari"'), len(choices))
-            self.assertIn('class="title-reading song-entry song-entry--ruby-only"', songs)
+            self.assertNotIn("song-entry--ruby-only", songs)
             self.assertGreater(songs.count('class="hanri-title"'), len(choices))
             if manifest["deferred"]["songs"] == 0:
                 self.assertTrue(all(row["new_url"] in routes for row in choices))

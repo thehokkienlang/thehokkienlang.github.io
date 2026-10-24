@@ -1,4 +1,14 @@
 (() => {
+  const picks = document.querySelector("[data-home-song-picks]");
+  const pool = document.querySelector("[data-home-song-pool]");
+  if (picks && pool) {
+    const songs = [...pool.content.querySelectorAll("a")];
+    for (let index = songs.length - 1; index > 0; index--) {
+      const other = Math.floor(Math.random() * (index + 1));
+      [songs[index], songs[other]] = [songs[other], songs[index]];
+    }
+    picks.replaceChildren(...songs.slice(0, 3).map(song => song.cloneNode(true)));
+  }
   const toneRenderer = window.TangliengimImeCore;
   if (toneRenderer) {
     document.querySelectorAll(".title-reading").forEach(title => {

@@ -6,6 +6,7 @@ import html
 import json
 import re
 import shutil
+from html.parser import HTMLParser
 from pathlib import Path
 
 from song_title_readings import song_lomari, song_sort_reading, song_title
@@ -16,7 +17,7 @@ from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, lang
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 NAV_SECTIONS = {
     "/learn/": (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation")),
-    "/read/": (("/read/stories/the-egg/", "The Egg"), ("/read/literature/lychee-mirror/", "Tale of the Lychee Mirror")),
+    "/read/": (("/read/stories/the-egg/", "The Egg"),),
 }
 
 # Render the whole grapheme in one font, including any stacked tone marks.
@@ -112,7 +113,7 @@ def home_launch(language):
     )
 
 
-def home_showcase(language):
+def home_showcase(language, song_records=()):
     labels = {
         "en": {
             "label": "Explore TheHokkienLang",
@@ -205,18 +206,19 @@ def home_showcase(language):
         f'<span class="home-work-kind">{html.escape(labels["egg_kind"])}</span>'
         f'<h3><ruby>卵<rt>능ˉ</rt></ruby> <span>{html.escape(labels["egg_title"])}</span></h3>'
         f'<p>{html.escape(labels["egg_note"])}</p></a>'
-        f'<a class="home-literature-work" href="{html.escape(language_url("/read/literature/lychee-mirror/", language), quote=True)}">'
-        '<img src="/assets/content/wordpress/c9a8f25fedf3-naikiengki.png" alt="">'
-        f'<span class="home-work-kind">{html.escape(labels["mirror_kind"])}</span>'
-        f'<h3><ruby>荔鏡記<rt>내곙`기</rt></ruby> <span>{html.escape(labels["mirror_title"])}</span></h3>'
-        f'<p>{html.escape(labels["mirror_note"])}</p></a></div>'
+        '</div>'
     )
+    eligible_songs = [record for record in song_records if base_route(record["route"]) != "/songs/月下煮茶/"]
+    song_links = [
+        f'<a href="{html.escape(language_url(record["route"], language) or record["route"], quote=True)}">'
+        f'<span>{html.escape(record["title"])}</span><small>{html.escape(song_lomari(record))}</small></a>'
+        for record in eligible_songs
+    ]
     songs = (
         '<div class="home-songbook">'
         f'<span class="home-songbook-label">{html.escape(labels["selection"])}</span>'
-        f'<a href="{html.escape(language_url("/songs/望春風/", language), quote=True)}"><span>望春風</span><small>Bang-chūn-hông</small></a>'
-        f'<a href="{html.escape(language_url("/songs/金包銀/", language), quote=True)}"><span>金包銀</span><small>Kîm pāu-gín</small></a>'
-        f'<a href="{html.escape(language_url("/songs/月下煮茶/", language), quote=True)}"><span>月下煮茶</span><small>Gueh-é j́-tê</small></a>'
+        f'<div data-home-song-picks>{"".join(song_links[:3])}</div>'
+        f'<template data-home-song-pool>{"".join(song_links)}</template>'
         '</div>'
     )
     return (
@@ -241,7 +243,7 @@ def home_showcase(language):
     )
 
 
-def curate_home_body(body, language):
+def curate_home_body(body, language, song_records=()):
     marker = {"en": "Learn TLI", "zh-Hant": "學習東寧音", "zh-Hans": "学习东宁音"}[language]
     marker_position = body.find(marker)
     if marker_position == -1:
@@ -256,24 +258,45 @@ def curate_home_body(body, language):
         introduction,
         flags=re.IGNORECASE,
     )
-    return introduction.rstrip() + home_showcase(language)
+    return introduction.rstrip() + home_showcase(language, song_records)
 
 
 LEADING_LANGUAGE_SWITCHER = re.compile(
-    r'^\s*<div class="wp-block-buttons[^"]*">\s*'
+    r'\s*<div class="wp-block-buttons[^"]*">\s*'
     r'(?:<div class="wp-block-button[^"]*">.*?</div>\s*)+</div>\s*',
     re.DOTALL,
 )
 
 
 def remove_leading_language_switcher(body):
-    match = LEADING_LANGUAGE_SWITCHER.match(body)
-    if match:
-        targets = re.findall(r'href="([^"]+)"', match.group(0))
-        language_roots = {"/", "/zh-hant/", "/zh-hans/", "https://hokkienlang.wordpress.com/zh-tw/", "https://hokkienlang.wordpress.com/zh-cn/"}
-        if len(targets) >= 2 and all(target in language_roots for target in targets):
-            return body[match.end():]
-    return body
+    class LanguageLinks(HTMLParser):
+        def __init__(self):
+            super().__init__()
+            self.labels = []
+            self.in_link = False
+
+        def handle_starttag(self, tag, attrs):
+            if tag == "a":
+                self.labels.append("")
+                self.in_link = True
+
+        def handle_data(self, data):
+            if self.in_link:
+                self.labels[-1] += data
+
+        def handle_endtag(self, tag):
+            if tag == "a":
+                self.in_link = False
+
+    def remove_group(match):
+        links = LanguageLinks()
+        links.feed(match.group(0))
+        language_labels = {"English", "繁體中文", "简体中文", "簡體中文", "中文（繁）", "中文（简）"}
+        if links.labels and all(label.strip() in language_labels for label in links.labels):
+            return ""
+        return match.group(0)
+
+    return LEADING_LANGUAGE_SWITCHER.sub(remove_group, body)
 
 
 def introduce_tli(text):
@@ -311,12 +334,13 @@ def build_content(root: Path, output: Path):
     content = root / "content"
     if not content.exists():
         return []
-    unpublished_routes = {"/songs/translation-notes/"}
+    # Keep archived sources in the repository, but never publish their routes.
+    unpublished_routes = {"/songs/translation-notes/", "/read/literature/lychee-mirror/"}
     manifest = json.loads((root / "migration/wordpress-map.json").read_text(encoding="utf-8"))
     records = [
         json.loads((root / item["file"]).read_text(encoding="utf-8"))
         for item in manifest["records"]
-        if item["route"] not in unpublished_routes
+        if base_route(item["route"]) not in unpublished_routes
     ]
     source_routes = {source_key(item["sourceUrl"]): item["route"] for item in records}
     media = json.loads((root / "migration/wordpress-media.json").read_text(encoding="utf-8"))
@@ -355,7 +379,7 @@ def build_content(root: Path, output: Path):
         heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
         body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         if base_route(route) == "/":
-            body = curate_home_body(body, record["language"])
+            body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
@@ -374,12 +398,10 @@ def build_content(root: Path, output: Path):
     song_items = {}
     for route, imported in songs_by_route.items():
         label, _ = song_title(imported)
-        outside_ruby = html.unescape(re.sub(r"<ruby\b.*?</ruby>", "", label, flags=re.DOTALL))
         sort_reading = song_sort_reading(imported)
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
-            "ruby_only": not any(character.isalnum() for character in outside_ruby),
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
         }
 
@@ -391,7 +413,7 @@ def build_content(root: Path, output: Path):
             for route in items:
                 destination = language_url(route, language) or route
                 item = song_items[route]
-                entry_class = "title-reading song-entry" + (" song-entry--ruby-only" if item["ruby_only"] else "")
+                entry_class = "title-reading song-entry"
                 links.append(
                     f'<li><a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
@@ -421,7 +443,7 @@ def build_content(root: Path, output: Path):
         stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == story_language]
         literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in records if item["type"] == "literature"]
         sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
-        sections[prefix + "/read/"] = (text("Read in Hokkien", language), f'<h2>{text("Literature", language)}</h2>' + listing(literature) + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
+        sections[prefix + "/read/"] = (text("Read in Hokkien", language), (f'<h2>{text("Literature", language)}</h2>' + listing(literature) if literature else "") + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
         sections[prefix + "/songs/"] = (text("Songs", language), song_index(language))
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"

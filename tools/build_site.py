@@ -24,7 +24,7 @@ def version_assets(html_path: Path) -> None:
     def replace(match: re.Match) -> str:
         value = match.group("url")
         url = urlsplit(value)
-        if url.scheme or url.netloc or not url.path.endswith((".js", ".css", ".svg", ".ico")):
+        if url.scheme or url.netloc or not (url.path.endswith((".js", ".css", ".svg", ".ico")) or url.path == "/assets/tangliengim-hokkienlang-logo.png"):
             return match.group(0)
         asset = OUTPUT / unquote(urljoin(page_url, url.path)).lstrip("/")
         if not asset.is_file():
