@@ -28,6 +28,7 @@
 .tli-ruby {
   position: relative;
   display: inline-block;
+  text-indent: 0;
   vertical-align: baseline;
   isolation: isolate;
 }

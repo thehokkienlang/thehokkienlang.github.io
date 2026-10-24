@@ -51,6 +51,7 @@ def main():
                 for width in (390, 1280):
                     context = browser.new_context(viewport={"width": width, "height": 844},
                                                   device_scale_factor=1, is_mobile=width == 390)
+                    context.route("https://**/*", lambda route: route.abort())
                     page = context.new_page()
                     errors = []
                     page.on("pageerror", lambda error: errors.append(str(error)))
@@ -67,13 +68,32 @@ def main():
                         page.evaluate("document.fonts.ready")
                         offset = student.evaluate("""node => {
                             const style = getComputedStyle(node);
-                            return {actual: parseFloat(style.top), expected: -0.85 * parseFloat(style.fontSize) + 5};
+                            return {actual: parseFloat(style.top), expected: -0.85 * parseFloat(style.fontSize) + 2};
                         }""")
                         if not args.diagnose:
                             assert abs(offset["actual"] - offset["expected"]) < 0.1, (
                                 f"Student ruby offset ignored after DOM conversion: {engine_name}/{width}/{language}: {offset}")
                         student.locator("xpath=ancestor::ul[1]").screenshot(
                             path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
+                    for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/")):
+                        page.goto(args.url.rstrip("/") + story, wait_until="domcontentloaded")
+                        paragraphs = page.locator('p[style*="text-indent:2em"]')
+                        paragraphs.first.locator(".tli-ruby").first.wait_for()
+                        page.evaluate("document.fonts.ready")
+                        spacing = paragraphs.nth(1).evaluate("""paragraph => {
+                            const ruby = paragraph.querySelector('.tli-ruby');
+                            const reading = paragraph.querySelector('.tli-rt:not([style*="120%"] )');
+                            const style = getComputedStyle(reading);
+                            return {indent: getComputedStyle(ruby).textIndent,
+                                extraWidth: ruby.getBoundingClientRect().width - ruby.querySelector('.tli-ruby-base').getBoundingClientRect().width,
+                                paragraphIndent: getComputedStyle(paragraph).textIndent,
+                                top: parseFloat(style.top), expectedTop: -1.1 * parseFloat(style.fontSize) + 4};
+                        }""")
+                        if not args.diagnose:
+                            assert spacing["indent"] == "0px" and abs(spacing["extraWidth"]) < 0.25, spacing
+                            assert spacing["paragraphIndent"] == "48px", spacing
+                            assert abs(spacing["top"] - spacing["expectedTop"]) < 0.1, spacing
+                        paragraphs.nth(1).screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg.png"))
                     context.close()
                 context = browser.new_context(viewport={"width": 390, "height": 844}, is_mobile=True)
                 context.route("https://**/*", lambda route: route.abort())
