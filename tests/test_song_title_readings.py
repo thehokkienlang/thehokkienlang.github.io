@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
-from song_title_readings import song_title
+from song_title_readings import song_lomari, song_sort_reading, song_title
 
 
 class SongTitleTests(unittest.TestCase):
@@ -70,6 +70,18 @@ class SongTitleTests(unittest.TestCase):
         self.assertIn('Happy<rt>헤ˉ비ˆ</rt>', title)
         self.assertIn('運<rt>운ˋ</rt>', title)
         self.assertIn('歌<rt>과ˆ</rt>', title)
+
+    def test_song_index_reading_includes_english_word_pronunciation(self):
+        record = self.record("Happy!!! 運將 情歌", "Happy!!! 운ˎ쟝 졩과ꞈ")
+        record["titleWordReadings"] = {"Happy": "헤ˉ비ˆ"}
+        self.assertTrue(song_sort_reading(record).startswith("헤ˉ비ˆ운ˋ쟝"))
+        self.assertEqual(song_lomari(record), "Happy!!! ùn-jiang jieng-koâ")
+
+    def test_song_index_uses_selected_reading_variant(self):
+        record = self.record("月下 煮茶", "뀋에ˏ 즈ˏ데ꞈ (뀋에ˍ 주ꞈ데ˏ)")
+        record["titleReadingVariant"] = 0
+        self.assertEqual(song_sort_reading(record), "뀋에ˊ즈ˊ데ˆ")
+        self.assertEqual(song_lomari(record), "Gueh-é j́-tê")
 
 
 if __name__ == "__main__":

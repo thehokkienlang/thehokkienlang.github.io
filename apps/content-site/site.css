@@ -61,7 +61,7 @@ h4 { font-size: 18px; }
 .has-text-align-right { text-align: right; }
 .page-list { list-style: none; margin: 16px 0 32px; padding: 0; }
 .song-list a { text-decoration: none; }
-.song-list .title-reading .hanri-title > rt { font-size: 75%; }
+.song-list .title-reading .hanri-title > rt { font-size: 62%; }
 .page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
 .external-note, .source-link { color: var(--muted); font-size: 14px; }
 .source-link { clear: both; margin-top: 48px; }
@@ -92,11 +92,23 @@ h4 { font-size: 18px; }
 .page-list li { align-items: center; padding: 0; }
 .page-list li > a { flex: 1; min-width: 0; padding: 20px 8px; color: var(--ink); text-decoration: none; }
 .page-list li > a:hover { color: var(--accent); }
-.song-list { counter-reset: song-row; }
-.song-list li { position: relative; counter-increment: song-row; }
-.song-list li::before { content: counter(song-row, decimal-leading-zero); width: 40px; flex: 0 0 40px; color: var(--site-voice, #b33b46); font-size: 13px; }
-.song-list li > a { padding-top: 28px; padding-bottom: 24px; color: var(--ink); font-size: 24px; line-height: 1.8; }
-.song-list li > a:hover { color: var(--site-voice, #b33b46); }
+.song-catalogue { display: grid; gap: 44px; margin: 18px 0 54px; }
+.song-category { border-top: 4px solid var(--category-accent); }
+.song-category-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 18px 20px 16px; background: var(--category-tint); }
+.imported-content .song-category-heading h2 { margin: 0; padding: 0; border: 0; font-size: 20px; }
+.imported-content .song-category-heading h2::before { display: none; }
+.song-category-heading > span { color: var(--category-accent); font-family: Calibri, sans-serif; font-size: 13px; font-weight: 700; letter-spacing: .08em; }
+.song-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0; padding: 0; border: 1px solid var(--line); border-top: 0; list-style: none; counter-reset: song-row; }
+.song-list li { position: relative; min-width: 0; border-bottom: 1px solid var(--line); counter-increment: song-row; }
+.song-list li:nth-child(odd) { border-right: 1px solid var(--line); }
+.song-list li:nth-last-child(-n + 2) { border-bottom: 0; }
+.song-list li:nth-last-child(2):nth-child(even) { border-bottom: 1px solid var(--line); }
+.song-list li::before { content: counter(song-row, decimal-leading-zero); position: absolute; top: 17px; left: 18px; color: var(--category-accent); font-family: Calibri, sans-serif; font-size: 12px; font-weight: 700; }
+.song-list li > a { display: flex; min-height: 112px; box-sizing: border-box; padding: 34px 20px 17px 58px; flex-direction: column; justify-content: center; color: var(--ink); }
+.song-list li > a:hover { color: var(--category-accent); background: var(--category-tint); }
+.song-entry-title { min-width: 0; font-size: 24px; line-height: 1.75; overflow-wrap: anywhere; }
+.song-entry-title ruby { ruby-position: over; }
+.song-entry-lomari { margin-top: -2px; color: var(--muted); font-family: Calibri, "Segoe UI", sans-serif; font-size: 15px; line-height: 1.35; }
 .source-link { font-size: 13px; }
 .article-contents { max-width: 780px; margin: 0 0 32px; padding: 14px 20px; border-left: 3px solid var(--accent); background: #e8f2ef; }
 .article-contents summary { cursor: pointer; color: var(--accent); font-weight: 700; }
@@ -204,5 +216,12 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
   .home-feature-songs { margin-right: -20px; margin-left: -20px; padding: 46px 20px 50px; }
   .home-songbook a { grid-template-columns: 1fr; gap: 0; }
   .article-contents ol { columns: 1; }
-  .song-list li > a { font-size: 22px; }
+  .song-catalogue { gap: 34px; }
+  .song-category-heading { padding-right: 16px; padding-left: 16px; }
+  .song-list { grid-template-columns: 1fr; }
+  .song-list li, .song-list li:nth-child(odd), .song-list li:nth-last-child(-n + 2), .song-list li:nth-last-child(2):nth-child(even) { border-right: 0; border-bottom: 1px solid var(--line); }
+  .song-list li:last-child { border-bottom: 0; }
+  .song-list li > a { min-height: 104px; padding: 32px 16px 15px 54px; }
+  .song-list li::before { left: 16px; }
+  .song-entry-title { font-size: 22px; }
 }

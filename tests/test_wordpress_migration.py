@@ -58,6 +58,7 @@ class SongLinks(HTMLParser):
         self.href = None
         self.parts = []
         self.in_reading = False
+        self.in_lomari = False
 
     def handle_starttag(self, tag, attrs):
         if tag == "a":
@@ -65,16 +66,20 @@ class SongLinks(HTMLParser):
             self.parts = []
         elif tag == "rt":
             self.in_reading = True
+        elif tag == "span" and "song-entry-lomari" in dict(attrs).get("class", "").split():
+            self.in_lomari = True
 
     def handle_endtag(self, tag):
         if tag == "rt":
             self.in_reading = False
+        elif tag == "span" and self.in_lomari:
+            self.in_lomari = False
         elif tag == "a" and self.href is not None:
             self.links[self.href] = "".join(self.parts)
             self.href = None
 
     def handle_data(self, text):
-        if self.href is not None and not self.in_reading:
+        if self.href is not None and not self.in_reading and not self.in_lomari:
             self.parts.append(text)
 
 
@@ -116,6 +121,10 @@ class MigrationTests(unittest.TestCase):
             self.assertFalse((Path(directory) / "songs/translation-notes/index.html").exists())
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")
             choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
+            categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))
+            self.assertEqual(songs.count('class="song-category"'), len(categories))
+            self.assertEqual(songs.count('class="song-entry-lomari"'), len(choices))
+            self.assertGreater(songs.count('class="hanri-title"'), len(choices))
             if manifest["deferred"]["songs"] == 0:
                 self.assertTrue(all(row["new_url"] in routes for row in choices))
                 self.assertIn("/read/stories/the-egg/", routes)

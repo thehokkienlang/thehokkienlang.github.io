@@ -3,6 +3,7 @@
   "type": "songs",
   "language": "en",
   "title": "敢傻敢衝",
+  "titleRomanisation": "Gǎn shǎ gǎn chōng",
   "titleRuby": [
     {"base": "敢", "reading": "ㄍㄢˇ", "system": "bopomofo"},
     {"base": "傻", "reading": "ㄕㄚˇ", "system": "bopomofo"},

@@ -8,7 +8,8 @@ import re
 import shutil
 from pathlib import Path
 
-from song_title_readings import song_title, word_title
+from song_title_readings import song_lomari, song_sort_reading, song_title
+from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
 
@@ -359,17 +360,54 @@ def build_content(root: Path, output: Path):
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
-    source_titles = json.loads((root / "migration/song-titles.json").read_text(encoding="utf-8"))
+    song_categories = json.loads((root / "content/song-categories.json").read_text(encoding="utf-8"))
     songs_by_route = {item["route"]: item for item in records if item["type"] == "songs"}
-    song_links = []
-    for row in song_rows:
-        imported = songs_by_route.get(row["new_url"])
-        if imported:
-            title = row.get("display_title") or imported["title"]
-            label = word_title(title, imported.get("titleWordReadings", {}))
-            song_links.append(f'<li><a class="title-reading" href="{html.escape(imported["route"], quote=True)}">{label}</a></li>')
-        else:
-            song_links.append(f'<li><a href="{html.escape(row["old_url"], quote=True)}">{html.escape(source_titles[row["old_url"]])}</a><span class="external-note">WordPress</span></li>')
+    approved_routes = {row["new_url"] for row in song_rows}
+    categorized_routes = [route for category in song_categories for route in category["routes"]]
+    if len(categorized_routes) != len(set(categorized_routes)):
+        raise ValueError("A song appears in more than one category")
+    if set(categorized_routes) != approved_routes or approved_routes != set(songs_by_route):
+        missing = sorted(approved_routes - set(categorized_routes))
+        extra = sorted(set(categorized_routes) - approved_routes)
+        raise ValueError(f"Song categories are out of sync; missing={missing}, extra={extra}")
+
+    song_items = {}
+    for route, imported in songs_by_route.items():
+        label, _ = song_title(imported)
+        sort_reading = song_sort_reading(imported)
+        song_items[route] = {
+            "label": label,
+            "lomari": song_lomari(imported),
+            "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
+        }
+
+    def song_index(language):
+        sections = []
+        for category in song_categories:
+            items = sorted(category["routes"], key=lambda route: (song_items[route]["sort"], route))
+            links = []
+            for route in items:
+                destination = language_url(route, language) or route
+                item = song_items[route]
+                links.append(
+                    '<li><a class="title-reading song-entry" '
+                    f'href="{html.escape(destination, quote=True)}">'
+                    f'<span class="song-entry-title">{item["label"]}</span>'
+                    f'<span class="song-entry-lomari">{html.escape(item["lomari"])}</span>'
+                    '</a></li>'
+                )
+            labels = category["labels"]
+            title = labels.get(language, labels["en"])
+            sections.append(
+                '<section class="song-category" '
+                f'data-song-category="{html.escape(category["id"], quote=True)}" '
+                f'style="--category-accent:{html.escape(category["accent"], quote=True)};'
+                f'--category-tint:{html.escape(category["tint"], quote=True)}">'
+                '<header class="song-category-heading">'
+                f'<h2>{html.escape(title)}</h2><span>{len(items):02d}</span></header>'
+                f'<ol class="song-list">{"".join(links)}</ol></section>'
+            )
+        return '<div class="song-catalogue">' + "".join(sections) + '</div>'
     sections = {}
     languages = manifest.get("languages", ["en"])
     for language in languages:
@@ -378,12 +416,9 @@ def build_content(root: Path, output: Path):
         story_language = "zh-Hant" if language == "zh-Hans" else language
         stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == story_language]
         literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in records if item["type"] == "literature"]
-        localized_songs = "".join(song_links)
-        if language != "en":
-            localized_songs = re.sub(r'href="(/songs/[^"?]+/)"', lambda match: f'href="{html.escape(language_url(match[1], language), quote=True)}"', localized_songs)
         sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
         sections[prefix + "/read/"] = (text("Read in Hokkien", language), f'<h2>{text("Literature", language)}</h2>' + listing(literature) + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
-        sections[prefix + "/songs/"] = (text("Songs", language), '<ul class="page-list song-list">' + localized_songs + "</ul>")
+        sections[prefix + "/songs/"] = (text("Songs", language), song_index(language))
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)

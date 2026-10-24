@@ -111,6 +111,48 @@ def word_title(title, word_readings):
     return "".join(result)
 
 
+def title_reading_variants(record):
+    """Return the source title-header readings after applying its approved variant."""
+    heading = FirstHeading(record["body"])
+    reading = heading.root.reading().strip() if heading.root else ""
+    variants = [part.strip(" )）") for part in re.split(r"[（(]", reading) if part.strip(" )）")]
+    if "titleReadingVariant" in record:
+        selected = record["titleReadingVariant"]
+        if not isinstance(selected, int) or not 0 <= selected < len(variants):
+            raise ValueError(f'Invalid title reading selection for {record["id"]}')
+        variants = [variants[selected]]
+    return variants, heading
+
+
+def song_sort_reading(record):
+    """Return the complete Hangul title reading used for jamo collation."""
+    if explicit := record.get("titleSortReading"):
+        return explicit
+    variants, _ = title_reading_variants(record)
+    if not variants:
+        return ""
+    spoken = reading_units(variants[0])
+    units = title_units(record["title"], record.get("titleWordReadings", {}))
+    skipped = 0
+    if len(spoken) < len(units) and re.match(r"[A-Za-z]", variants[0]):
+        skipped = next((index for index, unit in enumerate(units) if unit[3]), 0)
+    if len(spoken) != len(units) - skipped:
+        return "".join(spoken)
+    prefix = [unit[2] for unit in units[:skipped]]
+    return "".join(prefix + spoken)
+
+
+def song_lomari(record):
+    """Romanise the approved title reading with the same converter as the IME."""
+    if explicit := record.get("titleRomanisation"):
+        return explicit
+    variants, _ = title_reading_variants(record)
+    if not variants:
+        return ""
+    value = phonetics().auto_lomari_from_hangul(variants[0])
+    return value[:1].upper() + value[1:] if value else ""
+
+
 def title_units(title, word_readings=None):
     word_readings = word_readings or {}
     units = []
@@ -152,16 +194,9 @@ def song_title(record):
         return "".join(ruby(item["base"], [item["reading"]], item.get("system", "hangul"))
                        for item in annotations), body
 
-    heading = FirstHeading(body)
-    reading = heading.root.reading().strip() if heading.root else ""
-    if heading.end is None or not reading_units(reading):
+    variants, heading = title_reading_variants(record)
+    if heading.end is None or not variants or not reading_units(variants[0]):
         raise ValueError(f'No title reading available for {record["id"]}')
-    variants = [part.strip(" )）") for part in re.split(r"[（(]", reading) if part.strip(" )）")]
-    if "titleReadingVariant" in record:
-        selected = record["titleReadingVariant"]
-        if not isinstance(selected, int) or not 0 <= selected < len(variants):
-            raise ValueError(f'Invalid title reading selection for {record["id"]}')
-        variants = [variants[selected]]
     units = title_units(title, word_readings)
     aligned = []
     for variant in variants:
