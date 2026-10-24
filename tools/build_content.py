@@ -168,7 +168,7 @@ def home_showcase(language, song_records=()):
             "songs_title": "歌曲",
             "songs_copy": "從歷久不衰的經典到新世代聲音，閱讀附有漢諺讀音與羅馬字的歌詞。",
             "songs_link": "瀏覽歌單",
-            "selection": "歌本選讀",
+            "selection": "歌單精選",
         },
         "zh-Hans": {
             "label": "探索 TheHokkienLang",
@@ -193,7 +193,7 @@ def home_showcase(language, song_records=()):
             "songs_title": "歌曲",
             "songs_copy": "从历久不衰的经典到新世代声音，阅读附有汉谚读音与罗马字的歌词。",
             "songs_link": "浏览歌单",
-            "selection": "歌本选读",
+            "selection": "歌单精选",
         },
     }[language]
 

@@ -71,8 +71,17 @@ def main():
                             return {actual: parseFloat(style.top), expected: -0.85 * parseFloat(style.fontSize) + 2};
                         }""")
                         if not args.diagnose:
+                            expected_label = {"zh-hant": "歌單精選", "zh-hans": "歌单精选"}.get(language)
+                            if expected_label:
+                                assert page.locator('.home-songbook-label').inner_text() == expected_label
                             assert abs(offset["actual"] - offset["expected"]) < 0.1, (
                                 f"Student ruby offset ignored after DOM conversion: {engine_name}/{width}/{language}: {offset}")
+                            for prefix in ("한", "당"):
+                                readings = page.locator('.imported-content > p .tli-rt').filter(has_text=prefix)
+                                assert readings.count() > 0, f"Missing homepage reading: {language}/{prefix}"
+                                for reading in readings.all():
+                                    top = reading.evaluate("node => parseFloat(getComputedStyle(node).top)")
+                                    assert abs(top - offset["actual"]) < 0.1, f"Homepage ruby offsets differ: {language}/{prefix}"
                         student.locator("xpath=ancestor::ul[1]").screenshot(
                             path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
                     for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/")):
