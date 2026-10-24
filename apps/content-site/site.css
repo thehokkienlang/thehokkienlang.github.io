@@ -175,9 +175,11 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-feature-songs .home-feature-link { color: var(--site-voice, #9d303b); }
 .home-songbook { border-top: 2px solid var(--ink); }
 .home-songbook-label { display: block; padding: 13px 0 10px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--site-voice, #9d303b); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.home-songbook a { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 24px; padding: 14px 0; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--ink); text-decoration: none; }
+.home-songbook a { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 24px; padding: 26px 0 14px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--ink); text-decoration: none; }
 .home-songbook a:hover { color: var(--site-voice, #9d303b); }
-.home-songbook a span { font-size: 21px; font-weight: 700; }
+.home-songbook a > .home-song-title { padding-top: 0; font-size: 21px; font-weight: 700; line-height: 1.5; }
+.home-songbook a .home-song-title .tli-rt { font-size: 57%; }
+.home-songbook a .home-song-title .bopomofo-title > .tli-rt { font-size: 38%; }
 .home-songbook a small { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 14px; }
 @media (max-width: 900px) {
   body[data-site-section="home"] .content-shell > h1 { max-width: 680px; font-size: 48px; }

@@ -36,6 +36,13 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn('font-family: "TLI Noto Sans", "Noto Sans", Arial, sans-serif;', styles)
         self.assertIn("font-style: normal;", styles)
 
+    def test_tone_wrappers_do_not_add_width_to_hangul(self):
+        for relative in ("shared/web-title-reading.css", "apps/dictionary/styles.css", "apps/ime/styles.css"):
+            css = (ROOT / relative).read_text(encoding="utf-8")
+            rule = css.split(".hangul-tone {", 1)[1].split("}", 1)[0]
+            self.assertIn("min-width: 0;", rule)
+            self.assertNotIn("min-width: 1em;", rule)
+
 
 if __name__ == "__main__":
     unittest.main()

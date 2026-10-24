@@ -7,6 +7,12 @@ from pathlib import Path
 
 MEASURE = """() => {
   const issues = [];
+  const toneSpacing = [...document.querySelectorAll('.song-entry-title .hangul-tone')].flatMap(node => {
+    const range = document.createRange();
+    range.selectNodeContents(node.firstChild);
+    const extra = node.getBoundingClientRect().width - range.getBoundingClientRect().width;
+    return extra > 0.25 ? [{base: node.firstChild.textContent, extra}] : [];
+  });
   for (const ruby of document.querySelectorAll('.song-entry-title ruby, .song-entry-title .tli-ruby, .song-entry-title .hangul-tone')) {
     const reading = ruby.querySelector(':scope > rt, :scope > .tli-rt, :scope > .tone-mark');
     const base = ruby.querySelector(':scope > .tli-ruby-base') || ruby.firstChild;
@@ -20,7 +26,7 @@ MEASURE = """() => {
         baseY: baseBox.top, readingBottom: readingBox.bottom});
     }
   }
-  return {issues: issues.slice(0, 4), issueCount: issues.length, overflow: document.documentElement.scrollWidth > innerWidth,
+  return {issues: issues.slice(0, 4), issueCount: issues.length, toneSpacing, overflow: document.documentElement.scrollWidth > innerWidth,
     entries: document.querySelectorAll('.song-entry').length,
     marks: document.querySelectorAll('.hangul-tone').length,
     composedLomari: [...document.querySelectorAll('.song-entry-lomari')]
@@ -65,13 +71,21 @@ def main():
                     remaining = page.locator('.imported-content ruby[style*="position"]').count()
                     if not args.diagnose:
                         assert remaining == 0, f"Positioned native ruby remains in {engine_name}: {route}"
+                page.goto(args.url.rstrip("/") + "/zh-hant/", wait_until="domcontentloaded")
+                page.wait_for_selector(".home-song-title .tli-ruby, .home-song-title .hangul-tone")
+                page.evaluate("document.fonts.ready")
+                page.locator(".home-songbook").screenshot(path=str(args.output / f"{engine_name}-home-songbook.png"))
+                if not args.diagnose:
+                    assert page.locator(".home-song-title").count() == 3
+                    assert page.locator(".home-song-title ruby").count() == 0
+                    assert "瀏覽歌單" in page.locator(".home-feature-songs").inner_text()
                 context.close()
             finally:
                 browser.close()
     print(json.dumps(results, ensure_ascii=False, indent=2))
     (args.output / "results.json").write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
     if not args.diagnose:
-        assert all(not row["issues"] and not row["overflow"] and not row["errors"] and
+        assert all(not row["issues"] and not row["toneSpacing"] and not row["overflow"] and not row["errors"] and
                    row["entries"] == 70 and row["composedLomari"] for row in results), "Content rendering regression"
 
 

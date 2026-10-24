@@ -167,7 +167,7 @@ def home_showcase(language, song_records=()):
             "songs_meta": "04 · 聆聽",
             "songs_title": "歌曲",
             "songs_copy": "從歷久不衰的經典到新世代聲音，閱讀附有漢諺讀音與羅馬字的歌詞。",
-            "songs_link": "瀏覽歌本",
+            "songs_link": "瀏覽歌單",
             "selection": "歌本選讀",
         },
         "zh-Hans": {
@@ -192,7 +192,7 @@ def home_showcase(language, song_records=()):
             "songs_meta": "04 · 聆听",
             "songs_title": "歌曲",
             "songs_copy": "从历久不衰的经典到新世代声音，阅读附有汉谚读音与罗马字的歌词。",
-            "songs_link": "浏览歌本",
+            "songs_link": "浏览歌单",
             "selection": "歌本选读",
         },
     }[language]
@@ -216,7 +216,7 @@ def home_showcase(language, song_records=()):
     eligible_songs = [record for record in song_records if base_route(record["route"]) != "/songs/月下煮茶/"]
     song_links = [
         f'<a href="{html.escape(language_url(record["route"], language) or record["route"], quote=True)}">'
-        f'<span>{html.escape(record["title"])}</span><small>{html.escape(song_lomari(record))}</small></a>'
+        f'<span class="title-reading home-song-title">{song_title(record)[0]}</span><small>{html.escape(song_lomari(record))}</small></a>'
         for record in eligible_songs
     ]
     songs = (
@@ -318,8 +318,8 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於我們的閩南語。", "zh-Hans": "记录着属于我们的闽南语。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
-        "zh-Hant": "東寧音（TLI）將發音、聲調和語意融為一體；一看就懂、一讀就通。",
-        "zh-Hans": "东宁音（TLI）将发音、声调和语意融为一体；一看就懂、一读就通。",
+        "zh-Hant": "將發音、聲調和語意融為一體的東寧音（TLI）：一看就懂、一讀就通。",
+        "zh-Hans": "将发音、声调和语意融为一体的东宁音（TLI）：一看就懂、一读就通。",
     }
     home_kickers = {"en": "Hokkien language · writing · culture", "zh-Hant": "閩南語 · 文字 · 文化", "zh-Hans": "闽南语 · 文字 · 文化"}
     heading = home_headings[language] if base_route(route) == "/" else title

@@ -127,6 +127,8 @@ class MigrationTests(unittest.TestCase):
                 pool = homepage.split('<template data-home-song-pool>', 1)[1].split('</template>', 1)[0]
                 self.assertEqual(pool.count('<a '), 69)
                 self.assertNotIn("月下煮茶", pool)
+                self.assertEqual(pool.count('class="title-reading home-song-title"'), 69)
+                self.assertIn('class="hanri-title"', pool)
             songs = (Path(directory) / "songs/index.html").read_text(encoding="utf-8")
             choices = json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8"))
             categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))

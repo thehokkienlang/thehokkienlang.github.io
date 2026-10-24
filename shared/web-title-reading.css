@@ -1,7 +1,7 @@
 .title-reading .hangul-tone {
   position: relative;
   display: inline-block;
-  min-width: 1em;
+  min-width: 0;
   line-height: 1.15;
 }
 .title-reading .hangul-tone .tone-mark {
