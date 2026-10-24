@@ -15,6 +15,7 @@ from build_content import build_content, nasal_font_text
 from import_wordpress import ImportedHTML, PAGES
 from import_wordpress_final import approved_song_routes
 from site_languages import CHINESE_PAGES, LANGUAGES
+from content_harmonisation import restore_body
 
 
 # Approved source edits are scoped to specific pages and ruby indices.
@@ -89,6 +90,8 @@ class SongLinks(HTMLParser):
 class MigrationTests(unittest.TestCase):
     def test_all_imported_pronunciations_match_the_original(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
+        audit_path = ROOT / "docs/harmonisation-3.2-audit.json"
+        audit = json.loads(audit_path.read_text(encoding="utf-8"))["records"] if audit_path.exists() else {}
         self.assertTrue(set(PAGES).issubset({item["sourceId"] for item in manifest["records"]}))
         for item in manifest["records"]:
             with self.subTest(item=item["sourceId"]):
@@ -96,7 +99,9 @@ class MigrationTests(unittest.TestCase):
                 imported = json.loads((ROOT / item["file"]).read_text(encoding="utf-8"))
                 before, after = Readings(), Readings()
                 before.feed(original["content"])
-                after.feed(imported["body"])
+                # Reverse only the hash-verified, reviewed edits before checking the archive.
+                body = restore_body(imported["body"], audit[item["file"]]) if item["file"] in audit else imported["body"]
+                after.feed(body)
                 expected_readings = before.values.copy()
                 for index, (old, new) in APPROVED_RUBY_EDITS.get(item["sourceId"], {}).items():
                     self.assertEqual(expected_readings[index], old)
@@ -109,7 +114,7 @@ class MigrationTests(unittest.TestCase):
                 self.assertEqual(expected_text, " ".join("".join(after.text).split()))
                 self.assertEqual(before.media, after.media)
                 self.assertEqual(hashlib.sha256(original["content"].encode()).hexdigest(), imported["sourceSha256"])
-                self.assertIn(imported["orthography"]["review"], {"pending", "source-preserved"})
+                self.assertIn(imported["orthography"]["review"], {"pending", "source-preserved", "mixed-script-audited"})
 
     def test_build_publishes_authored_languages_and_keeps_unpublished_content_out(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))

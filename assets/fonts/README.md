@@ -102,13 +102,14 @@ font selection remain unchanged. Attributes and source JSON are unchanged.
 - Source: `NotoSans[wdth,wght].ttf`, SHA-256 `bfb7bb691513f12e734dc346c03a03f784912432d7e3fa8e56efcf906fe86b3d`.
 - License: unchanged `OFL-NotoSans.txt` (SIL OFL 1.1).
 
-`tangliengim-content-hanri-v1.woff2` supplies U+23350 (`𣍐`, 勿會) and the
-existing U+24EAA (`𤺪`) fallback to the content site. It is derived from the
+`tangliengim-content-hanri-v2.woff2` supplies `𣍐`, `𤺪`, `𠢕`, `𨑨`, `𨘗`, and
+`𬦰` to the content site. Harmonisation 3.2 adds the last four glyphs for
+cross-platform rendering without relying on device fonts. It is derived from the
 same Plangothic P1 V2.9.5795 release and license documented above, renamed
-**Tangliengim Content Hanri**, and restricted to those characters by CSS.
+**Tangliengim Content Hanri v2**, and restricted to those characters by CSS.
 The dictionary and classic Pad's existing single-glyph font is unchanged.
 
-Modified 2026-10-22. Optional reproduction:
+Modified 2026-10-25; the previous v1 asset is retained. Optional reproduction:
 
 ```sh
 python -m pip install 'fonttools[woff]'

@@ -2,7 +2,7 @@
 @import url("/shared/web-hangul-font.css");
 @font-face { font-family: "TLI Hanri"; src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei"); unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
-@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v1.woff2") format("woff2"); font-display: swap; unicode-range: U+23350, U+24EAA; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+28468, U+28617, U+2C9B0; }
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
 .nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; }
 :root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }

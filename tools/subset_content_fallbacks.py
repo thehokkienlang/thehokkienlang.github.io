@@ -2,6 +2,8 @@
 import argparse
 from pathlib import Path
 
+HANRI_CODEPOINTS = {0x20, 0x20895, 0x23350, 0x24EAA, 0x28468, 0x28617, 0x2C9B0}
+
 
 def subset_font(source, codepoints, family, output, axes=None):
     from fontTools import subset
@@ -44,7 +46,7 @@ def main():
     latin = (set(range(0x20,0x370)) | set(range(0x1E00,0x1F00)) | {0x25CC}) & available
     assert {0x330,0x25CC,ord('a'),ord('i')} <= latin
     subset_font(args.latin_source, latin, 'Tangliengim Nasal Latin', args.output_dir / 'tangliengim-nasal-latin-v1.woff2', {'wdth':100})
-    subset_font(args.hanri_source, {0x20,0x23350,0x24EAA}, 'Tangliengim Content Hanri', args.output_dir / 'tangliengim-content-hanri-v1.woff2')
+    subset_font(args.hanri_source, HANRI_CODEPOINTS, 'Tangliengim Content Hanri v2', args.output_dir / 'tangliengim-content-hanri-v2.woff2')
 
 if __name__ == '__main__':
     main()

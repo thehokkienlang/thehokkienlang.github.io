@@ -9,10 +9,16 @@ workflow. All 13 authored Chinese presentations have also been imported:
 seven Traditional Chinese records (including The Egg) and six Simplified
 Chinese records. The archive now holds all 92 published source items.
 
-## Deferred work
+## Orthography Review
 
-- Imported source is preserved; its v3.1 compliance review is still pending.
-  Apply approved v3.2 linguistic changes after the migration and v3.1 review.
+The 2026-10-25 [Harmonisation 3.2 audit](harmonisation-3.2.md) applies the
+author-reviewed mixed-script spelling rules from the supplied v3.2 manual.
+Active authored records now target v3.2 within that documented scope. Original
+WordPress snapshots remain unchanged; a reversible, hash-verified edit ledger
+preserves their provenance. Teaching/transcription uses and the author's
+explicitly retained native forms are documented separately from running-text
+Hanri harmonisation. Earlier pending-v3.1 statements below describe the import
+checkpoint, not the current completed mixed-script audit.
 
 The Songs and Read indexes now link to the imported GitHub pages. Links in the
 first batch have also been updated. Language links now point to the corresponding
