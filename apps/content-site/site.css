@@ -32,7 +32,7 @@ h4 { font-size: 18px; }
 .imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
 .imported-content [style*="font-family: Calibri" i], .imported-content [style*="font-family:Calibri" i] { font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif !important; }
 .imported-content :is(rt, .tli-rt):not([style*="120%"]) { top: calc(-1.1em + 2px) !important; transform: none; }
-body[data-site-section="home"] .imported-content ul.wp-block-list:has(> li > strong > span[style*="Noto Sans TC"]) :is(ruby, .tli-ruby) > :is(rt, .tli-rt) { top: calc(-0.85em + 5px) !important; }
+body[data-site-section="home"] .imported-content ul.wp-block-list:has(> li > strong > span[style*="Noto Sans TC"]) :is(ruby, .tli-ruby) > :is(rt, .tli-rt) { top: calc(-0.85em + 2px) !important; }
 :is(.content-songs, .content-stories) h1 { font-size: 48px; }
 :is(.content-songs, .content-stories) .imported-content h2 { font-size: 36px; }
 :is(.content-songs, .content-stories) .imported-content h3 { font-size: 30px; }
