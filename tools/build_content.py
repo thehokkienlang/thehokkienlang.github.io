@@ -287,11 +287,11 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     language = language_for_route(route)
     navigation = navigation_links(route)
     source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url and base_route(route) != "/" else ""
-    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "閩南語的書寫之聲。", "zh-Hans": "闽南语的书写之声。"}
+    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於我們的閩南語。", "zh-Hans": "记录着属于我们的闽南语。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
-        "zh-Hant": "東寧音把發音、聲調與意義結合在一套易讀的系統中。",
-        "zh-Hans": "东宁音把发音、声调与意义结合在一套易读的系统中。",
+        "zh-Hant": "東寧音（TLI）將發音、聲調和語意融為一體；一看就懂、一讀就通。",
+        "zh-Hans": "东宁音（TLI）将发音、声调和语意融为一体；一看就懂、一读就通。",
     }
     home_kickers = {"en": "Hokkien language · writing · culture", "zh-Hant": "閩南語 · 文字 · 文化", "zh-Hans": "闽南语 · 文字 · 文化"}
     heading = home_headings[language] if base_route(route) == "/" else title
