@@ -19,7 +19,10 @@ from site_languages import CHINESE_PAGES, LANGUAGES
 
 # Approved source edits are scoped to specific pages and ruby indices.
 APPROVED_COPY_EDITS = {
-    3082: (("HokkienLang is a space", "TheHokkienLang is a space"),),
+    3082: (
+        ("HokkienLang is a space", "TheHokkienLang is a space"),
+        (" (pronounced Tung-LEE-eng-im)", ""),
+    ),
     1258: (("welcome to HokkienLang.", "welcome to TheHokkienLang."),),
     6645: (("당ˉ롕임ˆ-", "당ˉ롕임ˆ"),),
 }
