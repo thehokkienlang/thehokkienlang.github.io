@@ -210,7 +210,16 @@ class FilePreferenceStore:
                 stream.write(raw)
                 stream.flush()
                 os.fsync(stream.fileno())
-            os.replace(temporary, self.path)
+            # Windows readers can briefly deny replacement even while we hold the writer lock.
+            deadline = time.monotonic() + LOCK_WAIT_SECONDS
+            while True:
+                try:
+                    os.replace(temporary, self.path)
+                    break
+                except OSError as error:
+                    if getattr(error, 'winerror', None) not in (5, 32, 33) or time.monotonic() >= deadline:
+                        raise
+                    time.sleep(0.005)
             self._observed_raw = raw.encode('utf-8')
             return True
         except (OSError, ValueError, TypeError, RecursionError):
