@@ -25,6 +25,8 @@ h2 { margin-top: 2em; font-size: 24px; line-height: 1.6; }
 h3 { margin-top: 1.8em; font-size: 20px; }
 h4 { font-size: 18px; }
 .imported-content { overflow-wrap: anywhere; display: flow-root; }
+body[data-site-section="home"] .imported-content,
+body[data-site-section="learn"] .imported-content { font-size: 20px; }
 /* Code examples also need a font that shapes archaic conjoining jamo. */
 .imported-content code { font-family: "Tangliengim Conjoining Hangul", monospace; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
