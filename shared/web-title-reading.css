@@ -10,7 +10,7 @@
   left: calc(50% - 1px);
   transform: translateX(-50%);
   color: inherit;
-  font-family: Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif;
   font-size: 1.02em;
   font-weight: 700;
   line-height: 1;
@@ -36,7 +36,7 @@
   text-align: center;
 }
 .title-reading .inline-upper-tone {
-  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif;
   font-size: 1em;
   font-weight: 800;
   margin-left: 0.02em;

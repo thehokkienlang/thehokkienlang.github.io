@@ -576,7 +576,7 @@ h1 {
 }
 
 .lomari {
-  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif;
   color: #475569;
   font-size: 1.02rem;
   overflow-wrap: anywhere;

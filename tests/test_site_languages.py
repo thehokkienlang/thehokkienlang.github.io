@@ -8,11 +8,22 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher
+from build_content import build_content, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher, site_brand
 from site_languages import LANGUAGES, base_route, language_for_route, language_url
 
 
 class SiteLanguageTests(unittest.TestCase):
+    def test_all_interfaces_share_one_brand_template(self):
+        brand = site_brand(ROOT)
+        self.assertIn('class="site-logo"', brand)
+        self.assertIn('href="/zh-hant/"', site_brand(ROOT, "zh-Hant"))
+        for app in ("dictionary", "ime"):
+            source = (ROOT / "apps" / app / "index.html").read_text(encoding="utf-8")
+            self.assertIn("__SITE_BRAND__", source)
+            self.assertNotIn('class="site-logo"', source)
+        content = (ROOT / "apps/content-site/page.html").read_text(encoding="utf-8")
+        self.assertIn("__BRAND__", content)
+
     def test_tli_first_mention_expands_once(self):
         self.assertEqual(introduce_tli("Use Tangliengim, then Tangliengim."), "Use Tangliengim (TLI), then TLI.")
         self.assertEqual(introduce_tli("Use TLI."), "Use TLI.")

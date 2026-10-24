@@ -1,8 +1,33 @@
-/* Match Western punctuation without changing Hanri or Hangul font selection. */
+/* One self-hosted Western face for punctuation and every TLI tone symbol. */
+@font-face {
+  font-family: "TLI Noto Sans";
+  src: url("/assets/fonts/tli-noto-sans-regular-v1.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+}
+@font-face {
+  font-family: "TLI Noto Sans";
+  src: url("/assets/fonts/tli-noto-sans-bold-v1.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+}
 @font-face {
   font-family: "TLI Western Punctuation";
-  src: local("Calibri"), local("Arial"), local("Liberation Sans"), local("DejaVu Sans");
-  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1, U+00A7, U+00AB, U+00B6-00B7, U+00BB, U+00BF, U+2010-2027, U+2030-205E, U+3001-3003, U+3008-3011, U+3014-301F, U+3030, U+FE10-FE19, U+FE30-FE52, U+FE54-FE61, U+FE63, U+FE68, U+FE6A-FE6B, U+FF01-FF0F, U+FF1A-FF20, U+FF3B-FF40, U+FF5B-FF65;
+  src: url("/assets/fonts/tli-noto-sans-regular-v1.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100 500;
+  font-display: swap;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1, U+00A7, U+00AB, U+00B6-00B7, U+00BB, U+00BF, U+02C6-02CF, U+02EC, U+2010-2027, U+2030-205E, U+A788;
+}
+@font-face {
+  font-family: "TLI Western Punctuation";
+  src: url("/assets/fonts/tli-noto-sans-bold-v1.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 600 900;
+  font-display: swap;
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E, U+00A1, U+00A7, U+00AB, U+00B6-00B7, U+00BB, U+00BF, U+02C6-02CF, U+02EC, U+2010-2027, U+2030-205E, U+A788;
 }
 :root .title-preview {
   font-family: "TLI Western Punctuation", "Noto Sans TC", "Noto Sans KR", sans-serif;

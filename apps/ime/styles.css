@@ -13,12 +13,6 @@
 
 /* Mirror the Local IME's per-script font tags inside the plain textarea. */
 @font-face {
-  font-family: "Tangliengim Tone";
-  src: local("Calibri");
-  unicode-range: U+02C6, U+02C9-02CF, U+A788;
-}
-
-@font-face {
   font-family: "Tangliengim Hanri SC";
   src: local("Noto Sans SC"), local("Noto Sans CJK SC"), local("Microsoft YaHei");
   unicode-range: U+3A7C;
@@ -132,7 +126,7 @@ h1 {
   outline: 0;
   resize: vertical;
   color: var(--text);
-  font-family: "TLI Western Punctuation", "Tangliengim Tone", "Tangliengim Hanri Fallback", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
   font-size: 26px;
   line-height: 1.42;
 }
@@ -238,7 +232,7 @@ h1 {
   border-bottom: 1px solid #e4ebf3;
   background: #f7faf9;
   color: #667386;
-  font-family: "TLI Western Punctuation", "Google Sans", "Product Sans", "Noto Sans", "Segoe UI", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif;
   font-size: 1.08rem;
   line-height: 1.45;
   white-space: pre-wrap;

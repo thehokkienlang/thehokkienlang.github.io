@@ -1,3 +1,26 @@
+# Shared Noto Sans Symbols and Branding
+
+`tli-noto-sans-{regular,bold}-v1.woff2` are renamed subsets of Noto Sans.
+The shared brand template uses these same files on content pages, Dictionary
+and IME. The punctuation face selects Western-width punctuation and the entire
+TLI tone set, including U+A788, without borrowing CJK or Calibri tone glyphs.
+Latin combining marks and nasalization are retained with their shaping tables.
+Hanri and Hangul continue to use their script-specific fonts. Explicitly
+fullwidth Chinese punctuation keeps its original glyph and semantics.
+
+- Sources: installed `NotoSans-Regular.ttf` and `NotoSans-Bold.ttf`.
+- SHA-256 (regular): `150d72c26777d9232384756ee88bfcac1b055eda0563c38ce2c6e1de21595de0`.
+- SHA-256 (bold): `e34be52df70ee791393df83d5196bd29ce4b79e535c681a41270d6981e248cdf`.
+- License: SIL OFL 1.1, in `OFL-NotoSans.txt`; embedded copyright retained.
+- Modified 2026-10-24: glyph subset, hints removed, family renamed to
+  **TLI Noto Sans**, encoded as WOFF2. No glyph outlines or widths changed.
+
+Optional reproduction with FontTools installed:
+
+```sh
+python tools/subset_western_symbols.py /path/to/NotoSans-Regular.ttf /path/to/NotoSans-Bold.ttf
+```
+
 # Hanri glyph fallback
 
 `tangliengim-hanri-fallback-v1.woff2` and its TTF companion contain U+24EAA

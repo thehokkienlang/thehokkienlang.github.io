@@ -29,6 +29,11 @@ def nasal_font_text(value):
     return NASAL_GRAPHEME.sub(lambda match: '<span class="nasal-grapheme">' + match.group() + '</span>', value)
 
 
+def site_brand(root, language="en"):
+    template = (root / "shared/site-brand.html").read_text(encoding="utf-8")
+    return template.replace("__HOME__", PREFIXES[language] + "/").strip()
+
+
 def navigation_links(route, language=None, variants=True):
     language = language or language_for_route(route)
 
@@ -326,6 +331,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
     values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else ""}
+    values["BRAND"] = site_brand(root, language)
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
