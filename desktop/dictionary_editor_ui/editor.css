@@ -113,3 +113,6 @@ dialog::backdrop { background:rgba(20,35,43,.3); }
 @media(min-width:1400px) { .editor-layout { grid-template-columns:1fr 440px; } }
 @media(max-width:900px) { body { height:auto; } .editor-layout { grid-template-columns:1fr; grid-template-rows:auto auto; overflow:visible; } .entry-detail { border-left:0; border-top:1px solid var(--line); overflow:visible; } .entry-table-wrap { max-height:50dvh; overflow:auto; } }
 @media(max-width:600px) { .editor-header { padding:14px; flex-wrap:wrap; } .header-actions { width:100%; justify-content:space-between; } h1 { font-size:20px; } .entry-toolbar,.entry-filters,.entry-detail,.search-keyboard-control { padding-inline:12px; } th,td { padding:9px; } footer { flex-direction:column; padding:12px; } }
+html.embedded .editor-header,html.embedded>body>footer { display:none; }
+html.embedded body { height:100dvh; }
+html.embedded .editor-layout { max-width:none; }

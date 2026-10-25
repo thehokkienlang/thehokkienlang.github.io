@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="editor-token" content="__EDITOR_TOKEN__">
+  <title>Tangliengim Website Editor</title>
+  <link rel="stylesheet" href="website-editor.css">
+</head>
+<body>
+  <header class="cms-header">
+    <div class="identity"><span class="identity-mark" aria-hidden="true">東<br><b>롕</b></span><div><span>THEHOKKIENLANG</span><h1>Website Editor</h1></div></div>
+    <div class="header-status"><span class="local-badge">Local only</span><span id="branchStatus">Loading repository...</span></div>
+  </header>
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+  <div class="cms-shell">
+    <nav class="cms-nav" aria-label="Editor sections">
+      <button class="nav-item active" data-screen="dashboard"><span>01</span>Dashboard</button>
+      <button class="nav-item" data-screen="pages"><span>02</span>Website Pages</button>
+      <button class="nav-item" data-screen="dictionary"><span>03</span>Dictionary</button>
+      <button class="nav-item" data-screen="references"><span>04</span>Categories / References</button>
+      <button class="nav-item" data-screen="priority"><span>05</span>Static Priority</button>
+      <button class="nav-item" data-screen="changes"><span>06</span>Changes</button>
+      <button class="nav-item" data-screen="validation"><span>07</span>Validation</button>
+    </nav>
+    <main class="cms-main">
+      <section id="screen-dashboard" class="screen active">
+        <div class="section-heading"><div><p class="eyebrow">Repository workspace</p><h2>What would you like to edit?</h2></div><button id="refreshDashboard">Refresh</button></div>
+        <div class="dashboard-grid">
+          <button class="dashboard-card" data-go="pages"><span class="card-number" id="pageCount">...</span><strong>Website Pages</strong><small>Guides, pages, stories, and songs</small></button>
+          <button class="dashboard-card" data-go="dictionary"><span class="card-number" id="entryCount">...</span><strong>Dictionary</strong><small>Search, add, edit, preview, and validate entries</small></button>
+          <button class="dashboard-card" data-go="references"><span class="card-number">IDs</span><strong>Categories / References</strong><small>Human labels backed by stable entry IDs</small></button>
+          <button class="dashboard-card" data-go="priority"><span class="card-number">#</span><strong>Static Priority</strong><small>Explicit candidate positions</small></button>
+          <button class="dashboard-card" data-go="changes"><span class="card-number" id="changeCount">...</span><strong>Changes</strong><small>Review every local Git difference</small></button>
+          <button class="dashboard-card" data-go="validation"><span class="card-number" id="validationMark">?</span><strong>Validation</strong><small>Run the repository's existing checks</small></button>
+        </div>
+        <aside class="safety-note"><strong>Generated files are protected.</strong><p>The editor changes canonical source files only. Builds may regenerate preview output, but `_site/` and `public/data/` are never directly editable here.</p></aside>
+      </section>
+
+      <section id="screen-pages" class="screen">
+        <div class="section-heading"><div><p class="eyebrow">Website content</p><h2>Website Pages</h2></div><div class="heading-actions"><button id="validatePage">Check draft</button><button id="savePage" class="primary" disabled>Save page</button></div></div>
+        <div class="page-workspace">
+          <aside class="page-browser"><input id="pageSearch" type="search" placeholder="Find a page"><select id="pageType"><option value="">All content</option></select><div id="pageList" class="page-list"></div></aside>
+          <div class="page-editor">
+            <div id="pageEmpty" class="empty-state"><h3>Choose a page</h3><p>Select a source page to edit its title and content.</p></div>
+            <form id="pageForm" hidden>
+              <div class="page-meta"><span id="pageLanguage"></span><span id="pageKind"></span><code id="pageFile"></code></div>
+              <label>Page title<input id="pageTitle" required></label>
+              <label>Published route<input id="pageRoute" readonly></label>
+              <label>Page content <span>HTML source used by the site build</span><textarea id="pageBody" spellcheck="false"></textarea></label>
+            </form>
+          </div>
+          <section class="preview-panel" aria-label="Page preview"><div class="panel-bar"><strong>Live preview</strong><button id="openBuiltPreview" type="button" disabled>Open built page</button></div><iframe id="pagePreview" title="Page preview" sandbox="allow-same-origin allow-scripts"></iframe></section>
+        </div>
+      </section>
+
+      <section id="screen-dictionary" class="screen full-bleed">
+        <div class="section-heading compact"><div><p class="eyebrow">Canonical dictionary</p><h2>Dictionary</h2></div><p>Entry IDs remain read-only. Saving here never commits or pushes.</p></div>
+        <iframe id="dictionaryFrame" class="dictionary-frame" title="Dictionary editor" data-src="/editor/?embedded=1"></iframe>
+      </section>
+
+      <section id="screen-references" class="screen">
+        <div class="section-heading"><div><p class="eyebrow">Stable-ID relationships</p><h2>Categories / References</h2></div></div>
+        <div class="segmented"><button class="active" data-reference-tab="categories">Categories</button><button data-reference-tab="redirects">References</button></div>
+        <div id="categoryPanel" class="data-panel">
+          <div class="panel-actions"><p>Category labels and entry memberships. Entries are displayed by headword, while stable IDs are saved underneath.</p><button id="addCategory">New category</button><button id="addMembership">Add entry</button><button id="saveCategories" class="primary">Save categories</button></div>
+          <div class="split-tables"><div><h3>Category labels</h3><div id="categoryLabels"></div></div><div><h3>Entry memberships</h3><div id="categoryMemberships"></div></div></div>
+        </div>
+        <div id="redirectPanel" class="data-panel" hidden>
+          <div class="panel-actions"><p>Redirect and correction references. Human-readable targets are shown; stable IDs are saved.</p><button id="addReference">New reference</button><button id="saveReferences" class="primary">Save references</button></div>
+          <div id="referenceRows" class="structured-list"></div>
+        </div>
+      </section>
+
+      <section id="screen-priority" class="screen">
+        <div class="section-heading"><div><p class="eyebrow">Candidate ordering</p><h2>Static Priority</h2></div><div class="heading-actions"><button id="addPriority">New priority</button><button id="savePriorities" class="primary">Save priorities</button></div></div>
+        <p class="section-intro">Use an exact lookup key, choose a human-readable entry, and assign its absolute menu position. Existing ranking validation remains authoritative.</p>
+        <div id="priorityRows" class="structured-list"></div>
+      </section>
+
+      <section id="screen-changes" class="screen">
+        <div class="section-heading"><div><p class="eyebrow">Git review</p><h2>Changes</h2></div><button id="refreshChanges">Refresh</button></div>
+        <div class="changes-layout"><div id="changeFiles" class="change-files"></div><article class="diff-view"><div class="panel-bar"><strong id="diffTitle">Choose a changed file</strong></div><pre id="diffContent">No file selected.</pre></article></div>
+        <div class="commit-bar"><label>Commit message<input id="commitMessage" placeholder="Describe these changes"></label><button id="commitButton" class="primary">Commit selected</button><button id="pushButton">Push commits</button></div>
+      </section>
+
+      <section id="screen-validation" class="screen">
+        <div class="section-heading"><div><p class="eyebrow">Existing repository checks</p><h2>Validation</h2></div></div>
+        <div class="validation-options">
+          <article><span>Fast</span><h3>Dictionary schema</h3><p>Validate the canonical dictionary TSV and stable IDs.</p><button data-validation="dictionary">Run dictionary check</button></article>
+          <article><span>Recommended</span><h3>Complete website</h3><p>Build the real site and run the full release gate, including rendered-site checks.</p><button class="primary" data-validation="site">Build and validate</button></article>
+          <article><span>Portable</span><h3>Source release checks</h3><p>Run source, dictionary, ranking, IME, and desktop checks without the final public-site validation.</p><button data-validation="source">Run source checks</button></article>
+        </div>
+        <section class="validation-log"><div class="panel-bar"><strong id="validationStatus">No validation run in this session</strong><span id="jobSpinner" class="spinner" hidden></span></div><pre id="validationLog">Choose a validation suite above.</pre></section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="entryPicker"><div class="dialog-heading"><div><p class="eyebrow">Stable dictionary entry</p><h2>Choose an entry</h2></div><button id="closePicker">Close</button></div><input id="entryPickerSearch" type="search" placeholder="Search Hanri, Hangul, English, or ID"><div id="entryPickerResults" class="picker-results"></div></dialog>
+  <script src="website-editor.js"></script>
+</body>
+</html>

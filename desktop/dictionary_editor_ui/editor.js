@@ -1,5 +1,6 @@
 "use strict";
 (() => {
+  if (new URLSearchParams(location.search).has("embedded")) document.documentElement.classList.add("embedded");
   const $ = id => document.getElementById(id);
   const fields = ["hanri", "reading", "english", "mandarin_trad", "mandarin_simp", "simplified", "corrected", "entry_id"];
   const typeLabels = { lexical: "Word", hangul_override: "Hangul override",

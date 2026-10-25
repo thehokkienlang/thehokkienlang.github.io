@@ -386,6 +386,21 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
         if suffix not in {"index.html", "editor.css", "editor.js"}:
             return None
         relative = Path("desktop") / "dictionary_editor_ui" / suffix
+    elif path.startswith("/website-editor/"):
+        suffix = path.removeprefix("/website-editor/") or "index.html"
+        if suffix not in {"index.html", "website-editor.css", "website-editor.js"}:
+            return None
+        relative = Path("desktop") / "website_editor_ui" / suffix
+    elif path.startswith("/preview-assets/"):
+        suffix = path.removeprefix("/preview-assets/")
+        if suffix not in {"site.css", "site.js"}:
+            return None
+        relative = Path("apps") / "content-site" / suffix
+    elif path.startswith("/preview-site/"):
+        suffix = path.removeprefix("/preview-site/") or "index.html"
+        if suffix.endswith("/"):
+            suffix += "index.html"
+        relative = Path("_site") / suffix
     elif path.startswith(("/shared/", "/public/", "/assets/")):
         relative = Path(path.lstrip("/"))
     else:
@@ -462,6 +477,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
         if path == "/editor":
             self._redirect("/editor/")
             return
+        if path == "/website-editor":
+            self._redirect("/website-editor/")
+            return
         if path == "/desktop/desktop-shell.js":
             script = DESKTOP_SCRIPT.replace('__EDITOR_TOKEN__', self.server.editor_token)
             self._send_bytes(script.encode("utf-8"), "text/javascript; charset=utf-8")
@@ -484,7 +502,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         data = target.read_bytes()
-        if target == self.server.repo_root / 'desktop/dictionary_editor_ui/index.html':
+        if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
+                      self.server.repo_root / 'desktop/website_editor_ui/index.html'):
             data = data.replace(b'__EDITOR_TOKEN__', self.server.editor_token.encode())
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
                       self.server.repo_root / 'apps/ime/index.html'):
@@ -523,6 +542,10 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
                 if self.headers.get('X-Tangliengim-Editor') != self.server.editor_token:
                     raise EditorError('Editor session expired. Reload this page.', code='forbidden')
                 result = self.server.editor.dispatch(path.removeprefix('/desktop-api/editor/'), payload)
+            elif path.startswith('/desktop-api/website-editor/'):
+                if self.headers.get('X-Tangliengim-Editor') != self.server.editor_token:
+                    raise EditorError('Editor session expired. Reload this page.', code='forbidden')
+                result = self.server.website_editor.dispatch(path.removeprefix('/desktop-api/website-editor/'), payload)
             elif path == "/desktop-api/copy-html":
                 result = self.server.copy_html(payload)
             elif path == "/desktop-api/html-confirmation":
@@ -569,12 +592,14 @@ class DesktopHttpServer(ThreadingHTTPServer):
         self.candidate_preferences = FilePreferenceStore(active_ids_from_tsv(self.local_tsv_path()))
         self.preference_receipts = OrderedDict()
         from dictionary_editor import DictionaryEditorController
+        from website_editor import WebsiteEditorController
         self.editor_token = uuid.uuid4().hex
         self.instance = uuid.uuid4().hex
         self.restarting = False
         self.restart_supported = False
         self.restart_event = threading.Event()
         self.editor = DictionaryEditorController(self)
+        self.website_editor = WebsiteEditorController(self)
 
     def load_candidate_preferences(self) -> dict:
         with self.bridge_lock:

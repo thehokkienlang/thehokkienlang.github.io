@@ -61,6 +61,23 @@ by the desktop localhost server and is never copied into the public website.
 
 See [editor workflow and recovery](docs/dictionary-editor.md).
 
+## Local Website Editor
+
+Launch the private localhost CMS from the repository root:
+
+```sh
+npm run editor
+```
+
+Windows users without npm on `PATH` can double-click `Open Website Editor.cmd`,
+or run `python "desktop/Tangliengim Website Editor.py"`.
+
+It edits canonical website pages and dictionary data, previews page HTML with
+the website's real styles, runs the existing build and validation tools, shows
+readable Git diffs, and keeps Save, Commit, and Push as separate actions. It
+binds to localhost and is not included in the public site build. See the
+[website editor guide](docs/website-editor.md).
+
 ## Build and preview
 
 Use Python 3.10 or later with Tkinter available, and Node.js for validation.
