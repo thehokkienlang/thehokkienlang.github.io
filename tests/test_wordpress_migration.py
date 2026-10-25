@@ -120,11 +120,12 @@ class MigrationTests(unittest.TestCase):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
         with tempfile.TemporaryDirectory() as directory:
             routes = build_content(ROOT, Path(directory))
-            self.assertEqual(len(routes), len(manifest["records"]) - 2 + 3 * len(LANGUAGES))
+            # The Simplified Egg is derived from the audited Traditional source.
+            self.assertEqual(len(routes), len(manifest["records"]) - 2 + 3 * len(LANGUAGES) + 1)
             self.assertEqual(set(manifest["languages"]), set(LANGUAGES))
             self.assertTrue({spec[0] for spec in CHINESE_PAGES}.issubset({item["sourceId"] for item in manifest["records"]}))
             self.assertIn("/zh-hant/read/stories/the-egg/", routes)
-            self.assertNotIn("/zh-hans/read/stories/the-egg/", routes)
+            self.assertIn("/zh-hans/read/stories/the-egg/", routes)
             self.assertNotIn("/songs/translation-notes/", routes)
             self.assertFalse((Path(directory) / "songs/translation-notes/index.html").exists())
             self.assertNotIn("/read/literature/lychee-mirror/", routes)

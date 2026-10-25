@@ -57,7 +57,9 @@ def main():
             for path in ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/read/", "/songs/"):
                 assert prefix + path in content["routes"], f"Missing Chinese page: {prefix + path}"
         assert "/zh-hant/read/stories/the-egg/" in content["routes"]
-        assert "/zh-hans/read/stories/the-egg/" not in content["routes"]
+        assert "/zh-hans/read/stories/the-egg/" in content["routes"]
+        simplified_egg = next(page for page in content['pages'] if page['route'] == '/zh-hans/read/stories/the-egg/')
+        assert simplified_egg['derivedFrom']['route'] == '/zh-hant/read/stories/the-egg/'
         deferred_ids = set(content["deferred"]["theEgg"])
         assert not deferred_ids.intersection(page["sourceId"] for page in content["pages"])
         imported_songs = {page["route"] for page in content["pages"] if page["type"] == "songs"}

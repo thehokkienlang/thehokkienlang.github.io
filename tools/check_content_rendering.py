@@ -90,11 +90,19 @@ def main():
                                     assert abs(size - offset["size"]) < 0.1, f"Homepage ruby sizes differ: {language}/{prefix}"
                         student.locator("xpath=ancestor::ul[1]").screenshot(
                             path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
-                    for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/")):
+                    for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/"), ("zh-hans", "/zh-hans/read/stories/the-egg/")):
                         page.goto(args.url.rstrip("/") + story, wait_until="domcontentloaded")
+                        title = page.locator('h1.title-reading')
+                        title.locator('.tli-rt').wait_for()
+                        if not args.diagnose:
+                            assert title.locator('.tli-ruby-base').inner_text() == '卵'
+                            assert title.locator('.tli-rt').inner_text() == '능ˉ'
+                            assert page.locator('.story-subtitle').inner_text() == ('The Egg' if language == 'en' else '蛋')
+                            assert '2352652016' in page.locator('iframe[src*="w.soundcloud.com"]').get_attribute('src')
                         paragraphs = page.locator('p[style*="text-indent:2em"]')
                         paragraphs.first.locator(".tli-ruby").first.wait_for()
                         page.evaluate("document.fonts.ready")
+                        page.screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg-header.png"))
                         spacing = paragraphs.nth(1).evaluate("""paragraph => {
                             const ruby = paragraph.querySelector('.tli-ruby');
                             const reading = paragraph.querySelector('.tli-rt:not([style*="120%"] )');

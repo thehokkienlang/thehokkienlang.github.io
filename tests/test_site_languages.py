@@ -89,7 +89,7 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertEqual(language_for_route(route), language)
             self.assertEqual(base_route(route), "/learn/spelling/")
             self.assertEqual(language_url(route, "zh-Hant"), "/zh-hant/learn/spelling/")
-        self.assertIsNone(language_url("/read/stories/the-egg/", "zh-Hans"))
+        self.assertEqual(language_url("/read/stories/the-egg/", "zh-Hans"), "/zh-hans/read/stories/the-egg/")
         self.assertEqual(language_url("/ime/", "zh-Hans"), "/ime/?lang=zh-Hans")
         self.assertEqual(language_url("/songs/example/", "zh-Hant"), "/songs/example/?lang=zh-Hant")
 
@@ -101,8 +101,9 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('data-language-choice="en"', nav)
         self.assertIn('href="/zh-hans/learn/spelling/"', nav)
         egg = navigation_links("/zh-hant/read/stories/the-egg/", variants=False)
-        self.assertNotIn('data-language-choice="zh-Hans"', egg)
-        self.assertIn('>卵（繁體中文）</a>', navigation_links("/zh-hans/", variants=False))
+        self.assertIn('data-language-choice="zh-Hans"', egg)
+        self.assertIn('href="/zh-hans/read/stories/the-egg/"', egg)
+        self.assertIn('>卵</a>', navigation_links("/zh-hans/", variants=False))
 
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -124,7 +125,21 @@ class SiteLanguageTests(unittest.TestCase):
             manifest = json.loads((output / "content-manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["languages"], list(LANGUAGES))
             self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hant"]), 7)
-            self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hans"]), 6)
+            self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hans"]), 7)
+            derived = next(page for page in manifest['pages'] if page['route'] == '/zh-hans/read/stories/the-egg/')
+            self.assertEqual(derived['derivedFrom']['route'], '/zh-hant/read/stories/the-egg/')
+            for prefix, subtitle in (('', 'The Egg'), ('zh-hant/', '蛋'), ('zh-hans/', '蛋')):
+                story = (output / prefix / 'read/stories/the-egg/index.html').read_text(encoding='utf-8')
+                self.assertIn('<ruby class="hanri-title">卵<rt>능ˉ</rt></ruby>', story)
+                self.assertIn(f'<h2 class="story-subtitle">{subtitle}</h2>', story)
+                self.assertIn('2352652016', story)
+                self.assertNotIn('2325470030', story)
+                self.assertIn('href="/zh-hans/read/stories/the-egg/"', story)
+                self.assertIn('href="/zh-hant/read/stories/the-egg/"', story)
+            simplified_story = (output / 'zh-hans/read/stories/the-egg/index.html').read_text(encoding='utf-8')
+            self.assertIn('荷属福尔摩沙', simplified_story)
+            self.assertNotIn('荷屬福爾摩沙', simplified_story)
+            self.assertIn('href="/zh-hans/read/stories/the-egg/"', (output / 'zh-hans/read/index.html').read_text(encoding='utf-8'))
             introduction = (output / "learn/introduction/index.html").read_text(encoding="utf-8")
             self.assertIn("Introduction to Tangliengim (TLI)", introduction)
             article = introduction.split('<article class="imported-content">', 1)[1].split("</article>", 1)[0]

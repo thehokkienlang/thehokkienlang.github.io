@@ -13,6 +13,7 @@ from song_title_readings import song_lomari, song_sort_reading, song_title
 from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
+from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
 NAV_SECTIONS = {
@@ -349,6 +350,9 @@ def build_content(root: Path, output: Path):
         if base_route(item["route"]) not in unpublished_routes
     ]
     source_routes = {source_key(item["sourceUrl"]): item["route"] for item in records}
+    traditional_egg = next(item for item in records if item['route'] == '/zh-hant' + EGG_ROUTE)
+    egg_player = soundcloud_source(traditional_egg['body'])
+    records.append(simplified_egg(traditional_egg))
     media = json.loads((root / "migration/wordpress-media.json").read_text(encoding="utf-8"))
 
     class PresentationHTML(ImportedHTML):
@@ -382,7 +386,10 @@ def build_content(root: Path, output: Path):
             raise ValueError(f"Invalid or duplicate content route: {route}")
         paths.add(route)
         target.parent.mkdir(parents=True, exist_ok=True)
-        heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
+        if base_route(route) == EGG_ROUTE:
+            heading_html, body = egg_presentation(record, egg_player)
+        else:
+            heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
         body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
@@ -445,8 +452,7 @@ def build_content(root: Path, output: Path):
     for language in languages:
         prefix = PREFIXES[language]
         guides = [item for item in records if item["type"] == "guides" and item["language"] == language and base_route(item["route"]).startswith("/learn/")]
-        story_language = "zh-Hant" if language == "zh-Hans" else language
-        stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == story_language]
+        stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == language]
         literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in records if item["type"] == "literature"]
         sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
         sections[prefix + "/read/"] = (text("Read in Hokkien", language), (f'<h2>{text("Literature", language)}</h2>' + listing(literature) if literature else "") + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
@@ -460,5 +466,5 @@ def build_content(root: Path, output: Path):
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copy2(root / "apps/content-site" / name, target / name)
-    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{**{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")}, **({'derivedFrom': item['derivedFrom']} if 'derivedFrom' in item else {})} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return sorted(paths)
