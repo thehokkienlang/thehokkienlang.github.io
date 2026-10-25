@@ -45,7 +45,7 @@ def shared_soundcloud(body, src):
 
 
 class SimplifiedHTML(HTMLParser):
-    """Convert visible Hanri text, never URLs, attributes, ruby readings or code."""
+    """Simplify Mandarin notes while preserving Hokkien paragraphs and ruby."""
     def __init__(self):
         super().__init__(convert_charrefs=False)
         self.parts = []
@@ -53,7 +53,11 @@ class SimplifiedHTML(HTMLParser):
 
     def handle_starttag(self, tag, attrs):
         self.parts.append(self.get_starttag_text())
-        if tag in {'script', 'style', 'rt', 'rp', 'code', 'pre'}:
+        attributes = dict(attrs)
+        hokkien_paragraph = tag == 'p' and re.search(
+            r'(?:^|;)\s*text-indent\s*:\s*2em\s*(?:;|$)', attributes.get('style', ''), re.I)
+        hokkien_language = attributes.get('lang', '').lower().split('-')[0] == 'nan'
+        if tag in {'script', 'style', 'ruby', 'rt', 'rp', 'code', 'pre'} or hokkien_paragraph or hokkien_language:
             self.protected.append(tag)
 
     def handle_startendtag(self, tag, attrs):
@@ -84,7 +88,7 @@ def simplified_egg(traditional):
     return {**traditional, 'language': 'zh-Hans', 'route': '/zh-hans' + EGG_ROUTE,
             'body': ''.join(parser.parts),
             'derivedFrom': {'route': traditional['route'], 'language': 'zh-Hant',
-                            'conversion': 'tw2s-visible-text'}}
+                            'conversion': 'tw2s-mandarin-text'}}
 
 
 def egg_presentation(record, player_source):

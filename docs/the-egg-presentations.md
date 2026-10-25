@@ -18,8 +18,10 @@ hashes remain intact.
 
 The Simplified page derives from the current, harmonised Traditional source on
 each build, using the repository's pinned OpenCC conversion. Conversion affects
-visible Hanri text, not Hangul, tone marks, Lomari, URLs, attributes, pronunciation
-ruby, code, or scripts. The content manifest explicitly records `derivedFrom`;
+Mandarin introductory text and footnote explanations only. Hokkien story
+paragraphs, all ruby (including Hanri bases), explicitly `lang="nan"` text,
+Hangul, tone marks, Lomari, URLs, attributes, code and scripts remain unchanged.
+The content manifest explicitly records `derivedFrom`;
 the page is not misrepresented as a separately imported WordPress original.
 
 Edit `content/zh-hant/stories/the-egg.json` for shared Chinese content corrections.

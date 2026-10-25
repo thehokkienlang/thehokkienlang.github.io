@@ -32,9 +32,32 @@ class StoryPresentationTests(unittest.TestCase):
                     '’에 a̰i &amp; <a href="https://example.test/繁體">老師</a>'
                     '<code>漢字</code><!--原文--><script>const x="繁體";</script></p>')
         self.assertEqual(''.join(parser.parts),
-                         '<p title="現在" data-url="/繁體/">现在，<ruby>学生<rt>학솅ˆ</rt></ruby>'
+                         '<p title="現在" data-url="/繁體/">现在，<ruby>學生<rt>학솅ˆ</rt></ruby>'
                          '’에 a̰i &amp; <a href="https://example.test/繁體">老师</a>'
                          '<code>漢字</code><!--原文--><script>const x="繁體";</script></p>')
+
+    def test_hokkien_prose_and_explicit_language_spans_stay_traditional(self):
+        source = '<p style="font-family:Sans-serif;text-indent: 2em">這个學生’에 <ruby>老師<rt>러ˉ시</rt></ruby>。</p>'
+        parser = SimplifiedHTML()
+        parser.feed(source + '<p>老師說：<span lang="nan">這个學生</span>。</p>')
+        self.assertEqual(''.join(parser.parts), source + '<p>老师说：<span lang="nan">這个學生</span>。</p>')
+
+    def test_real_story_paragraphs_are_preserved_exactly(self):
+        from content_harmonisation import SourceHTML
+
+        def paragraphs(body):
+            result = []
+            def walk(node):
+                if node.tag == 'p' and 'text-indent:2em' in node.attrs.get('style', ''):
+                    result.append(body[node.start:node.end])
+                for child in node.children:
+                    walk(child)
+            walk(SourceHTML(body).root)
+            return result
+
+        original = paragraphs(self.traditional['body'])
+        self.assertGreater(len(original), 50)
+        self.assertEqual(original, paragraphs(simplified_egg(self.traditional)['body']))
 
     def test_simplified_is_derived_without_mutating_the_source(self):
         before = json.dumps(self.traditional, ensure_ascii=False)

@@ -117,6 +117,24 @@ def main():
                             assert spacing["paragraphIndent"] == "48px", spacing
                             assert abs(spacing["top"] - spacing["expectedTop"]) < 0.1, spacing
                         paragraphs.nth(1).screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg.png"))
+                        footnotes = page.locator('table').filter(has=page.locator('a#_ftn1')).first
+                        colon_positions = footnotes.locator('td:first-child').evaluate_all("""cells => cells.map(cell => {
+                            const walker = document.createTreeWalker(cell, NodeFilter.SHOW_TEXT);
+                            let node;
+                            while (node = walker.nextNode()) {
+                                const index = node.textContent.indexOf(':');
+                                if (index < 0) continue;
+                                const range = document.createRange();
+                                range.setStart(node, index); range.setEnd(node, index + 1);
+                                const colon = range.getBoundingClientRect();
+                                const label = cell.querySelector('i').getBoundingClientRect();
+                                return colon.top < label.bottom && colon.bottom > label.top;
+                            }
+                            return false;
+                        })""")
+                        if not args.diagnose:
+                            assert colon_positions and all(colon_positions), f"Wrapped footnote colon: {engine_name}/{width}/{language}"
+                        footnotes.screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg-footnotes.png"))
                     context.close()
                 context = browser.new_context(viewport={"width": 390, "height": 844}, is_mobile=True)
                 context.route("https://**/*", lambda route: route.abort())
