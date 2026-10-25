@@ -43,6 +43,14 @@ class SiteSymbolsTests(unittest.TestCase):
             self.assertIn("min-width: 0;", rule)
             self.assertNotIn("min-width: 1em;", rule)
 
+    def test_song_nasal_words_and_nested_script_headings_use_shared_styles(self):
+        css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
+        nasal = css.split(".nasal-grapheme {", 1)[1].split("}", 1)[0]
+        self.assertIn('font-family: "Tangliengim Nasal Latin"', nasal)
+        self.assertIn('font-feature-settings: "mark", "mkmk";', nasal)
+        self.assertIn(".content-songs .imported-content .song-script-heading { margin-top: 8px;", css)
+        self.assertNotIn(".content-songs .imported-content > .song-script-heading", css)
+
 
 if __name__ == "__main__":
     unittest.main()

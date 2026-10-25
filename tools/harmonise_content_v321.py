@@ -7,7 +7,7 @@ from collections import Counter
 from pathlib import Path
 
 from content_harmonisation import (
-    HANGUL, PROTECTED, apply_edits, atoms_for, digest, reading_ruby, word_at,
+    HANGUL, PROTECTED, apply_edits, atoms_for, digest, reading_ruby, restore_followups, word_at,
 )
 from harmonise_content_v32 import active_records
 from song_title_readings import phonetics
@@ -87,6 +87,7 @@ def migrate(root, *, apply=False):
 
 
 def restore(body, entry):
+    body = restore_followups(body, entry)
     if digest(body) != entry["afterSha256"]:
         raise ValueError("Content differs from the reviewed v3.2.1 patch")
     inverse, shift = [], 0
