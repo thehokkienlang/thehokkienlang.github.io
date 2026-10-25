@@ -54,7 +54,7 @@ def main():
         assert content["language"] == "en"
         assert set(content["languages"]) == {"en", "zh-Hant", "zh-Hans"}
         for prefix in ("/zh-hant", "/zh-hans"):
-            for path in ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/read/", "/songs/"):
+            for path in ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/read/", "/songs/", "/search/"):
                 assert prefix + path in content["routes"], f"Missing Chinese page: {prefix + path}"
         assert "/zh-hant/read/stories/the-egg/" in content["routes"]
         assert "/zh-hans/read/stories/the-egg/" in content["routes"]
@@ -68,8 +68,30 @@ def main():
             assert imported_songs == {row["new_url"] for row in choices}
             assert "/read/stories/the-egg/" in content["routes"]
         assert not (SITE / "migration").exists(), "Migration sources and URL form must remain local"
+        simplified_egg_html = local_file("/zh-hans/read/stories/the-egg/").read_text(encoding="utf-8")
+        assert "原著" in simplified_egg_html and "原着" not in simplified_egg_html
     else:
         assert 'url=/ime/' in root_html and 'window.location.replace("/ime/")' in root_html
+
+    search_index = json.loads(local_file("/public/data/site-search-index.json").read_text(encoding="utf-8"))
+    assert search_index["schemaVersion"] == 1
+    assert set(search_index["languages"]) == {"en", "zh-Hant", "zh-Hans"}
+    allowed_search_fields = {"id", "title", "url", "kind", "titleSearch", "content"}
+    for language, documents in search_index["languages"].items():
+        assert documents and len({item["id"] for item in documents}) == len(documents)
+        assert all(set(item) == allowed_search_fields for item in documents)
+        assert sum(item["kind"] == "tool" for item in documents) == 2
+        assert all("translation-notes" not in item["url"] for item in documents)
+        assert all("lychee-mirror" not in item["url"] for item in documents)
+        assert not any("entryType" in item["content"] or "sourceSha256" in item["content"] for item in documents)
+    for route in ("/search/", "/zh-hant/search/", "/zh-hans/search/"):
+        search_html = local_file(route).read_text(encoding="utf-8")
+        assert 'id="hangulKeyboardToggle"' in search_html
+        assert 'aria-pressed="false"' in search_html
+        scripts = [urlsplit(source).path for source in route_scripts[route]]
+        assert scripts.count("/assets/search/search.js") == 1
+        assert scripts.count("/shared/web-hangul-ime.js") == 1
+        assert scripts.count("/shared/web-ime-core.js") == 1
 
     dictionary_html = local_file("/dictionary/").read_text(encoding="utf-8")
     dictionary_view = local_file("/dictionary/dictionary-view.html").read_text(encoding="utf-8")

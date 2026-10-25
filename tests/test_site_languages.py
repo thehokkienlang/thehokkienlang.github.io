@@ -90,6 +90,7 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertEqual(base_route(route), "/learn/spelling/")
             self.assertEqual(language_url(route, "zh-Hant"), "/zh-hant/learn/spelling/")
         self.assertEqual(language_url("/read/stories/the-egg/", "zh-Hans"), "/zh-hans/read/stories/the-egg/")
+        self.assertEqual(language_url("/search/", "zh-Hans"), "/zh-hans/search/")
         self.assertEqual(language_url("/ime/", "zh-Hans"), "/ime/?lang=zh-Hans")
         self.assertEqual(language_url("/songs/example/", "zh-Hant"), "/songs/example/?lang=zh-Hant")
 
@@ -97,6 +98,8 @@ class SiteLanguageTests(unittest.TestCase):
         nav = navigation_links("/zh-hant/learn/spelling/", variants=False)
         self.assertIn('href="/zh-hant/learn/spelling/" aria-current="page"', nav)
         self.assertIn('href="/dictionary/?lang=zh-Hant"', nav)
+        self.assertIn('class="site-search-link" href="/zh-hant/search/"', nav)
+        self.assertIn('aria-label="搜尋"', nav)
         self.assertIn('>學習</summary>', nav)
         self.assertIn('data-language-choice="en"', nav)
         self.assertIn('href="/zh-hans/learn/spelling/"', nav)

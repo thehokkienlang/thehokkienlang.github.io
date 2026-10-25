@@ -121,7 +121,7 @@ class MigrationTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             routes = build_content(ROOT, Path(directory))
             # The Simplified Egg is derived from the audited Traditional source.
-            self.assertEqual(len(routes), len(manifest["records"]) - 2 + 3 * len(LANGUAGES) + 1)
+            self.assertEqual(len(routes), len(manifest["records"]) - 2 + 4 * len(LANGUAGES) + 1)
             self.assertEqual(set(manifest["languages"]), set(LANGUAGES))
             self.assertTrue({spec[0] for spec in CHINESE_PAGES}.issubset({item["sourceId"] for item in manifest["records"]}))
             self.assertIn("/zh-hant/read/stories/the-egg/", routes)

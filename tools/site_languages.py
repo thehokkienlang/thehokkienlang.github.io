@@ -6,11 +6,11 @@ LANGUAGES = ("en", "zh-Hant", "zh-Hans")
 PREFIXES = {"en": "", "zh-Hant": "/zh-hant", "zh-Hans": "/zh-hans"}
 LANGUAGE_NAMES = {"en": "English", "zh-Hant": "繁體中文", "zh-Hans": "简体中文"}
 LABELS = {
-    "en": ("Home", "Learn", "Songs", "Read", "Dictionary", "IME", "About", "Introduction", "Spelling", "Tone sandhi", "Romanisation", "The Egg", "Tale of the Lychee Mirror", "Literature", "Stories", "Original WordPress page", "Open IME", "Skip to content", "Learn Tangliengim", "Read in Hokkien"),
-    "zh-Hant": ("主頁", "學習", "歌曲", "閱讀", "詞典", "輸入法", "關於", "使用說明", "拼寫原則", "變調規則", "羅馬字", "卵", "荔鏡記", "文學", "故事", "原 WordPress 頁面", "開啟輸入法", "跳至內容", "學習東寧音", "閱讀閩南語"),
-    "zh-Hans": ("主页", "学习", "歌曲", "阅读", "词典", "输入法", "关于", "使用说明", "拼写规范", "变调规则", "罗马字", "卵", "荔镜记", "文学", "故事", "原 WordPress 页面", "打开输入法", "跳至内容", "学习东宁音", "阅读闽南语"),
+    "en": ("Home", "Learn", "Songs", "Read", "Dictionary", "IME", "About", "Introduction", "Spelling", "Tone sandhi", "Romanisation", "The Egg", "Tale of the Lychee Mirror", "Literature", "Stories", "Original WordPress page", "Open IME", "Skip to content", "Learn Tangliengim", "Read in Hokkien", "Search"),
+    "zh-Hant": ("主頁", "學習", "歌曲", "閱讀", "詞典", "輸入法", "關於", "使用說明", "拼寫原則", "變調規則", "羅馬字", "卵", "荔鏡記", "文學", "故事", "原 WordPress 頁面", "開啟輸入法", "跳至內容", "學習東寧音", "閱讀閩南語", "搜尋"),
+    "zh-Hans": ("主页", "学习", "歌曲", "阅读", "词典", "输入法", "关于", "使用说明", "拼写规范", "变调规则", "罗马字", "卵", "荔镜记", "文学", "故事", "原 WordPress 页面", "打开输入法", "跳至内容", "学习东宁音", "阅读闽南语", "搜索"),
 }
-LOCAL_PATHS = ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/songs/", "/read/")
+LOCAL_PATHS = ("/", "/about/", "/learn/", "/learn/introduction/", "/learn/spelling/", "/learn/tone-sandhi/", "/learn/romanisation/", "/songs/", "/read/", "/search/")
 CHINESE_PAGES = (
     (6645, "zh-Hant", "pages", "home", "/", "主頁"),
     (9433, "zh-Hant", "pages", "about", "/about/", "關於我"),

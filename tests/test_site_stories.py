@@ -28,11 +28,11 @@ class StoryPresentationTests(unittest.TestCase):
 
     def test_simplification_preserves_markup_readings_links_and_non_hanri(self):
         parser = SimplifiedHTML()
-        parser.feed('<p title="現在" data-url="/繁體/">現在，<ruby>學生<rt>학솅ˆ</rt></ruby>'
+        parser.feed('<p title="現在" data-url="/繁體/">現在，原著，<ruby>學生<rt>학솅ˆ</rt></ruby>'
                     '’에 a̰i &amp; <a href="https://example.test/繁體">老師</a>'
                     '<code>漢字</code><!--原文--><script>const x="繁體";</script></p>')
         self.assertEqual(''.join(parser.parts),
-                         '<p title="現在" data-url="/繁體/">现在，<ruby>學生<rt>학솅ˆ</rt></ruby>'
+                         '<p title="現在" data-url="/繁體/">现在，原著，<ruby>學生<rt>학솅ˆ</rt></ruby>'
                          '’에 a̰i &amp; <a href="https://example.test/繁體">老师</a>'
                          '<code>漢字</code><!--原文--><script>const x="繁體";</script></p>')
 

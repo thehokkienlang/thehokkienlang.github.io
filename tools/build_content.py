@@ -13,9 +13,10 @@ from song_title_readings import song_lomari, song_sort_reading, song_title
 from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
+from site_search import document as search_document
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 
-NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/about/", "About"))
+NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/search/", "Search"), ("/about/", "About"))
 NAV_SECTIONS = {
     "/learn/": (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation")),
     "/read/": (("/read/stories/the-egg/", "The Egg"),),
@@ -41,6 +42,14 @@ def navigation_links(route, language=None, variants=True):
     def link(href, label):
         destination = language_url(href, language) or language_url(href, "zh-Hant")
         current = ' aria-current="page"' if base_route(route) == href or href != "/" and base_route(route).startswith(href) else ""
+        if href == "/search/":
+            accessible_label = html.escape(text(label, language), quote=True)
+            return (
+                f'<a class="site-search-link" href="{html.escape(destination, quote=True)}" '
+                f'title="{accessible_label}" aria-label="{accessible_label}"{current}>'
+                '<span class="site-search-icon" aria-hidden="true"></span>'
+                f'<span class="visually-hidden">{accessible_label}</span></a>'
+            )
         return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}</a>'
 
     items = []
@@ -312,6 +321,64 @@ def introduce_tli(text):
     return before + "Tangliengim (TLI)" + after.replace("Tangliengim", "TLI")
 
 
+def search_page(language):
+    labels = {
+        "en": {
+            "label": "Search the website",
+            "keyboard": "Enable Hangul keyboard",
+            "placeholder": "Search pages, songs, and stories...",
+            "clear": "Clear search",
+            "filters": "Filter search results",
+            "results": "Search results",
+            "pages": "Search result pages",
+            "noscript": "JavaScript is required for website search.",
+        },
+        "zh-Hant": {
+            "label": "搜尋網站",
+            "keyboard": "啟用諺文鍵盤",
+            "placeholder": "搜尋頁面、歌曲與故事…",
+            "clear": "清除搜尋",
+            "filters": "篩選搜尋結果",
+            "results": "搜尋結果",
+            "pages": "搜尋結果頁面",
+            "noscript": "網站搜尋需要啟用 JavaScript。",
+        },
+        "zh-Hans": {
+            "label": "搜索网站",
+            "keyboard": "启用谚文键盘",
+            "placeholder": "搜索页面、歌曲与故事…",
+            "clear": "清除搜索",
+            "filters": "筛选搜索结果",
+            "results": "搜索结果",
+            "pages": "搜索结果页面",
+            "noscript": "网站搜索需要启用 JavaScript。",
+        },
+    }[language]
+    return (
+        '<section class="site-search">'
+        '<form id="siteSearchForm" class="site-search-form" role="search">'
+        '<div class="site-search-heading">'
+        f'<label for="siteSearchInput">{html.escape(labels["label"])}</label>'
+        '<button id="hangulKeyboardToggle" class="hangul-keyboard-toggle" type="button" aria-pressed="false">'
+        f'<span class="toggle-label">{html.escape(labels["keyboard"])}</span>'
+        '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span>'
+        '</button></div>'
+        '<div class="site-search-input-wrap">'
+        f'<input id="siteSearchInput" class="site-search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" '
+        f'placeholder="{html.escape(labels["placeholder"], quote=True)}">'
+        f'<button id="siteSearchClear" class="site-search-clear" type="button" '
+        f'aria-label="{html.escape(labels["clear"], quote=True)}" hidden>&times;</button></div>'
+        f'<div id="siteSearchFilters" class="site-search-filters" role="group" '
+        f'aria-label="{html.escape(labels["filters"], quote=True)}"></div></form>'
+        '<p id="siteSearchSummary" class="site-search-summary" aria-live="polite"></p>'
+        f'<section id="siteSearchResults" class="site-search-results" '
+        f'aria-label="{html.escape(labels["results"], quote=True)}"></section>'
+        f'<nav id="siteSearchPagination" class="site-search-pagination" '
+        f'aria-label="{html.escape(labels["pages"], quote=True)}" hidden></nav>'
+        f'<noscript><p>{html.escape(labels["noscript"])}</p></noscript></section>'
+    )
+
+
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
@@ -331,7 +398,8 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else ""}
+    is_search = base_route(route) == "/search/"
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/assets/search/search.js" defer></script>' if is_search else ""}
     values["BRAND"] = site_brand(root, language)
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
@@ -379,6 +447,8 @@ def build_content(root: Path, output: Path):
             super().handle_data(nasal_font_text(data))
 
     paths = set()
+    search_documents = {language: [] for language in LANGUAGES}
+    search_kinds = {"guides": "guide", "songs": "song", "stories": "story"}
     for record in records:
         route = record["route"]
         target = output / route.lstrip("/") / "index.html"
@@ -394,6 +464,18 @@ def build_content(root: Path, output: Path):
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
+        indexed_languages = LANGUAGES if record["type"] == "songs" else (record["language"],)
+        for indexed_language in indexed_languages:
+            destination = language_url(route, indexed_language)
+            if destination is None:
+                continue
+            title = record["title"].replace("Tangliengim", "TLI")
+            if base_route(route) == EGG_ROUTE:
+                title = "卵 · " + ("The Egg" if indexed_language == "en" else "蛋")
+            search_documents[indexed_language].append(search_document(
+                f'{indexed_language}:{record["id"]}:{base_route(route)}', title, destination,
+                search_kinds.get(record["type"], "page"), heading_html or "", body,
+            ))
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
@@ -457,11 +539,41 @@ def build_content(root: Path, output: Path):
         sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
         sections[prefix + "/read/"] = (text("Read in Hokkien", language), (f'<h2>{text("Literature", language)}</h2>' + listing(literature) if literature else "") + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
         sections[prefix + "/songs/"] = (text("Songs", language), song_index(language))
+        sections[prefix + "/search/"] = (text("Search", language), search_page(language))
     for route, (title, body) in sections.items():
         target = output / route.lstrip("/") / "index.html"
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(document(root, title, route, body), encoding="utf-8")
         paths.add(route)
+        if base_route(route) != "/search/":
+            language = language_for_route(route)
+            search_documents[language].append(search_document(
+                f'{language}:section:{base_route(route)}', title, route, "page", "", body,
+            ))
+    tool_copy = {
+        "en": (("Dictionary", "Search Hanri, Hangul, Lomari, and English dictionary entries."),
+               ("IME Pad", "Type Hokkien with the TLI Hangul input method.")),
+        "zh-Hant": (("詞典", "搜尋漢字、諺文、羅馬字與英文詞條。"),
+                    ("輸入法", "使用 TLI 諺文輸入法書寫閩南語。")),
+        "zh-Hans": (("词典", "搜索汉字、谚文、罗马字与英文词条。"),
+                    ("输入法", "使用 TLI 谚文输入法书写闽南语。")),
+    }
+    for language in LANGUAGES:
+        for slug, (title, description) in zip(("dictionary", "ime"), tool_copy[language]):
+            search_documents[language].append(search_document(
+                f"{language}:tool:{slug}", title, language_url(f"/{slug}/", language),
+                "tool", "", description,
+            ))
+    search_index = {
+        "schemaVersion": 1,
+        "languages": {
+            language: sorted(documents, key=lambda item: (item["kind"], item["title"], item["url"]))
+            for language, documents in search_documents.items()
+        },
+    }
+    data_target = output / "public/data/site-search-index.json"
+    data_target.parent.mkdir(parents=True, exist_ok=True)
+    data_target.write_text(json.dumps(search_index, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     target = output / "assets/content-site"
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):

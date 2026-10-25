@@ -189,6 +189,19 @@
 .site-nav-dropdown .site-nav-panel a:focus-visible,
 .site-nav-dropdown .site-nav-panel a[aria-current] { background: var(--site-accent-soft); }
 .site-nav-trigger, .site-header nav > a, .site-app-nav > a { min-height: 40px; display: inline-flex; align-items: center; }
+.site-header nav > .site-search-link, .site-app-nav > .site-search-link {
+  justify-content: center;
+  width: 40px;
+  padding: 0;
+}
+.site-search-icon {
+  display: block;
+  width: 19px;
+  height: 19px;
+  background: currentColor;
+  -webkit-mask: url("/assets/icons/search.svg") center / contain no-repeat;
+  mask: url("/assets/icons/search.svg") center / contain no-repeat;
+}
 .site-footer { background: transparent; border-top-color: var(--site-line); color: var(--site-muted); }
 body[data-site-section="songs"] .site-header nav [aria-current],
 body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site-voice); border-bottom-color: var(--site-voice); }

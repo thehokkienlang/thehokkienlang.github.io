@@ -69,7 +69,12 @@ class SimplifiedHTML(HTMLParser):
             self.protected.pop()
 
     def handle_data(self, data):
-        self.parts.append(data if self.protected else simplified_headword(data) or data)
+        if self.protected:
+            self.parts.append(data)
+            return
+        # Mainland Simplified retains 著 in the publishing sense (著作/原著).
+        simplified = simplified_headword(data) or data
+        self.parts.append(simplified.replace('原着', '原著'))
 
     def handle_entityref(self, name):
         self.parts.append(f'&{name};')

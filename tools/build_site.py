@@ -78,6 +78,7 @@ def main() -> int:
     (OUTPUT / "public" / "data").mkdir(parents=True)
     shutil.copy2(DEFAULT_OUTPUT_PATH, OUTPUT / "public" / "data" / DEFAULT_OUTPUT_PATH.name)
     content_routes = build_content(ROOT, OUTPUT)
+    shutil.copytree(ROOT / "apps" / "search", OUTPUT / "assets" / "search")
     visited_css = set()
     for css_path in OUTPUT.rglob("*.css"):
         version_css_imports(css_path, visited_css)
