@@ -77,6 +77,15 @@ class HarmonisationTests(unittest.TestCase):
         self.assertIn('>底<', result)
         self.assertNotIn('>就<', result)
 
+    def test_temporal_che_ma_uses_hanri_without_changing_reading(self):
+        source = '<p>這마ˋ 這馬 嘛 等’這마</p>'
+        result = self.convert(source)
+        self.assertIn('這<ruby', result)
+        self.assertIn('>馬<', result)
+        self.assertIn('>마`</rt>', result)
+        self.assertIn(' 這馬 嘛 等’這마', result)
+        self.assertEqual(readings(record(source)), readings(record(result)))
+
     def test_free_and_bound_demonstratives_differ(self):
         result = self.convert('<p>제 是꽈 짇兩世人 헤 是꽈 힏縛著’에 鐵鏈</p>')
         self.assertIn('제 是꽈 ', result)

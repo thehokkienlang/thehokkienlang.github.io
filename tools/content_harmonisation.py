@@ -259,7 +259,7 @@ def propose(record):
             assigned[index] = ("共", "4.2.2/13-relational")
         elif atom.base == "마":
             if previous.endswith("這"):
-                atom.protected = "unassigned-native/這마"
+                assigned[index] = ("馬", "user:2026-10-25-temporal-che-ma")
             else:
                 assigned[index] = ("嘛", "4.3.1/28")
         elif atom.base == "위":

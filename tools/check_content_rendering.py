@@ -68,7 +68,10 @@ def main():
                         page.evaluate("document.fonts.ready")
                         offset = student.evaluate("""node => {
                             const style = getComputedStyle(node);
-                            return {actual: parseFloat(style.top), expected: -0.85 * parseFloat(style.fontSize) + 2};
+                            const size = parseFloat(style.fontSize);
+                            const parentSize = parseFloat(getComputedStyle(node.parentElement).fontSize);
+                            return {actual: parseFloat(style.top), expected: -0.85 * (size + 1) + 1,
+                                size, expectedSize: parentSize * 0.6 - 1};
                         }""")
                         if not args.diagnose:
                             expected_label = {"zh-hant": "歌單精選", "zh-hans": "歌单精选"}.get(language)
@@ -76,12 +79,15 @@ def main():
                                 assert page.locator('.home-songbook-label').inner_text() == expected_label
                             assert abs(offset["actual"] - offset["expected"]) < 0.1, (
                                 f"Student ruby offset ignored after DOM conversion: {engine_name}/{width}/{language}: {offset}")
+                            assert abs(offset["size"] - offset["expectedSize"]) < 0.1, offset
                             for prefix in ("한", "당"):
                                 readings = page.locator('.imported-content > p .tli-rt').filter(has_text=prefix)
                                 assert readings.count() > 0, f"Missing homepage reading: {language}/{prefix}"
                                 for reading in readings.all():
                                     top = reading.evaluate("node => parseFloat(getComputedStyle(node).top)")
                                     assert abs(top - offset["actual"]) < 0.1, f"Homepage ruby offsets differ: {language}/{prefix}"
+                                    size = reading.evaluate("node => parseFloat(getComputedStyle(node).fontSize)")
+                                    assert abs(size - offset["size"]) < 0.1, f"Homepage ruby sizes differ: {language}/{prefix}"
                         student.locator("xpath=ancestor::ul[1]").screenshot(
                             path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
                     for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/")):

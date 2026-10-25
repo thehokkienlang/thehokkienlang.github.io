@@ -130,6 +130,12 @@
       "count": 11
     },
     {
+      "base": "마",
+      "hanri": "馬",
+      "rule": "user:2026-10-25-temporal-che-ma",
+      "count": 9
+    },
+    {
       "base": "ᄃᅷ",
       "hanri": "兜",
       "rule": "4.1/dictionary",
@@ -484,11 +490,6 @@
       "base": "헤",
       "reason": "4.2-explicit-Hangul",
       "count": 10
-    },
-    {
-      "base": "마",
-      "reason": "unassigned-native/這마",
-      "count": 9
     },
     {
       "base": "간",
@@ -1388,7 +1389,7 @@
       "route": "/songs/門/",
       "sourceId": 11143,
       "beforeSha256": "cd772ffd7b914daabf1cc506d52bb9f801d18068644cc6260dd2e8bddee76ae7",
-      "afterSha256": "4861a719e232a1ba1ef460bffb128936f1539d00e3e37b83e0a38cb0f2e83b00",
+      "afterSha256": "9b3b7ec26e88d69877d5ec2e809911df1b19cdd72a219b4d72bfe81783f151a2",
       "edits": [
         {
           "start": 2735,
@@ -1409,6 +1410,16 @@
           "hanri": "也",
           "reading": "야",
           "rule": "4.3.1/34"
+        },
+        {
+          "start": 5972,
+          "end": 5973,
+          "before": "마",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">마</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마",
+          "rule": "user:2026-10-25-temporal-che-ma"
         },
         {
           "start": 6114,
@@ -1641,6 +1652,16 @@
           "rule": "4.3.1/30"
         },
         {
+          "start": 22652,
+          "end": 22653,
+          "before": "마",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">마</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마",
+          "rule": "user:2026-10-25-temporal-che-ma"
+        },
+        {
           "start": 24456,
           "end": 24457,
           "before": "뽀",
@@ -1719,12 +1740,6 @@
           "reason": "4.2-explicit-Hangul",
           "count": 2,
           "example": "  \n    免怨嘆 감是꽈 傷過歹款\n  \n"
-        },
-        {
-          "base": "마",
-          "reason": "unassigned-native/這마",
-          "count": 2,
-          "example": "\n  \n    到這마 猶렣樂觀\n  \n  "
         },
         {
           "base": "란",
@@ -11130,7 +11145,7 @@
       "route": "/songs/곻愛릐一擺/",
       "sourceId": 5643,
       "beforeSha256": "d7dfc0f671e4ec9a26e6b751d889081523307e8be4c92ffac3fef353388a2d00",
-      "afterSha256": "dfd19730260f5029ebdcb00a0255e70d2976e3e312f67518f6e2b2a58d982ecc",
+      "afterSha256": "ff2ebbce454268ec818b9d6b7afb3ff17b94ad50fcf6d8906a9836464f940d9c",
       "edits": [
         {
           "start": 2993,
@@ -11281,6 +11296,16 @@
           "hanri": "毋",
           "reading": "음",
           "rule": "4.3.1/38"
+        },
+        {
+          "start": 15993,
+          "end": 16124,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
         },
         {
           "start": 18353,
@@ -11453,6 +11478,16 @@
           "rule": "4.3.1/38"
         },
         {
+          "start": 33160,
+          "end": 33291,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
+        },
+        {
           "start": 35520,
           "end": 35521,
           "before": "뽀",
@@ -11531,6 +11566,16 @@
           "hanri": "毋",
           "reading": "음",
           "rule": "4.3.1/38"
+        },
+        {
+          "start": 42614,
+          "end": 42745,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
         },
         {
           "start": 44974,
@@ -11629,12 +11674,6 @@
           "reason": "4.2-explicit-Hangul",
           "count": 2,
           "example": "\n  \n    뽀란’에 過去\n  \n  "
-        },
-        {
-          "base": "마",
-          "reason": "unassigned-native/這마",
-          "count": 3,
-          "example": " \n    됴음是這마 是이 來完成릐’에 "
         },
         {
           "base": "이",
@@ -17106,7 +17145,7 @@
       "route": "/songs/阿媽에話/",
       "sourceId": 486,
       "beforeSha256": "898df52ddbadc289f014b711f03a3fd55e2c454d449ba2a815d852c4d24bd234",
-      "afterSha256": "2591dcb82da535714f11c018fcc9788b2c2ffa7b605f59b3ce0e34ca0163fb29",
+      "afterSha256": "2b5aafa9b5e7670968a85140d351a02691bf0bf5b178110d7db8d902ce9e97b6",
       "edits": [
         {
           "start": 3141,
@@ -17309,6 +17348,16 @@
           "rule": "4.3.1/36"
         },
         {
+          "start": 20971,
+          "end": 21102,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
+        },
+        {
           "start": 21774,
           "end": 21905,
           "before": "<ruby style=\"position: relative\">렣<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
@@ -17347,6 +17396,16 @@
           "hanri": "咧",
           "reading": "렣ˆ",
           "rule": "4.3.1/27"
+        },
+        {
+          "start": 25704,
+          "end": 25835,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
         },
         {
           "start": 25976,
@@ -17439,6 +17498,16 @@
           "rule": "4.3.1/36"
         },
         {
+          "start": 35146,
+          "end": 35277,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
+        },
+        {
           "start": 35949,
           "end": 36080,
           "before": "<ruby style=\"position: relative\">렣<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
@@ -17477,6 +17546,16 @@
           "hanri": "咧",
           "reading": "렣ˆ",
           "rule": "4.3.1/27"
+        },
+        {
+          "start": 39879,
+          "end": 40010,
+          "before": "<ruby style=\"position: relative\">마<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">馬<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">마`</rt></ruby>",
+          "base": "마",
+          "hanri": "馬",
+          "reading": "마`",
+          "rule": "user:2026-10-25-temporal-che-ma"
         },
         {
           "start": 40151,
@@ -17579,12 +17658,6 @@
           "reason": "4.2-explicit-Hangul",
           "count": 19,
           "example": "\n  \n    릐 到底 是렣講啥貨\n  "
-        },
-        {
-          "base": "마",
-          "reason": "unassigned-native/這마",
-          "count": 4,
-          "example": "\n    阿媽 릐 這마 佇底位\n  \n  \n"
         },
         {
           "base": "감",

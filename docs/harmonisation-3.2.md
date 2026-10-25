@@ -16,7 +16,7 @@ dictionary or a transcription inferred from the website.
 - The 70 displayed song titles were checked separately from their hidden
   pronunciation headers. Existing title spellings already use the permitted
   pronouns, neutral domains, foreign names, and expressive transcriptions.
-- 1,874 reviewed base-script edits affect 70 reading pages. The remaining
+- 1,883 reviewed base-script edits affect 70 reading pages. The remaining
   active records require no running-text spelling edits within this scope.
 - The two archived records, original WordPress snapshots, and WordPress
   itself are unchanged. Every published URL and displayed title is preserved.
@@ -68,15 +68,16 @@ apostrophes and explicit line breaks are covered by regression tests.
 | 뽀내제 全部是 | 無奈제 全部是; retain independent 제 |
 | Happy's destination 欲위底去 | 對; preserve the authored reading |
 | The Egg's 應該是도2 一个小學’에 老師 | 底 “which”, not 就; existing dictionary reading 도2 |
+| Temporal 這마 | 這馬; dictionary citation reading 짇1마2, confirmed by the author |
 
 Native interjections and sung sound-symbolic refrains remain phonetic, not
 guessed from homophonous Hanri. Japanese 仕上げ (시아껳), taxi (덱시),
 motorbike (오도빼), and the other existing foreign transcriptions are protected
 as whole words so that an internal 시, 빼, or 뻐 is not converted separately.
 
-The remaining unassigned temporal 這마 and capability element 당 are retained
-for review rather than being guessed as additive 嘛 or an unrelated lexical
-當. Their occurrences are explicitly classified in the audit ledger.
+Temporal 這마 now uses 這馬, preserving each authored contextual reading as
+ruby. The capability element 당 remains for review rather than being guessed
+as an unrelated lexical 當. These decisions are classified in the audit ledger.
 
 The alternate verse of 望春風 contains one bare 阮 with no ruby reading and
 an omitted Lomari syllable. Its parallel verse provides the sung 꾼 reading;

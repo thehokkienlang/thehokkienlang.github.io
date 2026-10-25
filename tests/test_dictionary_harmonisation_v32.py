@@ -22,7 +22,10 @@ class DictionaryHarmonisationTests(unittest.TestCase):
         cls.report = json.loads((ROOT / 'docs/harmonisation-3.2-dictionary.json').read_text(encoding='utf-8'))
 
     def test_reviewed_additions_have_the_approved_readings(self):
-        for expected in self.report['added']:
+        additions = list(self.report['added'])
+        for follow_up in self.report.get('followUps', []):
+            additions.extend(follow_up['added'])
+        for expected in additions:
             with self.subTest(entry=expected['entry_id']):
                 current = self.rows[expected['entry_id']]
                 for field in ('entry_id', 'hanri', 'entry_type'):

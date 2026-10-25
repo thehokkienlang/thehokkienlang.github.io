@@ -78,3 +78,11 @@ the same six supplementary characters; normal Hanri retain Noto Sans TC.
 Release snapshots are refreshed through the editor's existing publication
 sequence after reviewing the exact dictionary-data differences. They record
 the approved additions and retirements rather than ignoring regression failures.
+
+## Temporal Spelling Follow-Up
+
+The author subsequently assigned temporal 這마 to **這馬**, confirming the
+dictionary reading **짇1마2**. This adds one lexical entry, bringing the source
+to 2,806 rows. The nine running-text occurrences preserve their existing ruby
+readings. The dictionary report's `followUps` records this separate transaction;
+the original transaction's counts and hashes remain historical evidence.

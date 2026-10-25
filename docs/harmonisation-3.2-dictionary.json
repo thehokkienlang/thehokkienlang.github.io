@@ -515,5 +515,40 @@
   "unresolved": [],
   "clarifications": {
     "The Egg 도2": "底, meaning which; existing source U+5E95_01, not a 就 reading"
-  }
+  },
+  "followUps": [
+    {
+      "date": "2026-10-25",
+      "decision": "Temporal 這마 becomes 這馬; citation reading 짇1마2 confirmed by author",
+      "beforeFiles": {
+        "hokkien_hanri_dict.tsv": "ffe86888e03ac4a2dd4cede3cdaed9fb62bacf1436e54d649ac6153374c02e9e",
+        "dictionary_entry_id_registry.tsv": "cc46c0138fb0607b092738b19000e02478e4fbd2d3823f0cb9b2308f89b30521",
+        "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+        "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+        "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+        "dictionary_defunct.tsv": "040a35902d244529c83bb05a07b49ee893259695cf50aadf063c1e024fa0922f"
+      },
+      "afterFiles": {
+        "hokkien_hanri_dict.tsv": "63b100d845b4be9f5c83919ed97875a907184462af1a61a3d2fc95e461637aef",
+        "dictionary_entry_id_registry.tsv": "c57bf0402d860a3025b8f4ef41b272dd612faff60564ac69a6bc948ac2fdac72",
+        "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+        "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+        "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+        "dictionary_defunct.tsv": "040a35902d244529c83bb05a07b49ee893259695cf50aadf063c1e024fa0922f"
+      },
+      "added": [
+        {
+          "hanri": "這馬",
+          "simplified": "这马",
+          "reading": "짇1마2",
+          "mandarin_trad": "現在",
+          "mandarin_simp": "现在",
+          "english": "now; at present",
+          "corrected": "",
+          "entry_type": "lexical",
+          "entry_id": "U+9019_U+99AC_00"
+        }
+      ]
+    }
+  ]
 }
