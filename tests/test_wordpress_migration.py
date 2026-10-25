@@ -5,13 +5,14 @@ import json
 import sys
 import tempfile
 import unittest
+import unicodedata
 from collections import Counter
 from html.parser import HTMLParser
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, nasal_font_text
+from build_content import build_content, nasal_font_text, song_script_heading
 from import_wordpress import ImportedHTML, PAGES
 from import_wordpress_final import approved_song_routes
 from site_languages import CHINESE_PAGES, LANGUAGES
@@ -206,16 +207,27 @@ class ContentFontTests(unittest.TestCase):
         value = '◌̰ a̰ â̰ ḭ́ oà̰ á̰ 𣍐 勿會 ᄁᅷ'
         rendered = nasal_font_text(value)
         self.assertEqual(rendered.count('class="nasal-grapheme"'), 6)
-        for group in ['◌̰', 'â̰', 'ḭ́', 'à̰', 'á̰']:
-            self.assertIn('>' + group + '</span>', rendered)
+        for group in ['◌̰', 'â̰', 'ḭ́', 'oà̰', 'á̰']:
+            self.assertIn('>' + unicodedata.normalize('NFC', group) + '</span>', rendered)
         text = Readings()
         text.feed(rendered)
-        self.assertEqual(''.join(text.text), value)
+        self.assertEqual(unicodedata.normalize('NFC', ''.join(text.text)), unicodedata.normalize('NFC', value))
         self.assertTrue(rendered.endswith('𣍐 勿會 ᄁᅷ'))
 
     def test_other_tones_keep_existing_font_selection(self):
         value = 'á â ā 漢字 ᄁᅷ ABC'
         self.assertEqual(nasal_font_text(value), value)
+
+    def test_whole_nasal_word_uses_one_font_and_composed_upper_tone(self):
+        self.assertEqual(nasal_font_text('siṵ̄'), '<span class="nasal-grapheme">' + unicodedata.normalize('NFC', 'siṵ̄') + '</span>')
+
+    def test_song_heading_is_localizable_and_has_scoped_spacing_class(self):
+        source = '<h3 class="wp-block-heading">漢諺混寫 Hanri-Hangul mixed script</h3><p>歌詞</p>'
+        rendered = song_script_heading(source)
+        self.assertIn('song-script-heading', rendered)
+        self.assertIn('data-site-text="Hanri-Hangul mixed script"', rendered)
+        self.assertNotIn('漢諺混寫 Hanri-Hangul', rendered)
+        self.assertTrue(rendered.endswith('<p>歌詞</p>'))
 
 
 if __name__ == "__main__":

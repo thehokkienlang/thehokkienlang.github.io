@@ -4,7 +4,7 @@
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+28468, U+28617, U+2C9B0; }
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
-.nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; }
+.nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; }
 :root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--site-background, #f6f8fb); line-height: 1.8; }
@@ -33,8 +33,7 @@ body[data-site-section="learn"] .imported-content { font-size: 20px; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
 .imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
 .imported-content [style*="font-family: Calibri" i], .imported-content [style*="font-family:Calibri" i] { font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif !important; }
-.imported-content :is(rt, .tli-rt):not([style*="120%"]) { top: calc(-1.1em + 2px) !important; transform: none; }
-.content-stories .imported-content :is(rt, .tli-rt):not([style*="120%"]) { top: calc(-1.1em + 4px) !important; }
+.imported-content :is(rt, .tli-rt):not([style*="120%"]) { top: calc(-1.1em + 4px) !important; transform: none; }
 /* Compensate for the 1px smaller reading so its top also moves up exactly 1px. */
 body[data-site-section="home"] .imported-content > :is(p, ul.wp-block-list) :is(ruby, .tli-ruby) > :is(rt, .tli-rt):not([style*="120%"]) { font-size: calc(60% - 1px) !important; top: calc(-0.85em + 0.15px) !important; }
 :is(.content-songs, .content-stories) h1 { font-size: 48px; }
@@ -69,7 +68,7 @@ body[data-site-section="home"] .imported-content > :is(p, ul.wp-block-list) :is(
 .page-list { list-style: none; margin: 16px 0 32px; padding: 0; }
 .song-list a { text-decoration: none; }
 .song-list .title-reading .hanri-title { position: relative; display: inline-block; vertical-align: baseline; }
-.song-list .title-reading .hanri-title > :is(rt, .tli-rt) { position: absolute; display: block; top: auto !important; bottom: calc(100% - 2px); left: 50%; width: max-content; transform: translateX(-50%); font-size: 52%; line-height: 1; }
+.song-list .title-reading .hanri-title > :is(rt, .tli-rt) { position: absolute; display: block; top: auto !important; bottom: calc(100% - 5px); left: 50%; width: max-content; transform: translateX(-50%); font-size: 52%; line-height: 1; }
 .song-list .title-reading .bopomofo-title > :is(rt, .tli-rt) { font-size: 38%; }
 .page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
 .external-note, .source-link { color: var(--muted); font-size: 14px; }
@@ -96,6 +95,7 @@ body[data-site-section="home"] .imported-content > :is(p, ul.wp-block-list) :is(
 .content-songs > h1 { padding-bottom: 24px; border-bottom: 4px solid var(--ink); }
 .content-songs > h1::after { content: ""; display: block; width: 92px; margin-top: 24px; border-bottom: 4px solid var(--site-voice, #b33b46); transform: translateY(28px); }
 .content-songs .source-link a { color: var(--site-voice, #b33b46); }
+.content-songs .imported-content > .song-script-heading { margin-top: 24px; margin-bottom: 20px; font-size: 24px; line-height: 1.4; }
 .content-index .imported-content { max-width: 100%; }
 .page-list { border-top: 2px solid var(--ink); }
 .page-list li { align-items: center; padding: 0; }
@@ -185,7 +185,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-songbook a { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 24px; padding: 26px 0 14px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--ink); text-decoration: none; }
 .home-songbook a:hover { color: var(--site-voice, #9d303b); }
 .home-songbook a > .home-song-title { padding-top: 0; font-size: 21px; font-weight: 700; line-height: 1.5; }
-.home-songbook a .home-song-title .tli-rt { bottom: calc(100% - 0.15em - 4px); font-size: 57%; }
+.home-songbook a .home-song-title .tli-rt { bottom: calc(100% - 0.15em - 7px); font-size: 57%; }
 .home-songbook a .home-song-title .bopomofo-title > .tli-rt { font-size: 38%; }
 .home-songbook a small { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 14px; }
 @media (max-width: 900px) {
@@ -205,7 +205,6 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
   .home-feature-songs { padding: 52px 40px; }
 }
 @media (max-width: 700px) {
-  .imported-content rt:not([style*="120%"]) { top: calc(-1.1em - 1px) !important; }
   .site-header { padding: 16px 20px; align-items: flex-start; flex-direction: column; gap: 12px; }
   .site-header nav { gap: 10px 20px; }
   .content-shell { width: calc(100% - 40px); margin-top: 28px; }

@@ -6,6 +6,7 @@ import html
 import json
 import re
 import shutil
+import unicodedata
 from html.parser import HTMLParser
 from pathlib import Path
 
@@ -22,13 +23,26 @@ NAV_SECTIONS = {
     "/read/": (("/read/stories/the-egg/", "The Egg"),),
 }
 
-# Render the whole grapheme in one font, including any stacked tone marks.
+# Keep nasal words and stacked marks in one shaping run and one Latin font.
 # Restrict this to text nodes; URLs, attributes and authored source stay intact.
-NASAL_GRAPHEME = re.compile(r'[A-Za-z\u00c0-\u02ff\u1e00-\u1eff\u25cc][\u0300-\u036f]*\u0330[\u0300-\u036f]*')
+NASAL_WORD = re.compile(r'[A-Za-z\u00c0-\u02ff\u1e00-\u1eff\u25cc][A-Za-z\u00c0-\u02ff\u1e00-\u1eff\u0300-\u036f]*')
 
 
 def nasal_font_text(value):
-    return NASAL_GRAPHEME.sub(lambda match: '<span class="nasal-grapheme">' + match.group() + '</span>', value)
+    def word(match):
+        value = match.group()
+        if '\u0330' not in value:
+            return value
+        return '<span class="nasal-grapheme">' + unicodedata.normalize('NFC', value) + '</span>'
+    return NASAL_WORD.sub(word, value)
+
+
+def song_script_heading(body):
+    return re.sub(
+        r'<h([23])\b[^>]*>\s*漢諺混寫\s+Hanri-Hangul mixed script\s*</h\1>',
+        '<h3 class="wp-block-heading song-script-heading" data-site-text="Hanri-Hangul mixed script">Hanri-Hangul mixed script</h3>',
+        body,
+    )
 
 
 def site_brand(root, language="en"):
@@ -460,6 +474,8 @@ def build_content(root: Path, output: Path):
             heading_html, body = egg_presentation(record, egg_player)
         else:
             heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
+        if record["type"] == "songs":
+            body = song_script_heading(body)
         body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])

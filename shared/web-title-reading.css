@@ -36,7 +36,7 @@
   position: absolute;
   display: block;
   top: auto !important;
-  bottom: calc(100% - 0.15em);
+  bottom: calc(100% - 0.15em - 3px);
   left: 50%;
   width: max-content;
   transform: translateX(-50%);
