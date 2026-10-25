@@ -1979,6 +1979,235 @@
           "count": 1,
           "example": " \n    大人 只간나顧’됴 面底皮\n  \n "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "b21e7ac7027bba8b3cec5f2364b50e02ff7990a8055a7c75163627e43922a0ea",
+          "afterSha256": "90a6a48714eec3cf0fd64a13e55a80fa98a0825a32905919cd26bfb33ccb361e",
+          "reason": "Authored post-v3.2 edits already committed before the v3.2.1 patch",
+          "edits": [
+            {
+              "start": 1723,
+              "end": 1754,
+              "before": "    jê si-siâ̰-mîh sia-huē\n",
+              "after": "    jè si-siâ̰-mîh sia-huē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 3010,
+              "end": 3060,
+              "before": "    chît-thó’e pî-phâh-pia̰’e jḭ́ khâh-joē\n",
+              "after": "    chît-thó’e pî-phâh-pia̰’e jḭ́ khâh-joē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 3989,
+              "end": 4036,
+              "before": "    toa-koē-siô-hāng boê-bó jit-pûn-cheh\n",
+              "after": "    toa-koē-siô-hāng boê-bó jit-pûn-cheh\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 5227,
+              "end": 5280,
+              "before": "    tien-tōng’e phiû-phiù khūi-kâh-kūi-sì-koe\n",
+              "after": "    tien-tōng’e phiû-phiù khūi-kâh-kūi-sì-koe\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 6479,
+              "end": 6511,
+              "before": "    lì na-ē bêh-e-tak-kê ē\n",
+              "after": "    lì na-ē bêh-e-tak-kê ē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 7428,
+              "end": 7461,
+              "before": "    khiàu’e goà ma-sǹg-jit-é\n",
+              "after": "    khiàu’e goà ma-sǹg-jit-é\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 7827,
+              "end": 7843,
+              "before": "    tai-oan-wē\n",
+              "after": "    tai-oan-wē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 9050,
+              "end": 9103,
+              "before": "    kông-na-siṵ-bêh-khò-ya̰-kiàu chūn-kē-huè\n",
+              "after": "    kông-na-siṵ-bêh-khò-ya̰-kiàu chūn-kē-huè\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 10300,
+              "end": 10348,
+              "before": "    kàu-buê-à boe-bòr boe-kià̰ boe-lau-pē\n",
+              "after": "    kàu-buê-à boe-bòr boe-kià̰ boe-lau-pē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 11132,
+              "end": 11163,
+              "before": "    jê si-siâ̰-mîh sia-huē\n",
+              "after": "    jè si-siâ̰-mîh sia-huē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 11273,
+              "end": 12184,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">做官<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">죄`괄ˆ</rt></ruby>’에 <ruby style=\"position: relative;white-space: nowrap\">本錢<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">분ˆ질ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">開<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">캐ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"hiâh\">遐<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">햫ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\"><span style=\"font-family: Noto Sans SC\">㩼</span><rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">죄ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">做官<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">죄`괄ˆ</rt></ruby>’에 <ruby style=\"position: relative;white-space: nowrap\">本錢<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">분ˆ질ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">開<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">캐ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"hiâh\">遐<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">햫ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\"><span style=\"font-family: Noto Sans SC\">㩼</span><rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">죄ˉ</rt></ruby>\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 12293,
+              "end": 12341,
+              "before": "    joè-koâ̰’e pûn-jḭ́ tio-khāi-hiâh-joē\n",
+              "after": "    joè-koâ̰’e pûn-jḭ́ tio-khāi-hiâh-joē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 13271,
+              "end": 13316,
+              "before": "    toa-toa-soè-soe boê-phio kiām-ōr-sê\n",
+              "after": "    toa-toa-soè-soe boê-phio kiām-ōr-sê\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 14503,
+              "end": 14550,
+              "before": "    tòng-soàn tio-oa̰-ī e-lân-lau-pêh-sḛ\n",
+              "after": "    tòng-soàn tio-oa̰-ī e-lân-lau-pêh-sḛ\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 15751,
+              "end": 15790,
+              "before": "    lì na-boè bêh-boè tak-kê boè\n",
+              "after": "    lì na-boè bêh-boè tak-kê boè\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 16710,
+              "end": 16748,
+              "before": "    siâu-thâm’e goà ma-sǹg-jit-é\n",
+              "after": "    siâu-thâm’e goà ma-sǹg-jit-é\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 17114,
+              "end": 17130,
+              "before": "    tai-oan-wē\n",
+              "after": "    tai-oan-wē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 18606,
+              "end": 18655,
+              "before": "    kông-na-u-láng joè-tai-rín yong-jḭ-boè\n",
+              "after": "    kông-na-u-láng joè-tai-rín yong-jḭ-boè\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 19727,
+              "end": 19774,
+              "before": "    kàu-buê-à suê’li suê’goa suē-tak-kê\n",
+              "after": "    kàu-buê-à suê’li suê’goa suē-tak-kê\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 20558,
+              "end": 20589,
+              "before": "    jê si-siâ̰-mîh sia-huē\n",
+              "after": "    jè si-siâ̰-mîh sia-huē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 21791,
+              "end": 21838,
+              "before": "    bak-jiû lông-khoà̰-koá̰i bo-khoà̰-kē\n",
+              "after": "    bak-jiû lông-khoà̰-koá̰i bo-khoà̰-kē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 22888,
+              "end": 22938,
+              "before": "    toa-láng jî-kân-nā-kor’tio bin-toê-phué\n",
+              "after": "    toa-láng jî-kân-nā-kor’tio bin-toê-phué\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 24336,
+              "end": 24383,
+              "before": "    pî-chît-à pî-chiâ pî-chu pî-lor-lé\n",
+              "after": "    pî-chît-à pî-chiâ pî-chu pî-lor-lé\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 25587,
+              "end": 25630,
+              "before": "    lì na-chuê yàu-chuê tà-jiâ chuê\n",
+              "after": "    lì na-chuê yàu-chuê tà-jiâ chuê\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 26549,
+              "end": 26588,
+              "before": "    phòng-hông’e goà ma-sǹg-jit-é\n",
+              "after": "    phòng-hông’e goà ma-sǹg-jit-é\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 26954,
+              "end": 26970,
+              "before": "    tai-oan-wē\n",
+              "after": "    tai-oan-wē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 27904,
+              "end": 27962,
+              "before": "    kông-joè-láng bo-jiàu-khî-kâng khā-tah-sit-tē\n",
+              "after": "    kông-joè-láng bo-jiàu-khî-kâng khā-tah-sit-tē\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 29035,
+              "end": 29094,
+              "before": "    kàu-buê-à chī-chàm lork-phiek kâh-liong-puē’orh\n",
+              "after": "    kàu-buê-à chī-chàm lork-phiek kâh-liong-puē’orh\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 29415,
+              "end": 29631,
+              "before": "    <span style=\"font-family:Sans-serif, Noto Sans\"><ruby style=\"position: relative;white-space: nowrap\" title=\"lor-lé\">露螺<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">러레ˊ</rt></ruby></span>\n",
+              "after": "    <span style=\"font-family:Sans-serif, Noto Sans\"><ruby style=\"position: relative;white-space: nowrap\" title=\"lor-lé\">露螺<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">러레ˊ</rt></ruby></span>\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            }
+          ]
+        },
+        {
+          "beforeSha256": "90a6a48714eec3cf0fd64a13e55a80fa98a0825a32905919cd26bfb33ccb361e",
+          "afterSha256": "d10095035d81e3bd18a2c295b4b69f09829b3d906fe0a1e93c4a31cf139d4317",
+          "edits": [
+            {
+              "start": 9459,
+              "end": 9590,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-10294.json": {
@@ -5823,6 +6052,25 @@
           "count": 16,
           "example": "\n  \n    옿 Happy’에 운"
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "b6b1aca0b444a8bce7515e17ea090a74611035a8ae9a0ad513fbdc448c421f87",
+          "afterSha256": "2560b57ec57ca5f24390094e0d43f808e793368b05d62f7ab007e796c5a53516",
+          "edits": [
+            {
+              "start": 6035,
+              "end": 6167,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-6384.json": {
@@ -6062,6 +6310,45 @@
           "reason": "user-retained-review",
           "count": 1,
           "example": "\n    음通偷拈 偷텧\n  \n  \n   "
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "f1f76cbbb732c3ba2883f46d2fdd31efff5591898fd1049591fecad1347b5f7d",
+          "afterSha256": "8d29ff9681755e4aba2fd857356dfd1b32e5787f47d6bed1b8491dbfcc438d81",
+          "edits": [
+            {
+              "start": 13808,
+              "end": 13939,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 23179,
+              "end": 23310,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 26152,
+              "end": 26283,
+              "before": "<ruby style=\"position: relative\">텧<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">摕<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">텧ˆ</rt></ruby>",
+              "base": "텧",
+              "hanri": "摕",
+              "reading": "텧ˆ",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -6602,6 +6889,75 @@
           "reason": "phonetic-interjection",
           "count": 1,
           "example": "“今仔看 빼빼’에, 앟 음過愈看 愈古錐’랗"
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "e274e90a71fb431c98f13929efcfe3aedef5aaf07a3f8e023c4e4f2a30a5454f",
+          "afterSha256": "eb232b1db6b11a47476e2c64198d2f4a60b325cb1985ccba47d10b27a613cc09",
+          "edits": [
+            {
+              "start": 9363,
+              "end": 9625,
+              "before": "<ruby style=\"position: relative\">오<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">로<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">呵咾<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">오ˉ로ˆ-</rt></ruby>",
+              "base": "오로",
+              "hanri": "呵咾",
+              "reading": "오ˉ로ˆ",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 30919,
+              "end": 31181,
+              "before": "<ruby style=\"position: relative\">오<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">로<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">呵咾<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">오ˉ로ˆ-</rt></ruby>",
+              "base": "오로",
+              "hanri": "呵咾",
+              "reading": "오ˉ로ˆ",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 32525,
+              "end": 32787,
+              "before": "<ruby style=\"position: relative\">다<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">버<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">丈夫<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">다ˉ버ˆ</rt></ruby>",
+              "base": "다버",
+              "hanri": "丈夫",
+              "reading": "다ˉ버ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 32927,
+              "end": 33189,
+              "before": "<ruby style=\"position: relative\">자<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">㜁𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">자ˉ뻐ˆ-</rt></ruby>",
+              "base": "자뻐",
+              "hanri": "㜁𡚸",
+              "reading": "자ˉ뻐ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 35699,
+              "end": 35831,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 45254,
+              "end": 45516,
+              "before": "<ruby style=\"position: relative\">오<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">로<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">呵咾<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">오ˉ로ˆ-</rt></ruby>",
+              "base": "오로",
+              "hanri": "呵咾",
+              "reading": "오ˉ로ˆ",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -7327,6 +7683,65 @@
           "count": 3,
           "example": " \n    希望릐 에당了解\n  \n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "4f52be5db7be9a936fa339ae17ee792a271e36caefe1508a691a863dc3776518",
+          "afterSha256": "647c965368e510255eb74cbfdea515991bf31608c9547d8159339cafb75d5495",
+          "edits": [
+            {
+              "start": 3015,
+              "end": 3146,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 17488,
+              "end": 17620,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 20019,
+              "end": 20150,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 34527,
+              "end": 34659,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 49892,
+              "end": 50024,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-6204.json": {
@@ -7835,6 +8250,35 @@
           "count": 3,
           "example": "\n  \n    란’에 幸福’에 前程\n "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "663feb6db27e2c73394e07b17b51732c154e674668718517dc03fcc9c2890bd1",
+          "afterSha256": "3ca0723e11413839da853e8d2ca253a13f4beac92ef0c452cf1604c71104ac40",
+          "edits": [
+            {
+              "start": 2010,
+              "end": 2141,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 12888,
+              "end": 13019,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-6135.json": {
@@ -8189,6 +8633,25 @@
           "count": 1,
           "example": "\n  \n    인 開뾔完’에 銃\n "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "a1ae918f8c3c5d91429567e02a753f765d4407b30ab4f39ae1056d4f91224b60",
+          "afterSha256": "a159c3fda8ee27bedca396ca38ee7e62bb4262e326f08d191d64543b76b57659",
+          "edits": [
+            {
+              "start": 8168,
+              "end": 8300,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-6115.json": {
@@ -8344,6 +8807,45 @@
           "reason": "phonetic-interjection",
           "count": 3,
           "example": "\n  \n    아 妝徦媠媠 抑 嫁別人\n"
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "04070488748a34d660cd64ce203076be672621bd4d96801069392dbe84e1e060",
+          "afterSha256": "38f2112295793fb740e670088d57a6bb9b9ff026ffcc972ff2eb12c5e22c9b39",
+          "edits": [
+            {
+              "start": 5354,
+              "end": 5486,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 16283,
+              "end": 16415,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 23190,
+              "end": 23322,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -11687,6 +12189,35 @@
           "count": 3,
           "example": "\n  \n    릐 감에轉’래\n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "ff2ebbce454268ec818b9d6b7afb3ff17b94ad50fcf6d8906a9836464f940d9c",
+          "afterSha256": "cf99606ff81e3b4614d3b4716ba5d645f6b90066ecc54806631b238cbabb61a4",
+          "edits": [
+            {
+              "start": 6046,
+              "end": 6177,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 30821,
+              "end": 30952,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-5619.json": {
@@ -13817,6 +14348,75 @@
           "count": 3,
           "example": "\n  \n    곻再애’릐 折磨 是꽈 家己\n"
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "d3cd06a2409e207260bfc4bd19e5ba1dbd569e225324ee9231dcc4c3b6f046c4",
+          "afterSha256": "cb3238797f81bf0a37a010655d18accdc293f5cb38f7316b1c4e0eebdc759b8b",
+          "edits": [
+            {
+              "start": 11102,
+              "end": 11234,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 14352,
+              "end": 14484,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 29462,
+              "end": 29594,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 32712,
+              "end": 32844,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 39256,
+              "end": 39388,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 42506,
+              "end": 42638,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-5345.json": {
@@ -14883,6 +15483,25 @@
           "count": 2,
           "example": "福」，實際發音為「죠허（招呼）」。\n\n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "269291e5a4136bf1c9cfc7f723f9a3ca664d50cac40fecf1a3bb5193496b3584",
+          "afterSha256": "9f36e5d0646c145ee3cf1150b3637f3799817fd57674bff5d0abeb3a74b43c51",
+          "edits": [
+            {
+              "start": 4740,
+              "end": 4871,
+              "before": "<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">당`-</rt></ruby>",
+              "base": "당",
+              "hanri": "當",
+              "reading": "당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-4649.json": {
@@ -15610,6 +16229,25 @@
           "reason": "4.2-explicit-Hangul",
           "count": 1,
           "example": "   뽀傷 뽀痕 뾔곻疼’앟\n  \n  \n"
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "36a6598908430a5bb4b1f7374dc755ba78c71238318183dff2fd6c1ac7fb4f06",
+          "afterSha256": "4675078954a7c00e955c74bf7b9a0a935c95198f40e50223336801d167654380",
+          "edits": [
+            {
+              "start": 38573,
+              "end": 38705,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -17683,6 +18321,35 @@
           "count": 2,
           "example": "   希望後世人 꾼 곻에당來허릐疼\n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "2b5aafa9b5e7670968a85140d351a02691bf0bf5b178110d7db8d902ce9e97b6",
+          "afterSha256": "efb5ce15ea576a975c95a251b188824b79824f02c6155a30a0d6a34d3aae3c57",
+          "edits": [
+            {
+              "start": 29923,
+              "end": 30055,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            },
+            {
+              "start": 45383,
+              "end": 45515,
+              "before": "에<ruby style=\"position: relative\">당<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">會當<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">에당`-</rt></ruby>",
+              "base": "에당",
+              "hanri": "會當",
+              "reading": "에당`",
+              "rule": "author-approved-Hanri"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-414.json": {
@@ -18985,6 +19652,85 @@
           "count": 4,
           "example": "  橫直꽈’에 人生 간나狗屎\n  \n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "2a29337b2fb137dcfb9dd785418c6342f9e198a33b870b6d2986ba974ea071e2",
+          "afterSha256": "0a9cae6bedc7310f9cbb7be3a2981987cbe73f6fd748e0483f24b02c3bd252e4",
+          "edits": [
+            {
+              "start": 8783,
+              "end": 8914,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐ˆ-</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 15171,
+              "end": 15302,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 25052,
+              "end": 25183,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐ˆ-</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 29419,
+              "end": 29550,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 39300,
+              "end": 39431,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐ˆ-</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 40109,
+              "end": 40240,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐ˆ-</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 40918,
+              "end": 41049,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐ˆ-</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐ˆ",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-192.json": {
@@ -19543,6 +20289,75 @@
           "count": 3,
           "example": "\n  \n    問꽈 到底, 腹內 우啥法寶\n"
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "1b051a90979c7f05c5f7b9fa65c5fc3a982a085090f5ccfddc2fbc4c15e3e6ad",
+          "afterSha256": "6b7ac10edecaae8375c9204d033a5c6c9f4635c57150ae1bf2afbb098d06e2f2",
+          "edits": [
+            {
+              "start": 10038,
+              "end": 10169,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 13254,
+              "end": 13385,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 27641,
+              "end": 27772,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 30857,
+              "end": 30988,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 39768,
+              "end": 39899,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 42984,
+              "end": 43115,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
+        }
       ]
     },
     "content/songs/song-173.json": {
@@ -20084,6 +20899,25 @@
           "reason": "user-retained-review",
           "count": 1,
           "example": "   릐 若뽀聊, 텧란’에 相片\n  \n "
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "d670248aad065141fd7c43898720997f9ea51c6bb9d96b3d92715dfecbf0954a",
+          "afterSha256": "ac95697a9ef1bc0254dfde4d95374952b083fcca3097347c3a29214ccf3dd2d4",
+          "edits": [
+            {
+              "start": 24479,
+              "end": 24480,
+              "before": "텧",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">摕<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">텧-</rt></ruby>",
+              "base": "텧",
+              "hanri": "摕",
+              "reading": "텧",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -21746,6 +22580,85 @@
           "reason": "transcription/reference",
           "count": 1,
           "example": "  \n      귀읻\n    \n   :"
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "221029c6ce3f13a072b82fa80aa45d3788e396316a28a0872de14ac16e289f29",
+          "afterSha256": "2b2bce2c06a41264742bb9855ed208f8a59abea6fac14bea77165eabdd35e50e",
+          "edits": [
+            {
+              "start": 8070,
+              "end": 8201,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 40226,
+              "end": 40357,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 51567,
+              "end": 51829,
+              "before": "<ruby style=\"position: relative\">다<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">버<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">丈夫<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">다ˉ버ˆ</rt></ruby>",
+              "base": "다버",
+              "hanri": "丈夫",
+              "reading": "다ˉ버ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 51969,
+              "end": 52280,
+              "before": "<ruby style=\"position: relative\">자<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><span style=\"text-indent:0;display:inline-block\"><ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">㜁𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">자ˉ뻐`</rt></ruby>",
+              "base": "자뻐",
+              "hanri": "㜁𡚸",
+              "reading": "자ˉ뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 62539,
+              "end": 62670,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 113170,
+              "end": 113301,
+              "before": "<ruby style=\"position: relative\">텧<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">摕<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">텧ˆ</rt></ruby>",
+              "base": "텧",
+              "hanri": "摕",
+              "reading": "텧ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 131116,
+              "end": 131378,
+              "before": "<ruby style=\"position: relative\">자<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">㜁𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">자ˉ뻐ˆ-</rt></ruby>",
+              "base": "자뻐",
+              "hanri": "㜁𡚸",
+              "reading": "자ˉ뻐ˆ",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },
@@ -23468,6 +24381,85 @@
           "reason": "transcription/reference",
           "count": 1,
           "example": "  \n      귀읻\n    \n   :"
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "6da06cccaec8e90b9c719b65f6b8e40c453b785e48acf5b65cd2952599069856",
+          "afterSha256": "5bb30de24746edbc8d39a5ce61d6587bb9d1e1640ae4c564a647a9f891666b8b",
+          "edits": [
+            {
+              "start": 7939,
+              "end": 8070,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 40095,
+              "end": 40226,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 51436,
+              "end": 51698,
+              "before": "<ruby style=\"position: relative\">다<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">버<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">丈夫<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">다ˉ버ˆ</rt></ruby>",
+              "base": "다버",
+              "hanri": "丈夫",
+              "reading": "다ˉ버ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 51838,
+              "end": 52149,
+              "before": "<ruby style=\"position: relative\">자<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><span style=\"text-indent:0;display:inline-block\"><ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">㜁𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">자ˉ뻐`</rt></ruby>",
+              "base": "자뻐",
+              "hanri": "㜁𡚸",
+              "reading": "자ˉ뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 62408,
+              "end": 62539,
+              "before": "<ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">뻐`</rt></ruby>",
+              "base": "뻐",
+              "hanri": "𡚸",
+              "reading": "뻐`",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 113039,
+              "end": 113170,
+              "before": "<ruby style=\"position: relative\">텧<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">摕<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">텧ˆ</rt></ruby>",
+              "base": "텧",
+              "hanri": "摕",
+              "reading": "텧ˆ",
+              "rule": "v3.2.1"
+            },
+            {
+              "start": 130985,
+              "end": 131247,
+              "before": "<ruby style=\"position: relative\">자<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby><ruby style=\"position: relative\">뻐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>",
+              "after": "<ruby style=\"position: relative;white-space: nowrap\">㜁𡚸<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">자ˉ뻐ˆ-</rt></ruby>",
+              "base": "자뻐",
+              "hanri": "㜁𡚸",
+              "reading": "자ˉ뻐ˆ",
+              "rule": "v3.2.1"
+            }
+          ],
+          "reason": "Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json"
         }
       ]
     },

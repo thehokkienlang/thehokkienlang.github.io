@@ -1,0 +1,125 @@
+{
+  "date": "2026-10-25",
+  "decision": "Author-confirmed Hanri spellings; starred forms belong to manual v3.2.1",
+  "manualV321": [
+    "丈夫",
+    "㜁𡚸",
+    "𡚸",
+    "摕"
+  ],
+  "beforeFiles": {
+    "hokkien_hanri_dict.tsv": "63b100d845b4be9f5c83919ed97875a907184462af1a61a3d2fc95e461637aef",
+    "dictionary_entry_id_registry.tsv": "c57bf0402d860a3025b8f4ef41b272dd612faff60564ac69a6bc948ac2fdac72",
+    "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+    "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+    "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+    "dictionary_defunct.tsv": "040a35902d244529c83bb05a07b49ee893259695cf50aadf063c1e024fa0922f"
+  },
+  "afterFiles": {
+    "hokkien_hanri_dict.tsv": "cbdd21a1604643e1690f95d4483fd15fa66dde8ba7c71b2f9e2417933e9aa81e",
+    "dictionary_entry_id_registry.tsv": "13c4e32e3b8b89e095bad555e9cb10cb43ed4da6191023de3d218b17452b5417",
+    "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+    "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+    "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+    "dictionary_defunct.tsv": "09cf37a00e14ae26af033d6b0ed80947877958776284811036de4a8eea57846b"
+  },
+  "saved": [
+    {
+      "hanri": "𡚸",
+      "simplified": "〃",
+      "reading": "뻐2",
+      "mandarin_trad": "妻子",
+      "mandarin_simp": "〃",
+      "english": "wife",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+216B8_00"
+    },
+    {
+      "hanri": "會當",
+      "simplified": "会当",
+      "reading": "에당",
+      "mandarin_trad": "能; 可以",
+      "mandarin_simp": "〃",
+      "english": "can; be able to",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+6703_U+7576_00"
+    },
+    {
+      "hanri": "㜁𡚸",
+      "simplified": "〃",
+      "reading": "자5뻐2",
+      "mandarin_trad": "女人",
+      "mandarin_simp": "〃",
+      "english": "woman",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+3701_U+216B8_00"
+    },
+    {
+      "hanri": "𣍐當",
+      "simplified": "𫧃当",
+      "reading": "뾔당",
+      "mandarin_trad": "不能; 不會",
+      "mandarin_simp": "不能; 不会",
+      "english": "cannot; will not be able to",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+23350_U+7576_00"
+    },
+    {
+      "hanri": "呵咾",
+      "simplified": "〃",
+      "reading": "오5로2",
+      "mandarin_trad": "稱讚",
+      "mandarin_simp": "称赞",
+      "english": "praise",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+5475_U+54BE_00"
+    },
+    {
+      "hanri": "丈夫",
+      "simplified": "〃",
+      "reading": "다5버1",
+      "mandarin_trad": "男人",
+      "mandarin_simp": "〃",
+      "english": "man; male",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+4E08_U+592B_00"
+    },
+    {
+      "hanri": "摕",
+      "simplified": "〃",
+      "reading": "텧1",
+      "mandarin_trad": "拿; 持",
+      "mandarin_simp": "〃",
+      "english": "take; hold",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+6455_00"
+    }
+  ],
+  "retiredIds": [
+    "U+BED0_00",
+    "U+C5D0_U+B2F9_00",
+    "U+C790_U+BED0_00",
+    "U+23350_U+B2F9_00"
+  ],
+  "skipped": [],
+  "changedIds": [
+    "U+216B8_00",
+    "U+23350_U+7576_00",
+    "U+23350_U+B2F9_00",
+    "U+3701_U+216B8_00",
+    "U+4E08_U+592B_00",
+    "U+5475_U+54BE_00",
+    "U+6455_00",
+    "U+6703_U+7576_00",
+    "U+BED0_00",
+    "U+C5D0_U+B2F9_00",
+    "U+C790_U+BED0_00"
+  ]
+}

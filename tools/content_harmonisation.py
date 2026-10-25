@@ -351,7 +351,24 @@ def apply_edits(body, edits):
     return body
 
 
+def restore_followups(body, entry):
+    for followup in reversed(entry.get("followUps", [])):
+        body = restore_body(body, followup)
+    return body
+
+
+def replay_followups(body, entry):
+    for followup in entry.get("followUps", []):
+        if digest(body) != followup["beforeSha256"]:
+            raise ValueError("Stale follow-up source")
+        body = apply_edits(body, followup["edits"])
+        if digest(body) != followup["afterSha256"]:
+            raise ValueError("Follow-up did not match reviewed output")
+    return body
+
+
 def restore_body(body, entry):
+    body = restore_followups(body, entry)
     if digest(body) != entry["afterSha256"]:
         raise ValueError("Edited body differs from reviewed v3.2 audit")
     shift = 0

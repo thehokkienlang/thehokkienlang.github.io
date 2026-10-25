@@ -9,6 +9,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HanriFallbackTests(unittest.TestCase):
+    def test_v321_and_rare_bmp_glyphs_use_shared_noto_subsets(self):
+        for file in ('shared/web-ime-menu.css', 'apps/content-site/site.css'):
+            css = (ROOT / file).read_text(encoding='utf-8')
+            for point in ('U+3701', 'U+216B8', 'U+4180', 'U+4B55', 'U+6455', 'U+28468', 'U+8FCC'):
+                self.assertIn(point, css)
+            for script in ('tc', 'sc'):
+                name = f'tli-hanri-v321-{script}.woff2'
+                self.assertIn(name, css)
+                self.assertGreater((ROOT / 'assets/fonts' / name).stat().st_size, 100)
+
     def test_shared_fallback_is_bundled_and_character_scoped(self):
         css = (ROOT / 'shared/web-ime-menu.css').read_text(encoding='utf-8')
         self.assertIn('unicode-range: U+24EAA;', css)
@@ -25,8 +35,9 @@ class HanriFallbackTests(unittest.TestCase):
         module = importlib.util.module_from_spec(spec)
         sys.modules[spec.name] = module
         spec.loader.exec_module(module)
-        self.assertEqual(module.SC_FONT_HANRI_CHARS, {'㩼'})
-        self.assertEqual(module.FALLBACK_FONT_HANRI_CHARS, {'𤺪', '𠢕', '𣍐', '𨑨', '𨘗', '𬦰'})
+        self.assertEqual(module.SC_FONT_HANRI_CHARS, {'㩼', '摕', '䆀', '䭕'})
+        self.assertEqual(module.FALLBACK_FONT_HANRI_CHARS, {'𤺪', '𠢕', '𣍐', '𨘗', '𬦰'})
+        self.assertEqual(module.TC_PATCH_HANRI_CHARS, {'㜁', '𡚸', '𨑨', '迌'})
 
         class Text:
             def __init__(self):

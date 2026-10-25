@@ -5,7 +5,7 @@ import json
 from collections import Counter
 from pathlib import Path
 
-from content_harmonisation import apply_edits, digest, propose, restore_body
+from content_harmonisation import apply_edits, digest, propose, restore_body, replay_followups
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_LEDGER = ROOT / "docs/harmonisation-3.2-audit.json"
@@ -61,7 +61,7 @@ def verify(root, ledger):
         if record["id"] != entry["id"] or record["route"] != entry["route"]:
             raise ValueError(f"Content identity or URL changed: {key}")
         restored = restore_body(record["body"], entry)
-        if apply_edits(restored, entry["edits"]) != record["body"]:
+        if replay_followups(apply_edits(restored, entry["edits"]), entry) != record["body"]:
             raise ValueError(f"Cannot replay reviewed edits: {key}")
         if propose(record)[0]:
             raise ValueError(f"Unapplied mandatory spelling edits remain: {key}")

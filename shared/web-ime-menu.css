@@ -2,6 +2,34 @@
 /* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tli-hanri-v321-tc.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+3701, U+216B8, U+28468, U+8FCC;
+}
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tli-hanri-v321-sc.woff2") format("woff2");
+  font-weight: 400;
+  font-display: swap;
+  unicode-range: U+4180, U+4B55, U+6455;
+}
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tli-hanri-v321-tc-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+3701, U+216B8, U+28468, U+8FCC;
+}
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
+  src: url("/assets/fonts/tli-hanri-v321-sc-bold.woff2") format("woff2");
+  font-weight: 700;
+  font-display: swap;
+  unicode-range: U+4180, U+4B55, U+6455;
+}
+@font-face {
+  font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-hanri-fallback-v1.woff2") format("woff2");
   font-display: swap;
   unicode-range: U+24EAA;
@@ -10,7 +38,7 @@
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
   font-display: swap;
-  unicode-range: U+20895, U+23350, U+28468, U+28617, U+2C9B0;
+  unicode-range: U+20895, U+23350, U+28617, U+2C9B0;
 }
 
 .hanri-candidate-menu {

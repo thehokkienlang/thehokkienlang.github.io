@@ -8,7 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from content_harmonisation import apply_edits, atoms_for, digest, propose, restore_body
+from content_harmonisation import apply_edits, atoms_for, digest, propose, restore_body, restore_followups
 from harmonise_content_v32 import active_records, verify
 from song_title_readings import reading_units
 from tangliengim_collation import TONE_TO_DIGIT
@@ -119,7 +119,8 @@ class HarmonisationTests(unittest.TestCase):
                     # The parallel source verse supplies the missing alternate-verse pronoun reading.
                     self.assertEqual(before['body'].count('阮'), 1)
                     before['body'] = before['body'].replace('阮', '꾼`', 1)
-                self.assertEqual(readings(before), readings(current))
+                v32_stage = {**current, 'body': restore_followups(current['body'], entry)}
+                self.assertEqual(readings(before), readings(v32_stage))
                 self.assertEqual(current['orthography']['target'], '3.2')
 
 

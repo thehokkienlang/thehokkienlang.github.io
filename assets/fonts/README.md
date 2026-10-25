@@ -1,5 +1,20 @@
 # Shared Noto Sans Symbols and Branding
 
+## v3.2.1 Hanri glyph additions
+
+`tli-hanri-v321-tc.woff2` contains 㜁, 𡚸, 𨑨 and 迌 from the installed Noto Sans TC;
+`tli-hanri-v321-sc.woff2` supplies 摕, 䆀 and 䭕 from Noto Sans SC, since the local TC
+source does not cover it. CSS applies these fonts only to those characters,
+on both content pages and dictionary/IME surfaces. Ordinary Hanri remain
+unchanged. 𨑨 and 迌 deliberately share the same TC outlines rather than mixing
+Plangothic and Noto regional radical shapes. The classic Pad privately loads
+the matching TC TTF and applies it to these four characters; SC tags cover 摕/䆀/䭕.
+The matching `-bold` files supply real 700-weight outlines; regular files use
+400-weight outlines. These are renamed, unhinted static subsets for reliable
+cross-engine weight selection; embedded copyright and SIL
+OFL 1.1 records are preserved. The Noto license is included in this directory.
+Reproduce with `tools/subset_v321_hanri.py NotoSansTC-VF.ttf NotoSansSC-VF.ttf`.
+
 `tli-noto-sans-{regular,bold}-v2.woff2` are renamed subsets of Noto Sans.
 The shared brand template uses these same files on content pages, Dictionary
 and IME. The punctuation face selects Western-width punctuation and the entire

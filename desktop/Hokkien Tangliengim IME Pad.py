@@ -185,15 +185,16 @@ TEXT_CURSOR_BLINK_ON_MS = 600
 TEXT_CURSOR_BLINK_OFF_MS = 300
 TEXT_CURSOR_TYPING_STEADY_MS = 450
 HTML_JOINABLE_SUFFIX_HANRI = {'仔', '上', '中', '內'}
-SC_FONT_HANRI_CHARS = {'㩼'}
-FALLBACK_FONT_HANRI_CHARS = {'𤺪', '𠢕', '𣍐', '𨑨', '𨘗', '𬦰'}
+SC_FONT_HANRI_CHARS = {'㩼', '摕', '䆀', '䭕'}
+FALLBACK_FONT_HANRI_CHARS = {'𤺪', '𠢕', '𣍐', '𨘗', '𬦰'}
+TC_PATCH_HANRI_CHARS = {'㜁', '𡚸', '𨑨', '迌'}
 
 
 def load_hanri_fallback_font() -> None:
     """Make bundled supplementary glyphs available to this Windows process only."""
     if os.name != 'nt':
         return
-    for filename in ('tangliengim-hanri-fallback-v1.ttf', 'tangliengim-content-hanri-v2.ttf'):
+    for filename in ('tangliengim-hanri-fallback-v1.ttf', 'tangliengim-content-hanri-v2.ttf', 'tli-hanri-v321-tc.ttf'):
         path = source_repo_root() / 'assets' / 'fonts' / filename
         if path.is_file():
             try:
@@ -7004,11 +7005,13 @@ class HokkienIMEPad:
         self.hanri_font = (self.hanri_font_family, 17)
         self.extension_b_hanri_font = (self.extension_b_hanri_font_family, 17)
         self.fallback_hanri_font = (self.fallback_hanri_font_family, 17)
+        self.tc_patch_hanri_font = ('TLI Hanri v321 TC', 17)
         self.sc_hanri_font = (self.sc_hanri_font_family, 17)
         self.candidate_font = (self.hangul_font_family, 13)
         self.candidate_hanri_font = (self.hanri_font_family, 13)
         self.candidate_extension_b_hanri_font = (self.extension_b_hanri_font_family, 13)
         self.candidate_fallback_hanri_font = (self.fallback_hanri_font_family, 13)
+        self.candidate_tc_patch_hanri_font = ('TLI Hanri v321 TC', 13)
         self.candidate_sc_hanri_font = (self.sc_hanri_font_family, 13)
         # Keep tone marks in Calibri even when Hangul/Hanri use Noto Sans.
         self.tone_font = ('Calibri', 19)
@@ -10845,11 +10848,13 @@ class HokkienIMEPad:
         candidate_box.tag_configure('extension_b_hanri_char', font=self.candidate_extension_b_hanri_font)
         candidate_box.tag_configure('sc_hanri_char', font=self.candidate_sc_hanri_font)
         candidate_box.tag_configure('fallback_hanri_char', font=self.candidate_fallback_hanri_font)
+        candidate_box.tag_configure('tc_patch_hanri_char', font=self.candidate_tc_patch_hanri_font)
         candidate_box.tag_configure('tone_mark', font=self.candidate_tone_font)
         candidate_box.tag_configure('selected_candidate', background='#3875d6', foreground='white')
         candidate_box.tag_raise('extension_b_hanri_char', 'hanri_char')
         candidate_box.tag_raise('sc_hanri_char', 'hanri_char')
         candidate_box.tag_raise('fallback_hanri_char', 'extension_b_hanri_char')
+        candidate_box.tag_raise('tc_patch_hanri_char', 'extension_b_hanri_char')
         candidate_box.bind('<ButtonRelease-1>', self.on_candidate_click)
 
         self.candidate_popup = popup
@@ -10922,6 +10927,8 @@ class HokkienIMEPad:
                     box.tag_add('sc_hanri_char', start, end)
                 if ch in FALLBACK_FONT_HANRI_CHARS:
                     box.tag_add('fallback_hanri_char', start, end)
+                if ch in TC_PATCH_HANRI_CHARS:
+                    box.tag_add('tc_patch_hanri_char', start, end)
                 if ch in visible_tone_marks:
                     box.tag_add('tone_mark', start, end)
                 tk_col += column_units
@@ -11138,15 +11145,18 @@ class HokkienIMEPad:
         self.text.tag_configure('extension_b_hanri_char', font=self.extension_b_hanri_font)
         self.text.tag_configure('sc_hanri_char', font=self.sc_hanri_font)
         self.text.tag_configure('fallback_hanri_char', font=self.fallback_hanri_font)
+        self.text.tag_configure('tc_patch_hanri_char', font=getattr(self, 'tc_patch_hanri_font', self.hanri_font))
         self.text.tag_configure('tone_mark', font=self.tone_font)
         self.text.tag_remove('hanri_char', '1.0', 'end')
         self.text.tag_remove('extension_b_hanri_char', '1.0', 'end')
         self.text.tag_remove('sc_hanri_char', '1.0', 'end')
         self.text.tag_remove('fallback_hanri_char', '1.0', 'end')
+        self.text.tag_remove('tc_patch_hanri_char', '1.0', 'end')
         self.text.tag_remove('tone_mark', '1.0', 'end')
         self.text.tag_raise('extension_b_hanri_char', 'hanri_char')
         self.text.tag_raise('sc_hanri_char', 'hanri_char')
         self.text.tag_raise('fallback_hanri_char', 'extension_b_hanri_char')
+        self.text.tag_raise('tc_patch_hanri_char', 'extension_b_hanri_char')
         for idx, ch in enumerate(content):
             start = f'1.0+{idx}c'
             end = f'1.0+{idx + 1}c'
@@ -11158,6 +11168,8 @@ class HokkienIMEPad:
                 self.text.tag_add('sc_hanri_char', start, end)
             if ch in FALLBACK_FONT_HANRI_CHARS:
                 self.text.tag_add('fallback_hanri_char', start, end)
+            if ch in TC_PATCH_HANRI_CHARS:
+                self.text.tag_add('tc_patch_hanri_char', start, end)
             if ch in 'ˆˋˊˉꞈˎˏˍ':
                 self.text.tag_add('tone_mark', start, end)
 

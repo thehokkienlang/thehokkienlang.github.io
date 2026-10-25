@@ -27,7 +27,7 @@ class DictionaryHarmonisationTests(unittest.TestCase):
             additions.extend(follow_up['added'])
         for expected in additions:
             with self.subTest(entry=expected['entry_id']):
-                current = self.rows[expected['entry_id']]
+                current = self.rows.get(expected['entry_id']) or self.archived[expected['entry_id']]
                 for field in ('entry_id', 'hanri', 'entry_type'):
                     self.assertEqual(current[field], expected[field])
                 self.assertEqual(reading_sort_key(current['reading'])[:2], reading_sort_key(expected['reading'])[:2])
@@ -37,7 +37,13 @@ class DictionaryHarmonisationTests(unittest.TestCase):
             with self.subTest(entry=expected['entry_id']):
                 self.assertNotIn(expected['entry_id'], self.rows)
                 self.assertEqual(self.archived[expected['entry_id']], expected)
-                self.assertIn(expected['replacement_entry_id'], self.rows)
+                target = expected['replacement_entry_id']
+                seen = set()
+                while target in self.archived:
+                    self.assertNotIn(target, seen, 'Replacement chain must not cycle')
+                    seen.add(target)
+                    target = self.archived[target]['replacement_entry_id']
+                self.assertIn(target, self.rows)
 
     def test_distinct_hangul_senses_and_foreign_transcriptions_survive(self):
         for identity, word in [('U+AC00_00', '가ˉ'), ('U+B9E4_00', '매'), ('U+C544_00', '아ˉ'),

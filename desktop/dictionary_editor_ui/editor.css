@@ -10,7 +10,7 @@ input,select,textarea { border:1px solid #c9d5dd; border-radius:4px; background:
 input:focus,textarea:focus,select:focus,button:focus-visible { outline:2px solid #53a59d; outline-offset:2px; }
 input[readonly] { background:#f3f5f6; color:var(--muted); font-size:13px; }
 textarea { resize:vertical; }
-.script { font-family:"Tangliengim Tone","Tangliengim Hanri SC","Tangliengim Hanri","Noto Sans KR","Segoe UI",sans-serif; }
+.script { font-family:"Tangliengim Tone","Tangliengim Hanri Fallback","Tangliengim Hanri SC","Tangliengim Hanri","Noto Sans KR","Segoe UI",sans-serif; }
 .editor-header { flex-shrink:0; min-height:88px; display:flex; gap:20px; align-items:center; justify-content:space-between; padding:16px 24px; border-bottom:1px solid var(--line); background:white; }
 .brand { text-decoration:none; color:inherit; }
 .brand-mark { box-shadow:none; }
@@ -30,7 +30,7 @@ h2 { font-size:19px; margin:0; }
 .entry-toolbar input { flex:1; width:100%; }
 .entry-search { position:relative; flex:1; min-width:0; }
 .entry-search input::placeholder { font-family:Calibri,"Segoe UI",sans-serif; font-size:16px; }
-.entry-search input.hangul-ime-active { font-family:"Tangliengim Tone","Tangliengim Hanri SC","Tangliengim Hanri","Noto Sans KR","Segoe UI",sans-serif; }
+.entry-search input.hangul-ime-active { font-family:"Tangliengim Tone","Tangliengim Hanri Fallback","Tangliengim Hanri SC","Tangliengim Hanri","Noto Sans KR","Segoe UI",sans-serif; }
 .search-keyboard-control { flex-shrink:0; padding:0 20px 10px; }
 button.search-keyboard-toggle { display:inline-flex; align-items:center; gap:10px; padding:0; border:0; background:transparent; color:var(--muted); font-size:14px; font-weight:600; }
 button.search-keyboard-toggle:hover { background:transparent; color:var(--accent); }

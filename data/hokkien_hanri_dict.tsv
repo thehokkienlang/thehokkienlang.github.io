@@ -23,7 +23,6 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 매		매	不要; 不應該	不要; 不应该	shouldn't; don't want		hangul_override	U+B9E4_00
 매ˉ로ˆ		매5로1	美祿	美禄	Milo		hangul_override	U+B9E4_U+B85C_00
 메ˉ끼ˆ		메5끼1	美極麵	美极面	Maggi (noodles)		hangul_override	U+BA54_U+B07C_00
-뻐ˋ		뻐2	妻子	〃	wife		hangul_override	U+BED0_00
 ’뽀ˊ		’뽀4	不	〃	not		hangul_override	U+2019_U+BF40_00
 샹ˊ		샹4	誰	谁	who		hangul_override	U+C0F9_00
 아ˉ		아5	啊	〃	ah		hangul_override	U+C544_00
@@ -31,11 +30,9 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 안ˆ니ˆ		안1니1	這樣; 那樣	这样; 那样	like this; like that		hangul_override	U+C548_U+B2C8_00
 애		애	應該; 想要	应该; 想要	should; want		hangul_override	U+C560_00
 ’에		’에	的	〃	’s; possessive particle; attributive particle		hangul_override	U+2019_U+C5D0_00
-에당		에당	能; 可以	〃	can; be able to		hangul_override	U+C5D0_U+B2F9_00
 ’이		’이	他	〃	him		hangul_override	U+2019_U+C774_00
 이ˉ		이5	他; 她; 他們	他; 她; 他们	he; she; they		hangul_override	U+C774_00
 인ˉ		인5	他們; 他們的	他们; 他们的	they, their		hangul_override	U+C778_00
-자ˉ뻐ˋ		자5뻐2	女人	〃	woman		hangul_override	U+C790_U+BED0_00
 쟈ˆ		쟈1	這裡	这里	here		hangul_override	U+C7C8_00
 제ˋ		제2	這	这	this		hangul_override	U+C81C_00
 챻ˆ챻		챻1챻	恰恰舞	〃	cha-cha		hangul_override	U+CC7B_U+CC7B_00
@@ -425,6 +422,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 年	〃	니4	〃	〃	year		lexical	U+5E74_00
 邇	迩	니5			degree element in 遮邇, 遐邇 and 偌邇		lexical	U+9087_00
 焦	〃	다1	〃	〃	burnt; scorched		lexical	U+7126_00
+丈夫	〃	다5버1	男人	〃	man; male		lexical	U+4E08_U+592B_00
 焦컥ˆ컥	〃	다5컥1컥	焦黑	〃	burnt; scorched		lexical	U+7126_U+CEE5_U+CEE5_00
 打限	〃	다1한	忍耐	〃	to bear; endure		lexical	U+6253_U+9650_00
 逐	〃	닥1	〃	〃	chase; each		lexical	U+9010_00
@@ -1129,6 +1127,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 肉脞麵	肉脞面	빻1초2미5	肉末麵	肉末面	minced meat noodles		lexical	U+8089_U+811E_U+9EB5_00
 肉體	肉体	빻1테2	〃	肉体	body; flesh		lexical	U+8089_U+9AD4_00
 䆀	䆀	빼2	壞; 醜	坏; 丑	bad; ugly		lexical	U+4180_00
+𡚸	〃	뻐2	妻子	〃	wife		lexical	U+216B8_00
 模樣	模样	뻐율5	〃	模样	model; pattern; appearance; manner		lexical	U+6A21_U+6A23_00
 木	木	뻑1	木	木	wood		lexical	U+6728_01
 木瓜	木瓜	뻑궤1	木瓜	木瓜	papaya		lexical	U+6728_U+74DC_00
@@ -1168,7 +1167,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 賣	卖	뾔5	〃	卖	sell		lexical	U+8CE3_00
 𣍐	𫧃	뾔5	不會	不会	won't; will not		lexical	U+23350_00
 𣍐打限	𫧃打限	뾔다1한	受不了	受不了	unbearable; unable to endure any longer		lexical	U+23350_U+6253_U+9650_00
-𣍐당	𫧃당	뾔당	不能; 不會	不能; 不会	cannot; will not be able to		lexical	U+23350_U+B2F9_00
+𣍐當	𫧃当	뾔당	不能; 不會	不能; 不会	cannot; will not be able to		lexical	U+23350_U+7576_00
 買賣	买卖	뾔1뾔5	〃	买卖	business; trade		lexical	U+8CB7_U+8CE3_00
 𣍐要緊	𫧃要紧	뾔ᄋᆤ2긴2	不會重要; 不會緊急	不会重要; 不会紧急	won't be important; won't be urgent		lexical	U+23350_U+8981_U+7DCA_00
 買票	买票	뾔1표	〃	买票	buy a ticket		lexical	U+8CB7_U+7968_00
@@ -1663,6 +1662,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 下	〃	에5	〃	〃	below; under; next		lexical	U+4E0B_01
 挨	〃	에5	〃	〃	endure; next to		lexical	U+6328_00
 會	会	에5	會	会	will; would		lexical	U+6703_00
+會當	会当	에당	能; 可以	〃	can; be able to		lexical	U+6703_U+7576_00
 廈門	厦门	에믕4	〃	厦门	Xiamen (Amoy)		lexical	U+5EC8_U+9580_00
 下晡	〃	에버1	下午	〃	below; under		lexical	U+4E0B_U+6661_00
 下昏	〃	에흥1	傍晚	〃	dusk; evening		lexical	U+4E0B_U+660F_00
@@ -1694,6 +1694,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 永春	〃	옝1춘1	〃	〃	Yongchun		lexical	U+6C38_U+6625_00
 蚵	〃	오4	〃	〃	oyster		lexical	U+86B5_00
 婀娜	〃	오5너2	〃	〃	graceful		lexical	U+5A40_U+5A1C_00
+呵咾	〃	오5로2	稱讚	称赞	praise		lexical	U+5475_U+54BE_00
 蚵仔	〃	오아2	牡蠣	牡蛎	diminutive suffix		lexical	U+86B5_U+4ED4_00
 蚵仔煎	〃	오아1졘1	〃	〃	oyster omelette		lexical	U+86B5_U+4ED4_U+714E_00
 學	学	옿1	〃	学	study; learn		lexical	U+5B78_00
@@ -1832,6 +1833,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 陰風	阴风	임5헝1	〃	阴风	sinister wind; cold wind		lexical	U+9670_U+98A8_00
 早	〃	자2	〃	〃	early		lexical	U+65E9_00
 早頓	早顿	자1등	早餐	〃	early; morning		lexical	U+65E9_U+9813_00
+㜁𡚸	〃	자5뻐2	女人	〃	woman		lexical	U+3701_U+216B8_00
 昨暗	〃	자5암	昨晚	〃	dark		lexical	U+6628_U+6697_00
 早起	〃	자1키2	〃	〃	morning; get up early		lexical	U+65E9_U+8D77_00
 昨昏	〃	자5흥1	昨晚	〃	yesterday evening		lexical	U+6628_U+660F_00
@@ -2466,6 +2468,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 提起	〃	테키2	〃	〃	mention; bring up		lexical	U+63D0_U+8D77_00
 退下	〃	테2하5	〃	〃	below; under		lexical	U+9000_U+4E0B_00
 體會	体会	테1훼5	〃	体会	can; meeting		lexical	U+9AD4_U+6703_00
+摕	〃	텧1	拿; 持	〃	take; hold		lexical	U+6455_00
 暢	畅	텽	〃	畅	smooth; carefree		lexical	U+66A2_00
 天然	〃	톈5뗸4	〃	〃	natural		lexical	U+5929_U+7136_00
 天上	〃	톈5셩5	〃	〃	in the sky; heaven		lexical	U+5929_U+4E0A_00
