@@ -69,7 +69,7 @@ body[data-site-section="home"] .imported-content > :is(p, ul.wp-block-list) :is(
 .song-list a { text-decoration: none; }
 .song-list .title-reading .hanri-title { position: relative; display: inline-block; vertical-align: baseline; }
 .song-list .title-reading .hanri-title > :is(rt, .tli-rt) { position: absolute; display: block; top: auto !important; bottom: calc(100% - 5px); left: 50%; width: max-content; transform: translateX(-50%); font-size: 52%; line-height: 1; }
-.song-list .title-reading .bopomofo-title > :is(rt, .tli-rt) { font-size: 38%; }
+.song-list .title-reading .bopomofo-title > :is(rt, .tli-rt) { font-size: 32%; }
 .page-list li { padding: 12px 0; border-bottom: 1px solid var(--line); display: flex; gap: 20px; justify-content: space-between; }
 .external-note, .source-link { color: var(--muted); font-size: 14px; }
 .source-link { clear: both; margin-top: 48px; }
@@ -186,7 +186,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-songbook a:hover { color: var(--site-voice, #9d303b); }
 .home-songbook a > .home-song-title { padding-top: 0; font-size: 21px; font-weight: 700; line-height: 1.5; }
 .home-songbook a .home-song-title .tli-rt { bottom: calc(100% - 0.15em - 7px); font-size: 57%; }
-.home-songbook a .home-song-title .bopomofo-title > .tli-rt { font-size: 38%; }
+.home-songbook a .home-song-title .bopomofo-title > .tli-rt { font-size: 32%; }
 .home-songbook a small { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 14px; }
 @media (max-width: 900px) {
   body[data-site-section="home"] .content-shell > h1 { max-width: 680px; font-size: 48px; }

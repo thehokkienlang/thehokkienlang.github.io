@@ -48,12 +48,17 @@
 }
 .title-reading .bopomofo-title > rt {
   font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-  font-size: 45%;
+  font-size: 32%;
+  line-height: 1;
+  white-space: nowrap;
 }
 .title-reading .bopomofo-title > .tli-rt {
   font-family: "TLI Western Punctuation", "Noto Sans TC", "Microsoft JhengHei", sans-serif;
-  font-size: 45%;
+  font-size: 32%;
+  line-height: 1;
+  white-space: nowrap;
 }
+.title-reading .bopomofo-title { ruby-align: center; ruby-overhang: none; }
 .title-reading .hangul-reading-unit {
   display: inline-block;
   min-width: 1em;
