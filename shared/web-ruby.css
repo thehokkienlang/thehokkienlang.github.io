@@ -1,0 +1,40 @@
+/* One geometry for pronunciation ruby; standalone Hangul tone marks are separate. */
+:root {
+  --tli-ruby-size: 0.5em;
+  --tli-ruby-overlap: 0.15em;
+}
+
+:is(.tli-reading-ruby, .entry-headword-ruby) {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  line-height: 1;
+  text-indent: 0;
+  isolation: isolate;
+}
+
+:is(.tli-reading-ruby > .tli-ruby-base, .entry-headword-base) {
+  line-height: 1;
+}
+
+:is(.tli-reading-ruby > .tli-rt, .entry-headword-ruby > .entry-headword-reading) {
+  position: absolute !important;
+  display: block;
+  top: auto !important;
+  bottom: calc(100% - var(--tli-ruby-overlap)) !important;
+  left: 50% !important;
+  right: auto !important;
+  width: max-content;
+  margin: 0;
+  padding: 0;
+  transform: translateX(-50%) !important;
+  font-size: var(--tli-ruby-size) !important;
+  line-height: 1.15 !important;
+  text-indent: 0;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tli-reading-ruby.bopomofo-title {
+  --tli-ruby-size: 0.32em;
+}

@@ -51,6 +51,20 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn(".content-songs .imported-content .song-script-heading { margin-top: 8px;", css)
         self.assertNotIn(".content-songs .imported-content > .song-script-heading", css)
 
+    def test_pronunciation_ruby_uses_one_relative_geometry(self):
+        css = (ROOT / "shared/web-ruby.css").read_text(encoding="utf-8")
+        self.assertIn("--tli-ruby-size: 0.5em;", css)
+        self.assertIn("--tli-ruby-overlap: 0.15em;", css)
+        self.assertIn(".entry-headword-ruby > .entry-headword-reading", css)
+        self.assertNotIn("px", css)
+        self.assertNotIn(".tli-tone-ruby", css)
+        for path in ("apps/content-site/site.css", "apps/dictionary/styles.css", "shared/web-title-reading.css"):
+            styles = (ROOT / path).read_text(encoding="utf-8")
+            self.assertIn('@import url("/shared/web-ruby.css");', styles)
+            self.assertNotIn("bottom: calc(100% -", styles)
+        script = (ROOT / "apps/content-site/site.js").read_text(encoding="utf-8")
+        self.assertIn('toneOnly ? "tli-tone-ruby" : "tli-reading-ruby"', script)
+
 
 if __name__ == "__main__":
     unittest.main()

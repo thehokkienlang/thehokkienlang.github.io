@@ -25,7 +25,7 @@
     });
   }
   // WebKit can place positioned rt boxes below their base; use ordinary boxes for display.
-  [...document.querySelectorAll('.title-reading ruby, .imported-content ruby[style*="position"]')].reverse().forEach(ruby => {
+  [...document.querySelectorAll('.title-reading ruby, .imported-content ruby')].reverse().forEach(ruby => {
     const annotation = document.createElement("span");
     for (const { name, value } of ruby.attributes) annotation.setAttribute(name, value);
     annotation.classList.add("tli-ruby");
@@ -43,6 +43,9 @@
         base.append(child);
       }
     }
+    const toneOnly = readings.length > 0 && readings.every(reading =>
+      /^[\sˆˋˊˉˇˍˎˏˬꞈ`]+$/u.test(reading.textContent));
+    if (readings.length > 0) annotation.classList.add(toneOnly ? "tli-tone-ruby" : "tli-reading-ruby");
     annotation.append(base, ...readings);
     ruby.replaceWith(annotation);
   });

@@ -1,5 +1,6 @@
 @import url("/shared/web-punctuation.css");
 @import url("/shared/web-hangul-font.css");
+@import url("/shared/web-ruby.css");
 :root {
   color-scheme: light;
   --bg: #f5f8f7;
@@ -479,25 +480,13 @@ h1 {
 }
 
 .entry-headword-ruby {
-  position: relative;
-  display: inline-block;
-  vertical-align: baseline;
   white-space: nowrap;
 }
 
 .entry-headword-ruby .entry-headword-reading {
-  position: absolute;
-  bottom: calc(100% - 0.05em);
-  left: 50%;
-  width: max-content;
-  transform: translateX(-50%);
-  white-space: nowrap;
   color: #334155;
   font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
-  font-size: 0.44em;
   font-weight: 750;
-  line-height: 1;
-  text-align: center;
 }
 
 .hangul-reading-unit {

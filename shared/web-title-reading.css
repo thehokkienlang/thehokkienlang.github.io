@@ -1,3 +1,5 @@
+@import url("/shared/web-ruby.css");
+
 .title-reading .hangul-tone {
   position: relative;
   display: inline-block;
@@ -33,18 +35,8 @@
   isolation: isolate;
 }
 .title-reading .tli-ruby > .tli-rt {
-  position: absolute;
-  display: block;
-  top: auto !important;
-  bottom: calc(100% - 0.15em - 3px);
-  left: 50%;
-  width: max-content;
-  transform: translateX(-50%);
   font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", sans-serif;
-  font-size: 44%;
   font-weight: 500;
-  line-height: 1.3;
-  white-space: nowrap;
 }
 .title-reading .bopomofo-title > rt {
   font-family: "Noto Sans TC", "Microsoft JhengHei", sans-serif;

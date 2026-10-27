@@ -19,9 +19,11 @@ MEASURE = """() => {
     if (!reading || !base) continue;
     const range = document.createRange();
     range.selectNodeContents(base);
-    const baseBox = range.getBoundingClientRect();
+    const pronunciation = ruby.classList.contains('tli-reading-ruby');
+    const baseBox = pronunciation ? ruby.getBoundingClientRect() : range.getBoundingClientRect();
     const readingBox = reading.getBoundingClientRect();
-    if (readingBox.bottom > baseBox.top + 4) {
+    const allowedOverlap = pronunciation ? 0.15 * parseFloat(getComputedStyle(reading).fontSize) + 0.25 : 4;
+    if (readingBox.bottom > baseBox.top + allowedOverlap) {
       issues.push({base: base.textContent, reading: reading.textContent,
         baseY: baseBox.top, readingBottom: readingBox.bottom});
     }
@@ -32,6 +34,46 @@ MEASURE = """() => {
     composedLomari: [...document.querySelectorAll('.song-entry-lomari')]
       .every(node => node.textContent === node.textContent.normalize('NFC'))};
 }"""
+
+RUBY_GEOMETRY = """node => {
+  const reading = node.querySelector(':scope > .tli-rt, :scope > .entry-headword-reading');
+  const base = node.querySelector(':scope > .tli-ruby-base, :scope > .entry-headword-base');
+  const style = getComputedStyle(reading);
+  const size = parseFloat(style.fontSize);
+  const box = node.getBoundingClientRect();
+  return {ratio: size / parseFloat(getComputedStyle(node).fontSize),
+    bottom: parseFloat(style.bottom), expectedBottom: box.height - 0.15 * size,
+    extraWidth: box.width - base.getBoundingClientRect().width};
+}"""
+
+
+def check_ruby(locator):
+    for geometry in locator.evaluate_all(f"nodes => nodes.map({RUBY_GEOMETRY})"):
+        assert abs(geometry['ratio'] - 0.5) < 0.002, geometry
+        assert abs(geometry['bottom'] - geometry['expectedBottom']) < 0.15, geometry
+        assert abs(geometry['extraWidth']) < 0.25, geometry
+
+
+def check_scaling(page, origin, screenshot):
+    samples = []
+    for size in (16, 20, 24, 32, 48, 64):
+        samples.append(f'''<p style="font-size:{size}px;line-height:2.2">
+          <ruby style="position:relative">學生<rt style="position:absolute;top:-99px;left:19px;font-size:57%">학솅ˆ</rt></ruby>
+          <span class="title-reading"><ruby class="hanri-title">學生<rt>학솅ˆ</rt></ruby></span>
+          <span class="entry-headword-ruby"><span class="entry-headword-base">學生</span><span class="entry-headword-reading">학솅ˆ</span></span>
+        </p>''')
+    page.set_content(f'''<html><head><link rel="stylesheet" href="{origin}/assets/content-site/site.css">
+      <link rel="stylesheet" href="{origin}/shared/web-title-reading.css"></head>
+      <body><main class="imported-content">{''.join(samples)}
+      <p><ruby style="position:relative">가<rt style="font-size:120%;position:absolute;top:-1.15em;left:0.2em">ꞈ</rt></ruby></p>
+      </main><script src="{origin}/assets/content-site/site.js"></script></body></html>''')
+    page.wait_for_selector('.tli-reading-ruby')
+    page.evaluate('document.fonts.ready')
+    check_ruby(page.locator('.tli-reading-ruby, .entry-headword-ruby'))
+    assert page.locator('.tli-tone-ruby').count() == 1
+    tone = page.locator('.tli-tone-ruby > .tli-rt').evaluate('node => parseFloat(getComputedStyle(node).fontSize) / parseFloat(getComputedStyle(node.parentElement).fontSize)')
+    assert abs(tone - 1.2) < 0.002, tone
+    page.screenshot(path=str(screenshot), full_page=True)
 
 
 def main():
@@ -66,28 +108,14 @@ def main():
                         student = page.locator('.imported-content ul.wp-block-list .tli-rt').filter(has_text="학솅")
                         student.wait_for()
                         page.evaluate("document.fonts.ready")
-                        offset = student.evaluate("""node => {
-                            const style = getComputedStyle(node);
-                            const size = parseFloat(style.fontSize);
-                            const parentSize = parseFloat(getComputedStyle(node.parentElement).fontSize);
-                            return {actual: parseFloat(style.top), expected: -0.85 * (size + 1) + 1,
-                                size, expectedSize: parentSize * 0.6 - 1};
-                        }""")
                         if not args.diagnose:
                             expected_label = {"zh-hant": "歌單精選", "zh-hans": "歌单精选"}.get(language)
                             if expected_label:
                                 assert page.locator('.home-songbook-label').inner_text() == expected_label
-                            assert abs(offset["actual"] - offset["expected"]) < 0.1, (
-                                f"Student ruby offset ignored after DOM conversion: {engine_name}/{width}/{language}: {offset}")
-                            assert abs(offset["size"] - offset["expectedSize"]) < 0.1, offset
+                            check_ruby(page.locator('.tli-reading-ruby:not(.bopomofo-title)'))
                             for prefix in ("한", "당"):
                                 readings = page.locator('.imported-content > p .tli-rt').filter(has_text=prefix)
                                 assert readings.count() > 0, f"Missing homepage reading: {language}/{prefix}"
-                                for reading in readings.all():
-                                    top = reading.evaluate("node => parseFloat(getComputedStyle(node).top)")
-                                    assert abs(top - offset["actual"]) < 0.1, f"Homepage ruby offsets differ: {language}/{prefix}"
-                                    size = reading.evaluate("node => parseFloat(getComputedStyle(node).fontSize)")
-                                    assert abs(size - offset["size"]) < 0.1, f"Homepage ruby sizes differ: {language}/{prefix}"
                         student.locator("xpath=ancestor::ul[1]").screenshot(
                             path=str(args.output / f"{engine_name}-{width}-{language}-student.png"))
                     for language, story in (("en", "/read/stories/the-egg/"), ("zh-hant", "/zh-hant/read/stories/the-egg/"), ("zh-hans", "/zh-hans/read/stories/the-egg/")):
@@ -105,17 +133,14 @@ def main():
                         page.screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg-header.png"))
                         spacing = paragraphs.nth(1).evaluate("""paragraph => {
                             const ruby = paragraph.querySelector('.tli-ruby');
-                            const reading = paragraph.querySelector('.tli-rt:not([style*="120%"] )');
-                            const style = getComputedStyle(reading);
                             return {indent: getComputedStyle(ruby).textIndent,
                                 extraWidth: ruby.getBoundingClientRect().width - ruby.querySelector('.tli-ruby-base').getBoundingClientRect().width,
-                                paragraphIndent: getComputedStyle(paragraph).textIndent,
-                                top: parseFloat(style.top), expectedTop: -1.1 * parseFloat(style.fontSize) + 4};
+                                paragraphIndent: getComputedStyle(paragraph).textIndent};
                         }""")
                         if not args.diagnose:
                             assert spacing["indent"] == "0px" and abs(spacing["extraWidth"]) < 0.25, spacing
                             assert spacing["paragraphIndent"] == "48px", spacing
-                            assert abs(spacing["top"] - spacing["expectedTop"]) < 0.1, spacing
+                            check_ruby(page.locator('.tli-reading-ruby:not(.bopomofo-title)'))
                         paragraphs.nth(1).screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg.png"))
                         footnotes = page.locator('table').filter(has=page.locator('a#_ftn1')).first
                         colon_positions = footnotes.locator('td:first-child').evaluate_all("""cells => cells.map(cell => {
@@ -154,6 +179,7 @@ def main():
                     assert page.locator(".home-song-title").count() == 3
                     assert page.locator(".home-song-title ruby").count() == 0
                     assert "瀏覽歌單" in page.locator(".home-feature-songs").inner_text()
+                check_scaling(page, args.url.rstrip('/'), args.output / f'{engine_name}-scaling.png')
                 context.close()
             finally:
                 browser.close()
