@@ -42,6 +42,7 @@ RUBY_GEOMETRY = """node => {
   const size = parseFloat(style.fontSize);
   const box = node.getBoundingClientRect();
   return {ratio: size / parseFloat(getComputedStyle(node).fontSize),
+    baseRatio: parseFloat(getComputedStyle(base).fontSize) / parseFloat(getComputedStyle(node).fontSize),
     bottom: parseFloat(style.bottom), expectedBottom: box.height - 0.15 * size,
     extraWidth: box.width - base.getBoundingClientRect().width};
 }"""
@@ -49,7 +50,8 @@ RUBY_GEOMETRY = """node => {
 
 def check_ruby(locator):
     for geometry in locator.evaluate_all(f"nodes => nodes.map({RUBY_GEOMETRY})"):
-        assert abs(geometry['ratio'] - 0.5) < 0.002, geometry
+        assert abs(geometry['ratio'] - 0.55) < 0.002, geometry
+        assert abs(geometry['baseRatio'] - 1) < 0.002, geometry
         assert abs(geometry['bottom'] - geometry['expectedBottom']) < 0.15, geometry
         assert abs(geometry['extraWidth']) < 0.25, geometry
 

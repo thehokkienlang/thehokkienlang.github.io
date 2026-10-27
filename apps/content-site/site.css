@@ -175,7 +175,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-literature-work h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 9px 0 4px; font-size: 23px; line-height: 1.45; }
 .home-literature-work h3 ruby { ruby-position: over; }
 .home-literature-work h3 rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", sans-serif; font-size: 38%; }
-.home-literature-work h3 span { color: var(--muted); font-size: 14px; font-weight: 500; }
+.home-literature-work h3 > span:not(.tli-ruby) { color: var(--muted); font-size: 14px; font-weight: 500; }
 .home-literature-work p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
 .home-feature-songs { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 1.45fr); gap: 54px; margin-top: 0; padding: 70px 48px; background: #f3e9ea; }
 .home-feature-songs .home-feature-link { color: var(--site-voice, #9d303b); }

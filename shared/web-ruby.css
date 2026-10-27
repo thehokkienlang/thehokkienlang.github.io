@@ -1,6 +1,6 @@
 /* One geometry for pronunciation ruby; standalone Hangul tone marks are separate. */
 :root {
-  --tli-ruby-size: 0.5em;
+  --tli-ruby-size: 0.55em;
   --tli-ruby-overlap: 0.15em;
 }
 
@@ -36,5 +36,5 @@
 }
 
 .tli-reading-ruby.bopomofo-title {
-  --tli-ruby-size: 0.32em;
+  --tli-ruby-size: 0.37em;
 }

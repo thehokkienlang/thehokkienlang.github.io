@@ -53,7 +53,8 @@ class SiteSymbolsTests(unittest.TestCase):
 
     def test_pronunciation_ruby_uses_one_relative_geometry(self):
         css = (ROOT / "shared/web-ruby.css").read_text(encoding="utf-8")
-        self.assertIn("--tli-ruby-size: 0.5em;", css)
+        self.assertIn("--tli-ruby-size: 0.55em;", css)
+        self.assertIn("--tli-ruby-size: 0.37em;", css)
         self.assertIn("--tli-ruby-overlap: 0.15em;", css)
         self.assertIn(".entry-headword-ruby > .entry-headword-reading", css)
         self.assertNotIn("px", css)
@@ -64,6 +65,11 @@ class SiteSymbolsTests(unittest.TestCase):
             self.assertNotIn("bottom: calc(100% -", styles)
         script = (ROOT / "apps/content-site/site.js").read_text(encoding="utf-8")
         self.assertIn('toneOnly ? "tli-tone-ruby" : "tli-reading-ruby"', script)
+
+    def test_homepage_story_subtitle_does_not_shrink_ruby_or_hanri(self):
+        css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
+        self.assertIn('.home-literature-work h3 > span:not(.tli-ruby)', css)
+        self.assertNotIn('.home-literature-work h3 span {', css)
 
 
 if __name__ == "__main__":
