@@ -172,7 +172,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-literature-work img { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 22px; object-fit: cover; object-position: center; filter: saturate(.82) contrast(.96); transition: filter .2s ease, transform .2s ease; }
 .home-literature-work:hover img { filter: saturate(1) contrast(1); transform: translateY(-3px); }
 .home-work-kind { color: var(--site-voice, #b33b46); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.home-literature-work h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: 9px 0 4px; font-size: 23px; line-height: 1.45; }
+.home-literature-work h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: calc(var(--tli-ruby-size) + 0.1em) 0 4px; font-size: 23px; line-height: 1.45; }
 .home-literature-work h3 ruby { ruby-position: over; }
 .home-literature-work h3 rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", sans-serif; font-size: 38%; }
 .home-literature-work h3 > span:not(.tli-ruby) { color: var(--muted); font-size: 14px; font-weight: 500; }

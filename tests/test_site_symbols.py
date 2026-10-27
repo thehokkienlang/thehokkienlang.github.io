@@ -70,6 +70,7 @@ class SiteSymbolsTests(unittest.TestCase):
         css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
         self.assertIn('.home-literature-work h3 > span:not(.tli-ruby)', css)
         self.assertNotIn('.home-literature-work h3 span {', css)
+        self.assertIn('margin: calc(var(--tli-ruby-size) + 0.1em) 0 4px;', css)
 
 
 if __name__ == "__main__":

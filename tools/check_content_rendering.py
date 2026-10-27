@@ -115,6 +115,13 @@ def main():
                             if expected_label:
                                 assert page.locator('.home-songbook-label').inner_text() == expected_label
                             check_ruby(page.locator('.tli-reading-ruby:not(.bopomofo-title)'))
+                            clearance = page.locator('.home-literature-work').evaluate("""card => {
+                                const title = card.querySelector('h3');
+                                return {gap: title.querySelector('.tli-rt').getBoundingClientRect().top -
+                                    card.querySelector('.home-work-kind').getBoundingClientRect().bottom,
+                                    required: 0.1 * parseFloat(getComputedStyle(title).fontSize)};
+                            }""")
+                            assert clearance['gap'] >= clearance['required'] - 0.25, clearance
                             for prefix in ("한", "당"):
                                 readings = page.locator('.imported-content > p .tli-rt').filter(has_text=prefix)
                                 assert readings.count() > 0, f"Missing homepage reading: {language}/{prefix}"
