@@ -3,7 +3,9 @@
 @import url("/shared/web-ruby.css");
 @font-face { font-family: "TLI Hanri"; src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei"); unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
-@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+28617, U+2C9B0; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+2C9B0; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-u28617-400-v1.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+28617; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-u28617-700-v1.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+28617; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-tc.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+3701, U+216B8, U+28468, U+8FCC; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-sc.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+4180, U+4B55, U+6455; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-tc-bold.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+3701, U+216B8, U+28468, U+8FCC; }

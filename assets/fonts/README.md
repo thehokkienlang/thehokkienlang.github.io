@@ -1,5 +1,18 @@
 # Shared Noto Sans Symbols and Branding
 
+## Custom U+28617 Hanri glyph
+
+`tli-u28617-{400,700}-v1.woff2` contains the approved custom 𨘗 glyph,
+scoped to U+28617 on website content, dictionary and IME surfaces. Its one-dot,
+four-stroke walking radical comes from 透 in Noto Sans TC; its fitted 對
+component also comes from Noto Sans TC. The regular and bold components use
+Noto variable weights 520 and 850 respectively to compensate for narrowing;
+their radicals use weights 400 and 700. The source was the installed
+`NotoSansTC-VF.ttf`, SHA-256
+`c6481c5d93420aeac11087367dae56ae7492eb1989ce42f4ca5d5aa5e2db3116`.
+The modified font is renamed TLI Hanri Custom Prototype and distributed under
+SIL OFL 1.1; original copyright records and `OFL-NotoSansKR.txt` are retained.
+
 ## v3.2.1 Hanri glyph additions
 
 `tli-hanri-v321-tc.woff2` contains 㜁, 𡚸, 𨑨 and 迌 from the installed Noto Sans TC;
