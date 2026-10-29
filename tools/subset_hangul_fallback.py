@@ -1,9 +1,11 @@
-"""Optional maintenance: subset Noto Sans KR's conjoining-jamo shaping tables."""
+"""Subset Noto Sans KR syllables and conjoining-jamo shaping tables."""
 import argparse
 from pathlib import Path
 
-FAMILY = 'Tangliengim Conjoining Hangul'
-CODEPOINTS = {0x20, 0x200C, 0x200D} | set(range(0x1100, 0x1200)) | set(range(0xA960, 0xA980)) | set(range(0xD7B0, 0xD800))
+FAMILY = 'Tangliengim Hangul'
+CODEPOINTS = ({0x20, 0x200C, 0x200D} | set(range(0x1100, 0x1200)) |
+              set(range(0xA960, 0xA980)) | set(range(0xAC00, 0xD7A4)) |
+              set(range(0xD7B0, 0xD800)))
 
 
 def main():
@@ -26,16 +28,16 @@ def main():
     args.output_dir.mkdir(parents=True, exist_ok=True)
     for weight, style in ((400, 'Regular'), (700, 'Bold')):
         instance = instantiateVariableFont(font, {'wght': weight}, inplace=False)
-        names = {1: FAMILY, 2: style, 3: FAMILY + ' ' + style + ' v1', 4: FAMILY + ' ' + style,
-                 6: 'TangliengimConjoiningHangul-' + style, 16: FAMILY, 17: style, 18: FAMILY + ' ' + style}
+        names = {1: FAMILY, 2: style, 3: FAMILY + ' ' + style + ' v2', 4: FAMILY + ' ' + style,
+                 6: 'TangliengimHangul-' + style, 16: FAMILY, 17: style, 18: FAMILY + ' ' + style}
         for record in instance['name'].names:
             if record.nameID in names:
                 record.string = names[record.nameID].encode(record.getEncoding())
         for name_id, value in names.items():
             instance['name'].setName(value, name_id, 3, 1, 0x409)
-        instance['name'].setName('Noto Sans KR subset with conjoining Hangul shaping retained; renamed for Tangliengim. SIL OFL 1.1.', 10, 3, 1, 0x409)
+        instance['name'].setName('Noto Sans KR subset with precomposed Hangul and conjoining shaping; renamed for Tangliengim. SIL OFL 1.1.', 10, 3, 1, 0x409)
         instance.flavor = 'woff2'
-        target = args.output_dir / f'tangliengim-conjoining-hangul-{style.lower()}-v1.woff2'
+        target = args.output_dir / f'tangliengim-hangul-{style.lower()}-v2.woff2'
         instance.save(target)
         print(target.name, target.stat().st_size)
 

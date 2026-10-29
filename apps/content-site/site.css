@@ -10,7 +10,7 @@
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-sc-bold.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+4180, U+4B55, U+6455; }
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
 .nasal-grapheme { font-family: "Tangliengim Nasal Latin", "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; font-kerning: normal; letter-spacing: 0; }
-:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
+:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--site-background, #f6f8fb); line-height: 1.8; }
 a { color: var(--accent); text-underline-offset: .18em; }
@@ -33,10 +33,10 @@ h4 { font-size: 18px; }
 body[data-site-section="home"] .imported-content,
 body[data-site-section="learn"] .imported-content { font-size: 20px; }
 /* Code examples also need a font that shapes archaic conjoining jamo. */
-.imported-content code { font-family: "Tangliengim Conjoining Hangul", monospace; }
+.imported-content code { font-family: "Tangliengim Hangul", monospace; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
-.imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
+.imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
 .imported-content [style*="font-family: Calibri" i], .imported-content [style*="font-family:Calibri" i] { font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif !important; }
 :is(.content-songs, .content-stories) h1 { font-size: 48px; }
 :is(.content-songs, .content-stories) .imported-content h2 { font-size: 36px; }
@@ -58,7 +58,7 @@ body[data-site-section="learn"] .imported-content { font-size: 20px; }
 .imported-content figcaption { font-size: 14px; color: var(--muted); }
 .imported-content ruby { isolation: isolate; }
 .imported-content :is(rt, .tli-rt)[style*="120%"] { z-index: 0 !important; }
-.imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Conjoining Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
+.imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
 .imported-content blockquote { border-left: 3px solid var(--accent); margin: 24px 0; padding: 0 24px; }
 .imported-content hr { border: 0; border-top: 1px solid var(--line); margin: 36px 0; clear: both; }
 .wp-block-buttons { display: flex; flex-wrap: wrap; gap: 12px 24px; margin: 20px 0; }
@@ -137,7 +137,7 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
 .home-launch { position: relative; margin-top: 68px; }
 .home-specimen { position: absolute; top: -180px; right: 0; display: flex; width: min(30%, 300px); flex-direction: column; padding: 10px 0 4px 28px; border-left: 4px solid var(--site-voice, #b33b46); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; font-size: 54px; }
-.home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
+.home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
 .home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 18px; }
 .home-specimen-meaning { color: var(--muted); font-size: 14px; }
 .home-paths { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 3px solid var(--ink); }
@@ -174,7 +174,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-work-kind { color: var(--site-voice, #b33b46); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .home-literature-work h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px; margin: calc(var(--tli-ruby-block-space) + 0.1em) 0 4px; font-size: 23px; line-height: 1.45; }
 .home-literature-work h3 ruby { ruby-position: over; }
-.home-literature-work h3 rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Conjoining Hangul", "Noto Sans KR", sans-serif; font-size: 38%; }
+.home-literature-work h3 rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 38%; }
 .home-literature-work h3 > span:not(.tli-ruby) { color: var(--muted); font-size: 14px; font-weight: 500; }
 .home-literature-work p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
 .home-feature-songs { display: grid; grid-template-columns: minmax(240px, .72fr) minmax(0, 1.45fr); gap: 54px; margin-top: 0; padding: 70px 48px; background: #f3e9ea; }

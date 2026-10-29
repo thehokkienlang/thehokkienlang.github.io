@@ -1,4 +1,5 @@
 @import url("web-punctuation.css");
+@import url("/shared/web-hangul-font.css");
 /* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
@@ -110,7 +111,7 @@
 
 .hanri-candidate-menu .candidate-hangul,
 .hanri-candidate-menu .candidate-reading {
-  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   white-space: nowrap;

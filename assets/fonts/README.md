@@ -72,28 +72,27 @@ family name in the source-maintenance script and classic font tag. Original font
 files are not checked in; the small derived files and license are sufficient for
 ordinary site/Local operation, including without external font services.
 
-## Conjoining Hangul for content pages
+## Hangul for content pages
 
-`tangliengim-conjoining-hangul-{regular,bold}-v1.woff2` supply the Hangul
-conjoining-jamo blocks U+1100–11FF, U+A960–A97F and U+D7B0–D7FF. The content
-site and its title readings use this family before device fonts. Ordinary
-precomposed Hangul, Hanri, Latin and tone marks keep their existing fonts.
-The fonts are served locally; no Google Fonts connection is needed.
+`tangliengim-hangul-{regular,bold}-v2.woff2` covers all precomposed Hangul
+syllables (U+AC00–D7A3) as well as conjoining jamo (U+1100–11FF, U+A960–A97F
+and U+D7B0–D7FF). Both forms therefore use the same self-hosted Noto Sans KR
+outlines instead of mixing device fonts. The content site, title readings,
+dictionary, and IME use this family before platform fallbacks.
 
 The subset retains the `ljmo`, `vjmo`, `tjmo` and contextual shaping tables,
-including the substituted glyphs they require. Merely supplying isolated
-jamo glyphs would not fix composition. Both regular and bold are supplied
-for lyric bodies and headings. The original Unicode lyrics are unchanged.
-`ᄁᅷ` already has an initial consonant and needs no filler; `ᅟᅷ` uses the
-choseong filler because it has no initial. Adding a filler inside `ᄁᅷ`
-breaks the existing cluster instead of repairing it.
+including substituted glyphs they require. Regular and bold are supplied for
+lyric bodies and headings. The original Unicode text is unchanged. `ᄁᅷ`
+already has an initial consonant and needs no filler; `ᅟᅷ` uses the choseong
+filler because it has no initial. Adding a filler inside `ᄁᅷ` breaks the
+existing cluster instead of repairing it.
 
-- Upstream: [Noto Sans KR, Google Fonts](https://github.com/google/fonts/tree/b38c5c93af322c45f633e17ac440ec1e6c94d489/ofl/notosanskr).
-- Input: `NotoSansKR[wght].ttf`, SHA-256 `194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252`.
+- Upstream: [Noto Sans KR, Google Fonts](https://github.com/google/fonts/tree/main/ofl/notosanskr).
+- Input: `NotoSansKR-VF.ttf`, Noto Sans KR Version 2.04, SHA-256 `018174e8cdd366aff67c8d366c7dc806a7babbe7f2819fc23b00d59f7b8353d0`.
 - License: SIL Open Font License 1.1, copied unchanged to `OFL-NotoSansKR.txt`.
-- Modified 2026-10-22: subset conjoining jamo, instantiate weights 400/700,
-  remove hints, rename to **Tangliengim Conjoining Hangul**, encode as WOFF2.
-  Original copyright and license records are retained.
+- Modified 2026-10-29: subset precomposed Hangul and conjoining jamo,
+  instantiate weights 400/700, remove hints, rename to **Tangliengim Hangul**,
+  encode as WOFF2. Original copyright and license records are retained.
 
 Optional reproduction (not a build or runtime dependency):
 

@@ -1,4 +1,5 @@
 @import url("/shared/web-punctuation.css");
+@import url("/shared/web-hangul-font.css");
 :root {
   --bg: #f5f8f7;
   --panel: #ffffff;
@@ -70,7 +71,7 @@ body {
   border-radius: 8px;
   background: #ffffff;
   color: #0c1d30;
-  font-family: "TLI Western Punctuation", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", sans-serif;
   font-size: 1.08rem;
   font-weight: 850;
   line-height: 0.94;
@@ -78,7 +79,7 @@ body {
 }
 
 .brand-mark span {
-  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
 }
 
 .eyebrow {
@@ -126,7 +127,7 @@ h1 {
   outline: 0;
   resize: vertical;
   color: var(--text);
-  font-family: "TLI Western Punctuation", "Tangliengim Hanri Fallback", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Tangliengim Hanri Fallback", "Tangliengim Hanri SC", "Tangliengim Hanri", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", "Malgun Gothic", "Segoe UI", sans-serif;
   font-size: 26px;
   line-height: 1.42;
 }
@@ -470,7 +471,7 @@ h1 {
 .key-output {
   align-self: start;
   margin-top: -1px;
-  font-family: "TLI Western Punctuation", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif;
   font-size: 1.12rem;
   line-height: 1;
 }
