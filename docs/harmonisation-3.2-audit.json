@@ -861,7 +861,30 @@
       "beforeSha256": "d3e56221386873e23a0762d8c4c04f61f5474ab48db5ade4523f6624c1eee9b4",
       "afterSha256": "d3e56221386873e23a0762d8c4c04f61f5474ab48db5ade4523f6624c1eee9b4",
       "edits": [],
-      "retained": []
+      "retained": [],
+      "followUps": [
+        {
+          "beforeSha256": "d3e56221386873e23a0762d8c4c04f61f5474ab48db5ade4523f6624c1eee9b4",
+          "afterSha256": "e4318b1ab07a289160a8f32c984d659bbc44de7cf65fbef7dea34945440e2ff1",
+          "reason": "Added requested spacing to song titles in the home-page song lists.",
+          "edits": [
+            {
+              "start": 38265,
+              "end": 38276,
+              "before": ">天烏烏</span>",
+              "after": ">天 烏烏</span>",
+              "rule": "User-requested Hanri title spacing"
+            },
+            {
+              "start": 33493,
+              "end": 33504,
+              "before": ">情難忘</span>",
+              "after": ">情 難忘</span>",
+              "rule": "User-requested Hanri title spacing"
+            }
+          ]
+        }
+      ]
     },
     "content/pages/about.json": {
       "id": "about",
@@ -9790,6 +9813,22 @@
           "reason": "4.2-explicit-Hangul",
           "count": 3,
           "example": "\n  \n    直란 初見面’에 時\n  "
+        }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "8e9ffa219e86a9ed44c75b56c01a6df9cb905ecd15ca5a27c13c870a25e1c13b",
+          "afterSha256": "ee372bbee846657b35bbfa8d4a4c18b56e032256fa45d7dc5b7ec0d88a606a82",
+          "reason": "Corrected the title reading for 徦 to 갛 (Tone 1), as requested.",
+          "edits": [
+            {
+              "start": 210,
+              "end": 341,
+              "before": "<ruby style=\"position: relative\">가<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>",
+              "after": "갛",
+              "rule": "User-confirmed dictionary reading 徦 = 갛1"
+            }
+          ]
         }
       ]
     },
@@ -22698,7 +22737,30 @@
       "beforeSha256": "deb1b1d52161763344644875b12943c32188d8a1b10fc00c6e6ea4e5c12eb5e9",
       "afterSha256": "deb1b1d52161763344644875b12943c32188d8a1b10fc00c6e6ea4e5c12eb5e9",
       "edits": [],
-      "retained": []
+      "retained": [],
+      "followUps": [
+        {
+          "beforeSha256": "deb1b1d52161763344644875b12943c32188d8a1b10fc00c6e6ea4e5c12eb5e9",
+          "afterSha256": "17e011173c7d51f5cef9c3dc7db672587c01d3d52d1a8305699a43ac1858d2e0",
+          "reason": "Added requested spacing to song titles in the home-page song lists.",
+          "edits": [
+            {
+              "start": 22846,
+              "end": 22854,
+              "before": ">天烏烏</a>",
+              "after": ">天 烏烏</a>",
+              "rule": "User-requested Hanri title spacing"
+            },
+            {
+              "start": 20253,
+              "end": 20261,
+              "before": ">情難忘</a>",
+              "after": ">情 難忘</a>",
+              "rule": "User-requested Hanri title spacing"
+            }
+          ]
+        }
+      ]
     },
     "content/zh-hant/pages/about.json": {
       "id": "about",
@@ -24499,7 +24561,30 @@
       "beforeSha256": "56a655ffd8e9fe88242e1ea00f6df6b9fb5acd57126bc35639937c2414b85ec1",
       "afterSha256": "56a655ffd8e9fe88242e1ea00f6df6b9fb5acd57126bc35639937c2414b85ec1",
       "edits": [],
-      "retained": []
+      "retained": [],
+      "followUps": [
+        {
+          "beforeSha256": "56a655ffd8e9fe88242e1ea00f6df6b9fb5acd57126bc35639937c2414b85ec1",
+          "afterSha256": "9ac6b3e39cafe44c89d9fd258f4cec352e2d867c1f068a7ae7c0dda07edb9ecc",
+          "reason": "Added requested spacing to song titles in the home-page song lists.",
+          "edits": [
+            {
+              "start": 22672,
+              "end": 22680,
+              "before": ">天乌乌</a>",
+              "after": ">天 烏烏</a>",
+              "rule": "User-requested Hanri title spacing"
+            },
+            {
+              "start": 20079,
+              "end": 20087,
+              "before": ">情难忘</a>",
+              "after": ">情 難忘</a>",
+              "rule": "User-requested Hanri title spacing"
+            }
+          ]
+        }
+      ]
     },
     "content/zh-hans/pages/about.json": {
       "id": "about",
