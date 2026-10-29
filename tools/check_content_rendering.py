@@ -22,7 +22,9 @@ MEASURE = """() => {
     const pronunciation = ruby.classList.contains('tli-reading-ruby');
     const baseBox = pronunciation ? ruby.getBoundingClientRect() : range.getBoundingClientRect();
     const readingBox = reading.getBoundingClientRect();
-    const allowedOverlap = pronunciation ? 0.15 * parseFloat(getComputedStyle(reading).fontSize) + 0.25 : 4;
+    const readingStyle = getComputedStyle(reading);
+    const overlap = parseFloat(readingStyle.getPropertyValue('--tli-ruby-overlap'));
+    const allowedOverlap = pronunciation ? overlap * parseFloat(readingStyle.fontSize) + 0.25 : 4;
     if (readingBox.bottom > baseBox.top + allowedOverlap) {
       issues.push({base: base.textContent, reading: reading.textContent,
         baseY: baseBox.top, readingBottom: readingBox.bottom});
@@ -41,9 +43,10 @@ RUBY_GEOMETRY = """node => {
   const style = getComputedStyle(reading);
   const size = parseFloat(style.fontSize);
   const box = node.getBoundingClientRect();
+  const overlap = parseFloat(style.getPropertyValue('--tli-ruby-overlap'));
   return {ratio: size / parseFloat(getComputedStyle(node).fontSize),
     baseRatio: parseFloat(getComputedStyle(base).fontSize) / parseFloat(getComputedStyle(node).fontSize),
-    bottom: parseFloat(style.bottom), expectedBottom: box.height - 0.15 * size,
+    bottom: parseFloat(style.bottom), expectedBottom: box.height - overlap * size,
     extraWidth: box.width - base.getBoundingClientRect().width};
 }"""
 

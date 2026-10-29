@@ -55,7 +55,8 @@ class SiteSymbolsTests(unittest.TestCase):
         css = (ROOT / "shared/web-ruby.css").read_text(encoding="utf-8")
         self.assertIn("--tli-ruby-size: 0.55em;", css)
         self.assertIn("--tli-ruby-size: 0.37em;", css)
-        self.assertIn("--tli-ruby-overlap: 0.15em;", css)
+        self.assertIn("--tli-ruby-overlap: 0.05em;", css)
+        self.assertIn("--tli-ruby-block-space: calc(var(--tli-ruby-size) * 1.1);", css)
         self.assertIn(".entry-headword-ruby > .entry-headword-reading", css)
         self.assertNotIn("px", css)
         self.assertNotIn(".tli-tone-ruby", css)
@@ -70,7 +71,7 @@ class SiteSymbolsTests(unittest.TestCase):
         css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
         self.assertIn('.home-literature-work h3 > span:not(.tli-ruby)', css)
         self.assertNotIn('.home-literature-work h3 span {', css)
-        self.assertIn('margin: calc(var(--tli-ruby-size) + 0.1em) 0 4px;', css)
+        self.assertIn('margin: calc(var(--tli-ruby-block-space) + 0.1em) 0 4px;', css)
 
 
 if __name__ == "__main__":

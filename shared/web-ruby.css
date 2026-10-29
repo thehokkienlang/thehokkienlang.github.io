@@ -1,7 +1,8 @@
 /* One geometry for pronunciation ruby; standalone Hangul tone marks are separate. */
 :root {
   --tli-ruby-size: 0.55em;
-  --tli-ruby-overlap: 0.15em;
+  --tli-ruby-overlap: 0.05em;
+  --tli-ruby-block-space: calc(var(--tli-ruby-size) * 1.1);
 }
 
 :is(.tli-reading-ruby, .entry-headword-ruby) {

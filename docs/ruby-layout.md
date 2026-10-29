@@ -6,13 +6,13 @@ pixel offsets for these readings.
 
 - Readings are 55% of the base text size, with a 1.15 reading line height.
 - The base wrapper has a one-em line height, independent of paragraph spacing.
-- The reading's bottom overlaps the base box by 0.15 of the reading's em.
+- The reading's bottom overlaps the base box by 0.05 of the reading's em.
   This compensates for the font's built-in vertical space and scales with the base text.
 - Readings are horizontally centered and do not widen the underlying text.
 - A block title beneath a label must reserve the annotation's height as well
-  as its normal gap. The homepage story title reserves `var(--tli-ruby-size)`
-  plus `0.1em` clearance (approximately 2px at its current size), without moving
-  the reading relative to the Hanri.
+  as its normal gap. `--tli-ruby-block-space` reserves the reading's 1.1em extent
+  above the base using the shared ruby size. The homepage story title adds `0.1em` clearance
+  (approximately 2px at its current size) beyond that reserved block.
 - Bopomofo keeps a smaller 37% ratio to accommodate its longer readings, but
   uses the same relative positioning rule.
 
