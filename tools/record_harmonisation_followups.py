@@ -52,7 +52,28 @@ def main():
         restore_body(current, entry)
         changed.append(file)
     path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+    patch_changes = []
+    for file, entry in patch['records'].items():
+        current = json.loads((ROOT / file).read_text(encoding='utf-8'))['body']
+        expected = entry.get('followUps', [{}])[-1].get('afterSha256', entry['afterSha256'])
+        if digest(current) == expected:
+            continue
+        for revision in git('log', '--format=%H', '--', file).splitlines():
+            original = json.loads(git('show', revision + ':' + file))['body']
+            if digest(original) == expected:
+                break
+        else:
+            raise ValueError('Cannot find the exact historical reviewed v3.2.1 body: ' + file)
+        entry.setdefault('followUps', []).append(difference(
+            original, current, 'Author-approved post-v3.2.1 spelling and reading corrections'))
+        from harmonise_content_v321 import restore
+        restore(current, entry)
+        patch_changes.append(file)
+    if patch_changes:
+        (ROOT / 'docs/harmonisation-3.2.1-audit.json').write_text(
+            json.dumps(patch, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print('Recorded reversible follow-ups for', len(changed), 'pages')
+    print('Recorded reversible v3.2.1 follow-ups for', len(patch_changes), 'pages')
 
 
 if __name__ == '__main__':

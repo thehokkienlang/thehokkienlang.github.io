@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from content_harmonisation import apply_edits, atoms_for
+from content_harmonisation import apply_edits, atoms_for, restore_followups
 from harmonise_content_v321 import SPELLINGS, propose, restore
 from dictionary_editor_service import read_table
 
@@ -40,8 +40,11 @@ class PatchTests(unittest.TestCase):
             with self.subTest(file=file):
                 current = json.loads((ROOT / file).read_text(encoding='utf-8'))
                 previous = restore(current['body'], entry)
+                # Reading preservation applies to the original v3.2.1 patch;
+                # later author-approved corrections have their own exact hashes.
+                reviewed = restore_followups(current['body'], entry)
                 self.assertEqual(''.join(atom.reading.rstrip('-') for atom in atoms_for(record(previous))),
-                                 ''.join(atom.reading.rstrip('-') for atom in atoms_for(record(current['body']))))
+                                 ''.join(atom.reading.rstrip('-') for atom in atoms_for(record(reviewed))))
                 self.assertEqual(current['route'], entry['route'])
                 self.assertFalse(propose(current))
 
