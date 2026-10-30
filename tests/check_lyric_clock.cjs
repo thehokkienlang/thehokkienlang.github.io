@@ -17,7 +17,7 @@ console.log('PASS: lyric boundaries, gaps, repeats and backward seeks.');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
-function fixture(status = 'reviewed') {
+function fixture(status = 'reviewed', mobile = true) {
   const makeLine = () => ({ active:false, current:false, scrolled:0,
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
     setAttribute() { this.current = true; }, removeAttribute() { this.current = false; },
@@ -33,7 +33,7 @@ function fixture(status = 'reviewed') {
   const player = {cueAt, connect: (frame, cb) => { connected = true; callback = cb; return Promise.resolve({}); }};
   vm.runInNewContext(source, {document, window:{TliLyricPlayer:player}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
-    matchMedia: () => ({matches:true})});
+    matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
   return {lines, controls, follow, label, connected, tick:(time,state=1) => callback(time,state)};
 }
 assert.equal(fixture('draft').connected, true);
@@ -45,4 +45,9 @@ ui.follow.checked = true;
 ui.tick(20); assert.equal(ui.lines.repeat.active, true); assert.equal(ui.lines.repeat.scrolled, 1);
 ui.tick(10,2); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.repeat.active, false);
 ui.tick(25,0); assert.equal(ui.lines.first.active, false);
-console.log('PASS: highlight states, pause/seek, opt-in scrolling and draft playback.');
+const desktop = fixture('draft', false);
+desktop.follow.checked = true;
+desktop.tick(10);
+assert.equal(desktop.lines.first.active, true);
+assert.equal(desktop.lines.first.scrolled, 0);
+console.log('PASS: highlight states, pause/seek, mobile-only opt-in scrolling and draft playback.');

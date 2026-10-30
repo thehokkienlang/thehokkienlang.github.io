@@ -28,6 +28,6 @@
     active = next;
     if (!active) return;
     active.classList.add('lyric-active'); active.setAttribute('aria-current', 'true');
-    if (follow.checked) active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    if (follow.checked && matchMedia('(max-width: 700px)').matches) active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, fail).catch(fail);
 })();
