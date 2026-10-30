@@ -13,7 +13,6 @@
   const follow = controls.querySelector('input');
   controls.hidden = false;
   let active = null;
-  if (!matchMedia('(max-width: 700px)').matches) status.textContent = 'Loading synchronized lyrics…';
   const fail = error => {
     active?.classList.remove('lyric-active'); active?.removeAttribute('aria-current'); active = null;
     status.textContent = error.message;
