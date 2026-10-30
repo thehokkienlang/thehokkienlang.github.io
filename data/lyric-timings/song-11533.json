@@ -97,55 +97,55 @@
     {
       "id": "line-016",
       "fingerprint": "6e9b2304fbafc1ccb9f775d0617d827706794bde2e6c3e31e9931fc92d35626e",
-      "start": null,
-      "end": null
-    },
-    {
-      "id": "line-017",
-      "fingerprint": "4506aad9f116da9400c7b4d458043b6b2b9c5938154b08156c5dea2b3f87f2a5",
-      "start": null,
-      "end": null
-    },
-    {
-      "id": "line-018",
-      "fingerprint": "4d4eabbc490ecc0c9dd3885c31557b30af2da17b9133bc91416d1f8bf1e233ae",
       "start": 211.8,
       "end": 222.2
     },
     {
-      "id": "line-019",
-      "fingerprint": "c8a998eafe6f2ad36ec4f4c46985159d34d5bdecb2788096479bea9cb7587c09",
+      "id": "line-017",
+      "fingerprint": "4506aad9f116da9400c7b4d458043b6b2b9c5938154b08156c5dea2b3f87f2a5",
       "start": 223.8,
       "end": 231.3
     },
     {
-      "id": "line-020",
-      "fingerprint": "70c94f795c26ff38758d06a33a9a04518f3e272c887145dd44c498d2e10573c8",
+      "id": "line-018",
+      "fingerprint": "4d4eabbc490ecc0c9dd3885c31557b30af2da17b9133bc91416d1f8bf1e233ae",
       "start": 234.3,
       "end": 245.1
     },
     {
-      "id": "line-021",
-      "fingerprint": "262f68e8dc2cc1c5f5ed47b9de80a7fdd2112c778a0ffa30fa6d272a1cf9ef95",
+      "id": "line-019",
+      "fingerprint": "c8a998eafe6f2ad36ec4f4c46985159d34d5bdecb2788096479bea9cb7587c09",
       "start": 245.5,
       "end": 251.6
     },
     {
-      "id": "line-022",
-      "fingerprint": "80cc66455c3ab083805557cced8084257994e81b309e33d76c6b1d1a0d741501",
+      "id": "line-020",
+      "fingerprint": "70c94f795c26ff38758d06a33a9a04518f3e272c887145dd44c498d2e10573c8",
       "start": 253.8,
       "end": 263.5
     },
     {
-      "id": "line-023",
-      "fingerprint": "14ccdfc2c1b9eb1684b70b547c7c5d9e37eedfdf92af7207ebd933cd99af6144",
+      "id": "line-021",
+      "fingerprint": "262f68e8dc2cc1c5f5ed47b9de80a7fdd2112c778a0ffa30fa6d272a1cf9ef95",
       "start": 265.6,
       "end": 275.7
     },
     {
+      "id": "line-022",
+      "fingerprint": "80cc66455c3ab083805557cced8084257994e81b309e33d76c6b1d1a0d741501",
+      "start": 277.8,
+      "end": 283.0
+    },
+    {
+      "id": "line-023",
+      "fingerprint": "14ccdfc2c1b9eb1684b70b547c7c5d9e37eedfdf92af7207ebd933cd99af6144",
+      "start": 283.0,
+      "end": 290.0
+    },
+    {
       "id": "line-024",
       "fingerprint": "96b8e055bb4ccf6ded07834f073b16ddbc5c2e3a61f91276fa56a0eef543a80b",
-      "start": 277.8,
+      "start": 290.0,
       "end": 304.8
     }
   ]
