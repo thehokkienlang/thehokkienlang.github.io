@@ -6,11 +6,12 @@ assert.equal(cueAt(cues, 0), null);
 assert.equal(cueAt(cues, 9.999), null);
 assert.equal(cueAt(cues, 10).id, 'first');
 assert.equal(cueAt(cues, 14.99).id, 'first');
-assert.equal(cueAt(cues, 15), null);
+assert.equal(cueAt(cues, 15).id, 'first');
+assert.equal(cueAt(cues, 19.999).id, 'first');
 assert.equal(cueAt(cues, 20).id, 'repeat');
 assert.equal(cueAt(cues, 10).id, 'first'); // Backward seek uses the video clock.
 assert.equal(cueAt(cues, NaN), null);
-assert.equal(cueAt(cues, 25), null);
+assert.equal(cueAt(cues, 25).id, 'repeat');
 console.log('PASS: lyric boundaries, gaps, repeats and backward seeks.');
 
 // Exercise the public UI without inventing timings for the real recording.
@@ -40,7 +41,7 @@ assert.equal(fixture('draft').connected, true);
 const ui = fixture();
 ui.tick(10); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.first.scrolled, 0);
 ui.tick(12,2); assert.equal(ui.lines.first.active, true); // Pause retains the current sentence.
-ui.tick(17); assert.equal(ui.lines.first.active, false); // Instrumental gap.
+ui.tick(17); assert.equal(ui.lines.first.active, true); // Keep the line through the gap.
 ui.follow.checked = true;
 ui.tick(20); assert.equal(ui.lines.repeat.active, true); assert.equal(ui.lines.repeat.scrolled, 1);
 ui.tick(10,2); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.repeat.active, false);

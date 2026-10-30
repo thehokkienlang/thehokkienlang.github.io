@@ -20,7 +20,11 @@
   }
   function cueAt(cues, time) {
     if (!Number.isFinite(time)) return null;
-    return cues.find(cue => Number.isFinite(cue.start) && Number.isFinite(cue.end) && cue.start <= time && time < cue.end) || null;
+    for (let i = cues.length - 1; i >= 0; i--) {
+      const cue = cues[i];
+      if (Number.isFinite(cue.start) && Number.isFinite(cue.end) && cue.start <= time) return cue;
+    }
+    return null;
   }
   async function connect(iframe, onTime, onError = () => {}) {
     const YT = await api();
