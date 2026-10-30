@@ -1140,6 +1140,204 @@
           "count": 2,
           "example": "    攑頭 看天星 笑꾼 這陣 猶未了解\n  \n "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "13f2b2c1417fab8c13be48d1db346ca54ae5fd0643d91d95e13466c786c0cda7",
+          "afterSha256": "c146255e371690f9f1b161c421d2228d5b6877ff9b84e3dbbc1f4d6e5dca0d46",
+          "reason": "Authored post-v3.2 edits already committed before the v3.2.1 patch",
+          "edits": [
+            {
+              "start": 2425,
+              "end": 2483,
+              "before": "    koa̰-thḭ̂’e chù-lāi î-kiēng-chūn-bo-poà̰-hāng\n",
+              "after": "    koa̰-thḭ̂’e chù-lāi î-kiēng-chūn-bo-poà̰-hāng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 3549,
+              "end": 3595,
+              "before": "    koa̰-thḭ̂’e si-kân ma-oan-joan-bo-kāng\n",
+              "after": "    koa̰-thḭ̂’e si-kân ma-oan-joan-bo-kāng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 4664,
+              "end": 4707,
+              "before": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "after": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 6037,
+              "end": 6088,
+              "before": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "after": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 7308,
+              "end": 7366,
+              "before": "    koa̰-thḭ̂’e chù-lāi î-kiēng-chūn-bo-poà̰-hāng\n",
+              "after": "    koa̰-thḭ̂’e chù-lāi î-kiēng-chūn-bo-poà̰-hāng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 8432,
+              "end": 8478,
+              "before": "    koa̰-thḭ̂’e si-kân ma-oan-joan-bo-kāng\n",
+              "after": "    koa̰-thḭ̂’e si-kân ma-oan-joan-bo-kāng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 9547,
+              "end": 9590,
+              "before": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "after": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 10920,
+              "end": 10971,
+              "before": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "after": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 12048,
+              "end": 12102,
+              "before": "    je-ti-chiā-lāi phâh-khūi-mńg khoa̰’tioh-e-li\n",
+              "after": "    je-ti-chiā-lāi phâh-khūi-mńg khoa̰’tioh-e-li\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 12743,
+              "end": 12767,
+              "before": "    si-chḛ̄-hūn’e lì\n",
+              "after": "    si-chḛ̄-hūn’e lì\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 14245,
+              "end": 14314,
+              "before": "    bo-sū-yàu-kâi-sueh lî-goà’e ît-che si-ju-rien-hoât-siêng\n",
+              "after": "    bo-sū-yàu-kâi-sueh lî-goà’e ît-che si-ju-rien-hoât-siêng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 15533,
+              "end": 15597,
+              "before": "    sît-khi’e kuè-tiéng ît-poā̰-lông-si-jiâh-ni-kû-tńg\n",
+              "after": "    sît-khi’e kuè-tiéng ît-poā̰-lông-si-jiâh-ni-kû-tńg\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 16526,
+              "end": 16570,
+              "before": "    je-rip-chiā-lāi phâh-khūi-tien-tái\n",
+              "after": "    je-rip-chiā-lāi phâh-khūi-tien-tái\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 17365,
+              "end": 17410,
+              "before": "    sâi-kuè-gân-jiéng’e pong-khāng-lāi\n",
+              "after": "    sâi-kuè-gân-jiéng’e pong-khāng-lāi\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 17523,
+              "end": 18672,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">攑頭<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">꺟ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">콸`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">天星<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">틸ˉ칠ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">笑<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">쵸`-</rt></ruby><ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">這陣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">짇ˆ준ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">猶未<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">얗ˆ쀄-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"liâu-kài\">了解<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">ᄅᆤˆ개`</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">攑頭<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">꺟ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">콸`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">天星<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">틸ˉ칠ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">笑<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">쵸`-</rt></ruby><ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">這陣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">짇ˆ준ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">猶未<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">얗ˆ쀄-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"liâu-kài\">了解<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">ᄅᆤˆ개`</rt></ruby>\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 18781,
+              "end": 18856,
+              "before": "    giah-tháu khoà̰-thḭ̄-chḭ̂ chiò-gùn jît-jūn yâh-boe-liâu-kài\n",
+              "after": "    giah-tháu khoà̰-thḭ̄-chḭ̂ chiò-gùn jît-jūn yâh-bue-liâu-kài\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 20068,
+              "end": 20111,
+              "before": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "after": "    jî-si-jit-sí sīm-thiau bo-kūi-lût\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 21441,
+              "end": 21492,
+              "before": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "after": "    kâm-si-lêh-siṵ̄’li goà m-kâ̰-khâk-tiēng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 21612,
+              "end": 22460,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">坐<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">제-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">佇<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">듸-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">車內<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">챠ˉ래ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">拍開<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">팧ˆ퀴ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">門<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">믕ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">콸</rt></ruby>’둏에릐\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">坐<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">제-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">佇<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">듸-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">車內<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">챠ˉ래ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">拍開<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">팧ˆ퀴ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">門<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">믕ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">콸</rt></ruby>’둏에 <ruby style=\"position: relative\">릐<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 22569,
+              "end": 22623,
+              "before": "    je-ti-chiā-lāi phâh-khūi-mńg khoa̰’tioh-e-li\n",
+              "after": "    je-ti-chiā-lāi phâh-khūi-mńg khoa̰’tioh-e lì\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 23264,
+              "end": 23288,
+              "before": "    si-chḛ̄-hūn’e lì\n",
+              "after": "    si-chḛ̄-hūn’e lì\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 24766,
+              "end": 24835,
+              "before": "    bo-sū-yàu-kâi-sueh lî-goà’e ît-che si-ju-rien-hoât-siêng\n",
+              "after": "    bo-sū-yàu-kâi-sueh lî-goà’e ît-che si-ju-rien-hoât-siêng\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 26054,
+              "end": 26118,
+              "before": "    sît-khi’e kuè-tiéng ît-poā̰-lông-si-jiâh-ni-kû-tńg\n",
+              "after": "    sît-khi’e kuè-tiéng ît-poā̰-lông-si-jiâh-ni-kû-tńg\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 27047,
+              "end": 27091,
+              "before": "    je-rip-chiā-lāi phâh-khūi-tien-tái\n",
+              "after": "    je-rip-chiā-lāi phâh-khūi-tien-tái\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 27886,
+              "end": 27931,
+              "before": "    sâi-kuè-gân-jiéng’e pong-khāng-lāi\n",
+              "after": "    sâi-kuè-gân-jiéng’e pong-khāng-lāi\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 28044,
+              "end": 29193,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">攑頭<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">꺟ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">콸`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">天星<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">틸ˉ칠ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">笑<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">쵸`-</rt></ruby><ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">這陣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">짇ˆ준ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">猶未<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">얗ˆ쀄-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"liâu-kài\">了解<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">ᄅᆤˆ개`</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">攑頭<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">꺟ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">看<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">콸`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">天星<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">틸ˉ칠ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">笑<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">쵸`-</rt></ruby><ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">這陣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">짇ˆ준ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">猶未<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">얗ˆ쀄-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\" title=\"liâu-kài\">了解<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">ᄅᆤˆ개`</rt></ruby>\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            },
+            {
+              "start": 29302,
+              "end": 29377,
+              "before": "    giah-tháu khoà̰-thḭ̄-chḭ̂ chiò-gùn jît-jūn yâh-boe-liâu-kài\n",
+              "after": "    giah-tháu khoà̰-thḭ̄-chḭ̂ chiò-gùn jît-jūn yâh-bue-liâu-kài\n",
+              "rule": "Authored post-v3.2 edits already committed before the v3.2.1 patch"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-11187.json": {
