@@ -56,7 +56,11 @@ desktop.tick(10);
 assert.equal(desktop.lines.first.active, true);
 assert.equal(desktop.lines.first.scrolled, 0);
 console.log('PASS: highlight states, pause/seek, mobile-only opt-in scrolling and draft playback.');
-Promise.resolve().then(() => {
+const early = fixture();
+early.lines.repeat.listeners.click({target:{closest:() => null}});
+assert.equal(early.seeks.length, 0);
+Promise.resolve().then(async () => {
+  assert.deepEqual(early.seeks, [[20, true]]);
   const line = ui.lines.first;
   const target = {closest:() => null};
   line.listeners.click({target});
@@ -71,4 +75,26 @@ Promise.resolve().then(() => {
   assert.deepEqual(ui.seeks[1], [10, true]);
   assert.equal(line.attributes.tabindex, '0');
   console.log('PASS: click/keyboard seeking, nested links and text selection.');
+  let events;
+  const calls = [];
+  const fakePlayer = {seekTo:(...args) => calls.push(['seek', ...args]), playVideo:() => calls.push(['play']),
+    getCurrentTime:() => 20, getPlayerState:() => 1, destroy() {}};
+  const window = {YT:{Player:function(frame, options) { events = options.events; return fakePlayer; }},
+    addEventListener() {}, removeEventListener() {}};
+  const context = {window, URL, location:{href:'https://example.com/songs/', origin:'https://example.com'},
+    document:{hidden:false, addEventListener() {}, removeEventListener() {}},
+    setInterval:() => 1, clearInterval() {}};
+  vm.runInNewContext(fs.readFileSync(require.resolve('../shared/web-lyric-player.js'), 'utf8'), context);
+  const frame = {src:'https://www.youtube.com/embed/HNYkSBkQ33Y'};
+  const controller = await window.TliLyricPlayer.connect(frame, () => {});
+  controller.seek(10, true);
+  controller.seek(20, true);
+  assert.equal(calls.length, 0);
+  events.onReady();
+  assert.deepEqual(calls, [['seek', 20, true], ['play']]);
+  assert.equal(frame.loading, 'eager');
+  controller.seek(10, true);
+  assert.deepEqual(calls.slice(2), [['seek', 10, true], ['play']]);
+  controller.destroy();
+  console.log('PASS: clicks before API/player readiness are queued; latest seek wins.');
 }).catch(error => { console.error(error); process.exitCode = 1; });

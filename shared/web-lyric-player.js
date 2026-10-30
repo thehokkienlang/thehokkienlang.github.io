@@ -32,13 +32,26 @@
     src.searchParams.set('enablejsapi', '1');
     src.searchParams.set('origin', location.origin);
     src.searchParams.set('playsinline', '1');
+    iframe.loading = 'eager';
     iframe.src = src.href;
-    let player, timer, ready = false, destroyed = false, failed = false;
+    let player, timer, pendingSeek = null, ready = false, destroyed = false, failed = false;
+    function seek(time, play = false) {
+      if (destroyed || failed || !Number.isFinite(time)) return;
+      if (!ready) { pendingSeek = { time, play }; return; }
+      player.seekTo(time, true);
+      if (play) player.playVideo();
+      tick();
+    }
     function tick() {
       if (ready && !document.hidden) onTime(player.getCurrentTime(), player.getPlayerState());
     }
     player = new YT.Player(iframe, { events: {
-      onReady() { if (!failed) { ready = true; tick(); timer = setInterval(tick, 200); } },
+      onReady() {
+        if (failed || destroyed) return;
+        ready = true;
+        if (pendingSeek) { const request = pendingSeek; pendingSeek = null; seek(request.time, request.play); }
+        tick(); timer = setInterval(tick, 200);
+      },
       onStateChange: tick,
       onError(event) {
         failed = true; ready = false; clearInterval(timer);
@@ -57,7 +70,7 @@
     window.addEventListener('pagehide', destroy);
     return { time: () => ready ? player.getCurrentTime() : null,
       duration: () => ready ? player.getDuration() : null,
-      seek: (time, play = false) => { if (ready) { player.seekTo(time, true); if (play) player.playVideo(); tick(); } }, destroy };
+      seek, destroy };
   }
   const exports = { cueAt, connect };
   if (typeof module !== 'undefined') module.exports = exports;

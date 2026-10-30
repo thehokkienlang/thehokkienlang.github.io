@@ -17,6 +17,28 @@
     active?.classList.remove('lyric-active'); active?.removeAttribute('aria-current'); active = null;
     status.textContent = error.message;
   };
+  let controller = null, pendingSeek = null;
+  const seekLine = time => {
+    if (controller) controller.seek(time, true);
+    else pendingSeek = time;
+  };
+  for (const cue of timing.cues) {
+    if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) continue;
+    const line = document.querySelector(`[data-lyric-id="${cue.id}"]`);
+    if (!line) continue;
+    line.setAttribute('tabindex', '0');
+    line.setAttribute('role', 'button');
+    line.setAttribute('data-lyric-seek', '');
+    line.addEventListener('click', event => {
+      if (event.target.closest('a, button, input') || window.getSelection()?.toString()) return;
+      seekLine(cue.start);
+    });
+    line.addEventListener('keydown', event => {
+      if (event.target !== line || !['Enter', ' '].includes(event.key)) return;
+      event.preventDefault();
+      seekLine(cue.start);
+    });
+  }
   TliLyricPlayer.connect(iframe, (time, state) => {
     status.textContent = '';
     const cue = state === 0 ? null : TliLyricPlayer.cueAt(timing.cues, time);
@@ -29,22 +51,7 @@
     active.classList.add('lyric-active'); active.setAttribute('aria-current', 'true');
     if (follow.checked && matchMedia('(max-width: 700px)').matches) active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, fail).then(player => {
-    for (const cue of timing.cues) {
-      if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) continue;
-      const line = document.querySelector(`[data-lyric-id="${cue.id}"]`);
-      if (!line) continue;
-      line.setAttribute('tabindex', '0');
-      line.setAttribute('role', 'button');
-      line.setAttribute('data-lyric-seek', '');
-      line.addEventListener('click', event => {
-        if (event.target.closest('a, button, input') || window.getSelection()?.toString()) return;
-        player.seek(cue.start, true);
-      });
-      line.addEventListener('keydown', event => {
-        if (event.target !== line || !['Enter', ' '].includes(event.key)) return;
-        event.preventDefault();
-        player.seek(cue.start, true);
-      });
-    }
+    controller = player;
+    if (pendingSeek !== null) { controller.seek(pendingSeek, true); pendingSeek = null; }
   }).catch(fail);
 })();
