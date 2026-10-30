@@ -5,6 +5,7 @@
     : ["zh-Hant", "zh-Hans"].includes(requested) ? requested : "en";
   const simplified = language === "zh-Hans";
   const messages = {
+    "Follow lyrics": ["提詞", "提词"],
     "Dictionary": ["詞典", "词典"], "IME Pad": ["輸入法", "输入法"],
     "Open IME": ["開啟輸入法", "打开输入法"], "Songs": ["歌曲", "歌曲"],
     "Hanri-Hangul mixed script": ["漢諺混寫", "汉谚混写"],

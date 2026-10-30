@@ -139,5 +139,5 @@ def decorate_lyrics(root, record, body):
         body = body[:pos] + body[pos:].replace('<p', f'<p data-lyric-id="{line["id"]}"', 1)
     payload = json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')
     return ('<div class="lyric-sync-controls" hidden><label><input type="checkbox" data-follow-lyrics> '
-            'Follow lyrics</label><span data-lyric-status role="status"></span></div>' + body +
+            '<span data-site-text="Follow lyrics">Follow lyrics</span></label><span data-lyric-status role="status"></span></div>' + body +
             f'<script type="application/json" id="lyric-timing-data">{payload}</script>')
