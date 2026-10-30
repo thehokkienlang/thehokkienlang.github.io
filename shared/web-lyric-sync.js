@@ -3,8 +3,6 @@
   const data = document.getElementById('lyric-timing-data');
   if (!data || !window.TliLyricPlayer) return;
   const timing = JSON.parse(data.textContent);
-  const localPreview = ['127.0.0.1', 'localhost'].includes(location.hostname) && new URLSearchParams(location.search).has('lyric-preview');
-  if (timing.status !== 'reviewed' && !localPreview) return;
   if (!timing.cues.some(cue => Number.isFinite(cue.start) && Number.isFinite(cue.end))) return;
   const iframe = [...document.querySelectorAll('iframe')].find(frame => {
     try { return new URL(frame.src).pathname === '/embed/' + timing.videoId; } catch { return false; }
@@ -21,7 +19,7 @@
     status.textContent = error.message;
   };
   TliLyricPlayer.connect(iframe, (time, state) => {
-    status.textContent = localPreview && timing.status !== 'reviewed' ? 'Draft timing preview' : '';
+    status.textContent = '';
     const cue = state === 0 ? null : TliLyricPlayer.cueAt(timing.cues, time);
     const next = cue ? document.querySelector(`[data-lyric-id="${cue.id}"]`) : null;
     if (next === active) return;
