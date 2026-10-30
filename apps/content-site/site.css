@@ -8,8 +8,8 @@
 .lyric-sync-controls input { width:18px; height:18px; accent-color:#08756b; }
 .lyric-sync-controls [data-lyric-status] { color:#617079; }
 .imported-content p[data-lyric-id] { position:relative; transition:background-color .15s ease; scroll-margin-block:100px; }
-.imported-content p[data-lyric-id].lyric-active { background-color:#e0f1ed; box-shadow:0 -.9em 0 #e0f1ed; }
-.imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.9em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }
+.imported-content p[data-lyric-id].lyric-active { background-color:#e0f1ed; box-shadow:0 -.65em 0 #e0f1ed; }
+.imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.65em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }
 @media(prefers-reduced-motion:reduce) { .imported-content p[data-lyric-id] { transition:none; } }
 @font-face { font-family: "TLI Hanri"; src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei"); unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
