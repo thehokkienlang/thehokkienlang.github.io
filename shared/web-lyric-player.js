@@ -57,7 +57,7 @@
     window.addEventListener('pagehide', destroy);
     return { time: () => ready ? player.getCurrentTime() : null,
       duration: () => ready ? player.getDuration() : null,
-      seek: time => { if (ready) { player.seekTo(time, true); tick(); } }, destroy };
+      seek: (time, play = false) => { if (ready) { player.seekTo(time, true); if (play) player.playVideo(); tick(); } }, destroy };
   }
   const exports = { cueAt, connect };
   if (typeof module !== 'undefined') module.exports = exports;

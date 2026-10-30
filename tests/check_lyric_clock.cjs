@@ -19,9 +19,11 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
 function fixture(status = 'reviewed', mobile = true) {
-  const makeLine = () => ({ active:false, current:false, scrolled:0,
+  const makeLine = () => ({ active:false, current:false, scrolled:0, attributes:{}, listeners:{},
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
-    setAttribute() { this.current = true; }, removeAttribute() { this.current = false; },
+    setAttribute(name, value) { this.attributes[name] = value; if (name === 'aria-current') this.current = true; },
+    removeAttribute(name) { delete this.attributes[name]; if (name === 'aria-current') this.current = false; },
+    addEventListener(name, handler) { this.listeners[name] = handler; },
     scrollIntoView() { this.scrolled++; } });
   const lines = {first:makeLine(), repeat:makeLine()};
   Object.values(lines).forEach(line => line.classList.owner = line);
@@ -31,11 +33,13 @@ function fixture(status = 'reviewed', mobile = true) {
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
     querySelectorAll: () => [{src:'https://www.youtube.com/embed/HNYkSBkQ33Y'}],
     querySelector: selector => selector === '.lyric-sync-controls' ? controls : lines[selector.match(/"(.*?)"/)[1]]};
-  const player = {cueAt, connect: (frame, cb) => { connected = true; callback = cb; return Promise.resolve({}); }};
-  vm.runInNewContext(source, {document, window:{TliLyricPlayer:player}, TliLyricPlayer:player, URL, URLSearchParams,
+  const seeks = [];
+  let selection = '';
+  const player = {cueAt, connect: (frame, cb) => { connected = true; callback = cb; return Promise.resolve({seek:(...args) => seeks.push(args)}); }};
+  vm.runInNewContext(source, {document, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection})}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
     matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
-  return {lines, controls, follow, label, connected, tick:(time,state=1) => callback(time,state)};
+  return {lines, controls, follow, label, connected, seeks, select:value => { selection = value; }, tick:(time,state=1) => callback(time,state)};
 }
 assert.equal(fixture('draft').connected, true);
 const ui = fixture();
@@ -52,3 +56,19 @@ desktop.tick(10);
 assert.equal(desktop.lines.first.active, true);
 assert.equal(desktop.lines.first.scrolled, 0);
 console.log('PASS: highlight states, pause/seek, mobile-only opt-in scrolling and draft playback.');
+Promise.resolve().then(() => {
+  const line = ui.lines.first;
+  const target = {closest:() => null};
+  line.listeners.click({target});
+  assert.deepEqual(ui.seeks, [[10, true]]);
+  line.listeners.click({target:{closest:() => ({})}});
+  ui.select('selected lyrics');
+  line.listeners.click({target});
+  assert.equal(ui.seeks.length, 1);
+  let prevented = false;
+  line.listeners.keydown({target:line, key:'Enter', preventDefault:() => { prevented = true; }});
+  assert.equal(prevented, true);
+  assert.deepEqual(ui.seeks[1], [10, true]);
+  assert.equal(line.attributes.tabindex, '0');
+  console.log('PASS: click/keyboard seeking, nested links and text selection.');
+}).catch(error => { console.error(error); process.exitCode = 1; });
