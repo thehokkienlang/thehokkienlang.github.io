@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="editor-token" content="__EDITOR_TOKEN__">
+  <title>Lyric Timing · Local Website Editor</title>
+  <link rel="stylesheet" href="website-editor.css">
+  <link rel="stylesheet" href="lyric-timing.css">
+  <script src="/shared/web-lyric-player.js" defer></script>
+  <script src="lyric-timing.js" defer></script>
+</head>
+<body>
+  <header class="cms-header"><div><span class="local-badge">Local only</span><h1 id="timingTitle">Lyric timing</h1></div><a href="/website-editor/">Website Editor</a></header>
+  <div class="timing-actions">
+    <label>Status<select id="timingStatus"><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
+    <span id="completion"></span><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
+  </div>
+  <p id="timingNotice" role="status" aria-live="polite">Loading song…</p>
+  <main class="timing-workspace">
+    <section class="timing-player" aria-label="Timing player">
+      <div id="videoHost"></div>
+      <div class="clock-row"><output id="clock">00:00.000</output><span id="playerState">Waiting for YouTube</span></div>
+      <div class="timing-commands"><button id="markStart" disabled title="Mark the selected sentence's start at the current video time">Mark start</button><button id="markEnd" disabled title="Mark the selected sentence's end at the current video time">Mark end</button><button id="seekStart" disabled title="Seek to the selected sentence's start">Go to start</button><button id="clearCue" disabled>Clear times</button></div>
+      <label class="advance-option"><input id="advanceAfterEnd" type="checkbox" checked> Advance after marking end</label>
+      <label class="advance-option"><input id="previewHighlight" type="checkbox" checked> Highlight preview</label>
+      <iframe id="lyricPreview" title="Selected lyric preview" sandbox="allow-same-origin allow-scripts"></iframe>
+    </section>
+    <section class="timing-lines" aria-label="Sentences">
+      <div class="timing-column-labels"><span>Sentence</span><span>Start (seconds)</span><span>End (seconds)</span></div>
+      <div id="cueRows"></div>
+    </section>
+  </main>
+</body>
+</html>

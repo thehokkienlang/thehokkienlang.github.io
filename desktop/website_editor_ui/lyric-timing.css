@@ -1,0 +1,26 @@
+.cms-header h1 { font-size:22px; margin:8px 0 0; }
+.timing-actions { display:flex; gap:14px; align-items:center; padding:16px 24px; border-bottom:1px solid var(--line); background:white; flex-wrap:wrap; }
+.timing-actions label { display:flex; gap:8px; align-items:center; }
+.timing-actions select { width:130px; }
+#completion { margin-right:auto; color:var(--muted); }
+#timingNotice { margin:0; min-height:46px; padding:12px 24px; }
+#timingNotice.error { color:#a12636; background:#fff0f1; }
+.timing-workspace { display:grid; grid-template-columns:minmax(300px, 0.9fr) minmax(420px, 1.3fr); gap:24px; padding:0 24px 24px; align-items:start; }
+.timing-player { position:sticky; top:98px; min-width:0; }
+#videoHost iframe { display:block; width:100%; aspect-ratio:16/9; border:0; }
+.clock-row { display:flex; align-items:center; justify-content:space-between; margin:14px 0; gap:12px; }
+#clock { font-size:23px; font-variant-numeric:tabular-nums; }
+#playerState { color:var(--muted); }
+.timing-commands { display:flex; flex-wrap:wrap; gap:8px; }
+.advance-option { display:flex; gap:8px; align-items:center; margin:16px 0; }
+.advance-option input { width:18px; }
+#lyricPreview { width:100%; height:220px; border:1px solid var(--line); background:white; }
+.timing-column-labels,.cue-row { display:grid; grid-template-columns:minmax(0,1fr) 112px 112px; gap:10px; align-items:center; }
+.timing-column-labels { padding:10px; color:var(--muted); font-size:13px; }
+.cue-row { padding:12px 10px; border-top:1px solid var(--line); border-left:3px solid transparent; }
+.cue-row.selected { background:#e9f3f1; }
+.cue-row.playing { border-left-color:var(--teal); }
+.cue-row button { background:transparent; border:0; text-align:left; min-width:0; overflow-wrap:anywhere; }
+.cue-row input { padding:8px; font-variant-numeric:tabular-nums; }
+.cue-row small { display:block; color:var(--muted); margin-bottom:5px; }
+@media(max-width:900px) { .timing-workspace { grid-template-columns:1fr; padding:0 14px 20px; } .timing-player { position:static; } .cue-row,.timing-column-labels { grid-template-columns:minmax(0,1fr) 88px 88px; gap:6px; } .timing-actions { padding:12px 14px; } }

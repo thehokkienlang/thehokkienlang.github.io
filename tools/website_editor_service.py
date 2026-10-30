@@ -15,6 +15,7 @@ from assign_dictionary_entry_ids import _atomic_write
 from dictionary_editor_service import EditorError, MAIN, read_table, table_bytes
 from dictionary_ranking import PRIORITY_COLUMNS, load_priority, read_records
 from dictionary_references import CATEGORY_COLUMNS, load_categories
+from lyric_timing import blank_timing, song_lines, timing_path, validate_timing
 
 REDIRECT_COLUMNS = ("kind", "source", "source_reading", "target_entry_id", "reason", "sources", "date")
 GENERATED_PREFIXES = ("_site/", "public/data/")
@@ -143,6 +144,43 @@ class WebsiteEditorService:
                     "reading": row["corrected"] or row["reading"], "english": row["english"]}
                    for row in records]
         return compact, {row["entry_id"]: row for row in records}
+
+    def lyric_timing(self, relative):
+        opened = self.page(relative)
+        record = opened['page']
+        try:
+            video, lines = song_lines(record)
+            path = timing_path(self.repo, record)
+            self._inside(self.data, path.relative_to(self.repo).as_posix(), suffix='.json')
+            raw = path.read_bytes() if path.exists() else b''
+            warning = ''
+            stored = json.loads(raw) if raw else None
+            try:
+                data = validate_timing(record, stored) if raw else blank_timing(record)
+            except ValueError:
+                data = blank_timing(record)
+                warning = 'The lyrics, recording, or stored times changed. This draft has cleared times for review; saving will replace the old timing file.'
+        except (ValueError, json.JSONDecodeError) as error:
+            raise WebsiteEditorError(str(error)) from error
+        return {'ok': True, 'file': opened['file'], 'sourceRevision': opened['revision'], 'warning': warning,
+                'revision': digest(raw), 'title': record['title'], 'videoId': video, 'timing': data,
+                'lines': [{key: line[key] for key in ('id', 'label', 'html')} for line in lines]}
+
+    def save_lyric_timing(self, relative, source_revision, revision, data):
+        opened = self.lyric_timing(relative)
+        if opened['sourceRevision'] != source_revision or opened['revision'] != revision:
+            raise WebsiteEditorError('Lyrics or timings changed outside this window. Reload before saving; your draft remains on screen.', code='stale')
+        record = self.page(relative)['page']
+        try:
+            clean = validate_timing(record, data)
+        except ValueError as error:
+            raise WebsiteEditorError(str(error)) from error
+        path = timing_path(self.repo, record)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        output = (json.dumps(clean, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
+        _atomic_write(path, output)
+        return {'ok': True, 'revision': digest(output), 'timing': clean,
+                'message': 'Lyric timings saved locally. Nothing was committed or pushed.'}
 
     def table_snapshot(self) -> dict:
         entries, by_id = self.entries()

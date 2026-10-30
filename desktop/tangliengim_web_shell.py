@@ -388,7 +388,7 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
         relative = Path("desktop") / "dictionary_editor_ui" / suffix
     elif path.startswith("/website-editor/"):
         suffix = path.removeprefix("/website-editor/") or "index.html"
-        if suffix not in {"index.html", "website-editor.css", "website-editor.js"}:
+        if suffix not in {"index.html", "website-editor.css", "website-editor.js", "lyric-timing.html", "lyric-timing.js", "lyric-timing.css"}:
             return None
         relative = Path("desktop") / "website_editor_ui" / suffix
     elif path.startswith("/preview-assets/"):
@@ -503,7 +503,8 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             return
         data = target.read_bytes()
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
-                      self.server.repo_root / 'desktop/website_editor_ui/index.html'):
+                      self.server.repo_root / 'desktop/website_editor_ui/index.html',
+                      self.server.repo_root / 'desktop/website_editor_ui/lyric-timing.html'):
             data = data.replace(b'__EDITOR_TOKEN__', self.server.editor_token.encode())
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
                       self.server.repo_root / 'apps/ime/index.html'):

@@ -91,6 +91,11 @@ class WebsiteEditorController:
             return {"ok": True, "pages": self.service.pages()}
         if action == "page":
             return self.service.page(payload.get("file"))
+        if action == "lyric-timing":
+            return self.service.lyric_timing(payload.get("file"))
+        if action == "save-lyric-timing":
+            return self.service.save_lyric_timing(payload.get('file'), payload.get('sourceRevision'),
+                                                  payload.get('revision'), payload.get('timing'))
         if action == "validate-page":
             title, body = self.service.validate_page_fields(payload.get("title"), payload.get("body"))
             return {"ok": True, "title": title, "body": body, "message": "Draft fields are valid and ready to preview."}

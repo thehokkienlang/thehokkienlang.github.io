@@ -79,6 +79,7 @@
       $("pageBody").value = result.page.body || ""; $("pageLanguage").textContent = result.page.language || "en";
       $("pageKind").textContent = result.page.type || "page"; $("pageFile").textContent = result.file;
       $("openBuiltPreview").disabled = !result.page.route;
+      $("editLyricTiming").hidden = result.page.type !== 'songs';
       renderPageList(); updatePreview();
     } catch (error) { notice(error.message, true); }
   }
@@ -230,6 +231,10 @@
   $("pageSearch").oninput = renderPageList; $("pageType").onchange = renderPageList;
   $("pageForm").addEventListener("input", () => { state.pageDirty = true; updatePreview(); });
   $("validatePage").onclick = validatePage; $("savePage").onclick = savePage;
+  $("editLyricTiming").onclick = () => {
+    if (state.pageDirty) return notice('Save the lyric text before editing its timings.', true);
+    window.open('/website-editor/lyric-timing.html?file=' + encodeURIComponent(state.page.file), '_blank', 'noopener');
+  };
   $("openBuiltPreview").onclick = () => { if (state.page?.page.route) window.open("/preview-site" + state.page.page.route, "_blank", "noopener"); };
   document.querySelectorAll("[data-reference-tab]").forEach(node => node.onclick = () => {
     document.querySelectorAll("[data-reference-tab]").forEach(button => button.classList.toggle("active", button === node));

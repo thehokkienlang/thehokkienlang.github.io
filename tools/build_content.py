@@ -16,6 +16,7 @@ from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
 from site_search import document as search_document
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
+from lyric_timing import decorate_lyrics
 
 NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/search/", "Search"), ("/about/", "About"))
 NAV_SECTIONS = {
@@ -477,6 +478,8 @@ def build_content(root: Path, output: Path):
         if record["type"] == "songs":
             body = song_script_heading(body)
         body = PresentationHTML(record).render(remove_leading_language_switcher(body))
+        if record['type'] == 'songs':
+            body = decorate_lyrics(root, record, body)
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
