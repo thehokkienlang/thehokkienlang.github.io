@@ -96,11 +96,14 @@ class LyricTimingTests(unittest.TestCase):
             self.assertEqual(reloaded['timing']['status'], 'draft')
             service.save_lyric_timing(reloaded['file'], reloaded['sourceRevision'], reloaded['revision'], reloaded['timing'])
 
-    def test_pilot_sidecar_matches_authored_lyrics(self):
-        source = json.loads((ROOT/'content/songs/song-11533.json').read_text(encoding='utf-8'))
-        data = json.loads(timing_path(ROOT, source).read_text(encoding='utf-8'))
-        validate_timing(source, data)
-        self.assertEqual(len(data['cues']), 24)
+    def test_published_sidecars_match_authored_lyrics(self):
+        for identity in ('song-11533', 'song-8502'):
+            with self.subTest(song=identity):
+                source = json.loads((ROOT/f'content/songs/{identity}.json').read_text(encoding='utf-8'))
+                data = json.loads(timing_path(ROOT, source).read_text(encoding='utf-8'))
+                validate_timing(source, data)
+                self.assertEqual(len(data['cues']), 24)
+                self.assertTrue(all(cue['start'] is not None and cue['end'] is not None for cue in data['cues']))
 
 
 if __name__ == '__main__': unittest.main()
