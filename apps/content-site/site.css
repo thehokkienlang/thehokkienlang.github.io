@@ -80,7 +80,7 @@ body[data-site-section="learn"] .imported-content { font-size: 20px; }
 body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) { table-layout: fixed; }
 body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) col:first-child { width: 2.5em !important; }
 body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) col:nth-child(2) { width: 5em !important; }
-body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) th[colspan="2"] { width: 7.5em !important; min-width: 0; }
+body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) th[colspan="2"]:first-child { width: 7.5em !important; min-width: 0; }
 body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) td:first-child { min-width: 0; padding-inline: 4px; white-space: nowrap; }
 .imported-content th { background: #edf5f3; text-align: left; }
 .imported-content figcaption { font-size: 14px; color: var(--muted); }
