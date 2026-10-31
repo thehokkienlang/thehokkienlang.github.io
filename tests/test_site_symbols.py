@@ -66,6 +66,7 @@ class SiteSymbolsTests(unittest.TestCase):
             self.assertNotIn("bottom: calc(100% -", styles)
         script = (ROOT / "apps/content-site/site.js").read_text(encoding="utf-8")
         self.assertIn('toneOnly ? "tli-tone-ruby" : "tli-reading-ruby"', script)
+        self.assertIn('node.textContent.replace(/-/gu, "")', script)
 
     def test_homepage_story_subtitle_does_not_shrink_ruby_or_hanri(self):
         css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")

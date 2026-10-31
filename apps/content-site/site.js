@@ -1,4 +1,13 @@
 (() => {
+  const removeRubyHyphens = reading => {
+    const walker = document.createTreeWalker(reading, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+    textNodes.forEach(node => {
+      node.textContent = node.textContent.replace(/-/gu, "");
+    });
+  };
+
   const picks = document.querySelector("[data-home-song-picks]");
   const pool = document.querySelector("[data-home-song-pool]");
   if (picks && pool) {
@@ -38,6 +47,7 @@
         for (const { name, value } of child.attributes) reading.setAttribute(name, value);
         reading.classList.add("tli-rt");
         reading.append(...child.childNodes);
+        removeRubyHyphens(reading);
         readings.push(reading);
       } else if (child.nodeName !== "RP") {
         base.append(child);

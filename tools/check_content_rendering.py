@@ -63,7 +63,7 @@ def check_scaling(page, origin, screenshot):
     samples = []
     for size in (16, 20, 24, 32, 48, 64):
         samples.append(f'''<p style="font-size:{size}px;line-height:2.2">
-          <ruby style="position:relative">學生<rt style="position:absolute;top:-99px;left:19px;font-size:57%">학솅ˆ</rt></ruby>
+          <ruby style="position:relative">學生<rt style="position:absolute;top:-99px;left:19px;font-size:57%">학솅ˆ-</rt></ruby>
           <span class="title-reading"><ruby class="hanri-title">學生<rt>학솅ˆ</rt></ruby></span>
           <span class="entry-headword-ruby"><span class="entry-headword-base">學生</span><span class="entry-headword-reading">학솅ˆ</span></span>
         </p>''')
@@ -74,6 +74,7 @@ def check_scaling(page, origin, screenshot):
       </main><script src="{origin}/assets/content-site/site.js"></script></body></html>''')
     page.wait_for_selector('.tli-reading-ruby')
     page.evaluate('document.fonts.ready')
+    assert page.locator('.imported-content .tli-reading-ruby > .tli-rt').first.inner_text() == '학솅ˆ'
     check_ruby(page.locator('.tli-reading-ruby, .entry-headword-ruby'))
     assert page.locator('.tli-tone-ruby').count() == 1
     tone = page.locator('.tli-tone-ruby > .tli-rt').evaluate('node => parseFloat(getComputedStyle(node).fontSize) / parseFloat(getComputedStyle(node.parentElement).fontSize)')
