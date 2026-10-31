@@ -286,8 +286,9 @@ const TangliengimImeCore = (() => {
   }
 
   function readingUnitAt(text, index) {
-    const char = text[index];
-    if (!char) return null;
+    const point = codePointAtInfo(text, index);
+    if (!point) return null;
+    const char = point.char;
 
     if (isPrecomposedHangul(char)) {
       return { text: char, end: index + 1, canCarryTone: true };
@@ -305,7 +306,7 @@ const TangliengimImeCore = (() => {
       return { text: text.slice(index, end), end, canCarryTone: true };
     }
 
-    return { text: char, end: index + 1, canCarryTone: false };
+    return { text: char, end: point.end, canCarryTone: false };
   }
 
   function headwordUnitAt(text, index) {

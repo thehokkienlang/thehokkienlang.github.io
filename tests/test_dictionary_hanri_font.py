@@ -9,6 +9,13 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HanriFallbackTests(unittest.TestCase):
+    def test_supplementary_title_text_is_not_split(self):
+        import subprocess
+        sys.path.insert(0, str(ROOT/'tools'))
+        from node_runtime import node_environment
+        node, env = node_environment()
+        subprocess.run([node, str(ROOT/'tests/check_hanri_rendering.cjs')], env=env, check=True)
+
     def test_ime_fonts_preload_without_swap_flash(self):
         import re
         css = (ROOT/'shared/web-ime-menu.css').read_text(encoding='utf-8')
