@@ -24,7 +24,8 @@ const localizedMessages = {
 };
 const messages = localizedMessages[language] || localizedMessages.en;
 
-const state = { documents: [], kind: "all", page: 1, loaded: false };
+const state = { documents: [], hanriFold: {}, kind: "all", page: 1, loaded: false };
+const variants = window.TliSiteSearchVariants;
 const input = document.querySelector("#siteSearchInput");
 const clear = document.querySelector("#siteSearchClear");
 const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
@@ -68,6 +69,8 @@ function score(document, queryTerms) {
     else if (body.includes(term)) total += 80;
     else if (looseTitle.includes(looseTerm)) total += 130;
     else if (looseBody.includes(looseTerm)) total += 55;
+    else if (document.foldedTitle.includes(variants.fold(term, state.hanriFold))) total += 125;
+    else if (document.foldedContent.includes(variants.fold(term, state.hanriFold))) total += 50;
     else return 0;
   }
   return total;
@@ -86,7 +89,10 @@ function matches() {
 function excerpt(value, queryTerms) {
   const collapsed = String(value || "").replace(/\s+/g, " ").trim();
   const lower = collapsed.toLocaleLowerCase();
-  const positions = queryTerms.map(term => lower.indexOf(term.toLocaleLowerCase())).filter(index => index >= 0);
+  const positions = queryTerms.map(term => {
+    const exact = lower.indexOf(term.toLocaleLowerCase());
+    return exact >= 0 ? exact : (variants.match(collapsed, term, state.hanriFold)?.index ?? -1);
+  }).filter(index => index >= 0);
   const center = positions.length ? Math.min(...positions) : 0;
   const start = Math.max(0, center - 85);
   const end = Math.min(collapsed.length, Math.max(center + 155, start + 240));
@@ -100,9 +106,11 @@ function highlightedText(value, queryTerms) {
   while (offset < value.length) {
     let found = null;
     for (const term of candidates) {
-      const index = value.toLocaleLowerCase().indexOf(term.toLocaleLowerCase(), offset);
-      if (index >= 0 && (!found || index < found.index || index === found.index && term.length > found.term.length)) {
-        found = { index, term };
+      const part = value.slice(offset);
+      const index = part.toLocaleLowerCase().indexOf(term.toLocaleLowerCase());
+      const hit = index >= 0 ? {index, length:term.length} : variants.match(part, term, state.hanriFold);
+      if (hit && (!found || offset + hit.index < found.index || offset + hit.index === found.index && hit.length > found.length)) {
+        found = { index:offset + hit.index, length:hit.length };
       }
     }
     if (!found) {
@@ -111,9 +119,9 @@ function highlightedText(value, queryTerms) {
     }
     if (found.index > offset) fragment.append(document.createTextNode(value.slice(offset, found.index)));
     const mark = document.createElement("mark");
-    mark.textContent = value.slice(found.index, found.index + found.term.length);
+    mark.textContent = value.slice(found.index, found.index + found.length);
     fragment.append(mark);
-    offset = found.index + found.term.length;
+    offset = found.index + found.length;
   }
   return fragment;
 }
@@ -244,7 +252,12 @@ async function load() {
     const response = await fetch(INDEX_URL);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const index = await response.json();
-    state.documents = index.languages[language] || [];
+    state.hanriFold = index.hanriFold || {};
+    state.documents = (index.languages[language] || []).map(document => ({
+      ...document,
+      foldedTitle: variants.fold(normalized(document.titleSearch), state.hanriFold),
+      foldedContent: variants.fold(normalized(document.content), state.hanriFold),
+    }));
     const params = new URLSearchParams(location.search);
     input.value = params.get("q") || "";
     searchImeController.composer.setText(input.value, input.value.length);

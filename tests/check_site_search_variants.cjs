@@ -1,0 +1,10 @@
+const assert = require('node:assert/strict');
+const {fold, match} = require('../shared/web-site-search-variants.js');
+const mapping = {'愛':'爱', '學':'学', '習':'习', '後':'后', '𠢕':'𫝈'};
+assert.equal(fold('愛學習', mapping), '爱学习');
+assert.equal(fold('爱学习', mapping), '爱学习');
+assert.deepEqual(match('愛學習和後', '爱学习', mapping), {index:0, length:3});
+assert.deepEqual(match('爱学习和后', '愛學習', mapping), {index:0, length:3});
+assert.deepEqual(match('𠢕後見', '𫝈后', mapping), {index:0, length:3});
+assert.equal(match('Hokkien', '福建', mapping), null);
+console.log('PASS: Traditional/Simplified search folding and original-text offsets.');
