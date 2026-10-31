@@ -1,6 +1,10 @@
 @import url("/shared/web-punctuation.css");
 @import url("/shared/web-hangul-font.css");
 @import url("/shared/web-ruby.css");
+:root { --tli-dictionary-ruby-size: 0.44em; }
+.entry-headword-ruby > .entry-headword-reading {
+  font-size: var(--tli-dictionary-ruby-size) !important;
+}
 :root {
   color-scheme: light;
   --bg: #f5f8f7;
