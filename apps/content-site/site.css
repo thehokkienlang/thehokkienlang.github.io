@@ -4,8 +4,13 @@
 /* Keep the playback accent outside the lyric text without moving the line. */
 .lyric-sync-controls { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:16px 0; font-size:16px; }
 .lyric-sync-controls[hidden] { display:none; }
-.lyric-sync-controls label { display:inline-flex; align-items:center; gap:8px; }
-.lyric-sync-controls input { width:18px; height:18px; accent-color:#08756b; }
+.lyric-sync-controls label { display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
+.lyric-sync-controls input { appearance:none; position:relative; flex:0 0 40px; width:40px; height:24px; margin:0; border:1px solid #aebfbd; border-radius:999px; background:#c7d3d1; cursor:pointer; transition:background-color .15s ease; }
+.lyric-sync-controls input::before { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s ease; }
+.lyric-sync-controls input:checked { background:#08756b; border-color:#08756b; }
+.lyric-sync-controls input:checked::before { transform:translateX(16px); }
+.lyric-sync-controls input:focus-visible { outline:2px solid #2563eb; outline-offset:3px; }
+@media (prefers-reduced-motion:reduce) { .lyric-sync-controls input, .lyric-sync-controls input::before { transition:none; } }
 .lyric-sync-controls [data-lyric-status] { color:#617079; }
 .imported-content p[data-lyric-id] { position:relative; transition:background-color .15s ease; scroll-margin-block:100px; }
 .imported-content p[data-lyric-seek] { cursor:pointer; }
