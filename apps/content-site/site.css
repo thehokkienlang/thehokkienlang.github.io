@@ -77,6 +77,9 @@ body[data-site-section="learn"] .imported-content { font-size: 20px; }
 .imported-content table { border-collapse: collapse; width: 100%; }
 .content-stories .imported-content table[style*="font-size: 14px"] td:first-child { white-space: nowrap; overflow-wrap: normal; width: 1%; }
 .imported-content th, .imported-content td { padding: 14px 12px; border: 1px solid var(--line); vertical-align: middle; min-width: 80px; }
+body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) col:first-child { width: 2% !important; }
+body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) th[colspan="2"] { width: 17% !important; }
+body[data-site-section="learn"] .imported-content table:has(colgroup > col:first-child[style*="width: 6%"]) td:first-child { min-width: 0; padding-inline: 4px; white-space: nowrap; }
 .imported-content th { background: #edf5f3; text-align: left; }
 .imported-content figcaption { font-size: 14px; color: var(--muted); }
 .imported-content ruby { isolation: isolate; }
