@@ -194,7 +194,7 @@ def load_hanri_fallback_font() -> None:
     """Make bundled supplementary glyphs available to this Windows process only."""
     if os.name != 'nt':
         return
-    for filename in ('tangliengim-hanri-fallback-v1.ttf', 'tangliengim-content-hanri-v2.ttf', 'tli-hanri-v321-tc.ttf'):
+    for filename in ('tangliengim-hanri-fallback-v1.ttf', 'tangliengim-content-hanri-v2.ttf', 'tli-hanri-v321-tc.ttf', 'tli-menu-hanri-v1.ttf'):
         path = source_repo_root() / 'assets' / 'fonts' / filename
         if path.is_file():
             try:
@@ -7013,6 +7013,10 @@ class HokkienIMEPad:
         self.candidate_fallback_hanri_font = (self.fallback_hanri_font_family, 13)
         self.candidate_tc_patch_hanri_font = ('TLI Hanri v321 TC', 13)
         self.candidate_sc_hanri_font = (self.sc_hanri_font_family, 13)
+        # Keep ordinary and supplementary Hanri in one candidate-menu face.
+        menu_family = self.pick_font(['TLI Menu Hanri'], fallback=self.hanri_font_family)
+        self.candidate_hanri_font = self.candidate_extension_b_hanri_font = (menu_family, 13)
+        self.candidate_fallback_hanri_font = (menu_family, 13)
         # Keep tone marks in Calibri even when Hangul/Hanri use Noto Sans.
         self.tone_font = ('Calibri', 19)
         self.candidate_tone_font = ('Calibri', 15)

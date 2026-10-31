@@ -14,7 +14,10 @@
 .imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.45em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }
 @media (min-width: 701px) { .lyric-sync-controls label { display:none; } }
 @media(prefers-reduced-motion:reduce) { .imported-content p[data-lyric-id] { transition:none; } }
-@font-face { font-family: "TLI Hanri"; src: local("Noto Sans TC"), local("Noto Sans CJK TC"), local("Microsoft JhengHei"); unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
+@font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-400-v1.woff2") format("woff2"); font-weight:400; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
+@font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-700-v1.woff2") format("woff2"); font-weight:700; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
+@font-face { font-family:"TLI Menu Hanri"; src:url("/assets/fonts/tli-menu-hanri-v1.woff2") format("woff2"); font-display:swap; unicode-range:U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-28616, U+28618-2EBEF; }
+.title-reading, .title-reading .tli-ruby-base { font-family:"TLI Western Punctuation", "TLI Menu Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans KR", sans-serif; }
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+2C9B0; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-u28617-400-v1.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+28617; }

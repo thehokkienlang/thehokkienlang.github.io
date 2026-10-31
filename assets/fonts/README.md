@@ -1,5 +1,23 @@
 # Shared Noto Sans Symbols and Branding
 
+## Portable Traditional Chinese content
+
+`tli-content-tc-{400,700}-v1.woff2` are static Noto Sans TC subsets of Hanri
+present in `content/`, generated from the installed `NotoSansTC-VF.ttf` with
+`tools/subset_site_hanri.py`. They retain the source's TC glyph outlines,
+copyright and OFL metadata; the family names are changed to TLI Content TC.
+The source is covered by the included SIL OFL license. This prevents Android
+device locale from selecting SC/Korean outlines for ordinary content Hanri.
+Existing rare-character, custom U+28617 and U+3A7C exceptions take precedence.
+Regenerate these subsets when adding content characters not already covered.
+
+`tli-menu-hanri-v1.{woff2,ttf}` is one extended TC face for Web and classic
+desktop candidate menus: Noto Sans TC supplies ordinary Hanri, and the licensed
+Plangothic P1 source documented below supplies codepoints absent from TC,
+including U+23350. It is renamed TLI Menu Hanri; common TC outlines are retained.
+Generate it with the same script and `--menu-source PlangothicP1-Regular.ttf`.
+This is a combined font, not a claim that Noto's upstream font includes U+23350.
+
 ## Custom U+28617 Hanri glyph
 
 `tli-u28617-{400,700}-v1.woff2` contains the approved custom 𨘗 glyph,
