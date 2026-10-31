@@ -7,49 +7,49 @@
     {
       "id": "line-001",
       "fingerprint": "11b1628ff25282e608eae3a689758712c80a027105685cfa5348d0ecda82d6b4",
-      "start": 10,
-      "end": 15.4
+      "start": 21.0,
+      "end": 26.25
     },
     {
       "id": "line-002",
       "fingerprint": "b6149872c257fb1422a011bac5a56ebb1279088cad75e58da97bd4ab5687294b",
-      "start": 15.5,
-      "end": 21.1
+      "start": 26.35,
+      "end": 30.9
     },
     {
       "id": "line-003",
       "fingerprint": "1cc5942b8e18b42fad5b0172bb6afa570c0ed4832715f25184f5fb5e2d462494",
-      "start": 21.2,
-      "end": 26.25
+      "start": 31.0,
+      "end": 36.1
     },
     {
       "id": "line-004",
       "fingerprint": "9c7c7d0fd80416a67c37d44992c5acd37e87640ef230948d821dd558ba39760a",
-      "start": 26.35,
-      "end": 36.1
-    },
-    {
-      "id": "line-005",
-      "fingerprint": "09793e0f2528cb30c417efcde8e058db638e1080d0da10aa70ffd2a775939988",
       "start": 36.2,
       "end": 41.2
     },
     {
-      "id": "line-006",
-      "fingerprint": "a47bb7274fbf91e131a86a54f4c496bda47692f2ddcba247cadaf62cb3a2e667",
+      "id": "line-005",
+      "fingerprint": "09793e0f2528cb30c417efcde8e058db638e1080d0da10aa70ffd2a775939988",
       "start": 41.3,
       "end": 46.2
     },
     {
-      "id": "line-007",
-      "fingerprint": "d22de1c9aea3b5b20ce43b03fca24ecf007a9ffd4a960639f8fa32fd0bacf1c0",
+      "id": "line-006",
+      "fingerprint": "a47bb7274fbf91e131a86a54f4c496bda47692f2ddcba247cadaf62cb3a2e667",
       "start": 46.3,
       "end": 51.25
     },
     {
+      "id": "line-007",
+      "fingerprint": "d22de1c9aea3b5b20ce43b03fca24ecf007a9ffd4a960639f8fa32fd0bacf1c0",
+      "start": 51.35,
+      "end": 56.15
+    },
+    {
       "id": "line-008",
       "fingerprint": "bab475cb1d7b763b0880f0d9b91b0b26e88ca3c325bbeba1b60ac87aa91ffd3b",
-      "start": 51.35,
+      "start": 56.25,
       "end": 64.05
     },
     {
