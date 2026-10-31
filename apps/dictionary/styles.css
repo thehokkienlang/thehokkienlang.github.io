@@ -476,7 +476,7 @@ h1 {
 
 .hanri {
   margin: 0;
-  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "TLI Menu Hanri", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: 34px;
   font-weight: 800;
   line-height: 1.08;
