@@ -3,7 +3,7 @@
 @font-face {
   font-family: "TLI Menu Hanri";
   src: url("/assets/fonts/tli-menu-hanri-v1.woff2") format("woff2");
-  font-display: swap;
+  font-display: block;
   unicode-range: U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-28616, U+28618-2EBEF;
 }
 /* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
@@ -44,7 +44,7 @@
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
-  font-display: swap;
+  font-display: block;
   unicode-range: U+20895, U+23350, U+2C9B0;
 }
 @font-face {

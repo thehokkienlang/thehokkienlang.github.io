@@ -9,6 +9,16 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class HanriFallbackTests(unittest.TestCase):
+    def test_ime_fonts_preload_without_swap_flash(self):
+        import re
+        css = (ROOT/'shared/web-ime-menu.css').read_text(encoding='utf-8')
+        for name in ('tli-menu-hanri-v1.woff2', 'tangliengim-content-hanri-v2.woff2'):
+            face = next(face for face in re.findall(r'@font-face\s*\{[^}]+\}', css) if name in face)
+            self.assertIn('font-display: block;', face)
+            for page in ('apps/ime/index.html', 'apps/dictionary/index.html'):
+                html = (ROOT/page).read_text(encoding='utf-8')
+                self.assertIn(f'<link rel="preload" href="/assets/fonts/{name}" as="font" type="font/woff2" crossorigin>', html)
+
     def test_portable_tc_content_and_unified_menu_faces_are_bundled(self):
         css = (ROOT/'apps/content-site/site.css').read_text(encoding='utf-8')
         for weight in (400, 700):
