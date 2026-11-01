@@ -95,11 +95,16 @@ class WebsiteEditorService:
             except WebsiteEditorError:
                 continue
             relative = path.relative_to(self.repo).as_posix()
+            search_text = record.get('title', path.stem)
+            if record.get('type') == 'songs':
+                from song_title_readings import song_sort_reading
+                search_text += ' ' + record.get('originalTitle', '') + ' ' + song_sort_reading(record)
             pages.append({
                 "file": relative, "revision": digest(raw), "id": record.get("id", path.stem),
                 "title": record.get("title", path.stem), "route": record.get("route", ""),
                 "type": record.get("type", path.parent.name), "language": record.get("language", "en"),
                 "archived": bool(record.get("archived")),
+                "searchText": search_text,
             })
         return pages
 

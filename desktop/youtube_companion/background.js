@@ -29,7 +29,7 @@ async function handle(message, sender) {
   if (sender.id !== chrome.runtime.id || sender.frameId !== 0 || !Number.isInteger(sender.tab?.id))
     throw new Error('This connection must come from a companion tab.');
   const isEditor = editorUrl(sender.url);
-  if (message.action === 'hello' && isEditor) return {ok: true, version: '1.0.2'};
+  if (message.action === 'hello' && isEditor) return {ok: true, version: '1.0.3'};
   if (!validSession(message.session)) throw new Error('Invalid timing connection.');
   const key = PREFIX + message.session;
   const stored = await chrome.storage.session.get(key);
@@ -74,7 +74,7 @@ async function handle(message, sender) {
     await chrome.storage.session.remove(key);
     return {ok: true, closed: true};
   }
-  if (message.action === 'command' && ['sample', 'seek'].includes(message.command)) {
+  if (message.action === 'command' && ['sample', 'seek', 'toggle'].includes(message.command)) {
     if (pair.youtubeTabId === null) throw new Error('Open the companion YouTube window first.');
     const tab = await chrome.tabs.get(pair.youtubeTabId);
     if (!watchUrl(tab.url, pair.videoId)) throw new Error('The YouTube window is on a different video.');

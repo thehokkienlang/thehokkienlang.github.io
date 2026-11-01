@@ -27,6 +27,13 @@
         respond({ok: false, error: 'That time is outside this video.'}); return;
       }
       document.getElementById('movie_player').querySelector('video').currentTime = message.time;
+    } else if (message.command === 'toggle') {
+      const video = document.getElementById('movie_player').querySelector('video');
+      if (video.paused) {
+        video.play().then(() => respond({ok: true, sample: sample()}), error => respond({ok: false, error: error.message}));
+        return true;
+      }
+      video.pause();
     } else if (message.command !== 'sample') return;
     respond({ok: true, sample: sample()});
   });

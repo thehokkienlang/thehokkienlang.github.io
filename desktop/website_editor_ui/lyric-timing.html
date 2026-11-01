@@ -7,13 +7,23 @@
   <title>Lyric Timing · Local Website Editor</title>
   <link rel="stylesheet" href="website-editor.css">
   <link rel="stylesheet" href="lyric-timing.css">
+  <link rel="stylesheet" href="/shared/web-ime-menu.css">
   <script src="/shared/web-lyric-player.js" defer></script>
   <script src="lyric-companion.js" defer></script>
+  <script src="/shared/web-hangul-ime.js" defer></script>
+  <script src="/shared/web-ime-core.js" defer></script>
   <script src="lyric-timing.js" defer></script>
 </head>
 <body>
   <header class="cms-header"><div><span class="local-badge">Local only</span><h1 id="timingTitle">Lyric timing</h1></div><a href="/website-editor/">Website Editor</a></header>
   <div class="timing-actions">
+    <div id="songSearchBox" class="song-search-box">
+      <label for="songSearch">Search songs<input id="songSearch" type="search" placeholder="Search songs..." autocomplete="off" spellcheck="false" aria-controls="songSearchCandidates" aria-autocomplete="list"></label>
+      <div id="songSearchCandidates" class="hanri-candidate-menu" role="listbox" aria-label="TLI candidates" hidden></div>
+    </div>
+    <button id="songHangulToggle" class="keyboard-toggle" type="button" aria-pressed="true"><span>TLI Hangul keyboard</span><span class="switch-track" aria-hidden="true"></span></button>
+    <span id="songSearchCount" role="status" aria-live="polite"></span>
+    <span id="songImeStatus" role="status" aria-live="polite">Loading TLI candidates...</span>
     <label>Song<select id="songChoice" aria-label="Choose song"><option value="">Loading songs...</option></select></label>
     <label>Status<select id="timingStatus"><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
     <span id="completion"></span><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
@@ -23,6 +33,7 @@
     <section class="timing-player" aria-label="Timing player">
       <div class="playback-options">
         <button id="openYoutube" disabled>Open YouTube window</button>
+        <button id="togglePlayback" disabled aria-label="Play video">Play</button>
         <a href="youtube-setup.html" target="_blank" rel="noopener">Companion setup</a>
       </div>
       <div class="clock-row"><output id="clock">00:00.000</output><span id="playerState">Waiting for YouTube</span></div>

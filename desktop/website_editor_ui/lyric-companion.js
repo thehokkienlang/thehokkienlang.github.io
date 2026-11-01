@@ -64,6 +64,7 @@
       },
       time: () => valid(last) && Date.now() - received <= 2500 ? last.time : null,
       sample: () => command('sample'),
+      toggle: () => command('toggle').catch(onError),
       seek: time => command('seek', time).catch(onError),
       destroy() {
         if (cleanup) return cleanup;

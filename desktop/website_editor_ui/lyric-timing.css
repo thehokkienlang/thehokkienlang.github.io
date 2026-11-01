@@ -3,6 +3,16 @@
 .timing-actions label { display:flex; gap:8px; align-items:center; }
 .timing-actions select { width:130px; }
 #songChoice { width: min(360px, 65vw); }
+#songSearch { width:min(260px, 60vw); font-size:16px; }
+.song-search-box { position:relative; min-width:0; }
+#songSearchCandidates { max-width:min(480px, calc(100vw - 40px)); }
+#songImeStatus { color:var(--muted); font-size:13px; }
+#songSearchCount { color:var(--muted); font-size:13px; }
+.keyboard-toggle { display:inline-flex; align-items:center; gap:9px; border:0; background:transparent; white-space:nowrap; }
+.switch-track { position:relative; width:36px; height:22px; flex:none; border-radius:11px; background:#8b969b; }
+.switch-track::after { content:""; position:absolute; top:3px; left:3px; width:16px; height:16px; border-radius:50%; background:white; }
+.keyboard-toggle[aria-pressed="true"] .switch-track { background:var(--teal); }
+.keyboard-toggle[aria-pressed="true"] .switch-track::after { transform:translateX(14px); }
 .playback-options { display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-bottom:12px; }
 .playback-options a { font-size:14px; }
 #completion { margin-right:auto; color:var(--muted); }

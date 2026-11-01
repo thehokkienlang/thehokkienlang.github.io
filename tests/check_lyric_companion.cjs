@@ -86,6 +86,8 @@ async function youtubeChecks() {
   let listener, ad = false;
   const sent = [];
   const video = {currentTime: 53.5, duration: 260, readyState: 4, paused: true, ended: false};
+  video.play = async () => { video.paused = false; };
+  video.pause = () => { video.paused = true; };
   const location = {href: `https://www.youtube.com/watch?v=${videoId}#tli-timing=${session}`,
     pathname: '/watch', hash: '#tli-timing=' + session};
   const window = {addEventListener() {}}; window.top = window;
@@ -107,6 +109,10 @@ async function youtubeChecks() {
   assert.equal(command('sample').sample.time, 53.5);
   assert.equal(command('seek', 64).sample.time, 64);
   assert.equal(video.paused, true, 'Seeking must not initiate playback.');
+  command('toggle');
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(video.paused, false);
+  command('toggle'); assert.equal(video.paused, true);
   assert.equal(command('seek', 999).ok, false);
   assert.equal(command('sample', null, otherSession), undefined);
   ad = true;
@@ -172,6 +178,33 @@ async function companionChecks() {
   await blocked.destroy();
 }
 
+async function sharedCandidateChecks() {
+  const node = () => ({value: '', children: [], hidden: true, selectionStart: 0, selectionEnd: 0,
+    style: {}, classList: {toggle() {}, add() {}, remove() {}},
+    append(...children) { this.children.push(...children); }, replaceChildren(...children) { this.children = children; },
+    setAttribute() {}, removeAttribute() {}, addEventListener() {}, focus() {},
+    setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; }});
+  const control = node(), menu = node();
+  const document = {activeElement: control, addEventListener() {}, createElement: node,
+    createTextNode: text => ({textContent: text}), createDocumentFragment: node};
+  const context = vm.createContext({document, window: {addEventListener() {}},
+    localStorage: {getItem() { return null; }, setItem() {}}, console, setTimeout, clearTimeout});
+  vm.runInContext(read('shared/web-hangul-ime.js'), context);
+  vm.runInContext(read('shared/web-ime-core.js'), context);
+  const entries = JSON.parse(read('public/data/hokkien-hanri-dict.json')).entries;
+  const core = context.window.TangliengimImeCore;
+  const ime = core.createTextImeController({control, candidateContainer: menu, entries,
+    dictionaryIndex: core.createDictionaryIndex(entries)});
+  await ime.preferences.ready;
+  const entry = entries.find(entry => entry.hanri === '世界' && entry.active !== false);
+  assert.ok(entry);
+  const reading = context.window.TangliengimHangulIme.normalizeReadingBase(entry.reading);
+  ime.composer.setText(reading, reading.length);
+  ime.updateControlFromComposer();
+  assert.equal(menu.hidden, false, 'The real shared TLI controller displays its candidate menu.');
+  assert.ok(ime.activeCandidates.some(candidate => candidate.entry.hanri === '世界'));
+}
+
 async function editorClickChecks() {
   const elements = new Map(), seeks = [];
   const classes = () => {
@@ -180,10 +213,12 @@ async function editorClickChecks() {
       remove(name) { values.delete(name); }, contains(name) { return values.has(name); }};
   };
   const element = () => ({value: '', checked: false, disabled: false, children: [], dataset: {},
+    listeners: {}, addEventListener(name, fn) { this.listeners[name] = fn; }, focus() {},
     classList: classes(), setAttribute() {}, append(...children) { this.children.push(...children); },
     replaceChildren(...children) { this.children = children; }});
   const get = id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); };
-  let ready = true, destroyed = false, navigated, tick, rejectClose = false;
+  let ready = true, destroyed = false, navigated, tick, rejectClose = false, imeOptions, loadedEntries, savedTiming;
+  const dictionaryEntries = [{entry_id: 'entry-test', hanri: '歌', reading: '과1', active: true}];
   const player = {time: () => ready ? 10 : null, seek: time => seeks.push(time), async destroy() {
     if (rejectClose) throw new Error('Reload the extension'); destroyed = true;
   }};
@@ -194,15 +229,39 @@ async function editorClickChecks() {
     querySelectorAll: () => get('cueRows').children};
   const context = {document, location: {search: '?file=test', href: 'http://127.0.0.1:61717/website-editor/lyric-timing.html?file=test',
       assign(url) { assert.equal(destroyed, true); navigated = url; }}, URL, URLSearchParams,
-    window: {addEventListener() {}}, structuredClone, confirm: () => true,
+    window: {addEventListener() {}, TangliengimImeCore: {
+      createCandidatePopupPositioner() { return {schedule() {}}; },
+      createDictionaryIndex(entries) { return {entries}; },
+      createTextImeController(options) { imeOptions = options; return {setEnabled() {}, preferences: {ready: Promise.resolve()},
+        setEntries(entries, index) { assert.equal(entries, index.entries); loadedEntries = entries; }}; }
+    }}, structuredClone, confirm: () => true,
     DOMParser: class {parseFromString(html) { return {querySelector: () => ({...element(), outerHTML: html})}; }},
-    fetch: async url => ({ok: true, json: async () => url.endsWith('/pages') ? {ok: true, pages: []} : fixture}),
+    fetch: async (url, options) => ({ok: true, json: async () => url.endsWith('save-lyric-timing') ?
+      (savedTiming = JSON.parse(options.body).timing, {ok: true, timing: savedTiming, message: 'Saved'}) :
+      url.endsWith('hokkien-hanri-dict.json') ? {entries: dictionaryEntries} : url.endsWith('/pages') ? {ok: true, pages: [
+      {type: 'songs', file: 'test', title: 'Maybe Maybe', searchText: 'Maybe Maybe 메ˉ삐ˆ'},
+      {type: 'songs', file: 'other-song', title: 'Other Song', searchText: 'Other Song'},
+    ]} : fixture}),
     TliLyricPlayer: require('../shared/web-lyric-player.js'),
     TliLyricCompanion: {connect: (video, onTime) => { tick = onTime; return player; }},
   };
   vm.runInNewContext(read('desktop/website_editor_ui/lyric-timing.js'), context);
   await new Promise(resolve => setImmediate(resolve));
   const rows = get('cueRows').children;
+  assert.equal(imeOptions.candidateContainer, get('songSearchCandidates'), 'Use a real candidate container, not only a bare composer.');
+  assert.equal(loadedEntries, dictionaryEntries, 'Load the shared website dictionary into the candidate controller.');
+  assert.equal(get('songImeStatus').textContent, '');
+  assert.equal(imeOptions.enabled(), true, 'Hangul keyboard is on by default.');
+  get('songHangulToggle').onclick(); assert.equal(imeOptions.enabled(), false);
+  get('songHangulToggle').onclick(); assert.equal(imeOptions.enabled(), true);
+  get('songSearch').value = '메삐'; imeOptions.onUpdate();
+  assert.equal(get('songChoice').children.length, 2, 'Hangul searches match tone-marked title readings.');
+  get('songSearch').value = 'maybe'; get('songSearch').listeners.input();
+  assert.equal(get('songChoice').children.length, 2, 'English titles are case insensitive.');
+  get('songSearch').value = 'not-a-song'; imeOptions.onUpdate();
+  assert.equal(get('songChoice').disabled, true);
+  get('songSearch').value = ''; imeOptions.onUpdate();
+  assert.equal(get('songChoice').children.length, 3, 'Clearing search restores all songs.');
   assert.equal(rows.length, 3);
   rows[1].children[0].onclick();
   assert.deepEqual(seeks, [20], 'Clicking a sentence seeks to its start.');
@@ -252,6 +311,24 @@ async function editorClickChecks() {
   tick(30, 0);
   assert.equal(rows[1].classList.contains('playing'), false);
   rejectClose = true;
+  const firstStart = rows[0].children[1];
+  firstStart.onfocus(); firstStart.value = '30'; firstStart.valueAsNumber = 30;
+  firstStart.oninput(); firstStart.onchange();
+  assert.equal(rows[0].children[2].value, 30.1);
+  assert.equal(rows[1].children[1].value, 30.2);
+  assert.equal(rows[1].children[2].value, 30.3);
+  assert.equal(rows[2].children[1].value, '', 'Do not invent timings for an untimed line.');
+  function draft(index, key, value) {
+    const input = rows[index].children[key === 'start' ? 1 : 2];
+    input.value = String(value); input.valueAsNumber = value; input.oninput();
+  }
+  draft(0, 'start', 0); draft(0, 'end', 15);
+  draft(1, 'start', 10); draft(1, 'end', 9);
+  await get('saveTiming').onclick();
+  assert.equal(savedTiming.cues[0].end, 9.9);
+  assert.equal(savedTiming.cues[1].start, 10);
+  assert.equal(savedTiming.cues[1].end, 10.1);
+  assert.equal(savedTiming.cues[2].start, null);
   const choice = {value: 'other-song'};
   await get('songChoice').onchange({target: choice});
   assert.equal(navigated, undefined, 'Do not switch songs silently if closing fails.');
@@ -269,6 +346,6 @@ async function editorClickChecks() {
   assert.deepEqual(manifest.permissions, ['storage']);
   assert.deepEqual(manifest.host_permissions, ['https://www.youtube.com/*']);
   assert.equal(manifest.content_scripts.some(script => script.matches.includes('<all_urls>')), false);
-  await backgroundChecks(); await youtubeChecks(); await companionChecks(); await editorClickChecks();
+  await backgroundChecks(); await youtubeChecks(); await companionChecks(); await sharedCandidateChecks(); await editorClickChecks();
   console.log('PASS: local pairing, tab isolation, seek/sample, ads, stale clocks, popup failure and cleanup.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

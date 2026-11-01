@@ -7,6 +7,49 @@
   let playbackGeneration = 0;
   let previewIndex = null;
   const inputs = [];
+  let songs = [], hangulEnabled = true;
+  const searchKey = value => String(value || '').normalize('NFKD').toLocaleLowerCase()
+    .replace(/[\u0300-\u036fˆˋˊˉˇꞈˎˏˍ`’'\s-]/gu, '');
+  function filterSongs() {
+    const query = searchKey($('songSearch').value);
+    const matches = songs.filter(song => searchKey(song.searchText || song.title).includes(query));
+    const options = matches.map(song => {
+      const option = document.createElement('option'); option.value = song.file; option.textContent = song.title; return option;
+    });
+    const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.disabled = true;
+    placeholder.textContent = matches.length ? 'Choose song...' : 'No matching songs';
+    $('songChoice').replaceChildren(placeholder, ...options);
+    $('songChoice').value = matches.some(song => song.file === file) ? file : '';
+    $('songChoice').disabled = !matches.length;
+    $('songSearchCount').textContent = matches.length + ' songs';
+  }
+  const candidatePopup = window.TangliengimImeCore.createCandidatePopupPositioner({
+    control: $('songSearch'), container: $('songSearchCandidates'), boundary: $('songSearchBox'),
+  });
+  const searchIme = window.TangliengimImeCore.createTextImeController({
+    control: $('songSearch'), entries: [], enabled: () => hangulEnabled,
+    candidateContainer: $('songSearchCandidates'), onCandidatesChanged: candidatePopup.schedule,
+    onUpdate: filterSongs, enterBehavior: 'none',
+  });
+  async function loadSearchCandidates() {
+    try {
+      const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache: 'no-cache'});
+      if (!response.ok) throw new Error('HTTP ' + response.status);
+      const data = await response.json();
+      if (!Array.isArray(data.entries)) throw new Error('Missing dictionary entries.');
+      await searchIme.preferences.ready;
+      searchIme.setEntries(data.entries, window.TangliengimImeCore.createDictionaryIndex(data.entries));
+      $('songImeStatus').textContent = '';
+    } catch (error) {
+      $('songImeStatus').textContent = 'TLI candidates could not load. Refresh to retry. ' + error.message;
+    }
+  }
+  $('songSearch').addEventListener('input', filterSongs);
+  $('songHangulToggle').onclick = () => {
+    hangulEnabled = !hangulEnabled;
+    $('songHangulToggle').setAttribute('aria-pressed', String(hangulEnabled));
+    searchIme.setEnabled(); $('songSearch').focus();
+  };
   const tell = (message, error = false) => { $('timingNotice').textContent = message; $('timingNotice').classList.toggle('error', error); };
   async function request(action, payload) {
     const response = await fetch('/desktop-api/website-editor/' + action, { method:'POST', cache:'no-store',
@@ -18,15 +61,9 @@
   async function loadSongs() {
     try {
       const result = await request('pages', {});
-      const songs = result.pages.filter(page => page.type === 'songs');
+      songs = result.pages.filter(page => page.type === 'songs');
       songs.sort((a, b) => a.title.localeCompare(b.title));
-      $('songChoice').replaceChildren(...songs.map(song => {
-        const option = document.createElement('option');
-        option.value = song.file;
-        option.textContent = song.title;
-        return option;
-      }));
-      $('songChoice').value = file;
+      filterSongs();
     } catch (error) { tell('Could not load the song list: ' + error.message, true); }
   }
   $('songChoice').onchange = async event => {
@@ -87,7 +124,7 @@
         if (key === 'start') input.onchange = () => {
           if (!alignPreviousEnd(index, timing.cues[index].start)) {
             timing.cues[index].start = committedStart; input.value = committedStart ?? ''; progress();
-          } else committedStart = timing.cues[index].start;
+          } else { repairFollowing(index); committedStart = timing.cues[index].start; }
         };
         pair[key] = input;
       }
@@ -109,6 +146,41 @@
     tell('Previous sentence\'s end adjusted to ' + clock(end) + '.');
     return true;
   }
+  function repairFollowing(index) {
+    const rounded = value => Math.round(value * 100) / 100;
+    for (let i = index; i < timing.cues.length; i++) {
+      const cue = timing.cues[i];
+      if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) break;
+      if (cue.end <= cue.start) {
+        cue.end = rounded(cue.start + 0.1); inputs[i].end.value = cue.end; edit();
+      }
+      const next = timing.cues[i + 1];
+      if (!next || !Number.isFinite(next.start) || next.start > cue.end) break;
+      next.start = rounded(cue.end + 0.1); inputs[i + 1].start.value = next.start; edit();
+    }
+  }
+  function repairTimeline() {
+    let previous = null;
+    const rounded = value => Math.round(value * 100) / 100;
+    timing.cues.forEach((cue, index) => {
+      if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end) || cue.start < 0 || cue.end < 0) return;
+      const oldStart = cue.start, oldEnd = cue.end;
+      if (previous !== null) {
+        const prior = timing.cues[previous];
+        if (cue.start < rounded(prior.end + 0.1)) {
+          // Preserve the authored start where possible; shorten the prior end first.
+          if (rounded(cue.start - 0.1) <= prior.start) cue.start = rounded(prior.start + 0.2);
+          prior.end = rounded(cue.start - 0.1);
+          inputs[previous].end.value = prior.end; edit();
+        }
+      }
+      if (cue.end <= cue.start) cue.end = rounded(cue.start + 0.1);
+      if (cue.start !== oldStart || cue.end !== oldEnd) {
+        inputs[index].start.value = cue.start; inputs[index].end.value = cue.end; edit();
+      }
+      previous = index;
+    });
+  }
   async function mark(key) {
     const active = connection, index = selected;
     let time;
@@ -120,6 +192,7 @@
     if (key === 'end' && (!Number.isFinite(cue.start) || time <= cue.start)) return tell('Mark a start before the end of this sentence.', true);
     if (key === 'start' && !alignPreviousEnd(selected, Math.round(time*100)/100)) return;
     cue[key] = Math.round(time*100)/100; inputs[selected][key].value = cue[key]; edit();
+    if (key === 'start') repairFollowing(selected);
     if (key === 'end' && $('advanceAfterEnd').checked && selected+1 < timing.cues.length) select(selected+1);
     tell('Marked ' + key + ' at ' + clock(time) + '.');
   }
@@ -130,11 +203,15 @@
     connection.seek(start);
   }
   function playerStatus(message) {
+    $('togglePlayback').disabled = true;
     $('playerState').textContent = message;
     $('markStart').disabled = $('markEnd').disabled = $('seekStart').disabled = true;
     document.querySelectorAll('.cue-row.playing').forEach(row => row.classList.remove('playing'));
   }
   function playerTime(time, state) {
+    $('togglePlayback').disabled = false;
+    $('togglePlayback').textContent = state === 1 ? 'Pause' : 'Play';
+    $('togglePlayback').setAttribute('aria-label', state === 1 ? 'Pause video' : 'Play video');
     $('clock').textContent = clock(time);
     $('markStart').disabled = $('markEnd').disabled = $('seekStart').disabled = false;
     const cue = TliLyricPlayer.cueAt(timing.cues, time);
@@ -172,6 +249,7 @@
     finally { loading = false; }
   }
   $('markStart').onclick = () => mark('start'); $('markEnd').onclick = () => mark('end');
+  $('togglePlayback').onclick = () => connection?.toggle();
   $('openYoutube').onclick = () => {
     connection?.open().catch(error => tell(error.message, true));
   };
@@ -184,6 +262,7 @@
     $('saveTiming').disabled = true;
     try {
       if (timing.cues.some(c => c.start !== null && !Number.isFinite(c.start) || c.end !== null && !Number.isFinite(c.end))) throw new Error('Enter valid numbers for the sentence times.');
+      repairTimeline();
       const result = await request('save-lyric-timing', { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing });
       snapshot.revision = result.revision; timing = result.timing; dirty = false; progress(); tell(result.message);
     } catch (error) { tell(error.message, true); }
@@ -192,5 +271,6 @@
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   window.addEventListener('pagehide', () => connection?.destroy().catch(() => {}));
   loadSongs();
+  loadSearchCandidates();
   load();
 })();
