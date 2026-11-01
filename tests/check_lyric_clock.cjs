@@ -18,7 +18,7 @@ console.log('PASS: lyric boundaries, gaps, repeats and backward seeks.');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
-function fixture(status = 'reviewed', mobile = true, wrapped = true) {
+function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading = true) {
   const makeLine = () => ({ active:false, current:false, scrolled:0, attributes:{}, listeners:{},
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
     setAttribute(name, value) { this.attributes[name] = value; if (name === 'aria-current') this.current = true; },
@@ -29,6 +29,7 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true) {
   Object.values(lines).forEach(line => line.classList.owner = line);
   let callback, errorCallback, connected = false, connections = 0, replacements = 0;
   let placement = '';
+  const heading = {insertAdjacentElement(position) { placement = 'heading:' + position; }};
   const figure = {insertAdjacentElement(position) { placement = 'figure:' + position; }};
   const frame = {src:'https://www.youtube.com/embed/HNYkSBkQ33Y',
     closest() { return wrapped ? figure : null; },
@@ -38,7 +39,7 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true) {
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
     querySelectorAll: () => [frame],
-    querySelector: selector => selector === '.lyric-sync-controls' ? controls : lines[selector.match(/"(.*?)"/)[1]]};
+    querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
   const seeks = [];
   let selection = '', selectionNode;
   const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), destroy() {}}); }};
@@ -51,8 +52,9 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true) {
 }
 assert.equal(fixture('draft').connected, true);
 const ui = fixture();
-assert.equal(ui.placement, 'figure:afterend');
-assert.equal(fixture('draft', true, false).placement, 'iframe:afterend');
+assert.equal(ui.placement, 'heading:afterend');
+assert.equal(fixture('draft', true, true, false).placement, 'figure:afterend');
+assert.equal(fixture('draft', true, false, false).placement, 'iframe:afterend');
 assert.equal(ui.follow.checked, true);
 ui.tick(10); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.first.scrolled, 1);
 ui.tick(12,2); assert.equal(ui.lines.first.active, true); // Pause retains the current sentence.
