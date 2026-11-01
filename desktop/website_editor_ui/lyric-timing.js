@@ -222,6 +222,7 @@
     catch (error) { return tell(error.message, true); }
     if (active !== connection || index !== selected) return;
     if (!Number.isFinite(time)) return tell('Wait for the YouTube player to be ready.', true);
+    if (key === 'start') time = Math.max(0, time - 0.2);
     const cue = timing.cues[selected];
     if (key === 'end' && (!Number.isFinite(cue.start) || time <= cue.start)) return tell('Mark a start before the end of this sentence.', true);
     const before = structuredClone(timing);

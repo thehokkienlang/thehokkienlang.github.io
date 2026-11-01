@@ -302,8 +302,8 @@ async function editorClickChecks() {
   const beforeMark = seeks.length;
   await get('markStart').onclick();
   assert.equal(seeks.length, beforeMark, 'Selecting and marking a sentence must not seek first.');
-  assert.equal(rows[1].children[1].value, '00:10.000', 'Mark start uses the current playback time, not the old saved start.');
-  assert.equal(previousEnd.value, '00:09.900', 'Mark start also leaves the same 0.1-second gap.');
+  assert.equal(rows[1].children[1].value, '00:09.800', 'Mark start uses the current playback time with a 0.2-second reaction-time lead.');
+  assert.equal(previousEnd.value, '00:09.700', 'Mark start also leaves the same 0.1-second gap.');
   tick(0, 1);
   assert.equal(get('togglePlayback').textContent, '\u23f8');
   assert.equal(rows[0].classList.contains('playing'), true);

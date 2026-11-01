@@ -3614,6 +3614,43 @@
           "count": 4,
           "example": "\n  \n    릐 됴知影 꽈’에 苦澀 "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "22b1b9853e8b2cbf7bdc07a82048e33b9ad379f062e90910f1cebb7372d06269",
+          "afterSha256": "88fecd88240b80493e02ca765fceab5c2e1618709229eed8243ba6b2b2d70639",
+          "reason": "Author-requested removal of four mistakenly duplicated lyric paragraphs",
+          "edits": [
+            {
+              "start": 15377,
+              "end": 16323,
+              "before": "<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em\">\n    <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">手<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">츄`</rt></ruby> <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">捧<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.4em\">팡-</rt></ruby><ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">一杯<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">짇붸ˉ-</rt></ruby><ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">酒<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">쥬`</rt></ruby>\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    chiù phang-jit-puē-jiù\n  </span>\n</p>\n",
+              "after": "",
+              "rule": "Author-requested removal of four mistakenly duplicated lyric paragraphs"
+            },
+            {
+              "start": 16325,
+              "end": 16873,
+              "before": "<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em\">\n    <ruby style=\"position: relative\">꽈<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby><ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">心內<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.55em\">심ˉ래ˉ</rt></ruby>\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    goâ-sīm-lāi\n  </span>\n</p>\n",
+              "after": "",
+              "rule": "Author-requested removal of four mistakenly duplicated lyric paragraphs"
+            },
+            {
+              "start": 16875,
+              "end": 17642,
+              "before": "<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em\">\n    <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">蹛<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.4em\">돠</rt></ruby>’됴 <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">一个<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">짇에-</rt></ruby><ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">人<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">랑ˊ</rt></ruby>\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    toa’tio jit-e-láng\n  </span>\n</p>\n",
+              "after": "",
+              "rule": "Author-requested removal of four mistakenly duplicated lyric paragraphs"
+            },
+            {
+              "start": 17644,
+              "end": 18411,
+              "before": "<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em\">\n    <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">蹛<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.4em\">돠</rt></ruby>’됴 <ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">一个<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">짇에-</rt></ruby><ruby style=\"font-family:Sans-serif, Noto Sans;position: relative;white-space: nowrap\">人<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">랑ˊ</rt></ruby>\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    toa’tio jit-e-láng\n  </span>\n</p>\n",
+              "after": "\n\n\n\n",
+              "rule": "Author-requested removal of four mistakenly duplicated lyric paragraphs"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-9833.json": {
