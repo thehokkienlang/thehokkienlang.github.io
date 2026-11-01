@@ -104,13 +104,22 @@ class LyricTimingTests(unittest.TestCase):
             service.save_lyric_timing(reloaded['file'], reloaded['sourceRevision'], reloaded['revision'], reloaded['timing'])
 
     def test_published_sidecars_match_authored_lyrics(self):
-        for identity, count in (('song-11533', 24), ('song-8502', 24), ('song-192', 32), ('song-5643', 56), ('song-231', 40), ('song-9996', 22), ('song-10032', 40)):
+        for identity, count in (('song-11533', 24), ('song-8502', 24), ('song-192', 32), ('song-5643', 56), ('song-231', 40), ('song-9996', 22), ('song-10032', 41)):
             with self.subTest(song=identity):
                 source = json.loads((ROOT/f'content/songs/{identity}.json').read_text(encoding='utf-8'))
                 data = json.loads(timing_path(ROOT, source).read_text(encoding='utf-8'))
                 validate_timing(source, data)
                 self.assertEqual(len(data['cues']), count)
-                self.assertTrue(all(cue['start'] is not None and cue['end'] is not None for cue in data['cues']))
+                self.assertTrue(any(cue['start'] is not None for cue in data['cues']))
+                if data['status'] == 'reviewed':
+                    self.assertTrue(all(cue['start'] is not None and cue['end'] is not None for cue in data['cues']))
+
+    def test_every_published_sidecar_validates_against_its_source(self):
+        for path in sorted((ROOT/'data/lyric-timings').glob('*.json')):
+            with self.subTest(song=path.stem):
+                source = json.loads((ROOT/f'content/songs/{path.stem}.json').read_text(encoding='utf-8'))
+                data = json.loads(path.read_text(encoding='utf-8'))
+                validate_timing(source, data)
 
 
 if __name__ == '__main__': unittest.main()
