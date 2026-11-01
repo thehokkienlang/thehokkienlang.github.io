@@ -15,7 +15,7 @@
       script.src = 'https://www.youtube.com/iframe_api';
       script.onerror = () => { clearTimeout(timeout); reject(new Error('YouTube could not load.')); };
       document.head.append(script);
-    });
+    }).catch(error => { apiPromise = null; throw error; });
     return apiPromise;
   }
   function cueAt(cues, time) {

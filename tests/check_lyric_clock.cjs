@@ -24,22 +24,26 @@ function fixture(status = 'reviewed', mobile = true) {
     setAttribute(name, value) { this.attributes[name] = value; if (name === 'aria-current') this.current = true; },
     removeAttribute(name) { delete this.attributes[name]; if (name === 'aria-current') this.current = false; },
     addEventListener(name, handler) { this.listeners[name] = handler; },
-    scrollIntoView() { this.scrolled++; } });
+    scrollIntoView() { this.scrolled++; }, contains(node) { return node === this; } });
   const lines = {first:makeLine(), repeat:makeLine()};
   Object.values(lines).forEach(line => line.classList.owner = line);
-  let callback, connected = false;
+  let callback, errorCallback, connected = false, connections = 0, replacements = 0;
+  const frame = {src:'https://www.youtube.com/embed/HNYkSBkQ33Y',
+    cloneNode() { return {...this}; }, replaceWith() { replacements++; }};
   const label = {textContent:''}, follow = {checked:false};
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
-    querySelectorAll: () => [{src:'https://www.youtube.com/embed/HNYkSBkQ33Y'}],
+    querySelectorAll: () => [frame],
     querySelector: selector => selector === '.lyric-sync-controls' ? controls : lines[selector.match(/"(.*?)"/)[1]]};
   const seeks = [];
-  let selection = '';
-  const player = {cueAt, connect: (frame, cb) => { connected = true; callback = cb; return Promise.resolve({seek:(...args) => seeks.push(args)}); }};
-  vm.runInNewContext(source, {document, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection})}, TliLyricPlayer:player, URL, URLSearchParams,
+  let selection = '', selectionNode;
+  const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), destroy() {}}); }};
+  vm.runInNewContext(source, {document, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection, anchorNode:selectionNode, focusNode:selectionNode})}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
     matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
-  return {lines, controls, follow, label, connected, seeks, select:value => { selection = value; }, tick:(time,state=1) => callback(time,state)};
+  return {lines, controls, follow, label, connected, seeks, get connections() { return connections; }, get replacements() { return replacements; },
+    fail:() => errorCallback(new Error('Temporary player error')),
+    select:(value, outside = false) => { selection = value; selectionNode = outside ? {} : lines.first; }, tick:(time,state=1) => callback(time,state)};
 }
 assert.equal(fixture('draft').connected, true);
 const ui = fixture();
@@ -69,11 +73,22 @@ Promise.resolve().then(async () => {
   ui.select('selected lyrics');
   line.listeners.click({target});
   assert.equal(ui.seeks.length, 1);
+  ui.select('Text selected elsewhere', true);
+  line.listeners.click({target});
+  assert.deepEqual(ui.seeks[1], [10, true]);
   let prevented = false;
   line.listeners.keydown({target:line, key:'Enter', preventDefault:() => { prevented = true; }});
   assert.equal(prevented, true);
   assert.deepEqual(ui.seeks[1], [10, true]);
   assert.equal(line.attributes.tabindex, '0');
+  // A failed connection must be recoverable by another explicit lyric click.
+  await new Promise(resolve => setImmediate(resolve));
+  ui.fail();
+  line.listeners.click({target});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(ui.connections, 2);
+  assert.equal(ui.replacements, 1);
+  assert.deepEqual(ui.seeks.at(-1), [10, true]);
   console.log('PASS: click/keyboard seeking, nested links and text selection.');
   let events;
   const calls = [];

@@ -4,7 +4,7 @@
   if (!data || !window.TliLyricPlayer) return;
   const timing = JSON.parse(data.textContent);
   if (!timing.cues.some(cue => Number.isFinite(cue.start) && Number.isFinite(cue.end))) return;
-  const iframe = [...document.querySelectorAll('iframe')].find(frame => {
+  let iframe = [...document.querySelectorAll('iframe')].find(frame => {
     try { return new URL(frame.src).pathname === '/embed/' + timing.videoId; } catch { return false; }
   });
   if (!iframe) return;
@@ -13,14 +13,26 @@
   const follow = controls.querySelector('input');
   controls.hidden = false;
   let active = null;
+  let controller = null, pendingSeek = null, connecting = false, playerFailed = false;
+  function releasePlayer(player) {
+    if (!player?.destroy) return;
+    const replacement = iframe.cloneNode(false);
+    iframe.replaceWith(replacement);
+    player.destroy();
+    iframe = replacement;
+  }
   const fail = error => {
+    playerFailed = true;
+    releasePlayer(controller); controller = null;
     active?.classList.remove('lyric-active'); active?.removeAttribute('aria-current'); active = null;
     status.textContent = error.message;
   };
-  let controller = null, pendingSeek = null;
   const seekLine = time => {
     if (controller) controller.seek(time, true);
-    else pendingSeek = time;
+    else {
+      pendingSeek = time;
+      if (!connecting) connectPlayer();
+    }
   };
   for (const cue of timing.cues) {
     if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) continue;
@@ -30,7 +42,9 @@
     line.setAttribute('role', 'button');
     line.setAttribute('data-lyric-seek', '');
     line.addEventListener('click', event => {
-      if (event.target.closest('a, button, input') || window.getSelection()?.toString()) return;
+      if (event.target.closest('a, button, input')) return;
+      const selection = window.getSelection();
+      if (selection?.toString() && (line.contains(selection.anchorNode) || line.contains(selection.focusNode))) return;
       seekLine(cue.start);
     });
     line.addEventListener('keydown', event => {
@@ -39,7 +53,10 @@
       seekLine(cue.start);
     });
   }
-  TliLyricPlayer.connect(iframe, (time, state) => {
+  function connectPlayer() {
+    if (connecting) return;
+    connecting = true; playerFailed = false;
+    TliLyricPlayer.connect(iframe, (time, state) => {
     status.textContent = '';
     const cue = state === 0 ? null : TliLyricPlayer.cueAt(timing.cues, time);
     const next = cue ? document.querySelector(`[data-lyric-id="${cue.id}"]`) : null;
@@ -51,7 +68,10 @@
     active.classList.add('lyric-active'); active.setAttribute('aria-current', 'true');
     if (follow.checked && matchMedia('(max-width: 700px)').matches) active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
   }, fail).then(player => {
+    if (playerFailed) { releasePlayer(player); return; }
     controller = player;
     if (pendingSeek !== null) { controller.seek(pendingSeek, true); pendingSeek = null; }
-  }).catch(fail);
+  }).catch(fail).finally(() => { connecting = false; });
+  }
+  connectPlayer();
 })();
