@@ -18,7 +18,7 @@ console.log('PASS: lyric boundaries, gaps, repeats and backward seeks.');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
-function fixture(status = 'reviewed', mobile = true) {
+function fixture(status = 'reviewed', mobile = true, wrapped = true) {
   const makeLine = () => ({ active:false, current:false, scrolled:0, attributes:{}, listeners:{},
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
     setAttribute(name, value) { this.attributes[name] = value; if (name === 'aria-current') this.current = true; },
@@ -28,7 +28,11 @@ function fixture(status = 'reviewed', mobile = true) {
   const lines = {first:makeLine(), repeat:makeLine()};
   Object.values(lines).forEach(line => line.classList.owner = line);
   let callback, errorCallback, connected = false, connections = 0, replacements = 0;
+  let placement = '';
+  const figure = {insertAdjacentElement(position) { placement = 'figure:' + position; }};
   const frame = {src:'https://www.youtube.com/embed/HNYkSBkQ33Y',
+    closest() { return wrapped ? figure : null; },
+    insertAdjacentElement(position) { placement = 'iframe:' + position; },
     cloneNode() { return {...this}; }, replaceWith() { replacements++; }};
   const label = {textContent:''}, follow = {checked:false};
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
@@ -41,12 +45,14 @@ function fixture(status = 'reviewed', mobile = true) {
   vm.runInNewContext(source, {document, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection, anchorNode:selectionNode, focusNode:selectionNode})}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
     matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
-  return {lines, controls, follow, label, connected, seeks, get connections() { return connections; }, get replacements() { return replacements; },
+  return {lines, controls, follow, label, connected, seeks, placement, get connections() { return connections; }, get replacements() { return replacements; },
     fail:() => errorCallback(new Error('Temporary player error')),
     select:(value, outside = false) => { selection = value; selectionNode = outside ? {} : lines.first; }, tick:(time,state=1) => callback(time,state)};
 }
 assert.equal(fixture('draft').connected, true);
 const ui = fixture();
+assert.equal(ui.placement, 'figure:afterend');
+assert.equal(fixture('draft', true, false).placement, 'iframe:afterend');
 assert.equal(ui.follow.checked, true);
 ui.tick(10); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.first.scrolled, 1);
 ui.tick(12,2); assert.equal(ui.lines.first.active, true); // Pause retains the current sentence.

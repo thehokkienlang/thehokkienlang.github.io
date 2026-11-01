@@ -11,6 +11,7 @@
   const controls = document.querySelector('.lyric-sync-controls');
   const status = controls.querySelector('[data-lyric-status]');
   const follow = controls.querySelector('input');
+  (iframe.closest('figure') || iframe).insertAdjacentElement('afterend', controls);
   follow.checked = matchMedia('(max-width: 700px)').matches;
   controls.hidden = false;
   let active = null;
