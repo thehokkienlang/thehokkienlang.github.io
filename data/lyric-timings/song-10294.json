@@ -38,12 +38,12 @@
       "id": "line-006",
       "fingerprint": "174c5ed49457f805401bfe00f57994820a0b7137ba12626dea8026ad02403356",
       "start": 64.0,
-      "end": 70.95
+      "end": 70.0
     },
     {
       "id": "line-007",
       "fingerprint": "076d38f406550c4dd2c06bf9eee4273bf642448aa99a4a9892dcbe32426bd9ff",
-      "start": 71.05,
+      "start": 70.1,
       "end": 75.35
     },
     {
@@ -62,55 +62,55 @@
       "id": "line-010",
       "fingerprint": "554d9b6b49858bf5acde2d057d2db7bd4df055792a818e685c992436efcea3f9",
       "start": 108.1,
-      "end": 113.65
+      "end": 117.1
     },
     {
       "id": "line-011",
       "fingerprint": "777391bc8a388407ec12dcc40f73b9dbe3d9955ab8936c6b738d4458ca0d8261",
-      "start": 113.75,
-      "end": 117.7
+      "start": 117.2,
+      "end": 123.2
     },
     {
       "id": "line-012",
       "fingerprint": "2ef9e3d288ba4c684ed68666b6212ea0150ee28dfd00616b719d2c949c5769f3",
-      "start": 117.8,
-      "end": 121.35
+      "start": 123.3,
+      "end": 126.9
     },
     {
       "id": "line-013",
       "fingerprint": "174c5ed49457f805401bfe00f57994820a0b7137ba12626dea8026ad02403356",
-      "start": 121.45,
-      "end": 128.35
+      "start": 127.0,
+      "end": 133.9
     },
     {
       "id": "line-014",
       "fingerprint": "797aadbfe1e2f75a618dc60b859285b4e0301a96a3fb4edee8a3a6d45ea8347a",
-      "start": 128.45,
-      "end": 134.7
+      "start": 134.0,
+      "end": 140.25
     },
     {
       "id": "line-015",
       "fingerprint": "107bea574541319408846a12b1a454f2f69309b19091ecbade7a638179beb58b",
-      "start": 134.8,
-      "end": 138.4
+      "start": 140.35,
+      "end": 143.95
     },
     {
       "id": "line-016",
       "fingerprint": "0421e2b1241273884f084a2218081be97792de6dfdc1a980737df7da416bc92a",
-      "start": 138.5,
-      "end": 142.4
+      "start": 144.05,
+      "end": 147.95
     },
     {
       "id": "line-017",
       "fingerprint": "de9177247bb6d3f9082a5e25be4e8c1202e03229cb990ba29459e8c2efa16df7",
-      "start": 142.5,
-      "end": 149.75
+      "start": 148.05,
+      "end": 155.3
     },
     {
       "id": "line-018",
       "fingerprint": "918328335f87d4125a895165c6de2cb9408870afcb3e70f4425204771462b502",
-      "start": 149.85,
-      "end": 160.6
+      "start": 155.4,
+      "end": 166.15
     }
   ]
 }
