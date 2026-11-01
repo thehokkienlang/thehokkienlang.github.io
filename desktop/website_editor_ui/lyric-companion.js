@@ -26,7 +26,7 @@
       Number.isFinite(sample.time) && sample.time >= 0 && sample.time <= 86400;
     function accept(sample) {
       last = sample; received = Date.now();
-      if (valid(sample)) onTime(sample.time, sample.state);
+      if (valid(sample)) onTime(sample.time, sample.state, sample.duration);
       else onStatus(sample?.ad ? 'Advertisement - timing paused' : 'Waiting for the song');
     }
     const listen = event => {
