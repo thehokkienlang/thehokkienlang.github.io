@@ -1,8 +1,9 @@
-"""Popup lifetime follows editor pages rather than Edge process delegation."""
+"""Editor lifetime follows browser pages rather than Edge process delegation."""
 import io
 import json
 import sys
 import threading
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -15,6 +16,20 @@ import tangliengim_web_shell as shell
 
 
 class EditorLifetimeTests(unittest.TestCase):
+    def test_editor_uses_normal_edge_tab_and_installed_extension_profile(self):
+        command = shell._edge_app_command(Path('msedge.exe'), 'http://127.0.0.1:1234/editors/', editor=True)
+        self.assertIn('--profile-directory=Default', command)
+        self.assertIn('--new-tab', command)
+        self.assertIn('http://127.0.0.1:1234/editors/', command)
+        self.assertFalse(any(arg.startswith('--app=') for arg in command))
+        self.assertFalse(any(arg.startswith('--user-data-dir=') for arg in command))
+
+    def test_ime_retains_its_separate_profile(self):
+        with tempfile.TemporaryDirectory() as folder, patch.dict(shell.os.environ, {'LOCALAPPDATA': folder}):
+            command = shell._edge_app_command(Path('msedge.exe'), 'http://127.0.0.1:1234/ime/')
+            self.assertIn(f'--user-data-dir={Path(folder) / "Tangliengim" / "DesktopProfile"}', command)
+            self.assertNotIn('--profile-directory=Default', command)
+
     def test_http_heartbeat_and_page_injection(self):
         server = shell.DesktopHttpServer(ROOT, ROOT / 'desktop/Hokkien Tangliengim IME Pad.py')
         thread = threading.Thread(target=server.serve_forever, daemon=True)

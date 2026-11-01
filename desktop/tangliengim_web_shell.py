@@ -344,10 +344,13 @@ def find_edge() -> Path | None:
 
 
 def _edge_app_command(edge: Path, url: str, *, editor: bool = False) -> list[str]:
-    profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / ("DictionaryEditorProfile" if editor else "DesktopProfile")
+    if editor:
+        # Use the normal Edge profile where the YouTube companion is installed.
+        return [str(edge), "--profile-directory=Default", "--new-tab", url]
+    profile = Path(os.environ.get("LOCALAPPDATA", Path.home())) / "Tangliengim" / "DesktopProfile"
     profile.mkdir(parents=True, exist_ok=True)
     return [str(edge), f"--app={url}", f"--user-data-dir={profile}",
-            "--window-size=1200,860" if editor else "--window-size=920,800",
+            "--window-size=920,800",
             "--no-first-run", "--disable-features=msEdgeFirstRunExperience"]
 
 
@@ -873,7 +876,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
                     raise EditorError('The dictionary operation is no longer available.')
         edge = find_edge()
         if edge is None:
-            raise EditorError('Microsoft Edge could not be found to open the desktop editor window.')
+            raise EditorError('Microsoft Edge could not be found to open the editor tab.')
         url = f'http://127.0.0.1:{self.server_port}/editor/'
         if job is not None:
             url += '?' + urlencode({'job': job})
@@ -1049,7 +1052,7 @@ def run_desktop_shell(
         edge = find_edge()
         if edge is None:
             if editor:
-                raise RuntimeError('Microsoft Edge could not be found to open the editor popup.')
+                raise RuntimeError('Microsoft Edge could not be found to open the editor tab.')
             _fallback_browser_host(url, editor=editor)
             return
         started = time.monotonic()
