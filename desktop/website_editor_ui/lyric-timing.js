@@ -215,35 +215,33 @@
       previous = index;
     });
   }
-  async function mark(key) {
+  async function markStart() {
     const active = connection, index = selected;
     let time;
     try { time = active?.sample ? await active.sample() : active?.time(); }
     catch (error) { return tell(error.message, true); }
     if (active !== connection || index !== selected) return;
     if (!Number.isFinite(time)) return tell('Wait for the YouTube player to be ready.', true);
-    if (key === 'start') time = Math.max(0, time - 0.2);
+    time = Math.max(0, time - 0.2);
     const cue = timing.cues[selected];
-    if (key === 'end' && (!Number.isFinite(cue.start) || time <= cue.start)) return tell('Mark a start before the end of this sentence.', true);
     const before = structuredClone(timing);
-    if (key === 'start' && !alignPreviousEnd(selected, Math.round(time*1000)/1000)) return;
-    cue[key] = Math.round(time*1000)/1000; inputs[selected][key].value = clock(cue[key]); edit();
-    if (key === 'start') repairFollowing(selected);
+    if (!alignPreviousEnd(selected, Math.round(time*1000)/1000)) return;
+    cue.start = Math.round(time*1000)/1000; inputs[selected].start.value = clock(cue.start); edit();
+    repairFollowing(selected);
     remember(before);
-    if (key === 'end' && $('advanceAfterEnd').checked && selected+1 < timing.cues.length) select(selected+1);
-    tell('Marked ' + key + ' at ' + clock(time) + '.');
+    tell('Marked start at ' + clock(time) + '.');
   }
-  function seekSelected() {
-    const start = timing?.cues[selected].start;
-    if (!Number.isFinite(start)) return tell('This sentence has no start time yet.');
+  function seekSelected(key = 'start') {
+    const time = timing?.cues[selected][key];
+    if (!Number.isFinite(time)) return tell('This sentence has no ' + key + ' time yet.');
     if (!Number.isFinite(connection?.time())) return tell('Connect the YouTube player and wait for any advertisement to finish before seeking.', true);
-    connection.seek(start);
+    connection.seek(time);
   }
   function playerStatus(message) {
     scrubbing = false; $('playbackSeek').disabled = true;
     $('togglePlayback').disabled = true;
     $('playerState').textContent = message;
-    $('markStart').disabled = $('markEnd').disabled = $('seekStart').disabled = true;
+    $('markStart').disabled = $('seekStart').disabled = $('seekEnd').disabled = true;
     document.querySelectorAll('.cue-row.playing').forEach(row => row.classList.remove('playing'));
   }
   function playerTime(time, state, duration) {
@@ -259,7 +257,7 @@
     $('togglePlayback').title = state === 1 ? 'Pause video' : 'Play video';
     $('togglePlayback').setAttribute('aria-label', state === 1 ? 'Pause video' : 'Play video');
     if (!scrubbing) $('clock').textContent = clock(time);
-    $('markStart').disabled = $('markEnd').disabled = $('seekStart').disabled = false;
+    $('markStart').disabled = $('seekStart').disabled = $('seekEnd').disabled = false;
     const cue = TliLyricPlayer.cueAt(timing.cues, time);
     document.querySelectorAll('.cue-row').forEach((row, i) => row.classList.toggle('playing', state !== 0 && timing.cues[i] === cue));
     if (cue && state !== 0) showPreview(timing.cues.indexOf(cue));
@@ -294,14 +292,14 @@
       undoHistory.length = 0;
       $('timingTitle').textContent = result.title; $('timingStatus').value = timing.status;
       $('saveTiming').disabled = false;
-      $('markStart').disabled = $('markEnd').disabled = $('seekStart').disabled = true;
+      $('markStart').disabled = $('seekStart').disabled = $('seekEnd').disabled = true;
       $('clearCue').disabled = false;
       render(); tell(result.warning || 'Timings are separate from the lyrics. Save here never commits or pushes.', Boolean(result.warning));
       await startPlayback();
     } catch (error) { tell(error.message, true); }
     finally { loading = false; }
   }
-  $('markStart').onclick = () => mark('start'); $('markEnd').onclick = () => mark('end');
+  $('markStart').onclick = markStart;
   $('togglePlayback').onclick = () => connection?.toggle();
   $('playbackSeek').oninput = () => {
     if ($('playbackSeek').disabled) return;
@@ -317,7 +315,8 @@
   $('openYoutube').onclick = () => {
     connection?.open().catch(error => tell(error.message, true));
   };
-  $('seekStart').onclick = seekSelected;
+  $('seekStart').onclick = () => seekSelected('start');
+  $('seekEnd').onclick = () => seekSelected('end');
   $('undoTiming').onclick = () => {
     const previous = undoHistory.pop();
     if (!previous) return;
