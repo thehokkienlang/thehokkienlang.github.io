@@ -61,6 +61,15 @@ in the CMS after approving the recording alignment and visual preview.
 
 ## Checks
 
+### Future detector-generated timing
+
+For future audio/vocal-onset timing passes, set each generated sentence start to
+`max(0, detected_onset_seconds - 0.1)`. This 100 ms visual lead gives readers a
+buffer before the next sung sentence. Apply it once to the raw detected onset,
+not repeatedly to an already adjusted cue. Preserve sentence ordering and repair
+adjacent end boundaries when needed. Do not retroactively shift existing cues,
+user-supplied timestamps, or times captured manually with Mark start.
+
 - `python -m unittest discover -s tests -p test_site_lyric_timing.py`
 - `node tests/check_lyric_clock.cjs`
 - `python tools/build_site.py`

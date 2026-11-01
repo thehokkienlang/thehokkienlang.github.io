@@ -26,7 +26,7 @@
     <span id="songImeStatus" role="status" aria-live="polite">Loading TLI candidates...</span>
     <label>Song<select id="songChoice" aria-label="Choose song"><option value="">Loading songs...</option></select></label>
     <label>Status<select id="timingStatus"><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
-    <span id="completion"></span><button id="undoTiming" disabled aria-label="Undo timing edit" title="Undo timing edit">↶</button><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
+    <span id="completion"></span><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
   </div>
   <p id="timingNotice" role="status" aria-live="polite">Loading song…</p>
   <main class="timing-workspace">
@@ -38,7 +38,7 @@
       </div>
       <div class="clock-row"><output id="clock">00:00.000</output><span id="playerState">Waiting for YouTube</span></div>
       <input id="playbackSeek" class="playback-seek" type="range" min="0" max="0" step="0.001" value="0" disabled aria-label="Video playback position">
-      <div class="timing-commands"><button id="markStart" disabled title="Mark the selected sentence's start at the current video time">Mark start</button><button id="markEnd" disabled title="Mark the selected sentence's end at the current video time">Mark end</button><button id="seekStart" disabled title="Seek to the selected sentence's start">Go to start</button><button id="clearCue" disabled>Clear times</button></div>
+      <div class="timing-commands"><button id="markStart" disabled title="Mark the selected sentence's start at the current video time">Mark start</button><button id="markEnd" disabled title="Mark the selected sentence's end at the current video time">Mark end</button><button id="seekStart" disabled title="Seek to the selected sentence's start">Go to start</button><button id="clearCue" disabled>Clear times</button><button id="undoTiming" disabled aria-label="Undo timing edit" title="Undo timing edit">↶</button></div>
       <label class="advance-option"><input id="advanceAfterEnd" type="checkbox" checked> Advance after marking end</label>
       <label class="advance-option"><input id="previewHighlight" type="checkbox" checked> Highlight preview</label>
       <iframe id="lyricPreview" title="Selected lyric preview" sandbox="allow-same-origin allow-scripts"></iframe>

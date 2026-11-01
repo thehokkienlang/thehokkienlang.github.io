@@ -10,7 +10,7 @@
     const video = player?.querySelector('video');
     const ad = Boolean(player?.classList.contains('ad-showing') || player?.classList.contains('ad-interrupting'));
     const sameVideo = new URL(location.href).searchParams.get('v') === videoId && location.pathname === '/watch';
-    const ready = Boolean(sameVideo && video && video.readyState >= 2 && !ad &&
+    const ready = Boolean(sameVideo && video && video.readyState >= 1 && !ad &&
       Number.isFinite(video.currentTime) && Number.isFinite(video.duration) && video.duration > 0);
     return {videoId, ready, ad, time: ready ? video.currentTime : null,
       duration: ready ? video.duration : null, state: video?.ended ? 0 : video?.paused ? 2 : 1};
