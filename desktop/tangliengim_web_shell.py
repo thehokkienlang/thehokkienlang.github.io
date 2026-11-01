@@ -103,29 +103,12 @@ DESKTOP_SCRIPT = r"""
   `;
   document.head.append(style);
 
-  const htmlStyle = document.createElement("select");
-  htmlStyle.id = "desktopHtmlStyle";
-  htmlStyle.className = "desktop-html-style";
-  htmlStyle.setAttribute("aria-label", "HTML mode");
-  const modes = [
-    ["plain", "Plain inline"],
-    ["lomari_ruby_below", "Lomari ruby below"],
-    ["lomari_next_line", "Mandarin + Lomari"],
-    ["song", "Lyrics"],
-    ["novel", "Novel paragraph"],
-    ["novel_first", "Novel first line"],
-    ["title", "Title"],
-  ];
-  for (const [value, label] of modes) htmlStyle.add(new Option(label, value));
-  htmlStyle.value = localStorage.getItem("tangliengim-html-style") || "plain";
-  htmlStyle.addEventListener("change", () => localStorage.setItem("tangliengim-html-style", htmlStyle.value));
-
   const htmlButton = document.createElement("button");
   htmlButton.id = "desktopHtmlButton";
   htmlButton.className = "desktop-action-button";
   htmlButton.type = "button";
   htmlButton.textContent = "HTML";
-  htmlButton.title = "Copy current text as HTML";
+  htmlButton.title = "Copy current text as plain inline HTML";
 
   const syncButton = document.createElement("button");
   syncButton.id = "desktopSyncButton";
@@ -139,7 +122,7 @@ DESKTOP_SCRIPT = r"""
   editorButton.className = "desktop-action-button";
   editorButton.textContent = "Dictionary editor";
   editorButton.type = "button";
-  actions.append(htmlStyle, htmlButton, syncButton, editorButton);
+  actions.append(htmlButton, syncButton, editorButton);
   const restartButton = document.createElement("button");
   restartButton.id = "desktopRestartButton";
   restartButton.className = "desktop-action-button";
@@ -254,7 +237,7 @@ DESKTOP_SCRIPT = r"""
     try {
       let result = await request("/desktop-api/copy-html", {
         text: imeText.value,
-        style: htmlStyle.value,
+        style: "plain",
         rememberedReadings: imeController.getRememberedHanriReadings(imeText.value),
         rememberedHangulReadings: imeController.getRememberedHangulReadings(imeText.value),
       }, 45000);
@@ -510,6 +493,11 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
                       self.server.repo_root / 'apps/ime/index.html'):
             data = data.replace(b'</head>', b'<script src="/desktop/restart.js"></script>\n</head>')
         if target in [self.server.repo_root / 'apps' / app / 'index.html' for app in ('ime', 'dictionary')]:
+            from build_content import navigation_links, site_brand
+            route = '/ime/' if target.parent.name == 'ime' else '/dictionary/'
+            data = data.decode('utf-8').replace('__SITE_BRAND__', site_brand(self.server.repo_root)).replace(
+                '__SITE_NAVIGATION__', navigation_links(route)
+            ).encode('utf-8')
             html = data.decode('utf-8').replace(
                 '</head>',
                 '    <script src="/desktop/candidate-preferences.js"></script>\n  </head>',
@@ -671,6 +659,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         env = os.environ.copy()
         env["HOKKIEN_GITHUB_REPO_PATH"] = str(self.repo_root)
         env["HOKKIEN_HANRI_DICT_PATH"] = str(self.local_tsv_path())
+        env["HOKKIEN_TONE_MARKER_PATH"] = str(self.repo_root / 'desktop/hokkien_tone_marker_gui.py')
         # subprocess encoding controls only the parent; set the child's pipes too.
         env["PYTHONIOENCODING"] = "utf-8"
         return env
@@ -807,11 +796,10 @@ class DesktopHttpServer(ThreadingHTTPServer):
     def copy_html(self, payload: dict) -> dict:
         text = str(payload.get("text") or "")
         style = str(payload.get("style") or "plain")
-        valid_styles = {"plain", "lomari_ruby_below", "lomari_next_line", "song", "novel", "novel_first", "title"}
         if not text.strip():
             raise ValueError("No text to copy")
-        if style not in valid_styles:
-            raise ValueError("Unknown HTML mode")
+        if style != "plain":
+            raise ValueError("This HTML mode is archived. Use Plain inline.")
         response = self.run_html_bridge(payload)
         response["tsvPending"] = self.tsv_sync_pending()
         if not response.get('confirmation'):

@@ -2711,8 +2711,6 @@ def annotate_chinese_word(
     # Also normalise 앚/쟞-type syllables into special jamo display forms
     hangul_display = hangul_digits_to_annotation_symbols(normalize_yyae(hangul_digit))
 
-    left = rt_left_for_chinese_word(chinese_word, hangul_display)
-
     if continuation_hyphen:
         hangul_display = add_ruby_continuation_hyphen(hangul_display)
 
@@ -2722,10 +2720,15 @@ def annotate_chinese_word(
     lomari_escaped = html_lib.escape(lomari, quote=True)
 
     title_attr = f' title="{lomari_escaped}"' if include_lomari_title and not use_wiktionary else ''
-    ruby_style = 'position: relative' if use_wiktionary else 'position: relative;white-space: nowrap'
+    ruby_style = 'position: relative;display: inline-block;vertical-align: baseline;line-height: 1;text-indent: 0;isolation: isolate'
+    if not use_wiktionary:
+        ruby_style += ';white-space: nowrap'
     ruby_html = (
-        f'<ruby style="{ruby_style}"{title_attr}>{chinese_escaped}'
-        f'<rt style="font-size: 57%;position: absolute;top: -1.2em;left: {left}">'
+        f'<ruby class="tli-reading-ruby" style="{ruby_style}"{title_attr}>{chinese_escaped}'
+        '<rt class="tli-rt" style="font-size: var(--tli-ruby-size, 0.55em);position: absolute;'
+        'top: auto;bottom: calc(100% - var(--tli-ruby-overlap, 0.05em));left: 50%;'
+        'right: auto;width: max-content;margin: 0;padding: 0;transform: translateX(-50%);'
+        'line-height: 1.15;text-indent: 0;text-align: center;white-space: nowrap">'
         f'{hangul_escaped}</rt></ruby>'
     )
 

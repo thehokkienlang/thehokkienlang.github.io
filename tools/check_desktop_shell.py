@@ -75,6 +75,12 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
     converter = importlib.util.module_from_spec(gui_spec)
     sys.modules[gui_spec.name] = converter
     gui_spec.loader.exec_module(converter)
+    exported = converter.convert_hangul_to_html('[德國뎩걱]', 'plain')['html']
+    assert 'class="tli-reading-ruby"' in exported
+    assert 'font-size: var(--tli-ruby-size, 0.55em)' in exported
+    assert 'bottom: calc(100% - var(--tli-ruby-overlap, 0.05em))' in exported
+    assert 'transform: translateX(-50%)' in exported
+    assert 'top: -1.2em' not in exported
     with patch.dict(os.environ, {"HOKKIEN_GITHUB_REPO_PATH": str(ROOT)}):
         os.environ.pop("HOKKIEN_HANRI_DICT_PATH", None)
         expected = ROOT / "data" / "hokkien_hanri_dict.tsv"
@@ -338,7 +344,13 @@ def check_persistent_html_bridge(shell) -> None:
         try:
             server.start_html_bridge()
             first = server.copy_html({'text': '𤺪뎩', 'style': 'plain'})
-            second = server.copy_html({'text': '家己', 'style': 'song'})
+            second = server.copy_html({'text': '家己', 'style': 'plain'})
+            for archived in ('song', 'novel', 'novel_first', 'title', 'lomari_ruby_below', 'lomari_next_line'):
+                try:
+                    server.copy_html({'text': '家己', 'style': archived})
+                    raise AssertionError('Archived mode remained active: ' + archived)
+                except ValueError as exc:
+                    assert 'archived' in str(exc)
             assert first['pid'] == second['pid'], 'HTML requests must reuse the worker'
             assert first['payload']['text'] == '𤺪뎩'
             try:
@@ -425,9 +437,14 @@ def main() -> None:
         assert "/shared/web-ime-core.js" in html
         assert "/shared/web-audio-player.js" in html
         assert "/desktop/desktop-shell.js" in html
+        assert '__SITE_BRAND__' not in html and '__SITE_NAVIGATION__' not in html
+        assert 'site-brand' in html and 'aria-current="page"' in html
+        assert server.bridge_environment()['HOKKIEN_TONE_MARKER_PATH'] == str(ROOT / 'desktop/hokkien_tone_marker_gui.py')
         with urlopen(base + "/desktop/desktop-shell.js", timeout=5) as response:
             desktop_script = response.read().decode("utf-8")
         assert "desktopHtmlButton" in desktop_script
+        assert 'desktopHtmlStyle' not in desktop_script
+        assert 'style: "plain"' in desktop_script
         assert "desktopSyncButton" in desktop_script
         assert "/desktop-api/copy-html" in desktop_script
         assert "/desktop-api/sync-tsv" in desktop_script
