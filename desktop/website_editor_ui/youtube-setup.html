@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>YouTube Companion Setup - TLI Local Editor</title>
+  <link rel="stylesheet" href="website-editor.css">
+</head>
+<body>
+  <header class="cms-header"><div><span class="local-badge">Local only</span><h1>YouTube companion setup</h1></div><a href="lyric-timing.html?file=content%2Fsongs%2Fsong-11533.json">Lyric timing</a></header>
+  <main style="max-width:800px;margin:32px auto;padding:0 24px">
+    <h2>One-time setup in Microsoft Edge</h2>
+    <ol>
+      <li>Open <strong>edge://extensions</strong> in Edge's address bar.</li>
+      <li>Enable <strong>Developer mode</strong>, then choose <strong>Load unpacked</strong>.</li>
+      <li>Select the folder below (the folder containing <code>manifest.json</code>):
+        <p><code>C:\Users\Asus\Documents\GitHub\thehokkienlang.github.io\desktop\youtube_companion</code></p>
+      </li>
+      <li>Reload the lyric timing editor in that same Edge profile.</li>
+      <li>Choose a song, then click <strong>Open YouTube window</strong>.</li>
+      <li>Press Play in the YouTube window. Return to the editor to mark sentence starts and ends.</li>
+    </ol>
+    <h2>What it accesses</h2>
+    <p>The extension runs on YouTube and the local lyric timing page only. It connects only the video window opened by the editor. It passes playback time, duration, and player state; it does not read your dictionary, repository files, passwords, or editor access token. No information is uploaded by the extension.</p>
+    <p>Timing pauses during YouTube advertisements. Keep both windows open and visible while timing. YouTube stays on its normal watch page with its normal controls and advertisements; embedding restrictions are not bypassed.</p>
+    <h2>After updates</h2>
+    <p>On <strong>edge://extensions</strong>, click Reload for <strong>TLI Lyric Timing Companion</strong>, then reload the editor and reopen its YouTube window.</p>
+    <p>Saving timings remains local. Commit and Push are still separate actions. This extension and setup page are not included in the public website build.</p>
+  </main>
+</body>
+</html>

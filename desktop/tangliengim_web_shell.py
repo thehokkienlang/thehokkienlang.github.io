@@ -388,7 +388,7 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
         relative = Path("desktop") / "dictionary_editor_ui" / suffix
     elif path.startswith("/website-editor/"):
         suffix = path.removeprefix("/website-editor/") or "index.html"
-        if suffix not in {"index.html", "website-editor.css", "website-editor.js", "lyric-timing.html", "lyric-timing.js", "lyric-timing.css"}:
+        if suffix not in {"index.html", "website-editor.css", "website-editor.js", "lyric-timing.html", "lyric-timing.js", "lyric-timing.css", "lyric-companion.js", "youtube-setup.html"}:
             return None
         relative = Path("desktop") / "website_editor_ui" / suffix
     elif path.startswith("/preview-assets/"):

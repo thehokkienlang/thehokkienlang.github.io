@@ -10,7 +10,8 @@ IDs; `data/lyric-timings/song-11533.json` contains timings and lyric fingerprint
 1. Launch the local Website Editor with `npm run editor`, or run
    `python desktop/website_editor.py` from the repository.
 2. Open **Website Pages**, select the song, and choose **Lyric timing**.
-3. Play the embedded video. Select the sentence, press **Mark start** as singing
+3. Choose a song with the **Song** menu, then use **Open YouTube window**.
+   Select the sentence, press **Mark start** as singing
    begins, then **Mark end** when it finishes. The next sentence is selected
    automatically unless that option is unchecked. Times can also be entered in
    seconds with decimals, cleared, or adjusted manually. **Go to start** seeks
@@ -21,27 +22,31 @@ IDs; `data/lyric-timings/song-11533.json` contains timings and lyric fingerprint
    Leave status as **Draft** during timing. **Reviewed** requires every sentence
    to have a complete, ordered, non-overlapping start/end pair.
 
-The initial pilot sidecar has 24 untimed sentences. The direct YouTube watch page
-played, but no transcript/captions were available and the browser tools did not
-provide audio for a listening-based timing pass. The embedded player reported
-YouTube error 150 (embedding restricted). Timestamps must be listened to and
-reviewed, not estimated from the lyric text. The pilot needs an embeddable
-recording before public synchronisation can work. The direct watch page alone
-cannot supply the clock to a separate website. This tool does not bypass video
-availability or owner restrictions.
+## Recordings that prohibit embedding
+
+The local editor uses a companion YouTube watch window, not an embedded player.
+Use **Companion setup** in the editor to install the local Edge extension from
+`desktop/youtube_companion` once, then reload the editor in the same Edge profile.
+Click **Open YouTube window** and press Play in the normal watch window. The local
+extension sends that video's clock to the editor for marking and seeking; it
+never downloads or rehosts video, and never bypasses embedding restrictions.
+Marking pauses during advertisements and lost connections. Setup details,
+permissions, limitations, and checks are in `desktop/youtube_companion/README.md`.
+The companion is for the local editor only: it does not fix restricted embeds
+on the public website. Real timing still needs listening/review.
 
 ## Preview and publication
 
-Build with `python tools/build_site.py`. The local built song page can preview
-partially timed drafts by adding `?lyric-preview=1` on `localhost` or `127.0.0.1`.
-Ordinary visitors receive highlighting only when timing status is **Reviewed**.
-No YouTube API connection is added for untimed or unpublished draft cues.
+Build with `python tools/build_site.py`. Timed draft cues are active on public
+song pages by the project owner's decision; the status is not a publication gate.
+Incomplete or estimated draft timing is not a claim of listening verification.
 
 The public player polls YouTube's actual clock, including when paused so seeks
-are reflected. It never guesses elapsed time or initiates playback. End times
-are exclusive; introductions and gaps clear highlighting. A pale teal background
-and inset accent change no lyric/ruby dimensions. **Follow lyrics** is opt-in,
-and reduced-motion preferences disable smooth scrolling. Player failure leaves
+are reflected. It never guesses elapsed time or initiates playback by itself.
+Clicking a timed lyric seeks and starts playback. Highlighting holds through gaps
+until the next timed sentence, and clears when playback ends. A pale teal
+background and accent change no lyric/ruby dimensions. **Follow lyrics** scrolling
+is opt-in and mobile-only; reduced-motion preferences disable smooth scrolling. Player failure leaves
 the original readable lyric blocks intact. Native full-screen playback cannot
 show the surrounding website lyrics; inline playback is needed to see them.
 

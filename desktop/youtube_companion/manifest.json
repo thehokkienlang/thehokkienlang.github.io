@@ -1,0 +1,20 @@
+{
+  "manifest_version": 3,
+  "name": "TLI Lyric Timing Companion",
+  "version": "1.0.2",
+  "description": "Connect a normal YouTube watch window to your local TLI lyric timing editor.",
+  "permissions": ["storage"],
+  "host_permissions": ["https://www.youtube.com/*"],
+  "background": { "service_worker": "background.js" },
+  "content_scripts": [
+    {
+      "matches": ["http://127.0.0.1/*", "http://localhost/*"],
+      "include_globs": ["http://*/website-editor/lyric-timing.html*"],
+      "js": ["editor.js"]
+    },
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["youtube.js"]
+    }
+  ]
+}

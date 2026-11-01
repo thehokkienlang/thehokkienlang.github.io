@@ -22,6 +22,13 @@ def song():
 
 
 class LyricTimingTests(unittest.TestCase):
+    def test_local_youtube_companion(self):
+        try:
+            node, env = node_environment()
+        except FileNotFoundError:
+            self.skipTest('Node is needed for companion tests.')
+        subprocess.run([node, str(ROOT/'tests/check_lyric_companion.cjs')], env=env, check=True, capture_output=True)
+
     def test_browser_clock_and_highlight_states(self):
         try:
             node, env = node_environment()
