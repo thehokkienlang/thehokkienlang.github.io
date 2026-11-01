@@ -8,7 +8,6 @@ import subprocess
 import sys
 import threading
 import uuid
-import webbrowser
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
@@ -136,17 +135,19 @@ class WebsiteEditorController:
 
 
 def main():
-    from tangliengim_web_shell import DesktopHttpServer
+    from tangliengim_web_shell import DesktopHttpServer, run_desktop_shell
     parser = argparse.ArgumentParser(description="Tangliengim local website editor")
     parser.add_argument("--repo", type=Path, default=Path(__file__).resolve().parents[1])
     parser.add_argument("--no-browser", action="store_true")
     args = parser.parse_args()
     repo = args.repo.resolve()
+    if not args.no_browser:
+        run_desktop_shell(repo, repo / 'desktop/Hokkien Tangliengim IME Pad.py',
+                          editor=True, start_path='/website-editor/')
+        return
     server = DesktopHttpServer(repo, repo / "desktop/Hokkien Tangliengim IME Pad.py")
     url = f"http://127.0.0.1:{server.server_port}/website-editor/"
     print("Tangliengim Website Editor: " + url, flush=True)
-    if not args.no_browser:
-        threading.Timer(.35, lambda: webbrowser.open_new(url)).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

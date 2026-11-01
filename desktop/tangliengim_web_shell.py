@@ -24,6 +24,7 @@ from collections import OrderedDict
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import unquote, urlsplit, urlencode
+from urllib.request import urlopen
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'tools'))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -480,8 +481,13 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             script = script.replace('__EDITOR_TOKEN__', self.server.editor_token).replace('__DESKTOP_INSTANCE__', self.server.instance)
             self._send_bytes(script.encode("utf-8"), "text/javascript; charset=utf-8")
             return
+        if path == "/desktop/editor-lifetime.js":
+            script = (self.server.repo_root / "desktop/editor_lifetime.js").read_bytes()
+            self._send_bytes(script, "text/javascript; charset=utf-8")
+            return
         if path == "/desktop-api/session":
-            self._send_json({"ok": True, "instance": self.server.instance})
+            age = None if self.server.editor_last_seen is None else time.monotonic() - self.server.editor_last_seen
+            self._send_json({"ok": True, "instance": self.server.instance, "editorHeartbeatAge": age})
             return
         if path == "/desktop-api/status":
             self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending(),
@@ -493,6 +499,12 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             self.send_error(404)
             return
         data = target.read_bytes()
+        if target.suffix == '.html' and target.parent in (
+            self.server.repo_root / 'desktop/editor_hub_ui',
+            self.server.repo_root / 'desktop/dictionary_editor_ui',
+            self.server.repo_root / 'desktop/website_editor_ui',
+        ):
+            data = data.replace(b'</head>', b'<script src="/desktop/editor-lifetime.js" defer></script>\n</head>')
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
                       self.server.repo_root / 'desktop/website_editor_ui/index.html',
                       self.server.repo_root / 'desktop/website_editor_ui/lyric-timing.html'):
@@ -533,6 +545,10 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             if (origin and origin != f'http://{host}') or self.headers.get('Sec-Fetch-Site') == 'cross-site':
                 raise EditorError('Only the local desktop interface may change the dictionary.', code='forbidden')
             payload = self._read_json()
+            if path == '/desktop-api/editor-heartbeat':
+                self.server.editor_last_seen = time.monotonic()
+                self._send_json({'ok': True})
+                return
             if self.server.restarting:
                 raise EditorError('Restart in progress. Your input is retained.', code='busy')
             if path.startswith('/desktop-api/editor/'):
@@ -592,6 +608,7 @@ class DesktopHttpServer(ThreadingHTTPServer):
         from website_editor import WebsiteEditorController
         self.editor_token = uuid.uuid4().hex
         self.instance = uuid.uuid4().hex
+        self.editor_last_seen = None
         self.restarting = False
         self.restart_supported = False
         self.restart_event = threading.Event()
@@ -937,6 +954,31 @@ def run_desktop_server(repo_root: Path, classic_script: Path, port: int, *, edit
     return 75 if server.restarting else 0
 
 
+def _wait_for_editor_windows(url: str) -> None:
+    """Edge may delegate to an existing process; page leases own the server lifetime."""
+    endpoint = urlsplit(url)._replace(path='/desktop-api/session', query='').geturl()
+    deadline = time.monotonic() + 30
+    instance = None
+    connected = False
+    while time.monotonic() < deadline:
+        try:
+            with urlopen(endpoint, timeout=2) as response:
+                status = json.load(response)
+            now = time.monotonic()
+            if status['instance'] != instance:
+                instance = status['instance']
+                deadline = now + (180 if connected else 30)
+            age = status.get('editorHeartbeatAge')
+            if age is not None and age < 180:
+                connected = True
+                deadline = now + 180 - age
+        except (OSError, ValueError, KeyError):
+            pass
+        time.sleep(1)
+    if not connected:
+        raise RuntimeError('The editor window did not connect. Close any stalled editor windows and try again.')
+
+
 def run_desktop_shell(
     repo_root: Path,
     classic_script: Path,
@@ -1006,6 +1048,8 @@ def run_desktop_shell(
     try:
         edge = find_edge()
         if edge is None:
+            if editor:
+                raise RuntimeError('Microsoft Edge could not be found to open the editor popup.')
             _fallback_browser_host(url, editor=editor)
             return
         started = time.monotonic()
@@ -1014,9 +1058,23 @@ def run_desktop_shell(
             close_fds=True,
             creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
-        process.wait()
-        if time.monotonic() - started < 2:
+        if editor:
+            _wait_for_editor_windows(url)
+        else:
+            process.wait()
+        if not editor and time.monotonic() - started < 2:
             _fallback_browser_host(url, editor=editor)
+    except (OSError, RuntimeError) as error:
+        if not editor:
+            raise
+        import tkinter as tk
+        from tkinter import messagebox
+        root = tk.Tk()
+        root.withdraw()
+        try:
+            messagebox.showerror('Tangliengim Editors', str(error), parent=root)
+        finally:
+            root.destroy()
     finally:
         stopping.set()
         supervisor.join()

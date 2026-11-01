@@ -23,6 +23,7 @@ JAVASCRIPT_FILES = (
     "shared/web-site-language.js",
     "shared/web-site-navigation.js",
     "desktop/desktop_restart.js",
+    "desktop/editor_lifetime.js",
     "desktop/dictionary_editor_ui/editor.js",
     "desktop/website_editor_ui/website-editor.js",
     "desktop/website_editor_ui/lyric-timing.js",
@@ -129,6 +130,8 @@ def main() -> int:
     run('Adaptive Web safeguards', 'node', 'tools/check_adaptive_safeguards.cjs')
     run('Adaptive Local/Desktop safeguards', sys.executable, '-X', 'utf8', 'tools/check_adaptive_safeguards.py')
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
+    run("Editor popup lifetime", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
+        "-s", "tests", "-p", "test_desktop_editor_lifetime.py")
     run("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()
