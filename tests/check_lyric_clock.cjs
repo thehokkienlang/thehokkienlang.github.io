@@ -47,7 +47,8 @@ function fixture(status = 'reviewed', mobile = true) {
 }
 assert.equal(fixture('draft').connected, true);
 const ui = fixture();
-ui.tick(10); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.first.scrolled, 0);
+assert.equal(ui.follow.checked, true);
+ui.tick(10); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.first.scrolled, 1);
 ui.tick(12,2); assert.equal(ui.lines.first.active, true); // Pause retains the current sentence.
 ui.tick(17); assert.equal(ui.lines.first.active, true); // Keep the line through the gap.
 ui.follow.checked = true;
@@ -55,11 +56,14 @@ ui.tick(20); assert.equal(ui.lines.repeat.active, true); assert.equal(ui.lines.r
 ui.tick(10,2); assert.equal(ui.lines.first.active, true); assert.equal(ui.lines.repeat.active, false);
 ui.tick(25,0); assert.equal(ui.lines.first.active, false);
 const desktop = fixture('draft', false);
-desktop.follow.checked = true;
+assert.equal(desktop.follow.checked, false);
 desktop.tick(10);
-assert.equal(desktop.lines.first.active, true);
 assert.equal(desktop.lines.first.scrolled, 0);
-console.log('PASS: highlight states, pause/seek, mobile-only opt-in scrolling and draft playback.');
+desktop.follow.checked = true;
+desktop.tick(20);
+assert.equal(desktop.lines.repeat.active, true);
+assert.equal(desktop.lines.repeat.scrolled, 1);
+console.log('PASS: highlight states, pause/seek, responsive follow defaults and draft playback.');
 const early = fixture();
 early.lines.repeat.listeners.click({target:{closest:() => null}});
 assert.equal(early.seeks.length, 0);
