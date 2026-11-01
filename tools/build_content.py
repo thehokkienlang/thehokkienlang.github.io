@@ -398,7 +398,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     language = language_for_route(route)
     navigation = navigation_links(route)
     source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url and base_route(route) != "/" else ""
-    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於我們的閩南語。", "zh-Hans": "记录着属于我们的闽南语。"}
+    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於大家的閩南語。", "zh-Hans": "记录着属于大家的闽南语。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
         "zh-Hant": "將發音、聲調和語意融為一體的東寧音（TLI）：一看就懂、一讀就通。",
