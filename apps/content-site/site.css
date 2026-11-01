@@ -17,7 +17,6 @@
 .imported-content p[data-lyric-seek]:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
 .imported-content p[data-lyric-id].lyric-active { background-color:#e0f1ed; box-shadow:0 -.45em 0 #e0f1ed; }
 .imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.45em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }
-@media (min-width: 701px) { .lyric-sync-controls label { display:none; } }
 @media(prefers-reduced-motion:reduce) { .imported-content p[data-lyric-id] { transition:none; } }
 @font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-400-v1.woff2") format("woff2"); font-weight:400; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-700-v1.woff2") format("woff2"); font-weight:700; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
