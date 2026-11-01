@@ -51,6 +51,7 @@ PYTHON_FILES = (
     "desktop/website_editor.py",
     "desktop/Tangliengim Dictionary Editor.py",
     "desktop/Tangliengim Website Editor.py",
+    "desktop/Tangliengim Editors.pyw",
     "tools/dictionary_editor_service.py",
     "tools/website_editor_service.py",
     "tools/lyric_timing.py",

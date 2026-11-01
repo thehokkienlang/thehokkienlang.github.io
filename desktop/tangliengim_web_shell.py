@@ -364,6 +364,11 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
     elif path.startswith("/dictionary/"):
         suffix = path.removeprefix("/dictionary/") or "index.html"
         relative = Path("apps") / "dictionary" / suffix
+    elif path.startswith("/editors/"):
+        suffix = path.removeprefix("/editors/") or "index.html"
+        if suffix not in {"index.html", "editor-hub.css"}:
+            return None
+        relative = Path("desktop") / "editor_hub_ui" / suffix
     elif path.startswith("/editor/"):
         suffix = path.removeprefix("/editor/") or "index.html"
         if suffix not in {"index.html", "editor.css", "editor.js"}:
@@ -456,6 +461,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/dictionary":
             self._redirect("/dictionary/")
+            return
+        if path == "/editors":
+            self._redirect("/editors/")
             return
         if path == "/editor":
             self._redirect("/editor/")
@@ -929,9 +937,18 @@ def run_desktop_server(repo_root: Path, classic_script: Path, port: int, *, edit
     return 75 if server.restarting else 0
 
 
-def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = False) -> None:
+def run_desktop_shell(
+    repo_root: Path,
+    classic_script: Path,
+    *,
+    editor: bool = False,
+    start_path: str | None = None,
+) -> None:
     repo_root = repo_root.resolve()
-    required = [repo_root / "desktop/dictionary_editor_ui/index.html"] if editor else [
+    required = [
+        repo_root / "desktop/dictionary_editor_ui/index.html",
+        repo_root / "desktop/editor_hub_ui/index.html",
+    ] if editor else [
         repo_root / "apps" / "ime" / "index.html",
         repo_root / "shared" / "web-ime-core.js",
         repo_root / "public" / "data" / "hokkien-hanri-dict.json",
@@ -946,7 +963,10 @@ def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = F
         server.start_html_bridge()
     thread = threading.Thread(target=server.serve_forever, name="TangliengimDesktopServer", daemon=True)
     thread.start()
-    url = f"http://127.0.0.1:{server.server_port}" + ("/editor/" if editor else "/ime/?desktop=1")
+    route = start_path or ("/editor/" if editor else "/ime/?desktop=1")
+    if not route.startswith("/"):
+        raise ValueError("Desktop start path must begin with '/'")
+    url = f"http://127.0.0.1:{server.server_port}{route}"
     stopping = threading.Event()
     replacement = None
     original_closed = False
@@ -992,6 +1012,7 @@ def run_desktop_shell(repo_root: Path, classic_script: Path, *, editor: bool = F
         process = subprocess.Popen(
             _edge_app_command(edge, url, editor=editor),
             close_fds=True,
+            creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0),
         )
         process.wait()
         if time.monotonic() - started < 2:

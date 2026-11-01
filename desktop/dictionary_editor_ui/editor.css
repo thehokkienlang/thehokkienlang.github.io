@@ -17,6 +17,8 @@ textarea { resize:vertical; }
 h1 { font-size:22px; line-height:1.2; }
 h2 { font-size:19px; margin:0; }
 .header-actions { display:flex; gap:14px; align-items:center; flex-wrap:wrap; justify-content:flex-end; }
+.editor-hub-link { display:inline-flex; min-height:34px; align-items:center; padding:6px 10px; border:1px solid var(--line); border-radius:5px; color:#344b5c; font-size:14px; font-weight:700; text-decoration:none; background:#fff; }
+.editor-hub-link:hover { border-color:var(--accent); color:#0b5f58; background:#f0f8f6; }
 .publish-state { font-size:14px; color:var(--muted); max-width:360px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 .publish-status { display:inline-flex; align-items:center; gap:8px; min-width:0; }
 .publish-spinner { display:inline-block; width:15px; height:15px; flex:0 0 15px; border:2px solid var(--line); border-top-color:var(--accent); border-right-color:var(--accent); border-radius:50%; animation:publish-spin .8s linear infinite; }

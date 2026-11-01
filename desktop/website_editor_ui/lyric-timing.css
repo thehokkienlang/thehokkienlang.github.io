@@ -1,4 +1,6 @@
 .cms-header h1 { font-size:22px; margin:8px 0 0; }
+.editor-header-links { display:flex; align-items:center; gap:12px; }
+.editor-header-links>a:not(.editor-hub-link) { color:var(--teal); font-weight:700; }
 .timing-actions { display:flex; gap:14px; align-items:center; padding:16px 24px; border-bottom:1px solid var(--line); background:white; flex-wrap:wrap; }
 .timing-actions label { display:flex; gap:8px; align-items:center; }
 .timing-actions select { width:130px; }

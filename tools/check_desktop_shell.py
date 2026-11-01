@@ -424,6 +424,21 @@ def main() -> None:
         finally:
             bridge_server.server_close()
     assert shell._safe_repo_file(ROOT, "/ime/") == ROOT / "apps" / "ime" / "index.html"
+    assert shell._safe_repo_file(ROOT, "/editors/") == ROOT / "desktop" / "editor_hub_ui" / "index.html"
+    assert shell._safe_repo_file(ROOT, "/editors/editor-hub.css") == ROOT / "desktop" / "editor_hub_ui" / "editor-hub.css"
+    assert shell._safe_repo_file(ROOT, "/editors/../tangliengim_web_shell.py") is None
+    hub_html = (ROOT / "desktop" / "editor_hub_ui" / "index.html").read_text(encoding="utf-8")
+    assert all(route in hub_html for route in (
+        'href="/website-editor/"',
+        'href="/editor/"',
+        'href="/website-editor/lyric-timing.html"',
+    ))
+    for editor_page in (
+        ROOT / "desktop" / "website_editor_ui" / "index.html",
+        ROOT / "desktop" / "dictionary_editor_ui" / "index.html",
+        ROOT / "desktop" / "website_editor_ui" / "lyric-timing.html",
+    ):
+        assert 'href="/editors/"' in editor_page.read_text(encoding="utf-8"), editor_page
     assert shell._safe_repo_file(ROOT, "/shared/web-ime-core.js") == ROOT / "shared" / "web-ime-core.js"
     assert shell._safe_repo_file(ROOT, "/ime/../../README.md") is None
 

@@ -20,6 +20,8 @@ h1 { margin:0; font-size:20px; }
 h2 { margin:0; font:700 28px/1.25 Georgia,"Noto Serif TC",serif; }
 h3 { margin:0 0 10px; font-size:17px; }
 .header-status { display:flex; align-items:center; gap:14px; color:var(--muted); font-size:13px; }
+.editor-hub-link { display:inline-flex; min-height:34px; align-items:center; padding:6px 10px; border:1px solid var(--line); border-radius:5px; color:#30464d; font-weight:700; text-decoration:none; background:#fff; }
+.editor-hub-link:hover { border-color:var(--teal); color:var(--teal); }
 .local-badge { padding:4px 8px; border:1px solid #badbd6; color:#075d56; background:#edf9f6; font-weight:700; }
 .notice { position:sticky; top:74px; z-index:25; padding:10px 24px; border-bottom:1px solid #b9ddd5; background:#eaf7f3; white-space:pre-wrap; }
 .notice.error { border-color:#e0b8ad; color:#7c3328; background:#fff1ec; }

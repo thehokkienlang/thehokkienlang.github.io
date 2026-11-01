@@ -280,6 +280,11 @@
   }
   async function load() {
     if (loading || (dirty && !confirm('Discard unsaved timing edits and reload?'))) return;
+    if (!file) {
+      tell('Choose a song to begin editing lyric timings.');
+      $('reloadTiming').disabled = true;
+      return;
+    }
     loading = true;
     try {
       const result = await request('lyric-timing', {file});

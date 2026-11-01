@@ -2,6 +2,6 @@
   "name": "tangliengim-website",
   "private": true,
   "scripts": {
-    "editor": "python \"desktop/Tangliengim Website Editor.py\""
+    "editor": "pythonw \"desktop/Tangliengim Editors.pyw\""
   }
 }
