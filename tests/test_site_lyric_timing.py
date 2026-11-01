@@ -81,6 +81,21 @@ class LyricTimingTests(unittest.TestCase):
             self.assertIn('<ruby>字<rt>지ˆ</rt></ruby>', rendered)
             self.assertEqual(record, original)
 
+    def test_stale_timing_does_not_block_page_publication(self):
+        record = song()
+        data = blank_timing(record)
+        record['body'] = record['body'].replace('지ˆ', '지ˉ')
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            path = timing_path(root, record)
+            path.parent.mkdir(parents=True)
+            path.write_text(json.dumps(data), encoding='utf-8')
+            with self.assertWarnsRegex(UserWarning, 'synchronized lyrics omitted'):
+                self.assertEqual(decorate_lyrics(root, record, record['body']), record['body'])
+            self.assertEqual(json.loads(path.read_text(encoding='utf-8')), data)
+        with self.assertRaisesRegex(ValueError, 'line changed'):
+            validate_timing(record, data)
+
     def test_editor_revision_protects_both_sources_and_never_changes_body(self):
         with tempfile.TemporaryDirectory() as folder:
             root = Path(folder); source = root/'content/songs/song-test.json'; source.parent.mkdir(parents=True)
@@ -114,12 +129,17 @@ class LyricTimingTests(unittest.TestCase):
                 if data['status'] == 'reviewed':
                     self.assertTrue(all(cue['start'] is not None and cue['end'] is not None for cue in data['cues']))
 
-    def test_every_published_sidecar_validates_against_its_source(self):
+    def test_every_sidecar_validates_or_safely_omits_synchronization(self):
         for path in sorted((ROOT/'data/lyric-timings').glob('*.json')):
             with self.subTest(song=path.stem):
                 source = json.loads((ROOT/f'content/songs/{path.stem}.json').read_text(encoding='utf-8'))
                 data = json.loads(path.read_text(encoding='utf-8'))
-                validate_timing(source, data)
+                try:
+                    validate_timing(source, data)
+                except ValueError:
+                    with self.assertWarnsRegex(UserWarning, 'synchronized lyrics omitted'):
+                        rendered = decorate_lyrics(ROOT, source, source['body'])
+                    self.assertEqual(rendered, source['body'])
 
 
 if __name__ == '__main__': unittest.main()

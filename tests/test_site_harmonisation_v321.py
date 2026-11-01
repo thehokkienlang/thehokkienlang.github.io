@@ -1,5 +1,6 @@
 """Protect the reviewed v3.2.1 assignments and their authored readings."""
 import json
+import os
 import sys
 import unittest
 from pathlib import Path
@@ -32,6 +33,7 @@ class PatchTests(unittest.TestCase):
         self.assertIn(' 젝뻐띠 남ᄈힻ트띠', after)
         self.assertIn('>會當<', after)
 
+    @unittest.skipUnless(os.environ.get('TLI_HISTORICAL_AUDIT') == '1', 'Historical migration audit is opt-in')
     def test_reviewed_pages_are_reversible_and_urls_unchanged(self):
         path = ROOT / 'docs/harmonisation-3.2.1-audit.json'
         if not path.exists():

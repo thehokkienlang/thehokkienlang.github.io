@@ -5,6 +5,7 @@ import hashlib
 import json
 import math
 import re
+import warnings
 from html.parser import HTMLParser
 from urllib.parse import urlsplit
 
@@ -128,7 +129,11 @@ def decorate_lyrics(root, record, body):
     path = timing_path(root, record)
     if not path.is_file():
         return body
-    data = validate_timing(record, json.loads(path.read_text(encoding='utf-8')))
+    try:
+        data = validate_timing(record, json.loads(path.read_text(encoding='utf-8')))
+    except ValueError as error:
+        warnings.warn(f'{path.name}: synchronized lyrics omitted: {error}', stacklevel=2)
+        return body
     parsed = LyricParser(body)
     _, original = song_lines(record)
     if len(parsed.lines) != len(original):

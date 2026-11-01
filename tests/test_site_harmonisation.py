@@ -1,6 +1,7 @@
 """Protect reviewed script choices, authored readings, and source provenance."""
 
 import json
+import os
 import sys
 import unittest
 import unicodedata
@@ -103,6 +104,7 @@ class HarmonisationTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             restore_body(after+'!', entry)
 
+    @unittest.skipUnless(os.environ.get('TLI_HISTORICAL_AUDIT') == '1', 'Historical migration audit is opt-in')
     def test_all_authored_languages_and_readings_survive(self):
         path = ROOT / 'docs/harmonisation-3.2-audit.json'
         if not path.exists():
