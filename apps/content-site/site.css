@@ -165,7 +165,7 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
 .home-specimen { position: absolute; top: -180px; right: 0; display: flex; width: min(30%, 300px); flex-direction: column; padding: 10px 0 4px 28px; border-left: 4px solid var(--site-voice, #b33b46); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; font-size: 54px; }
 .home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
-.home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 18px; }
+.home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 18px; font-family: "Tangliengim Nasal Latin", "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 14px; }
 .home-paths { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 3px solid var(--ink); }
 .home-path { min-width: 0; padding: 32px 28px 36px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
