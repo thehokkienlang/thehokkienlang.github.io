@@ -516,6 +516,104 @@
               "rule": "Author-requested final repeat of lines 7-20 without footnote"
             }
           ]
+        },
+        {
+          "beforeSha256": "0d3cd745730ef49bc8e6a545c075c5d5363ba841e3dd43f7a8f629ab7182b005",
+          "afterSha256": "21658ac21e62809313854cfc7bf03c876d851c7792fb256ac793197f4e2918ce",
+          "reason": "Author-requested stanza spacing in final repeat",
+          "edits": [
+            {
+              "start": 32857,
+              "end": 32857,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 33636,
+              "end": 33636,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 34953,
+              "end": 34953,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 35489,
+              "end": 35489,
+              "before": "",
+              "after": "<br>\n\n\n\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 35993,
+              "end": 35993,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 36658,
+              "end": 36658,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 37157,
+              "end": 37157,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 37644,
+              "end": 37644,
+              "before": "",
+              "after": "<br>\n\n\n\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 38784,
+              "end": 38784,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 39420,
+              "end": 39420,
+              "before": "",
+              "after": "<br>\n\n\n\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 39937,
+              "end": 39937,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 40308,
+              "end": 40308,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            },
+            {
+              "start": 40990,
+              "end": 40990,
+              "before": "",
+              "after": "\n",
+              "rule": "Author-requested stanza spacing in final repeat"
+            }
+          ]
         }
       ]
     },

@@ -56,6 +56,9 @@
     const toneOnly = readings.length > 0 && readings.every(reading =>
       /^[\sˆˋˊˉˇˍˎˏˬꞈ`]+$/u.test(reading.textContent));
     if (readings.length > 0) annotation.classList.add(toneOnly ? "tli-tone-ruby" : "tli-reading-ruby");
+    if (ruby.closest('.imported-content') && readings.some(reading => /[\u3105-\u312f\u31a0-\u31bf]/u.test(reading.textContent))) {
+      annotation.classList.add('tli-bopomofo-reading');
+    }
     annotation.append(base, ...readings);
     ruby.replaceWith(annotation);
   });
