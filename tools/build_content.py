@@ -101,17 +101,17 @@ def home_launch(language):
         "en": (
             "Learn TLI", "Understand the script, spelling, and tone sandhi.", "Start with the introduction",
             "Read Hokkien", "Stories and literature with pronunciation kept close to the text.", "Browse reading",
-            "Hear the language", "Songs with Hangul readings and Lomari.", "Explore songs", "Writing tools", "student",
+            "Hear the language", "Songs with Hangul readings and Lomari.", "Explore songs", "Writing tools", "sound",
         ),
         "zh-Hant": (
             "學習東寧音", "了解文字、拼寫與變調。", "從使用說明開始",
             "閱讀閩南語", "讓故事與文學的讀音緊貼原文。", "瀏覽讀物",
-            "聆聽語言", "附有諺文讀音與羅馬字的歌曲。", "探索歌曲", "書寫工具", "學生",
+            "聆聽語言", "附有諺文讀音與羅馬字的歌曲。", "探索歌曲", "書寫工具", "聲音",
         ),
         "zh-Hans": (
             "学习东宁音", "了解文字、拼写与变调。", "从使用说明开始",
             "阅读闽南语", "让故事与文学的读音紧贴原文。", "浏览读物",
-            "聆听语言", "附有谚文读音与罗马字的歌曲。", "探索歌曲", "书写工具", "学生",
+            "聆听语言", "附有谚文读音与罗马字的歌曲。", "探索歌曲", "书写工具", "声音",
         ),
     }
     learn, learn_note, learn_link, read, read_note, read_link, hear, hear_note, hear_link, tools, student = labels[language]
@@ -132,11 +132,13 @@ def home_launch(language):
         f'<p>{html.escape(note)}</p>{destination(path, label)}</article>'
         for number, title, note, path, label in paths
     )
+    specimen_meaning = f'<span class="home-specimen-meaning">{html.escape(student)}</span>' if language == "en" else ""
     return (
         '<section class="home-launch">'
         '<aside class="home-specimen" aria-label="Tangliengim writing specimen">'
-        '<ruby><span lang="zh-Hant">學生</span><rt lang="ko">학솅ˆ</rt></ruby>'
-        f'<span class="home-specimen-lomari">hak-siêng</span><span class="home-specimen-meaning">{html.escape(student)}</span></aside>'
+        '<ruby><span lang="zh-Hant">聲音</span><rt lang="ko">샬ˉ임ˆ</rt></ruby>'
+        f'<span class="home-specimen-lomari">siā̰-îm</span>'
+        f'{specimen_meaning}</aside>'
         f'<div class="home-paths">{path_html}</div>'
         f'<div class="home-tools"><h2>{html.escape(tools)}</h2><div>{destination("/ime/", text("Open IME", language))}{destination("/dictionary/", text("Dictionary", language))}</div></div>'
         '</section>'
