@@ -260,7 +260,13 @@
       "id": "line-043",
       "fingerprint": "4526fe29448e38c5128edecd4b14f15a78aa09d2d36b4fc25fd17ce7134a818a",
       "start": 185.5,
-      "end": 188.94
+      "end": 194.446
+    },
+    {
+      "id": "line-044",
+      "fingerprint": "7dfff30f2d842ff19effad8a4b9727df5921cffcc7243c5cfd5e3813edaceb09",
+      "start": 194.546,
+      "end": 206.024
     }
   ]
 }

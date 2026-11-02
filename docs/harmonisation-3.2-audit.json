@@ -12001,6 +12001,22 @@
           "count": 14,
           "example": "\n  \n    꾼’에 性命 음值錢\n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "b0803a4a00f7f39bc6f283504787997d2da8403fffa0a8784c230ce95d579a99",
+          "afterSha256": "e00cccc7a4a540e470a5ad2487fba86754bd25ba1fbba866b305d5ee689fed18",
+          "reason": "Author-provided final grey lyric",
+          "edits": [
+            {
+              "start": 33472,
+              "end": 33472,
+              "before": "",
+              "after": "\n\n<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em;color:gray\">\n    (<ruby style=\"position: relative;white-space: nowrap\">怎樣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">좔ˆ율ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">會<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">에-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">出世<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">춛ˆ시</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">做<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">죄`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">兄弟<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">햘ˉ디ˉ</rt></ruby>)\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    (joâ̰-yṵ̄ e-chût-si joè-hiā̰-tī)\n  </span>\n</p>\n",
+              "rule": "Author-provided final grey lyric"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-5643.json": {
