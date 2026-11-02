@@ -13798,6 +13798,22 @@
           "count": 2,
           "example": " 愛情릐 比꽈想’에 곻캏偉大\n  \n  \n "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "8747a6a55b9865b54cf7ad74d308e35098daf8693d5e906a155d162e6cb37ac2",
+          "afterSha256": "d9630a9e62fb23e2fbaabe8ebd6509c45028cda472fe4d8bc1c47aac262b1137",
+          "reason": "Author-requested final interjection",
+          "edits": [
+            {
+              "start": 41698,
+              "end": 41698,
+              "before": "",
+              "after": "\n<p style=\"font-family:Sans-serif, Noto Sans\">\n  <span style=\"display: block;font-size: 1em\">\n    옿\n  </span>\n  <span style=\"display: block;font-size: 0.7em;color: gray;margin-top: -5px;font-family: Calibri\">\n    oh\n  </span>\n</p>\n",
+              "rule": "Author-requested final interjection"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-5437.json": {
