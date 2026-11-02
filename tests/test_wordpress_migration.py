@@ -222,6 +222,7 @@ class ContentFontTests(unittest.TestCase):
 
     def test_whole_nasal_word_uses_one_font_and_composed_upper_tone(self):
         self.assertEqual(nasal_font_text('siṵ̄'), '<span class="nasal-grapheme">' + unicodedata.normalize('NFC', 'siṵ̄') + '</span>')
+        self.assertEqual(nasal_font_text('siṵ̄'), '<span class="nasal-grapheme">' + unicodedata.normalize('NFC', 'siṵ̄') + '</span>')
 
     def test_song_heading_is_localizable_and_has_scoped_spacing_class(self):
         source = '<h3 class="wp-block-heading">漢諺混寫 Hanri-Hangul mixed script</h3><p>歌詞</p>'

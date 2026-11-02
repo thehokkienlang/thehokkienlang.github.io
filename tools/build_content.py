@@ -32,7 +32,7 @@ NASAL_WORD = re.compile(r'[A-Za-z\u00c0-\u02ff\u1e00-\u1eff\u25cc][A-Za-z\u00c0-
 def nasal_font_text(value):
     def word(match):
         value = match.group()
-        if '\u0330' not in value:
+        if '\u0330' not in unicodedata.normalize('NFD', value):
             return value
         return '<span class="nasal-grapheme">' + unicodedata.normalize('NFC', value) + '</span>'
     return NASAL_WORD.sub(word, value)
