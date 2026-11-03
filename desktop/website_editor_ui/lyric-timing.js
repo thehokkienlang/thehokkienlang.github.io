@@ -157,6 +157,7 @@
               timing.cues[index].start = committedStart; progress();
             } else { repairFollowing(index); committedStart = timing.cues[index].start; }
           }
+          fillEmptyEnds();
           input.value = clock(timing.cues[index][key]);
           editRecorded = false;
         };
@@ -165,6 +166,20 @@
       inputs.push(pair); row.append(choose, pair.start, pair.end); return row;
     }));
     select(Math.min(selected, snapshot.lines.length - 1)); progress();
+  }
+  function fillEmptyEnds() {
+    let changed = false;
+    for (let i = 0; i + 1 < timing.cues.length; i++) {
+      const cue = timing.cues[i], next = timing.cues[i + 1];
+      if (cue.end !== null || !Number.isFinite(next.start)) continue;
+      const end = Math.round((next.start - 0.1) * 1000) / 1000;
+      if (end < 0 || end > 86400 || (Number.isFinite(cue.start) && end <= cue.start)) continue;
+      cue.end = end;
+      inputs[i].end.value = clock(end);
+      changed = true;
+    }
+    if (changed) edit();
+    return changed;
   }
   function alignPreviousEnd(index, start) {
     const previous = timing.cues[index - 1];
@@ -228,6 +243,7 @@
     if (!alignPreviousEnd(selected, Math.round(time*1000)/1000)) return;
     cue.start = Math.round(time*1000)/1000; inputs[selected].start.value = clock(cue.start); edit();
     repairFollowing(selected);
+    fillEmptyEnds();
     remember(before);
     tell('Marked start at ' + clock(time) + '.');
   }
@@ -294,7 +310,10 @@
       $('saveTiming').disabled = false;
       $('markStart').disabled = $('seekStart').disabled = $('seekEnd').disabled = true;
       $('clearCue').disabled = false;
-      render(); tell(result.warning || 'Timings are separate from the lyrics. Save here never commits or pushes.', Boolean(result.warning));
+      render();
+      const beforeFill = structuredClone(timing);
+      if (fillEmptyEnds()) remember(beforeFill);
+      tell(result.warning || 'Timings are separate from the lyrics. Save here never commits or pushes.', Boolean(result.warning));
       await startPlayback();
     } catch (error) { tell(error.message, true); }
     finally { loading = false; }
@@ -340,7 +359,7 @@
     try {
       if (timing.cues.some(c => c.start !== null && !Number.isFinite(c.start) || c.end !== null && !Number.isFinite(c.end))) throw new Error('Enter valid numbers for the sentence times.');
       const before = structuredClone(timing);
-      repairTimeline(); remember(before);
+      fillEmptyEnds(); repairTimeline(); remember(before);
       const result = await request('save-lyric-timing', { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing });
       snapshot.revision = result.revision; timing = result.timing; savedState = structuredClone(timing); dirty = false; progress(); tell(result.message);
     } catch (error) { tell(error.message, true); }

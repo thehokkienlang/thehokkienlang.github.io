@@ -302,6 +302,10 @@ async function editorClickChecks() {
   assert.equal(previousEnd.value, '00:05.900');
   startInput.value = '0.1'; startInput.valueAsNumber = 0.1; startInput.oninput(); startInput.onchange();
   assert.equal(startInput.value, '00:06.000', 'The 0.1-second gap must not collapse the previous duration.');
+  previousEnd.value = ''; previousEnd.oninput(); previousEnd.onchange();
+  assert.equal(previousEnd.value, '00:05.900', 'An empty end is filled from the next start.');
+  rows[1].children[2].value = '7'; rows[1].children[2].oninput(); rows[1].children[2].onchange();
+  assert.equal(rows[1].children[2].value, '00:07.000', 'An entered end stays unchanged.');
   ready = true;
   rows[0].children[2].value = '12'; rows[0].children[2].valueAsNumber = 12; rows[0].children[2].oninput();
   rows[1].children[0].onclick();
