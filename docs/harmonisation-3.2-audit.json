@@ -4227,6 +4227,36 @@
           "count": 5,
           "example": "\n  \n    릐 若問’꾼 꾼心肝 됴"
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "b2606f4d802d636cb4713fdb01c247ee963781a228c44afd544800c0c8e7cc47",
+          "afterSha256": "9058f3307ee9924636870b6b8b711448d7971dc983a8b7405c83604666c09cb8",
+          "reason": "Author correction: 斡頭 and 畏寒 reading",
+          "edits": [
+            {
+              "start": 2013,
+              "end": 2992,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">誰<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">샹ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">知影<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.55em\">재ˉ얄`</rt></ruby> <ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">越頭<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">왇ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">毋<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">음-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">敢<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.05em\">갈ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">聽<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">턀ˆ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">誰<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">샹ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">知影<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.55em\">재ˉ얄`</rt></ruby> <ruby style=\"position: relative\">꾼<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">斡頭<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">왇ᄐᅷˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">毋<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">음-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">敢<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.05em\">갈ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">聽<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">턀ˆ</rt></ruby>\n",
+              "rule": "Author correction: 斡頭 and 畏寒 reading"
+            },
+            {
+              "start": 3261,
+              "end": 4103,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">異鄉<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">이형ˆ</rt></ruby>’에 <ruby style=\"position: relative\">꽈<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">一个<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">짇에-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">人<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">랑ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">起<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.05em\">키ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">畏寒<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.55em\">위ˆ괄ˊ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">異鄉<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">이형ˆ</rt></ruby>’에 <ruby style=\"position: relative\">꽈<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">一个<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.8em\">짇에-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">人<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.25em\">랑ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">起<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.05em\">키ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">畏寒<rt style=\"font-size: 60%;position: absolute;top: -1.2em;left: 0.55em\">위`괄ˊ</rt></ruby>\n",
+              "rule": "Author correction: 斡頭 and 畏寒 reading"
+            },
+            {
+              "start": 4212,
+              "end": 4259,
+              "before": "    i-hiông’e goà jit-e-láng khî-wî-koá̰\n",
+              "after": "    i-hiông’e goà jit-e-láng khî-wì-koá̰\n",
+              "rule": "Author correction: 斡頭 and 畏寒 reading"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-8597.json": {
