@@ -20443,6 +20443,27 @@
               "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
             }
           ]
+        },
+        {
+          "beforeSha256": "6cb13bf6bd00f6734d52b59023c3530ba697279a67fcd367c2c6ab623f3a8917",
+          "afterSha256": "5494ec4c9a9b457ee8d9a65c5e43b96adcb4668d38f635c78bddd0e97bdd74e5",
+          "reason": "Restore apostrophe-prefixed phonetic 됴; only standalone forms use Hanri",
+          "edits": [
+            {
+              "start": 12634,
+              "end": 13050,
+              "before": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’됴\n",
+              "rule": "Restore apostrophe-prefixed phonetic 됴; only standalone forms use Hanri"
+            },
+            {
+              "start": 21032,
+              "end": 21448,
+              "before": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’됴\n",
+              "rule": "Restore apostrophe-prefixed phonetic 됴; only standalone forms use Hanri"
+            }
+          ]
         }
       ]
     },
