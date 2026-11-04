@@ -9300,6 +9300,36 @@
           "count": 6,
           "example": " 心疼, 是心愛’에 在꾼夢中\n  \n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "8283d462b35cd2c7509a7b212cfbb28278b4bddaf0f4c364371bd3cd1b49b7a0",
+          "afterSha256": "0cbe7e0b906befb827deaa35a374d7c9c75bc9e5fefe872646d2c0798bb0a77b",
+          "reason": "Correct explicit tone-2 he reading to grave-accent Lomari",
+          "edits": [
+            {
+              "start": 9361,
+              "end": 9426,
+              "before": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hê lông-bo-sǹg-sià̰\n",
+              "after": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hè lông-bo-sǹg-sià̰\n",
+              "rule": "Correct explicit tone-2 he reading to grave-accent Lomari"
+            },
+            {
+              "start": 19717,
+              "end": 19782,
+              "before": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hê lông-bo-sǹg-sià̰\n",
+              "after": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hè lông-bo-sǹg-sià̰\n",
+              "rule": "Correct explicit tone-2 he reading to grave-accent Lomari"
+            },
+            {
+              "start": 25143,
+              "end": 25208,
+              "before": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hê lông-bo-sǹg-sià̰\n",
+              "after": "    bo-lun-sn̄g-seh, yah-si-hōng-koá̰, hè lông-bo-sǹg-sià̰\n",
+              "rule": "Correct explicit tone-2 he reading to grave-accent Lomari"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-6057.json": {
@@ -20300,7 +20330,72 @@
       "beforeSha256": "81ced3e976ea3e17cffa588d1c798f84ad52041aec951f71ae660619242474f6",
       "afterSha256": "81ced3e976ea3e17cffa588d1c798f84ad52041aec951f71ae660619242474f6",
       "edits": [],
-      "retained": []
+      "retained": [],
+      "followUps": [
+        {
+          "beforeSha256": "81ced3e976ea3e17cffa588d1c798f84ad52041aec951f71ae660619242474f6",
+          "afterSha256": "15f9162cf62a06d3badc3efdcb3f23680306827b6c5030b121bd265481239be8",
+          "reason": "Correct explicit tone-2 he reading to grave-accent Lomari",
+          "edits": [
+            {
+              "start": 5238,
+              "end": 5274,
+              "before": "    hê tio-si-goà’e chiēng-chûn\n",
+              "after": "    hè tio-si-goà’e chiēng-chûn\n",
+              "rule": "Correct explicit tone-2 he reading to grave-accent Lomari"
+            }
+          ]
+        },
+        {
+          "beforeSha256": "15f9162cf62a06d3badc3efdcb3f23680306827b6c5030b121bd265481239be8",
+          "afterSha256": "efeaaeb16f4b92454831fc0df7e288080ab2ba3584389300dbf118c58558ae2f",
+          "reason": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings",
+          "edits": [
+            {
+              "start": 12613,
+              "end": 13181,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">一枝<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇기ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">草<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">ᄎᅷ`</rt></ruby> 우<ruby style=\"position: relative;white-space: nowrap\">一點<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇댬ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">露<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">러ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">一枝<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇기ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">草<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">ᄎᅷ`</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">有<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">우</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">一點<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇댬ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">露<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">러ˉ</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            },
+            {
+              "start": 15529,
+              "end": 15950,
+              "before": "    <ruby style=\"position: relative\">곻<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>우<ruby style=\"position: relative;white-space: nowrap\">失志<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">싣ˆ지</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">喪膽<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">성`달`</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">곻<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">有<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">우</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">失志<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">싣ˆ지</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">喪膽<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">성`달`</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            },
+            {
+              "start": 16199,
+              "end": 16627,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">啥物<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">샬ˆ밓ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby>음<ruby style=\"position: relative;white-space: nowrap\">驚<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">걀ˆ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">啥物<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">샬ˆ밓ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">毋<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">음</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">驚<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">걀ˆ</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            },
+            {
+              "start": 20467,
+              "end": 21035,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">一枝<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇기ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">草<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">ᄎᅷ`</rt></ruby> 우<ruby style=\"position: relative;white-space: nowrap\">一點<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇댬ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">露<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">러ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">一枝<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇기ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">草<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">ᄎᅷ`</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">有<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">우</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">一點<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇댬ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">露<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">러ˉ</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            },
+            {
+              "start": 23383,
+              "end": 23804,
+              "before": "    <ruby style=\"position: relative\">곻<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby>우<ruby style=\"position: relative;white-space: nowrap\">失志<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">싣ˆ지</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">喪膽<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">성`달`</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">곻<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ꞈ</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">有<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">우</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">失志<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">싣ˆ지</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">喪膽<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">성`달`</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            },
+            {
+              "start": 24053,
+              "end": 24481,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">啥物<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">샬ˆ밓ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby>음<ruby style=\"position: relative;white-space: nowrap\">驚<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">걀ˆ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">啥物<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">샬ˆ밓ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">毋<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">음</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">驚<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">걀ˆ</rt></ruby>\n",
+              "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
+            }
+          ]
+        }
+      ]
     },
     "content/songs/song-231.json": {
       "id": "song-231",

@@ -22,6 +22,11 @@ def song():
 
 
 class LyricTimingTests(unittest.TestCase):
+    def test_lomari_is_not_labelled_as_main_with_unclosed_nested_span(self):
+        record = song()
+        record['body'] = record['body'].replace('<ruby>字', '<span><ruby>字').replace('ji</span></p>', 'ji</span></span></p>')
+        self.assertEqual([line['label'] for line in song_lines(record)[1]], ['字', '字'])
+
     def test_local_youtube_companion(self):
         try:
             node, env = node_environment()

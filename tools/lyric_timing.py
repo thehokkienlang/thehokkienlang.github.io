@@ -69,7 +69,7 @@ class LyricParser(HTMLParser):
     def handle_data(self, data):
         if self.current is not None:
             self.current['text'].append(data)
-            if self.current['main'] is not None and not {'rt', 'rp'} & set(self.stack):
+            if self.current['main'] is not None and not self.current['lomari'] and not {'rt', 'rp'} & set(self.stack):
                 self.current['label'].append(data)
 
 
