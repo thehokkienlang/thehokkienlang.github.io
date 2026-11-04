@@ -65,8 +65,8 @@
   document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
     node.textContent = node.textContent.normalize("NFC");
   });
-  // Link base text and catalogue Lomari, not ruby readings or the surrounding row.
-  document.querySelectorAll("a.song-entry, [data-home-song-picks] > a").forEach(original => {
+  // Keep catalogue entries as full links; only homepage picks use base-text links.
+  document.querySelectorAll("[data-home-song-picks] > a").forEach(original => {
     const href = original.getAttribute("href");
     const item = document.createElement("div");
     for (const { name, value } of original.attributes) {
@@ -88,14 +88,6 @@
       node.replaceWith(link);
       link.append(node);
     });
-    const lomari = item.querySelector(".song-entry-lomari");
-    if (lomari) {
-      const link = document.createElement("a");
-      link.className = "song-base-link";
-      link.href = href;
-      link.append(...lomari.childNodes);
-      lomari.append(link);
-    }
     original.replaceWith(item);
   });
   const article = document.querySelector(".imported-content");
