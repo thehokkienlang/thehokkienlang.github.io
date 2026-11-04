@@ -20394,6 +20394,55 @@
               "rule": "Author-approved 有 and 毋 in mixed lyrics, preserving sandhi readings"
             }
           ]
+        },
+        {
+          "beforeSha256": "efeaaeb16f4b92454831fc0df7e288080ab2ba3584389300dbf118c58558ae2f",
+          "afterSha256": "6cb13bf6bd00f6734d52b59023c3530ba697279a67fcd367c2c6ab623f3a8917",
+          "reason": "Author-approved 就 𣍐 無 著 with retained Hangul readings",
+          "edits": [
+            {
+              "start": 1361,
+              "end": 2062,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">強<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">경-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">欲<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">뼇ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">喘<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">촨ˆ-</rt></ruby>뾔<ruby style=\"position: relative;white-space: nowrap\">過<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">궤`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">氣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">키</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">強<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">경-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">欲<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">뼇ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">喘<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">촨ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">𣍐<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">뾔</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">過<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">궤`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">氣<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">키</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            },
+            {
+              "start": 4526,
+              "end": 5129,
+              "before": "    <span style=\"font-family:Sans-serif, Noto Sans TC\"><ruby style=\"position: relative\">헤<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> 됴<ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative\">꽈<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>’에 <ruby style=\"position: relative;white-space: nowrap\">青春<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">촁ˉ춘ˆ</rt></ruby>\n",
+              "after": "    <span style=\"font-family:Sans-serif, Noto Sans TC\"><ruby style=\"position: relative\">헤<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative\">꽈<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby>’에 <ruby style=\"position: relative;white-space: nowrap\">青春<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">촁ˉ춘ˆ</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            },
+            {
+              "start": 5929,
+              "end": 6356,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">凡事<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">환수ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby>뽀<ruby style=\"position: relative;white-space: nowrap\">定著<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">댤둏ˆ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">凡事<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">환수ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">攏<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">렁ˆ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">無<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">뽀</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">定著<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">댤둏ˆ</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            },
+            {
+              "start": 8375,
+              "end": 8934,
+              "before": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">為<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">위-</rt></ruby>둏<ruby style=\"position: relative;white-space: nowrap\">未來<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">삐래ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">做夢<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">죄`빵ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">為<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">위-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">著<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">둏</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">未來<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">삐래ˊ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">做夢<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">죄`빵ˉ</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            },
+            {
+              "start": 12090,
+              "end": 12370,
+              "before": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’됴\n",
+              "after": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            },
+            {
+              "start": 20352,
+              "end": 20632,
+              "before": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’됴\n",
+              "after": "    <ruby style=\"position: relative\">란<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">相信<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">셩ˉ신</rt></ruby>’<ruby style=\"position: relative;white-space: nowrap\">就<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">됴</rt></ruby>\n",
+              "rule": "Author-approved 就 𣍐 無 著 with retained Hangul readings"
+            }
+          ]
         }
       ]
     },
