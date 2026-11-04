@@ -1,4 +1,13 @@
 /* One geometry for pronunciation ruby; standalone Hangul tone marks are separate. */
+:is(rt, .tli-rt, .entry-headword-reading, rp) {
+  -webkit-user-select: none;
+  user-select: none;
+}
+.selecting-ruby :is(rt, .tli-rt, .entry-headword-reading) {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
 :root {
   --tli-ruby-size: 0.55em;
   --tli-ruby-overlap: 0.05em;
