@@ -19,12 +19,19 @@ const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
 function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading = true) {
-  const makeLine = () => ({ active:false, current:false, scrolled:0, attributes:{}, listeners:{},
+  const makeLine = () => {
+    const line = { active:false, current:false, scrolled:0, attributes:{}, listeners:{},
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
     setAttribute(name, value) { this.attributes[name] = value; if (name === 'aria-current') this.current = true; },
     removeAttribute(name) { delete this.attributes[name]; if (name === 'aria-current') this.current = false; },
     addEventListener(name, handler) { this.listeners[name] = handler; },
-    scrollIntoView() { this.scrolled++; }, contains(node) { return node === this; } });
+    append() {},
+    querySelector() { return this.main; },
+    scrollIntoView() { this.scrolled++; }, contains(node) { return node === this; } };
+    const text = {textContent:'字', parentElement:{closest:() => null}, replaceWith:target => { line.seekTarget = target; }};
+    line.main = {childNodes:[text]};
+    return line;
+  };
   const lines = {first:makeLine(), repeat:makeLine()};
   Object.values(lines).forEach(line => line.classList.owner = line);
   let callback, errorCallback, connected = false, connections = 0, replacements = 0;
@@ -38,12 +45,14 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
   const label = {textContent:''}, follow = {checked:false};
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
+    createElement: () => makeLine(),
+    createTreeWalker: main => { let yielded = false; return {get currentNode() { return main.childNodes[0]; }, nextNode() { if (yielded) return false; yielded = true; return true; }}; },
     querySelectorAll: () => [frame],
     querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
   const seeks = [];
   let selection = '', selectionNode;
   const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), destroy() {}}); }};
-  vm.runInNewContext(source, {document, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection, anchorNode:selectionNode, focusNode:selectionNode})}, TliLyricPlayer:player, URL, URLSearchParams,
+  vm.runInNewContext(source, {document, NodeFilter:{SHOW_TEXT:4, FILTER_REJECT:2, FILTER_ACCEPT:1}, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection, anchorNode:selectionNode, focusNode:selectionNode})}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
     matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
   return {lines, controls, follow, label, connected, seeks, placement, get connections() { return connections; }, get replacements() { return replacements; },
@@ -73,15 +82,16 @@ assert.equal(desktop.lines.repeat.active, true);
 assert.equal(desktop.lines.repeat.scrolled, 1);
 console.log('PASS: highlight states, pause/seek, responsive follow defaults and draft playback.');
 const early = fixture();
-early.lines.repeat.listeners.click({target:{closest:() => null}});
+early.lines.repeat.seekTarget.listeners.click({target:{closest:() => null}});
 assert.equal(early.seeks.length, 0);
 Promise.resolve().then(async () => {
   assert.deepEqual(early.seeks, [[20, true]]);
-  const line = ui.lines.first;
+  assert.equal(ui.lines.first.listeners.click, undefined, 'Paragraph and Lomari have no seek handler');
+  assert.equal(ui.lines.first.attributes.tabindex, undefined);
+  const line = ui.lines.first.seekTarget;
   const target = {closest:() => null};
   line.listeners.click({target});
   assert.deepEqual(ui.seeks, [[10, true]]);
-  line.listeners.click({target:{closest:() => ({})}});
   ui.select('selected lyrics');
   line.listeners.click({target});
   assert.equal(ui.seeks.length, 1);

@@ -12,6 +12,8 @@
   --tli-ruby-size: 0.55em;
   --tli-ruby-overlap: 0.05em;
   --tli-ruby-block-space: calc(var(--tli-ruby-size) * 1.1);
+  --tli-ruby-hit-top: 0.45em;
+  --tli-ruby-hit-side: 0.4em;
 }
 
 :is(.tli-reading-ruby, .entry-headword-ruby) {
@@ -36,7 +38,9 @@
   right: auto !important;
   width: max-content;
   margin: 0;
-  padding: 0;
+  /* Expand upward and sideways, leaving the glyphs and base-text hit area in place. */
+  padding: var(--tli-ruby-hit-top) var(--tli-ruby-hit-side) 0;
+  z-index: 2;
   transform: translateX(-50%) !important;
   font-size: var(--tli-ruby-size) !important;
   line-height: 1.15 !important;
@@ -47,4 +51,11 @@
 
 .tli-reading-ruby.bopomofo-title {
   --tli-ruby-size: 0.37em;
+}
+
+@media (pointer: coarse) {
+  :root {
+    --tli-ruby-hit-top: 0.7em;
+    --tli-ruby-hit-side: 0.6em;
+  }
 }

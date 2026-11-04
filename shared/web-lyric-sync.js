@@ -40,17 +40,35 @@
     if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) continue;
     const line = document.querySelector(`[data-lyric-id="${cue.id}"]`);
     if (!line) continue;
-    line.setAttribute('tabindex', '0');
-    line.setAttribute('role', 'button');
-    line.setAttribute('data-lyric-seek', '');
-    line.addEventListener('click', event => {
-      if (event.target.closest('a, button, input')) return;
+    const main = line.querySelector(':scope > span');
+    if (!main) continue;
+    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+      acceptNode: node => node.parentElement.closest('rt, rp, .tli-rt, .tone-mark, a, [data-lyric-seek]') || !node.textContent.trim()
+        ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    const seekTargets = nodes.map((node, index) => {
+      const target = document.createElement('span');
+      target.className = 'lyric-seek-base';
+      target.setAttribute('data-lyric-seek', '');
+      if (index === 0) {
+        target.setAttribute('tabindex', '0');
+        target.setAttribute('role', 'button');
+      }
+      node.replaceWith(target);
+      target.append(node);
+      return target;
+    });
+    for (const seekTarget of seekTargets) seekTarget.addEventListener('click', event => {
       const selection = window.getSelection();
       if (selection?.toString() && (line.contains(selection.anchorNode) || line.contains(selection.focusNode))) return;
       seekLine(cue.start);
     });
-    line.addEventListener('keydown', event => {
-      if (event.target !== line || !['Enter', ' '].includes(event.key)) return;
+    const keyboardTarget = seekTargets[0];
+    if (!keyboardTarget) continue;
+    keyboardTarget.addEventListener('keydown', event => {
+      if (event.target !== keyboardTarget || !['Enter', ' '].includes(event.key)) return;
       event.preventDefault();
       seekLine(cue.start);
     });

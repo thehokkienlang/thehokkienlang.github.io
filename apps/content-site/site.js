@@ -65,6 +65,31 @@
   document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
     node.textContent = node.textContent.normalize("NFC");
   });
+  // Keep navigation on the base text, not its readings or the surrounding row.
+  document.querySelectorAll("a.song-entry, [data-home-song-picks] > a").forEach(original => {
+    const href = original.getAttribute("href");
+    const item = document.createElement("div");
+    for (const { name, value } of original.attributes) {
+      if (name !== "href") item.setAttribute(name, value);
+    }
+    if (!item.classList.contains("song-entry")) item.classList.add("home-songbook-item");
+    item.append(...original.childNodes);
+    const title = item.querySelector(".song-entry-title, .home-song-title");
+    const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT, {
+      acceptNode: node => node.parentElement.closest("rt, rp, .tli-rt, .tone-mark, a") || !node.textContent.trim()
+        ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const link = document.createElement("a");
+      link.className = "song-base-link";
+      link.href = href;
+      node.replaceWith(link);
+      link.append(node);
+    });
+    original.replaceWith(item);
+  });
   const article = document.querySelector(".imported-content");
   if (!article) return;
   if (document.body.dataset.siteSection === "learn") {

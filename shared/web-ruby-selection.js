@@ -5,10 +5,31 @@
   const elementAt = node => node?.nodeType === Node.ELEMENT_NODE ? node : node?.parentElement;
   const readingAt = node => elementAt(node)?.closest(readings);
 
+  const selectReading = reading => {
+    const selection = window.getSelection();
+    if (!selection) return;
+    const range = document.createRange();
+    range.selectNodeContents(reading);
+    selection.removeAllRanges();
+    selection.addRange(range);
+  };
+
   // Set the selection mode before the browser starts a mouse drag or long press.
   document.addEventListener("pointerdown", event => {
     if (event.button !== 0) return;
-    document.documentElement.classList.toggle("selecting-ruby", Boolean(readingAt(event.target)));
+    const reading = readingAt(event.target);
+    document.documentElement.classList.toggle("selecting-ruby", Boolean(reading));
+    if (!reading) return;
+    event.stopPropagation();
+    selectReading(reading);
+  }, true);
+
+  document.addEventListener("click", event => {
+    const reading = readingAt(event.target);
+    if (!reading) return;
+    event.preventDefault();
+    event.stopPropagation();
+    selectReading(reading);
   }, true);
 
   document.addEventListener("selectionchange", () => {
