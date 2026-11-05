@@ -8,6 +8,27 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 class SiteSymbolsTests(unittest.TestCase):
+    def test_nasal_u_above_anchor_matches_plain_u(self):
+        try:
+            from fontTools.ttLib import TTFont
+        except ImportError:
+            self.skipTest('FontTools is needed for font-anchor inspection.')
+        for weight in ('regular', 'bold'):
+            with TTFont(ROOT / 'assets/fonts' / f'tli-noto-sans-{weight}-v3.woff2') as font:
+                cmap = font.getBestCmap()
+                checked = 0
+                for lookup in font['GPOS'].table.LookupList.Lookup:
+                    for table in lookup.SubTable:
+                        if not hasattr(table, 'BaseCoverage') or cmap[0x1E75] not in table.BaseCoverage.glyphs:
+                            continue
+                        if cmap[0x304] not in table.MarkCoverage.glyphs:
+                            continue
+                        mark_class = table.MarkArray.MarkRecord[table.MarkCoverage.glyphs.index(cmap[0x304])].Class
+                        anchors = [table.BaseArray.BaseRecord[table.BaseCoverage.glyphs.index(cmap[code])].BaseAnchor[mark_class] for code in (0x75, 0x1E75)]
+                        self.assertEqual((anchors[0].XCoordinate, anchors[0].YCoordinate), (anchors[1].XCoordinate, anchors[1].YCoordinate))
+                        checked += 1
+                self.assertEqual(checked, 1)
+
     def test_self_hosted_regular_and_bold_faces_include_tone_ranges(self):
         css = (ROOT / "shared/web-punctuation.css").read_text(encoding="utf-8")
         self.assertNotIn('local("Calibri")', css)
@@ -15,7 +36,8 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn("U+A788", css)
         for weight in ("regular", "bold"):
             for family in ("sans", "symbols"):
-                filename = f"tli-noto-{family}-{weight}-v2.woff2"
+                version = 3 if family == "sans" else 2
+                filename = f"tli-noto-{family}-{weight}-v{version}.woff2"
                 self.assertIn(filename, css)
                 self.assertTrue((ROOT / "assets/fonts" / filename).read_bytes().startswith(b"wOF2"))
         self.assertNotIn("font-weight: 100 500", css)

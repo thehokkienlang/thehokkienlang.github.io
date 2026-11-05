@@ -1,5 +1,13 @@
 # Shared Noto Sans Symbols and Branding
 
+## Nasalised-u tone positioning
+
+`tli-noto-sans-{regular,bold}-v3.woff2` correct the above-mark anchor of
+U+1E75 (u with tilde below) to match plain u. The below-letter tilde, outlines,
+advance widths and all other glyph anchors are unchanged. These are derived
+from the licensed v2 subsets; reproduce with `python tools/fix_nasal_u_font.py`
+using FontTools. New filenames and unique font IDs prevent stale font caches.
+
 ## Portable Traditional Chinese content
 
 `tli-content-tc-{400,700}-v1.woff2` are static Noto Sans TC subsets of Hanri

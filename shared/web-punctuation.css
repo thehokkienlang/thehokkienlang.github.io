@@ -1,14 +1,14 @@
 /* One self-hosted Western face for punctuation and every TLI tone symbol. */
 @font-face {
   font-family: "TLI Noto Sans";
-  src: url("/assets/fonts/tli-noto-sans-regular-v2.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-sans-regular-v3.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
 }
 @font-face {
   font-family: "TLI Noto Sans";
-  src: url("/assets/fonts/tli-noto-sans-bold-v2.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-sans-bold-v3.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
   font-display: swap;
