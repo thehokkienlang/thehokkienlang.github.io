@@ -31,7 +31,7 @@
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-tc-bold.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+3701, U+216B8, U+28468, U+8FCC; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-sc-bold.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+4180, U+4B55, U+6455; }
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
-.nasal-grapheme { font-family: "Tangliengim Nasal Latin", "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; font-kerning: normal; letter-spacing: 0; }
+.nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; font-kerning: normal; letter-spacing: 0; }
 .imported-content .tli-reading-ruby.tli-bopomofo-reading { --tli-ruby-size: 0.4em; }
 :root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
@@ -168,7 +168,7 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
 .home-specimen { position: absolute; top: -180px; right: 0; display: flex; width: min(30%, 300px); flex-direction: column; padding: 10px 0 4px 28px; border-left: 4px solid var(--site-voice, #b33b46); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; font-size: 54px; }
 .home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
-.home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 18px; font-family: "Tangliengim Nasal Latin", "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
+.home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 18px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 14px; }
 .home-paths { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 3px solid var(--ink); }
 .home-path { min-width: 0; padding: 32px 28px 36px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
