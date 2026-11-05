@@ -212,7 +212,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
 .home-songbook { border-top: 2px solid var(--ink); }
 .home-songbook-label { display: block; padding: 13px 0 10px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--site-voice, #9d303b); font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
 .home-songbook :is(a:not(.song-base-link), .home-songbook-item) { display: grid; grid-template-columns: 1fr auto; align-items: baseline; gap: 24px; padding: 26px 0 14px; border-bottom: 1px solid rgba(23, 37, 43, .28); color: var(--ink); text-decoration: none; }
-.home-songbook .song-base-link:hover { color: var(--site-voice, #9d303b); }
+.home-songbook .home-song-title:has(.song-base-link:is(:hover, :focus-visible)) .song-base-link { color: var(--site-voice, #9d303b); }
 .home-songbook :is(a, .home-songbook-item) > .home-song-title { padding-top: 0; font-size: 21px; font-weight: 700; line-height: 1.5; }
 .home-songbook small { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 14px; }
 @media (max-width: 900px) {
