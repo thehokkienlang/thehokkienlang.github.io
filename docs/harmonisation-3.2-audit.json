@@ -16900,6 +16900,29 @@
           "count": 1,
           "example": "’에 理想 佮希望 攏佇쟈\n  \n  \n   "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "099b73f52229db80534d0fdc3740c7ed522043d29218e705dee8f937e09c1d79",
+          "afterSha256": "d865dc19903baeaaa56f779a5c1685497ac2094775bfded8906858aa0f7fa1b1",
+          "reason": "Author-corrected 向前行 lyric: kue’khi-lah and 킈랗",
+          "edits": [
+            {
+              "start": 11354,
+              "end": 11923,
+              "before": "    <ruby style=\"position: relative;white-space: nowrap\">車站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">챠ˉ잠ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">一站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇잠-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">一站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇잠ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">過<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">궤</rt></ruby>’릐랗\n",
+              "after": "    <ruby style=\"position: relative;white-space: nowrap\">車站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.55em\">챠ˉ잠ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">一站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇잠-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">一站<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">짇잠ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">過<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">궤</rt></ruby>’킈랗\n",
+              "rule": "Author-corrected 向前行 lyric: kue’khi-lah and 킈랗"
+            },
+            {
+              "start": 12032,
+              "end": 12075,
+              "before": "    chiā-jām jit-jam-jit-jām kue’li-lah\n",
+              "after": "    chiā-jām jit-jam-jit-jām kue’khi-lah\n",
+              "rule": "Author-corrected 向前行 lyric: kue’khi-lah and 킈랗"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-4274.json": {
