@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Translator preview · TheHokkienLang</title>
+    <meta name="description" content="A local English and Hokkien translator preview powered by TLI.">
+    <link rel="icon" type="image/png" href="/ime/favicon.png">
+    <link rel="preload" href="/assets/fonts/tangliengim-content-hanri-v2.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="stylesheet" href="/shared/web-ime-menu.css">
+    <link rel="stylesheet" href="/shared/web-site-navigation.css">
+    <link rel="stylesheet" href="styles.css">
+    <script src="/shared/web-site-language.js" defer></script>
+    <script src="/shared/web-site-navigation.js" defer></script>
+  </head>
+  <body data-site-section="translate">
+    <header class="site-app-header">
+      __SITE_BRAND__
+      <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
+    </header>
+
+    <main class="translator-shell">
+      <header class="translator-heading">
+        <div>
+          <p class="eyebrow">Preview</p>
+          <h1>English <span aria-hidden="true">↔</span> Hokkien</h1>
+        </div>
+      </header>
+
+      <section id="translator" class="translator" aria-label="English and Hokkien translator">
+        <article id="englishPane" class="language-pane english-pane">
+          <header class="pane-header">
+            <div>
+              <span class="pane-kicker" id="englishRole">Source</span>
+              <h2>English</h2>
+            </div>
+            <div class="pane-actions">
+              <button id="clearEnglish" class="icon-button" type="button" aria-label="Clear English" title="Clear">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"></path></svg>
+              </button>
+              <button id="copyEnglish" class="icon-button" type="button" aria-label="Copy English" title="Copy English">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"></rect><path d="M4 16V4h12"></path></svg>
+              </button>
+            </div>
+          </header>
+          <textarea id="englishText" class="translation-text" lang="en" placeholder="Enter English…" spellcheck="true"></textarea>
+          <footer class="pane-footer"><span id="englishCount">0 / 2000</span></footer>
+        </article>
+
+        <button id="swapDirection" class="swap-button" type="button" aria-label="Switch translation direction" title="Switch direction">
+          <svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 7h11l-3-3M17 17H6l3 3"></path></svg>
+        </button>
+
+        <article id="hokkienPane" class="language-pane hokkien-pane">
+          <header class="pane-header">
+            <div>
+              <span class="pane-kicker" id="hokkienRole">Translation</span>
+              <h2>Hokkien <small>Powered by TLI</small></h2>
+            </div>
+            <div class="pane-actions">
+              <button id="clearHokkien" class="icon-button" type="button" aria-label="Clear Hokkien" title="Clear">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><path d="m7 7 10 10M17 7 7 17"></path></svg>
+              </button>
+              <button id="listenHokkien" class="icon-button" type="button" aria-label="Listen to Hokkien" title="Listen">
+                <svg class="listen-icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M11 5 6 9H3v6h3l5 4V5Z"></path><path d="M15.5 8.5a5 5 0 0 1 0 7M18.5 5.5a9 9 0 0 1 0 13"></path></svg>
+                <svg class="stop-icon" aria-hidden="true" viewBox="0 0 24 24"><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+              </button>
+              <button id="copyHokkien" class="icon-button" type="button" aria-label="Copy Hokkien" title="Copy Hokkien">
+                <svg aria-hidden="true" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="1.5"></rect><path d="M4 16V4h12"></path></svg>
+              </button>
+            </div>
+          </header>
+          <div class="hokkien-input-wrap">
+            <div id="hokkienToneOverlay" class="tone-overlay" aria-hidden="true"></div>
+            <textarea id="hokkienText" class="translation-text" lang="ko" placeholder="輸入閩南語…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"></textarea>
+            <div id="hokkienCandidates" class="candidate-bar hanri-candidate-menu" role="listbox" aria-label="Hanri candidates" hidden></div>
+          </div>
+          <div id="lomariPreview" class="lomari-preview" aria-label="Lomari romanisation"></div>
+          <footer class="pane-footer">
+            <label class="keyboard-toggle">
+              <span>Enable Hangul keyboard</span>
+              <input id="hangulKeyboardToggle" type="checkbox" role="switch" checked>
+              <span class="toggle-track" aria-hidden="true"></span>
+            </label>
+            <label class="sandhi-control"><span>Audio sandhi</span><select id="sandhiMode"><option value="taipei">Taipei</option><option value="singapore">Singapore</option></select></label>
+            <span id="hokkienCount">0 / 2000</span>
+          </footer>
+        </article>
+      </section>
+
+      <section id="alternatives" class="alternatives" aria-labelledby="alternativesTitle" hidden>
+        <header><div><p class="eyebrow">Dictionary matches</p><h2 id="alternativesTitle">Choose a reading or meaning</h2></div></header>
+        <div id="alternativeList" class="alternative-list"></div>
+      </section>
+
+      <p class="preview-note"><strong>Preview limitation:</strong> this version translates dictionary phrases and words. It does not yet rearrange full English sentences into natural Hokkien grammar.</p>
+    </main>
+
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
+    <script src="/shared/web-hangul-ime.js"></script><script src="/shared/web-ime-core.js"></script><script src="/shared/web-phonetic-output.js"></script><script src="/shared/web-audio-player.js"></script><script src="translate.js"></script>
+  </body>
+</html>

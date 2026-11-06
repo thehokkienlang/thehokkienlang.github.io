@@ -69,7 +69,7 @@ def main() -> int:
         shutil.copy2(ROOT / filename, OUTPUT / filename)
     for folder in ("assets", "shared"):
         shutil.copytree(ROOT / folder, OUTPUT / folder)
-    for app in ("dictionary", "ime"):
+    for app in ("dictionary", "ime", "translate"):
         shutil.copytree(ROOT / "apps" / app, OUTPUT / app)
         index = OUTPUT / app / "index.html"
         index.write_text(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), encoding="utf-8")

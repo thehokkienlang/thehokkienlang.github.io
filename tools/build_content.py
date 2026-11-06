@@ -18,7 +18,7 @@ from site_search import document as search_document, hanri_fold_map
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
 
-NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/search/", "Search"), ("/about/", "About"))
+NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/translate/", "Translate"), ("/search/", "Search"), ("/about/", "About"))
 NAV_SECTIONS = {
     "/learn/": (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation")),
     "/read/": (("/read/stories/the-egg/", "The Egg"),),
