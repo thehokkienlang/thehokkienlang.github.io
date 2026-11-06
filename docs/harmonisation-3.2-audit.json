@@ -11639,6 +11639,43 @@
           "count": 4,
           "example": " 야是追 追 追뾔둏이’에 行蹤\n  \n  "
         }
+      ],
+      "followUps": [
+        {
+          "beforeSha256": "6721c199da505f4aed502d2a29a8f28e8eb021456c1b60644f0408dddd4253d4",
+          "afterSha256": "96f7c91880f6117a2574ba2f66478ad89b9e40cc6e0e826161cbfcf8d2f75731",
+          "reason": "Author-requested space after 生性 and citation tone 5 for 性",
+          "edits": [
+            {
+              "start": 10516,
+              "end": 11627,
+              "before": "    <ruby style=\"position: relative\">이<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">風<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">헝ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">生<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">실ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">性<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">솅-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">愛<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">애`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">流浪<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">류렁ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">이<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">風<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">헝ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">生<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">실ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">性<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">솅ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">愛<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">애`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">流浪<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">류렁ˉ</rt></ruby>\n",
+              "rule": "Author-requested space after 生性 and citation tone 5 for 性"
+            },
+            {
+              "start": 11736,
+              "end": 11780,
+              "before": "    ī si-hông sḭ̄-sieng-si-ài-liu-lōng\n",
+              "after": "    ī si-hông sḭ̄-siēng si-ài-liu-lōng\n",
+              "rule": "Author-requested space after 生性 and citation tone 5 for 性"
+            },
+            {
+              "start": 22055,
+              "end": 23166,
+              "before": "    <ruby style=\"position: relative\">이<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">風<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">헝ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">生<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">실ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">性<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">솅-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">愛<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">애`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">流浪<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">류렁ˉ</rt></ruby>\n",
+              "after": "    <ruby style=\"position: relative\">이<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">ˍ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">風<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">헝ˆ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">生<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">실ˉ-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">性<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">솅ˉ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">是<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.4em\">시-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">愛<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.05em\">애`-</rt></ruby><ruby style=\"position: relative;white-space: nowrap\">流浪<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.8em\">류렁ˉ</rt></ruby>\n",
+              "rule": "Author-requested space after 生性 and citation tone 5 for 性"
+            },
+            {
+              "start": 23275,
+              "end": 23319,
+              "before": "    ī si-hông sḭ̄-sieng-si-ài-liu-lōng\n",
+              "after": "    ī si-hông sḭ̄-siēng si-ài-liu-lōng\n",
+              "rule": "Author-requested space after 生性 and citation tone 5 for 性"
+            }
+          ]
+        }
       ]
     },
     "content/songs/song-5723.json": {
