@@ -3,6 +3,7 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
     <title>Translator preview · TheHokkienLang</title>
     <meta name="description" content="A local English and Hokkien translator preview powered by TLI.">
     <link rel="icon" type="image/png" href="/ime/favicon.png">
@@ -12,6 +13,7 @@
     <link rel="stylesheet" href="styles.css">
     <script src="/shared/web-site-language.js" defer></script>
     <script src="/shared/web-site-navigation.js" defer></script>
+    <script src="gate.js" defer></script>
   </head>
   <body data-site-section="translate">
     <header class="site-app-header">
@@ -19,7 +21,17 @@
       <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
     </header>
 
-    <main class="translator-shell">
+    <main id="lockScreen" class="translator-lock">
+      <form id="accessForm">
+        <p>This translator is currently available to invited visitors.</p>
+        <label for="passwordInput">Password</label>
+        <input id="passwordInput" type="password" autocomplete="current-password" aria-describedby="accessError" required autofocus>
+        <button id="enterTranslatorButton" type="submit">Enter translator</button>
+        <p id="accessError" role="status" hidden></p>
+      </form>
+    </main>
+    <main id="translatorRoot" class="translator-shell" hidden>
+      <button id="lockTranslatorButton" type="button">Lock translator</button>
       <header class="translator-heading">
         <div>
           <p class="eyebrow">Preview</p>
@@ -97,6 +109,5 @@
     </main>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
-    <script src="/shared/web-hangul-ime.js"></script><script src="/shared/web-ime-core.js"></script><script src="/shared/web-phonetic-output.js"></script><script src="/shared/web-audio-player.js"></script><script src="translate.js"></script>
   </body>
 </html>
