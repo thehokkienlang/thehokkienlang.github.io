@@ -34,9 +34,21 @@ def source_id(entry: dict) -> str:
     return source_record(entry).get('entry_id') or entry.get('entry_id', entry.get('id', '')).removesuffix('-sandhi')
 
 
+# A literary (文讀) reading is glossed with this mark (audit 3.4). It is offered as
+# a candidate but never becomes a default: in every lookup context it ranks after
+# the same character's other readings of the same entry type.
+LITERARY_GLOSS_MARK = '(literary)'
+
+
+def is_literary(entry: dict) -> bool:
+    row = source_record(entry)
+    return str(row.get('english', entry.get('english', ''))).rstrip().endswith(LITERARY_GLOSS_MARK)
+
+
 def canonical_key(entry: dict) -> tuple:
     row = source_record(entry)
     return (TYPE_RANK.get(row.get('entry_type', entry.get('entryType', 'lexical')), 1),
+            int(is_literary(entry)),
             reading_sort_key(row.get('reading', entry.get('reading', ''))),
             tuple(map(ord, canonical_entry_headword(row.get('hanri', entry.get('hanri', ''))))),
             tuple(map(ord, row.get('corrected', ''))), source_id(entry))
