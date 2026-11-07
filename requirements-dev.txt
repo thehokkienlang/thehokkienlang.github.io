@@ -1,0 +1,4 @@
+# Python packages needed by the release gate and tests (not by the public site).
+# Install with: python -m pip install -r requirements-dev.txt
+fonttools[woff]>=4.40
+brotli>=1.1

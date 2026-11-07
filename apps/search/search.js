@@ -252,7 +252,7 @@ async function load() {
     const response = await fetch(INDEX_URL);
     if (!response.ok) throw new Error(`HTTP ${response.status}`);
     const index = await response.json();
-    state.hanriFold = index.hanriFold || {};
+    state.hanriFold = { ...(index.hanriFold || {}), ...variants.toneMarkFold };
     state.documents = (index.languages[language] || []).map(document => ({
       ...document,
       foldedTitle: variants.fold(normalized(document.titleSearch), state.hanriFold),

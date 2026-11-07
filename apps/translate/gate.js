@@ -8,6 +8,10 @@
   const error = document.querySelector("#accessError");
   const button = document.querySelector("#enterTranslatorButton");
   let opening = false;
+  // tools/build_site.py replaces the next line with content hashes, so a deployed
+  // page reuses cached scripts until they change. An unbuilt checkout keeps the
+  // timestamp fallback so local editing always loads fresh code.
+  const ASSET_VERSIONS = {};
 
   async function open() {
     if (opening) return;
@@ -17,7 +21,7 @@
       for (const source of ["/shared/web-hangul-ime.js", "/shared/web-ime-core.js", "/shared/web-phonetic-output.js", "/shared/web-audio-player.js", "translate.js"]) {
         await new Promise((resolve, reject) => {
           const script = document.createElement("script");
-          script.src = `${source}?v=${Date.now()}`;
+          script.src = `${source}?v=${ASSET_VERSIONS[source] || Date.now()}`;
           script.onload = resolve;
           script.onerror = reject;
           document.body.append(script);

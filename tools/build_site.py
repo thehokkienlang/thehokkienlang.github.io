@@ -17,6 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
 ASSET_ATTRIBUTE = re.compile(r'(?P<prefix>\b(?:src|href)=")(?P<url>[^"#]+)(?P<suffix>")')
 CSS_IMPORT = re.compile(r'(@import\s+url\(")([^"]+)("\))')
+ASSET_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const ASSET_VERSIONS = \{\};$", re.MULTILINE)
+GATE_SCRIPT_SOURCE = re.compile(r'"(?P<source>[^"\s]+\.js)"')
 
 
 def version_css_imports(css_path: Path, visited: set[Path]) -> None:
@@ -56,6 +58,31 @@ def version_assets(html_path: Path) -> None:
     html_path.write_text(ASSET_ATTRIBUTE.sub(replace, html_path.read_text(encoding="utf-8")), encoding="utf-8")
 
 
+def version_gate_scripts(gate_path: Path) -> None:
+    """Give a lock screen's dynamically loaded scripts content-hash versions.
+
+    The gates load their app scripts after the password check, so the HTML
+    attribute pass cannot see them. Each built gate gets a frozen map of the
+    scripts it names to their content hashes instead of a per-visit timestamp.
+    """
+    text = gate_path.read_text(encoding="utf-8")
+    if len(ASSET_VERSIONS_LINE.findall(text)) != 1:
+        raise RuntimeError(f"{gate_path} must contain exactly one 'const ASSET_VERSIONS = {{}};' line")
+    page_url = "/" + gate_path.relative_to(OUTPUT).as_posix()
+    versions = {}
+    for match in GATE_SCRIPT_SOURCE.finditer(text):
+        source = match["source"]
+        asset = OUTPUT / unquote(urljoin(page_url, source)).lstrip("/")
+        if not asset.is_file():
+            raise FileNotFoundError(f"Missing script in {page_url}: {source}")
+        versions[source] = hashlib.sha256(asset.read_bytes()).hexdigest()[:12]
+    if not versions:
+        raise RuntimeError(f"{gate_path} names no scripts to version")
+    frozen = json.dumps(versions, ensure_ascii=False, sort_keys=True)
+    text = ASSET_VERSIONS_LINE.sub(lambda match: f"{match['indent']}const ASSET_VERSIONS = Object.freeze({frozen});", text)
+    gate_path.write_text(text, encoding="utf-8")
+
+
 def main() -> int:
     # Generate data from the exact TSV and pronunciation code being deployed.
     build_dictionary_json()
@@ -79,6 +106,8 @@ def main() -> int:
     shutil.copy2(DEFAULT_OUTPUT_PATH, OUTPUT / "public" / "data" / DEFAULT_OUTPUT_PATH.name)
     content_routes = build_content(ROOT, OUTPUT)
     shutil.copytree(ROOT / "apps" / "search", OUTPUT / "assets" / "search")
+    for app in ("dictionary", "translate"):
+        version_gate_scripts(OUTPUT / app / "gate.js")
     visited_css = set()
     for css_path in OUTPUT.rglob("*.css"):
         version_css_imports(css_path, visited_css)

@@ -25,6 +25,16 @@ class SiteSearchTests(unittest.TestCase):
         node, env = node_environment()
         subprocess.run([node, str(ROOT/'tests/check_site_search_variants.cjs')], env=env, check=True)
 
+    def test_search_tone_folding_matches_content_harmonisation(self):
+        import re
+        from content_harmonisation import UPPER
+        source = (ROOT / 'shared/web-site-search-variants.js').read_text(encoding='utf-8')
+        body = re.search(r"toneMarkFold = Object\.freeze\(\{(.*?)\}\)", source).group(1)
+        fold = dict(re.findall(r"'(.)': '(.)'", body))
+        canonical = lambda char: fold.get(char, char)
+        for source_char, target in UPPER.items():
+            self.assertEqual(canonical(chr(source_char)), canonical(target), chr(source_char))
+
     def test_visible_text_keeps_readings_but_ignores_executable_content(self):
         source = '<h2>學生<ruby>字<rt>지ˆ</rt></ruby></h2><script>secret()</script><p>讀冊</p>'
         self.assertEqual(visible_text(source), "學生字지ˆ 讀冊")

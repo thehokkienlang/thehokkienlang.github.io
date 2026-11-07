@@ -16,7 +16,11 @@
     const index = folded.indexOf(fold(term.toLocaleLowerCase(), mapping));
     return index < 0 ? null : {index: starts[index], length: ends[index + fold(term.toLocaleLowerCase(), mapping).length - 1] - starts[index]};
   }
-  const api = {fold, match};
+  // One tone can be written with several characters: the inline mark, the
+  // above-syllable mark used in ruby, and the ASCII typing form. Search treats
+  // them as the same tone. Keep in step with UPPER in tools/content_harmonisation.py.
+  const toneMarkFold = Object.freeze({'`': 'ˋ', 'ˎ': 'ˋ', 'ꞈ': 'ˆ', 'ˏ': 'ˊ', 'ˍ': 'ˉ'});
+  const api = {fold, match, toneMarkFold};
   if (typeof module !== 'undefined') module.exports = api;
   root.TliSiteSearchVariants = api;
 })(typeof window !== 'undefined' ? window : globalThis);

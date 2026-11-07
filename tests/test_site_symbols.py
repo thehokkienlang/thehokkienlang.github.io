@@ -1,6 +1,7 @@
 """Shared font assets keep branding, Western punctuation and TLI tones consistent."""
 
 from pathlib import Path
+import os
 import unittest
 
 
@@ -11,8 +12,11 @@ class SiteSymbolsTests(unittest.TestCase):
     def test_nasal_u_above_anchor_matches_plain_u(self):
         try:
             from fontTools.ttLib import TTFont
+            import brotli  # noqa: F401  (WOFF2 decoding)
         except ImportError:
-            self.skipTest('FontTools is needed for font-anchor inspection.')
+            if os.environ.get('CI'):
+                self.fail('CI must install requirements-dev.txt: fontTools and brotli are needed for font-anchor inspection.')
+            self.skipTest('FontTools and brotli are needed for font-anchor inspection (pip install -r requirements-dev.txt).')
         for weight in ('regular', 'bold'):
             with TTFont(ROOT / 'assets/fonts' / f'tli-noto-sans-{weight}-v3.woff2') as font:
                 cmap = font.getBestCmap()

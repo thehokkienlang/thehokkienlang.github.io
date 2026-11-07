@@ -47,11 +47,16 @@ async function passwordDigest(password) {
   return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
+// tools/build_site.py replaces the next line with content hashes, so a deployed
+// page reuses cached scripts until they change. An unbuilt checkout keeps the
+// timestamp fallback so local editing always loads fresh code.
+const ASSET_VERSIONS = {};
+
 function loadScript(source) {
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
     const separator = source.includes("?") ? "&" : "?";
-    script.src = `${source}${separator}v=${Date.now()}`;
+    script.src = `${source}${separator}v=${ASSET_VERSIONS[source] || Date.now()}`;
     script.onload = resolve;
     script.onerror = () => reject(new Error(`Unable to load ${source}`));
     document.body.append(script);
