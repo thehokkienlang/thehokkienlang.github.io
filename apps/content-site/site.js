@@ -62,6 +62,23 @@
     annotation.append(base, ...readings);
     ruby.replaceWith(annotation);
   });
+  const updateWrappedTitles = () => {
+    document.querySelectorAll("h1.title-reading").forEach(title => {
+      title.classList.remove("title-reading-wrapped");
+      const units = [...title.children].filter(unit => getComputedStyle(unit).position !== "absolute");
+      if (units.length < 2) return;
+      const tops = units.map(unit => unit.getBoundingClientRect().top);
+      title.classList.toggle("title-reading-wrapped", Math.max(...tops) - Math.min(...tops) > 3);
+    });
+  };
+  let titleWrapFrame = 0;
+  const scheduleTitleWrapUpdate = () => {
+    cancelAnimationFrame(titleWrapFrame);
+    titleWrapFrame = requestAnimationFrame(updateWrappedTitles);
+  };
+  scheduleTitleWrapUpdate();
+  document.fonts?.ready.then(scheduleTitleWrapUpdate);
+  window.addEventListener("resize", scheduleTitleWrapUpdate, { passive: true });
   document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
     node.textContent = node.textContent.normalize("NFC");
   });
