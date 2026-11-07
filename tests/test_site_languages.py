@@ -105,7 +105,7 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('>工具</summary>', nav)
         self.assertNotIn('>主頁</a>', nav)
         self.assertIn('>閩南語輸入法</a>', nav)
-        self.assertIn('>翻譯器 · 預覽</a>', nav)
+        self.assertIn('>翻譯器</a>', nav)
         self.assertIn('data-language-choice="en"', nav)
         self.assertIn('href="/zh-hans/learn/spelling/"', nav)
         egg = navigation_links("/zh-hant/read/stories/the-egg/", variants=False)

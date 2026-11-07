@@ -20,6 +20,10 @@ button { color:inherit; }
 .translator { position:relative; display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; }
 .translator.reverse .english-pane { order:3; }.translator.reverse .hokkien-pane { order:1; }.translator.reverse .swap-button { order:2; }
 .language-pane { position:relative; min-width:0; overflow:visible; border:1px solid var(--line); border-top:4px solid var(--accent); border-radius:6px; background:var(--paper); box-shadow:0 16px 38px rgb(24 62 56 / 6%); }
+.language-pane.is-output .translation-text { resize:none; caret-color:transparent; background:#fbfcfc; }
+.language-pane.is-output .keyboard-toggle,
+.language-pane.is-output #clearEnglish,
+.language-pane.is-output #clearHokkien { display:none; }
 .english-pane { border-top-color:var(--red); }
 .pane-header { display:flex; align-items:center; justify-content:space-between; gap:20px; min-height:78px; padding:15px 18px 13px; border-bottom:1px solid var(--line); }
 .pane-header h2 { margin:0; font-size:22px; line-height:1.1; }.pane-header h2 small { display:block; margin-top:5px; color:var(--muted); font-size:11px; font-weight:600; }

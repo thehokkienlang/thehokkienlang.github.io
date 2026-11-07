@@ -7,6 +7,8 @@
   const webAudio = window.TangliengimWebAudio;
 
   const translator = document.querySelector("#translator");
+  const englishPane = document.querySelector("#englishPane");
+  const hokkienPane = document.querySelector("#hokkienPane");
   const englishText = document.querySelector("#englishText");
   const hokkienText = document.querySelector("#hokkienText");
   const candidates = document.querySelector("#hokkienCandidates");
@@ -215,6 +217,13 @@
   function updateDirection() {
     const reverse = state.direction === "hok-en"; translator.classList.toggle("reverse", reverse);
     englishRole.textContent = reverse ? "Translation" : "Source"; hokkienRole.textContent = reverse ? "Source" : "Translation";
+    englishPane.classList.toggle("is-output", reverse);
+    hokkienPane.classList.toggle("is-output", !reverse);
+    englishText.readOnly = reverse;
+    hokkienText.readOnly = !reverse;
+    englishText.placeholder = reverse ? "" : "Enter English…";
+    hokkienText.placeholder = reverse ? "輸入閩南語…" : "";
+    keyboardToggle.disabled = !reverse;
     (reverse ? hokkienText : englishText).focus(); performTranslation();
   }
 
