@@ -24,8 +24,11 @@ def main():
     # Load only the original DSP functions and constants, without starting Tk.
     names = {'crossfade_pcm16', 'fade_out_pcm16', 'speed_up_pcm_frames',
              'overlap_pcm16_audio_units', 'concatenate_wav_segments'}
-    tree = ast.parse(args.reference.read_text(encoding='utf-8-sig'))
-    nodes = [node for node in tree.body if (
+    # The AUDIO_ constants partly live in the GUI-free engine beside the IME Pad.
+    sources = [args.reference.with_name('tangliengim_engine.py'), args.reference]
+    body = [node for source in sources if source.is_file()
+            for node in ast.parse(source.read_text(encoding='utf-8-sig')).body]
+    nodes = [node for node in body if (
         isinstance(node, ast.FunctionDef) and node.name in names
     ) or (
         isinstance(node, ast.Assign) and isinstance(node.value, ast.Constant) and any(

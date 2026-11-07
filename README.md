@@ -80,8 +80,11 @@ binds to localhost and is not included in the public site build. See the
 
 ## Build and preview
 
-Use Python 3.10 or later with Tkinter available, and Node.js for validation.
-On Ubuntu, install `python3-tk` alongside Python.
+Use Python 3.10 or later and Node.js for validation. The site build uses the
+GUI-free pronunciation engine (`desktop/tangliengim_engine.py`) and needs no
+Tkinter; the full release gate also exercises the desktop IME, so install
+Tkinter for it (on Ubuntu, `python3-tk`). Tone-sandhi tables live once, in
+`shared/tli-sandhi.json`.
 
 ```sh
 python tools/check_release.py

@@ -39,6 +39,8 @@ DEFAULT_OUTPUT_PATH = REPO_ROOT / "public" / "data" / "hokkien-hanri-dict.json"
 DEFAULT_AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 TONE_MARKER_PATH = REPO_ROOT / "desktop" / "hokkien_tone_marker_gui.py"
 IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
+# GUI-free pronunciation engine; the build no longer needs Tkinter.
+ENGINE_PATH = REPO_ROOT / "desktop" / "tangliengim_engine.py"
 
 SCHEMA_VERSION = 10
 
@@ -57,7 +59,18 @@ def load_tone_marker_module():
     return module
 
 
+def load_engine_module():
+    spec = importlib.util.spec_from_file_location("tangliengim_engine", ENGINE_PATH)
+    if spec is None or spec.loader is None:
+        raise RuntimeError(f"Cannot load the pronunciation engine from {ENGINE_PATH}")
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[spec.name] = module
+    spec.loader.exec_module(module)
+    return module
+
+
 def load_ime_module():
+    """Load the full desktop IME (with Tkinter), for desktop parity checks."""
     spec = importlib.util.spec_from_file_location("tangliengim_ime", IME_PATH)
     if spec is None or spec.loader is None:
         raise RuntimeError(f"Cannot load IME module from {IME_PATH}")
@@ -325,7 +338,7 @@ def build_dictionary(
 ) -> dict[str, Any]:
     validate_audio_filename_case(audio_root)
     tone_marker = load_tone_marker_module()
-    ime = load_ime_module()
+    ime = load_engine_module()
     source_bytes = tsv_path.read_bytes()
     registry_path = registry_path or tsv_path.with_name("dictionary_entry_id_registry.tsv")
     category_labels, category_memberships = load_categories(category_path, read_records(tsv_path))

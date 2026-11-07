@@ -59,9 +59,9 @@ const TangliengimPhoneticOutput = (() => {
   };
   const TONE_MARKS = { 1: "\u0302", 2: "\u0300", 3: "", 4: "\u0301", 5: "\u0304" };
   const TONE_PRIORITY = ["a", "e", "o", "u", "i", "n", "m"];
-  const CHECKED_FINALS = new Set(["\u11a8", "\u11ae", "\u11b8", "\u11c2", "\u11b6"]);
-  const OPEN_SANDHI = { 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" };
-  const CHECKED_SANDHI = { 1: "3", 3: "1" };
+  // Tone-sandhi tables come from the core engine (web-ime-core.js, loaded first),
+  // so the browser keeps one copy of shared/tli-sandhi.json.
+  const sandhiTables = () => TangliengimImeCore.TAIPEI_SANDHI;
   const PUNCTUATION = /[\p{Punctuation}\p{Symbol}]/u;
   const HANRI_CHAR = /[\u3400-\u4DBF\u4E00-\u9FFF\uF900-\uFAFF\u{20000}-\u{3134F}]/u;
   const HANGUL_READING_CHAR = /[\u1100-\u11FF\u3130-\u318F\uAC00-\uD7A3]/u;
@@ -267,13 +267,13 @@ const TangliengimPhoneticOutput = (() => {
 
   function checkedUnit(unit) {
     const parts = unitParts(unit);
-    return Boolean(parts && CHECKED_FINALS.has(parts[2]));
+    return Boolean(parts && sandhiTables().checkedFinals.has(parts[2]));
   }
 
   function sandhiTone(unit, tone) {
     const value = String(tone || "3");
-    if (checkedUnit(unit)) return CHECKED_SANDHI[value] || value;
-    return OPEN_SANDHI[value] || value;
+    if (checkedUnit(unit)) return sandhiTables().checked[value] || value;
+    return sandhiTables().open[value] || value;
   }
 
   function latinEnd(text, index) {

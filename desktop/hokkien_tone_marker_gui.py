@@ -418,35 +418,34 @@ def latin_word_end(text: str, index: int) -> int:
     return end
 
 
-TONE_SANDHI_MAP = {
-    '1': '5',
-    '5': '3',
-    '3': '2',
-    '2': '1',
-    '4': '3',
-}
-CHECKED_TONE_SANDHI_MAP = {
-    '1': '3',
-    '3': '1',
-}
+def load_sandhi_spec() -> dict:
+    """Read shared/tli-sandhi.json, the tone-sandhi tables shared with the
+    pronunciation engine and the browser (or the copy bundled beside this file)."""
+    import json
+    here = Path(__file__).resolve().parent
+    bundle_dir = getattr(sys, '_MEIPASS', None)
+    candidates = [here.parent / 'shared' / 'tli-sandhi.json', here / 'tli-sandhi.json']
+    if bundle_dir:
+        candidates.insert(0, Path(bundle_dir) / 'tli-sandhi.json')
+    for path in candidates:
+        if path.is_file():
+            return json.loads(path.read_text(encoding='utf-8'))
+    raise FileNotFoundError('Missing the tone-sandhi spec shared/tli-sandhi.json')
+
+
+SANDHI_SPEC = load_sandhi_spec()
+TONE_SANDHI_MAP = dict(SANDHI_SPEC['citationToSandhi']['open'])
+CHECKED_TONE_SANDHI_MAP = dict(SANDHI_SPEC['citationToSandhi']['checked'])
 
 # Reverse the normal surface/sandhi tone back to the citation tone stored in
 # hokkien_hanri_dict.tsv.  The main open-tone cycle is unambiguous in reverse
 # except sandhi tone 3, because citation tone 4 also sandhis to 3.  For a new
 # bracketed entry, tone 3 follows the main 1→5→3→2→1 cycle and therefore
 # defaults back to citation tone 5.
-SANDHI_TO_CITATION_MAP = {
-    '1': '2',
-    '2': '3',
-    '3': '5',
-    '5': '1',
-}
-CHECKED_SANDHI_TO_CITATION_MAP = {
-    '1': '3',
-    '3': '1',
-}
-CHECKED_FINALS_FOR_SANDHI = {'ᆨ', 'ᆮ', 'ᆸ', 'ᇂ', 'ᆶ'}
-SANDHI_EQUIVALENT_FINALS = {}
+SANDHI_TO_CITATION_MAP = dict(SANDHI_SPEC['sandhiToCitation']['open'])
+CHECKED_SANDHI_TO_CITATION_MAP = dict(SANDHI_SPEC['sandhiToCitation']['checked'])
+CHECKED_FINALS_FOR_SANDHI = set(SANDHI_SPEC['checkedFinals'])
+SANDHI_EQUIVALENT_FINALS = dict(SANDHI_SPEC['sandhiEquivalentFinals'])
 HANRI_TSV_FILENAME = "hokkien_hanri_dict.tsv"
 HANRI_ID_REGISTRY_FILENAME = "dictionary_entry_id_registry.tsv"
 _HANRI_READING_INDEX: dict[str, list[dict]] | None = None

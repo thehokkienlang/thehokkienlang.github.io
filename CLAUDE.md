@@ -23,8 +23,10 @@ https://thehokkienlang.github.io/ from this repository.
 - `content/` pages, guides, songs, stories (EN, `zh-hant/`, `zh-hans/`)
 - `data/hokkien_hanri_dict.tsv` the only dictionary source, plus priority,
   category, registry, redirect and defunct TSVs
-- `desktop/` Python IME, editors and pronunciation engine
-  (`Hokkien Tangliengim IME Pad.py`); `shared/` browser logic and styles
+- `desktop/` Python IME and editors; the GUI-free pronunciation engine is
+  `tangliengim_engine.py` (the IME Pad re-exports it); `shared/` browser logic
+  and styles. Tone-sandhi tables: `shared/tli-sandhi.json` only (the browser
+  mirror in `web-ime-core.js` is test-locked to it).
 - `tools/` build and release checks; `tests/` automated tests
 - Generated, never edit by hand: `_site/`, `public/data/*.json`
 
@@ -44,8 +46,11 @@ python -X utf8 tools/check_release.py --source-only
 python -X utf8 tools/check_release.py
 ```
 
-The build imports the desktop engine, so Python needs Tkinter (the standard
-Windows installer includes it). Release checks need Node.js on PATH.
+The build uses the GUI-free engine and needs no Tkinter; the full release gate
+also runs the desktop IME, which does (the standard Windows installer
+includes it). Release checks need Node.js on PATH. A PyInstaller build of the
+desktop IME must bundle `tangliengim_engine.py` and `shared/tli-sandhi.json`
+beside `hokkien_tone_marker_gui.py`.
 
 ## Local editors
 

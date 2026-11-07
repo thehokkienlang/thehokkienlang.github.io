@@ -60,6 +60,7 @@ PYTHON_FILES = (
     "tools/dictionary_editor_publish.py",
     "desktop/Hokkien Tangliengim IME Pad.py",
     "desktop/hokkien_tone_marker_gui.py",
+    "desktop/tangliengim_engine.py",
     "desktop/tangliengim_web_shell.py",
 )
 

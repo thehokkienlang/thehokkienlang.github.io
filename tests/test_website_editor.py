@@ -88,6 +88,8 @@ class WebsiteEditorTests(unittest.TestCase):
             (repo / "content/songs").mkdir(parents=True)
             (repo / "migration").mkdir()
             shutil.copy2(ROOT / "desktop/hokkien_tone_marker_gui.py", repo / "desktop/hokkien_tone_marker_gui.py")
+            (repo / "shared").mkdir(exist_ok=True)
+            shutil.copy2(ROOT / "shared/tli-sandhi.json", repo / "shared/tli-sandhi.json")
             shutil.copy2(ROOT / "data/hokkien_hanri_dict.tsv", repo / "data/hokkien_hanri_dict.tsv")
             (repo / "content/song-categories.json").write_text(json.dumps([{
                 "id": "modern", "labels": {"en": "Modern"}, "routes": [],

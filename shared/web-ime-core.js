@@ -48,6 +48,9 @@ const TangliengimImeCore = (() => {
     "historyUndo",
     "historyRedo",
   ]);
+  // Tone sandhi (Taipei): the browser copy of shared/tli-sandhi.json, which the
+  // Python engines read. tests/test_dictionary_orthography_spec.py keeps them equal;
+  // other browser scripts use TAIPEI_SANDHI below instead of their own copy.
   const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ"]);
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
@@ -2460,6 +2463,11 @@ const TangliengimImeCore = (() => {
   }
 
   return {
+    TAIPEI_SANDHI: Object.freeze({
+      open: OPEN_TAIPEI_SANDHI,
+      checked: CHECKED_TAIPEI_SANDHI,
+      checkedFinals: CHECKED_FINAL_JAMO,
+    }),
     MAX_SELECTION_COUNT,
     PREFERENCE_STORAGE_KEY,
     adaptiveLookupKey,

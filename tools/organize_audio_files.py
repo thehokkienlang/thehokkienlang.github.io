@@ -16,7 +16,7 @@ from pathlib import Path
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
-IME_PATH = REPO_ROOT / "desktop" / "Hokkien Tangliengim IME Pad.py"
+IME_PATH = REPO_ROOT / "desktop" / "tangliengim_engine.py"  # GUI-free pronunciation engine
 AUDIO_ROOT = REPO_ROOT / "public" / "audio"
 
 INITIAL_FOLDERS = {
@@ -69,7 +69,7 @@ AUDIO_SUFFIXES = {".wav", ".wave"}
 def load_ime_module():
     spec = importlib.util.spec_from_file_location("tangliengim_ime", IME_PATH)
     if spec is None or spec.loader is None:
-        raise RuntimeError(f"Cannot load IME module from {IME_PATH}")
+        raise RuntimeError(f"Cannot load the pronunciation engine from {IME_PATH}")
     module = importlib.util.module_from_spec(spec)
     sys.modules[spec.name] = module
     spec.loader.exec_module(module)
