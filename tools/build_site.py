@@ -12,8 +12,24 @@ from urllib.parse import unquote, urljoin, urlsplit
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
 from dictionary_data import PUBLISHED_SIDECARS, sidecar_path
 from compressed_audio import EXTENSION as COMPRESSED_AUDIO_EXTENSION, write_compressed_copies
+from build_content import document as content_document
+from page_meta import NOT_FOUND_BODY, meta_tags, robots as robots_txt, sitemap as sitemap_xml
 from build_content import build_content, navigation_links, site_brand
 from import_wordpress import write_song_ime_data
+
+APP_DESCRIPTIONS = {
+    "dictionary": "A Hokkien dictionary in Tangliengim (TLI) with Hanri, Hangul readings, Lomari, audio and English glosses. Invite only.",
+    "ime": "Type Hokkien in Tangliengim (TLI) Hangul and Hanri in your browser, with Lomari and audio.",
+    "translate": "A local English and Hokkien translator preview powered by TLI. Invite only.",
+}
+
+
+def app_meta(page: str, app: str) -> str:
+    """Description and share tags for an app page (audit A8)."""
+    title = re.search(r"<title>(.*?) · TheHokkienLang</title>", page).group(1)
+    page = re.sub(r'\s*<meta\s[^>]*\bname="description"[^>]*>', "", page)
+    tags = meta_tags(title, f"/{app}/", APP_DESCRIPTIONS[app], "en").replace("\n  ", "\n    ")
+    return page.replace("</title>", "</title>\n    " + tags, 1)
 
 ROOT = Path(__file__).resolve().parents[1]
 OUTPUT = ROOT / "_site"
@@ -121,6 +137,26 @@ def enable_compressed_audio(player_path: Path, extension: str) -> None:
     player_path.write_text(text, encoding="utf-8")
 
 
+def write_discovery_files(content_routes) -> None:
+    """sitemap.xml, robots.txt and the 404 page (audit A8).
+
+    The sitemap lists the published content pages and the public IME; the
+    password-gated Dictionary and Translator, and redirects from old addresses,
+    are left out.
+    """
+    def is_redirect(route):
+        page = OUTPUT / route.lstrip("/") / "index.html"
+        return page.is_file() and 'http-equiv="refresh"' in page.read_text(encoding="utf-8", errors="ignore")[:400]
+
+    pages = [route for route in content_routes if not is_redirect(route)]
+    (OUTPUT / "sitemap.xml").write_text(sitemap_xml([*pages, "/ime/"]), encoding="utf-8")
+    (OUTPUT / "robots.txt").write_text(robots_txt(), encoding="utf-8")
+    page = content_document(ROOT, "Page not found", "/404/", NOT_FOUND_BODY)
+    page = re.sub(r'\s*<link rel="(?:canonical|alternate)"[^>]*>', "", page)
+    page = page.replace("<title>", '<meta name="robots" content="noindex">\n  <title>', 1)
+    (OUTPUT / "404.html").write_text(page, encoding="utf-8")
+
+
 def main() -> int:
     # Generate data from the exact TSV and pronunciation code being deployed.
     build_dictionary_json()
@@ -137,7 +173,7 @@ def main() -> int:
     for app in ("dictionary", "ime", "translate"):
         shutil.copytree(ROOT / "apps" / app, OUTPUT / app)
         index = OUTPUT / app / "index.html"
-        index.write_text(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), encoding="utf-8")
+        index.write_text(app_meta(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), app), encoding="utf-8")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     # Opus copies beside the WAV masters; the player uses them only when every
@@ -149,6 +185,7 @@ def main() -> int:
     for data_file in (DEFAULT_OUTPUT_PATH, *(sidecar_path(DEFAULT_OUTPUT_PATH, part) for part in PUBLISHED_SIDECARS)):
         shutil.copy2(data_file, OUTPUT / "public" / "data" / data_file.name)
     content_routes = build_content(ROOT, OUTPUT)
+    write_discovery_files(content_routes)
     shutil.copytree(ROOT / "apps" / "search", OUTPUT / "assets" / "search")
     # Before the gate and HTML passes, which hash these scripts.
     for script in DATA_APP_SCRIPTS:

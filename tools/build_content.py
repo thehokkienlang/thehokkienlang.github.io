@@ -17,6 +17,8 @@ from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, lang
 from site_search import document as search_document, hanri_fold_map
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
+from image_descriptions import describe_images
+from page_meta import description as page_description, meta_tags
 
 NAV_GROUPS = (
     ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation"))),
@@ -433,6 +435,8 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     is_search = base_route(route) == "/search/"
     values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ""}
     values["BRAND"] = site_brand(root, language)
+    values["META"] = meta_tags(title, route, page_description(
+        title, base_route(route), body, content_type, language, home_introductions[language]), language)
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)
 
@@ -499,6 +503,7 @@ def build_content(root: Path, output: Path):
             body = decorate_lyrics(root, record, body)
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
+        body = describe_images(body, record["language"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
         indexed_languages = LANGUAGES if record["type"] == "songs" else (record["language"],)
         for indexed_language in indexed_languages:
@@ -615,5 +620,18 @@ def build_content(root: Path, output: Path):
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):
         shutil.copy2(root / "apps/content-site" / name, target / name)
+    old_song_route = '/songs/請問릐감欲做꽈에ᄁힻ흐렌/'
+    new_song_route = '/songs/請問릐감欲做꽈에ᄁힻ흐뗀/'
+    if old_song_route in paths or new_song_route not in paths:
+        raise ValueError('Invalid song redirect routes')
+    redirect = output / old_song_route.lstrip('/') / 'index.html'
+    redirect.parent.mkdir(parents=True, exist_ok=True)
+    destination = html.escape(new_song_route, quote=True)
+    redirect.write_text('<!doctype html><meta charset="utf-8">'
+        f'<meta http-equiv="refresh" content="0; url={destination}">'
+        f'<link rel="canonical" href="{destination}">'
+        f'<script>location.replace({json.dumps(new_song_route, ensure_ascii=True)} + location.search + location.hash)</script>'
+        f'<a href="{destination}">Continue to the song</a>', encoding='utf-8')
+    paths.add(old_song_route)
     (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{**{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")}, **({'derivedFrom': item['derivedFrom']} if 'derivedFrom' in item else {})} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return sorted(paths)
