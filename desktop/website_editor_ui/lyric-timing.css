@@ -4,10 +4,14 @@
 .timing-actions { display:flex; gap:14px; align-items:center; padding:16px 24px; border-bottom:1px solid var(--line); background:white; flex-wrap:wrap; }
 .timing-actions label { display:flex; gap:8px; align-items:center; }
 .timing-actions select { width:130px; }
-#songChoice { width: min(360px, 65vw); }
 #songSearch { width:min(260px, 60vw); font-size:16px; }
 .song-search-box { position:relative; min-width:0; }
 #songSearchCandidates { max-width:min(480px, calc(100vw - 40px)); }
+.song-results { position:absolute; z-index:29; top:calc(100% + 4px); right:0; width:min(360px, calc(100vw - 40px)); max-height:320px; padding:4px; overflow-y:auto; border:1px solid #aebdce; border-radius:3px; background:#fff; box-shadow:0 8px 22px #0f172a33; }
+.song-results[hidden] { display:none; }
+.song-result { display:block; width:100%; min-height:38px; padding:8px 10px; border:0; border-radius:2px; background:#fff; color:var(--text); text-align:left; cursor:pointer; }
+.song-result:hover,.song-result.active,.song-result:focus-visible { background:#3875d6; color:#fff; outline:0; }
+.song-result-empty { padding:10px; color:var(--muted); }
 #songImeStatus { color:var(--muted); font-size:13px; }
 #songSearchCount { color:var(--muted); font-size:13px; }
 .keyboard-toggle { display:inline-flex; align-items:center; gap:9px; border:0; background:transparent; white-space:nowrap; }

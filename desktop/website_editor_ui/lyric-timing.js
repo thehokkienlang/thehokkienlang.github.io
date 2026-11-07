@@ -17,20 +17,52 @@
     if (undoHistory.length > 100) undoHistory.shift();
     $('undoTiming').disabled = false;
   }
-  let songs = [], hangulEnabled = true;
+  let songs = [], visibleSongs = [], activeSongIndex = -1, hangulEnabled = true;
   const searchKey = value => String(value || '').normalize('NFKD').toLocaleLowerCase()
     .replace(/[\u0300-\u036fˆˋˊˉˇꞈˎˏˍ`’'\s-]/gu, '');
+  function setSongResultsOpen(open) {
+    const menu = $('songResults');
+    menu.hidden = !open;
+    $('songSearch').setAttribute('aria-expanded', String(open));
+  }
+  function highlightSong(index) {
+    if (!visibleSongs.length) return;
+    activeSongIndex = (index + visibleSongs.length) % visibleSongs.length;
+    [...$('songResults').children].forEach((item, itemIndex) => {
+      item.classList.toggle('active', itemIndex === activeSongIndex);
+      item.setAttribute('aria-selected', String(itemIndex === activeSongIndex));
+    });
+    $('songResults').children[activeSongIndex]?.scrollIntoView?.({block: 'nearest'});
+  }
+  function renderSongResults(matches, query) {
+    visibleSongs = matches;
+    activeSongIndex = -1;
+    if (!query) {
+      $('songResults').replaceChildren();
+      setSongResultsOpen(false);
+      return;
+    }
+    if (!matches.length) {
+      const empty = document.createElement('div');
+      empty.className = 'song-result-empty'; empty.textContent = 'No matching songs';
+      $('songResults').replaceChildren(empty);
+    } else {
+      $('songResults').replaceChildren(...matches.map((song, index) => {
+        const option = document.createElement('button');
+        option.type = 'button'; option.className = 'song-result'; option.setAttribute('role', 'option');
+        option.setAttribute('aria-selected', 'false'); option.textContent = song.title;
+        option.onmousedown = event => event.preventDefault();
+        option.onclick = () => chooseSong(song.file);
+        option.onmousemove = () => highlightSong(index);
+        return option;
+      }));
+    }
+    setSongResultsOpen($('songSearchCandidates').hidden);
+  }
   function filterSongs() {
     const query = searchKey($('songSearch').value);
     const matches = songs.filter(song => searchKey(song.searchText || song.title).includes(query));
-    const options = matches.map(song => {
-      const option = document.createElement('option'); option.value = song.file; option.textContent = song.title; return option;
-    });
-    const placeholder = document.createElement('option'); placeholder.value = ''; placeholder.disabled = true;
-    placeholder.textContent = matches.length ? 'Choose song...' : 'No matching songs';
-    $('songChoice').replaceChildren(placeholder, ...options);
-    $('songChoice').value = matches.some(song => song.file === file) ? file : '';
-    $('songChoice').disabled = !matches.length;
+    renderSongResults(matches, query);
     $('songSearchCount').textContent = matches.length + ' songs';
   }
   const candidatePopup = window.TangliengimImeCore.createCandidatePopupPositioner({
@@ -38,7 +70,11 @@
   });
   const searchIme = window.TangliengimImeCore.createTextImeController({
     control: $('songSearch'), entries: [], enabled: () => hangulEnabled,
-    candidateContainer: $('songSearchCandidates'), onCandidatesChanged: candidatePopup.schedule,
+    candidateContainer: $('songSearchCandidates'), onCandidatesChanged: () => {
+      candidatePopup.schedule();
+      if (!$('songSearchCandidates').hidden) setSongResultsOpen(false);
+      else filterSongs();
+    },
     onUpdate: filterSongs, enterBehavior: 'none',
   });
   async function loadSearchCandidates() {
@@ -55,6 +91,7 @@
     }
   }
   $('songSearch').addEventListener('input', filterSongs);
+  $('songSearch').addEventListener('focus', filterSongs);
   $('songHangulToggle').onclick = () => {
     hangulEnabled = !hangulEnabled;
     $('songHangulToggle').setAttribute('aria-pressed', String(hangulEnabled));
@@ -76,14 +113,12 @@
       filterSongs();
     } catch (error) { tell('Could not load the song list: ' + error.message, true); }
   }
-  $('songChoice').onchange = async event => {
-    const next = event.target.value;
+  async function chooseSong(next) {
     if (!next || next === file) return;
-    if (dirty && !confirm('Discard unsaved timing edits and switch songs?')) { event.target.value = file; return; }
-    event.target.disabled = true;
+    if (dirty && !confirm('Discard unsaved timing edits and switch songs?')) return;
+    setSongResultsOpen(false);
     try { await connection?.destroy(); }
     catch (error) {
-      event.target.value = file; event.target.disabled = false;
       tell('Could not close the previous YouTube window. ' + error.message, true);
       return;
     }
@@ -91,7 +126,17 @@
     const url = new URL(location.href);
     url.searchParams.set('file', next);
     location.assign(url);
-  };
+  }
+  $('songSearch').addEventListener('keydown', event => {
+    if (!$('songSearchCandidates').hidden || $('songResults').hidden) return;
+    if (event.key === 'ArrowDown') { event.preventDefault(); highlightSong(activeSongIndex + 1); }
+    else if (event.key === 'ArrowUp') { event.preventDefault(); highlightSong(activeSongIndex < 0 ? visibleSongs.length - 1 : activeSongIndex - 1); }
+    else if (event.key === 'Enter' && activeSongIndex >= 0) { event.preventDefault(); chooseSong(visibleSongs[activeSongIndex].file); }
+    else if (event.key === 'Escape') { event.preventDefault(); setSongResultsOpen(false); }
+  });
+  document.addEventListener('pointerdown', event => {
+    if (!$('songSearchBox').contains(event.target)) setSongResultsOpen(false);
+  });
   function progress() {
     $('undoTiming').disabled = !undoHistory.length;
     $('completion').textContent = timing.cues.filter(c => Number.isFinite(c.start) && Number.isFinite(c.end)).length + ' / ' + timing.cues.length + ' timed' + (dirty ? ' · Unsaved' : '');

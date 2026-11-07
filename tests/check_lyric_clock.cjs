@@ -28,8 +28,11 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
     append() {},
     querySelector() { return this.main; },
     scrollIntoView() { this.scrolled++; }, contains(node) { return node === this; } };
-    const text = {textContent:'字', parentElement:{closest:() => null}, replaceWith:target => { line.seekTarget = target; }};
+    line.seekTargets = [];
+    const text = {textContent:'字', parentElement:{closest:() => null}, replaceWith:target => { line.seekTargets.push(target); line.seekTarget ||= target; }};
+    const lomari = {textContent:'ji', parentElement:{closest:() => null}, replaceWith:target => { line.seekTargets.push(target); }};
     line.main = {childNodes:[text]};
+    line.childNodes = [text, lomari];
     return line;
   };
   const lines = {first:makeLine(), repeat:makeLine()};
@@ -46,7 +49,7 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
     createElement: () => makeLine(),
-    createTreeWalker: main => { let yielded = false; return {get currentNode() { return main.childNodes[0]; }, nextNode() { if (yielded) return false; yielded = true; return true; }}; },
+    createTreeWalker: main => { let index = -1; return {get currentNode() { return main.childNodes[index]; }, nextNode() { return ++index < main.childNodes.length; }}; },
     querySelectorAll: () => [frame],
     querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
   const seeks = [];
@@ -82,21 +85,26 @@ assert.equal(desktop.lines.repeat.active, true);
 assert.equal(desktop.lines.repeat.scrolled, 1);
 console.log('PASS: highlight states, pause/seek, responsive follow defaults and draft playback.');
 const early = fixture();
-early.lines.repeat.seekTarget.listeners.click({target:{closest:() => null}});
+early.lines.repeat.listeners.click({target:{closest:() => null}});
 assert.equal(early.seeks.length, 0);
 Promise.resolve().then(async () => {
   assert.deepEqual(early.seeks, [[20, true]]);
-  assert.equal(ui.lines.first.listeners.click, undefined, 'Paragraph and Lomari have no seek handler');
+  assert.equal(typeof ui.lines.first.listeners.click, 'function', 'Both lyric rows share the paragraph seek handler');
+  assert.equal(ui.lines.first.seekTargets.length, 2, 'Mixed text and Lomari get text cursor wrappers');
   assert.equal(ui.lines.first.attributes.tabindex, undefined);
   const line = ui.lines.first.seekTarget;
   const target = {closest:() => null};
-  line.listeners.click({target});
+  ui.lines.first.listeners.click({target});
   assert.deepEqual(ui.seeks, [[10, true]]);
+  for (const tag of ['rt', 'rp', '.tli-rt', '.tone-mark', 'a']) {
+    ui.lines.first.listeners.click({target:{closest:selector => selector.includes(tag) ? {} : null}});
+  }
+  assert.equal(ui.seeks.length, 1, 'Ruby, tone annotations and links must not seek');
   ui.select('selected lyrics');
-  line.listeners.click({target});
+  ui.lines.first.listeners.click({target});
   assert.equal(ui.seeks.length, 1);
   ui.select('Text selected elsewhere', true);
-  line.listeners.click({target});
+  ui.lines.first.listeners.click({target});
   assert.deepEqual(ui.seeks[1], [10, true]);
   let prevented = false;
   line.listeners.keydown({target:line, key:'Enter', preventDefault:() => { prevented = true; }});
@@ -106,7 +114,7 @@ Promise.resolve().then(async () => {
   // A failed connection must be recoverable by another explicit lyric click.
   await new Promise(resolve => setImmediate(resolve));
   ui.fail();
-  line.listeners.click({target});
+  ui.lines.first.listeners.click({target});
   await new Promise(resolve => setImmediate(resolve));
   assert.equal(ui.connections, 2);
   assert.equal(ui.replacements, 1);

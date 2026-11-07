@@ -212,10 +212,10 @@ async function editorClickChecks() {
     return {toggle(name, enabled) { if (enabled) values.add(name); else values.delete(name); },
       remove(name) { values.delete(name); }, contains(name) { return values.has(name); }};
   };
-  const element = () => ({value: '', checked: false, disabled: false, children: [], dataset: {},
+  const element = () => ({value: '', checked: false, disabled: false, hidden: true, children: [], dataset: {},
     listeners: {}, addEventListener(name, fn) { this.listeners[name] = fn; }, focus() {},
     classList: classes(), setAttribute() {}, append(...children) { this.children.push(...children); },
-    replaceChildren(...children) { this.children = children; }});
+    replaceChildren(...children) { this.children = children; }, contains() { return false; }, scrollIntoView() {}});
   const get = id => { if (!elements.has(id)) elements.set(id, element()); return elements.get(id); };
   let ready = true, destroyed = false, navigated, tick, rejectClose = false, imeOptions, loadedEntries, savedTiming;
   const dictionaryEntries = [{entry_id: 'entry-test', hanri: '歌', reading: '과1', active: true}];
@@ -225,6 +225,7 @@ async function editorClickChecks() {
   const fixture = {ok: true, title: 'Test', videoId, lines: [0, 1, 2].map(i => ({id: 'line-' + i, label: 'Line ' + i, html: '<p>Line ' + i + '</p>'})),
     timing: {status: 'draft', cues: [{start: 0, end: 5}, {start: 20, end: 25}, {start: null, end: null}]}};
   const document = {getElementById: get, createElement: element, createTextNode: text => ({textContent: text}),
+    addEventListener() {},
     querySelector: () => ({content: 'test-token'}),
     querySelectorAll: () => get('cueRows').children};
   const context = {document, location: {search: '?file=test', href: 'http://127.0.0.1:61717/website-editor/lyric-timing.html?file=test',
@@ -256,13 +257,14 @@ async function editorClickChecks() {
   get('songHangulToggle').onclick(); assert.equal(imeOptions.enabled(), false);
   get('songHangulToggle').onclick(); assert.equal(imeOptions.enabled(), true);
   get('songSearch').value = '메삐'; imeOptions.onUpdate();
-  assert.equal(get('songChoice').children.length, 2, 'Hangul searches match tone-marked title readings.');
+  assert.equal(get('songResults').children.length, 1, 'Hangul searches match tone-marked title readings.');
+  assert.equal(get('songResults').children[0].textContent, 'Maybe Maybe');
   get('songSearch').value = 'maybe'; get('songSearch').listeners.input();
-  assert.equal(get('songChoice').children.length, 2, 'English titles are case insensitive.');
+  assert.equal(get('songResults').children.length, 1, 'English titles are case insensitive.');
   get('songSearch').value = 'not-a-song'; imeOptions.onUpdate();
-  assert.equal(get('songChoice').disabled, true);
+  assert.equal(get('songResults').children[0].textContent, 'No matching songs');
   get('songSearch').value = ''; imeOptions.onUpdate();
-  assert.equal(get('songChoice').children.length, 3, 'Clearing search restores all songs.');
+  assert.equal(get('songResults').hidden, true, 'Clearing search closes the result menu.');
   assert.equal(rows.length, 3);
   rows[1].children[0].onclick();
   assert.deepEqual(seeks, [], 'Single click selects without changing playback time.');
@@ -382,14 +384,15 @@ async function editorClickChecks() {
   assert.equal(restored[1].children[1].value, '00:10.000');
   assert.equal(restored[1].children[2].value, '00:10.100');
   assert.equal(seeks.length, seekCount, 'Undo never moves video playback.');
-  const choice = {value: 'other-song'};
-  await get('songChoice').onchange({target: choice});
+  get('songSearch').value = 'other'; get('songSearch').listeners.input();
+  await get('songResults').children[0].onclick();
   assert.equal(navigated, undefined, 'Do not switch songs silently if closing fails.');
-  assert.equal(choice.value, 'test');
-  assert.equal(choice.disabled, false);
   assert.match(get('timingNotice').textContent, /Could not close/);
   rejectClose = false;
-  await get('songChoice').onchange({target: {value: 'other-song'}});
+  get('songSearch').listeners.input();
+  get('songSearch').listeners.keydown({key: 'ArrowDown', preventDefault() {}});
+  await get('songSearch').listeners.keydown({key: 'Enter', preventDefault() {}});
+  await new Promise(resolve => setImmediate(resolve));
   assert.equal(navigated.searchParams.get('file'), 'other-song');
   assert.equal(read('desktop/website_editor_ui/lyric-timing.html').includes('id="playbackMode"'), false);
 }

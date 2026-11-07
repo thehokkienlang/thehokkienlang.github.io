@@ -42,8 +42,9 @@
     if (!line) continue;
     const main = line.querySelector(':scope > span');
     if (!main) continue;
-    const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
-      acceptNode: node => node.parentElement.closest('rt, rp, .tli-rt, .tone-mark, a, [data-lyric-seek]') || !node.textContent.trim()
+    line.setAttribute('data-lyric-seek', '');
+    const walker = document.createTreeWalker(line, NodeFilter.SHOW_TEXT, {
+      acceptNode: node => node.parentElement.closest('rt, rp, .tli-rt, .tone-mark, a, .lyric-seek-base') || !node.textContent.trim()
         ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
     });
     const nodes = [];
@@ -60,7 +61,8 @@
       target.append(node);
       return target;
     });
-    for (const seekTarget of seekTargets) seekTarget.addEventListener('click', event => {
+    line.addEventListener('click', event => {
+      if (event.target.closest('rt, rp, .tli-rt, .tone-mark, a')) return;
       const selection = window.getSelection();
       if (selection?.toString() && (line.contains(selection.anchorNode) || line.contains(selection.focusNode))) return;
       seekLine(cue.start);

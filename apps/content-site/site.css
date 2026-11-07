@@ -14,6 +14,8 @@
 .lyric-sync-controls [data-lyric-status] { color:#617079; }
 .imported-content p[data-lyric-id] { position:relative; transition:background-color .15s ease; scroll-margin-block:100px; }
 .imported-content [data-lyric-seek] { cursor:pointer; }
+.imported-content [data-lyric-seek] .lyric-seek-base { cursor:text; }
+.imported-content [data-lyric-seek] :is(rt, rp, .tli-rt, .tone-mark) { cursor:default; }
 .imported-content [data-lyric-seek]:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
 .imported-content p[data-lyric-id].lyric-active { background-color:#e0f1ed; box-shadow:0 -.45em 0 #e0f1ed; }
 .imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.45em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }

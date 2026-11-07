@@ -18,13 +18,13 @@
   <header class="cms-header"><div><span class="local-badge">Local only</span><h1 id="timingTitle">Lyric timing</h1></div><nav class="editor-header-links" aria-label="Editor navigation"><a class="editor-hub-link" href="/editors/">← Editors</a><a href="/website-editor/">Website Editor</a></nav></header>
   <div class="timing-actions">
     <div id="songSearchBox" class="song-search-box">
-      <label for="songSearch">Search songs<input id="songSearch" type="search" placeholder="Search songs..." autocomplete="off" spellcheck="false" aria-controls="songSearchCandidates" aria-autocomplete="list"></label>
+      <label for="songSearch">Search songs<input id="songSearch" type="search" role="combobox" placeholder="Search songs..." autocomplete="off" spellcheck="false" aria-controls="songSearchCandidates songResults" aria-autocomplete="list" aria-expanded="false"></label>
       <div id="songSearchCandidates" class="hanri-candidate-menu" role="listbox" aria-label="TLI candidates" hidden></div>
+      <div id="songResults" class="song-results" role="listbox" aria-label="Matching songs" hidden></div>
     </div>
     <button id="songHangulToggle" class="keyboard-toggle" type="button" aria-pressed="true"><span>TLI Hangul keyboard</span><span class="switch-track" aria-hidden="true"></span></button>
     <span id="songSearchCount" role="status" aria-live="polite"></span>
     <span id="songImeStatus" role="status" aria-live="polite">Loading TLI candidates...</span>
-    <label>Song<select id="songChoice" aria-label="Choose song"><option value="">Loading songs...</option></select></label>
     <label>Status<select id="timingStatus"><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
     <span id="completion"></span><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
   </div>
