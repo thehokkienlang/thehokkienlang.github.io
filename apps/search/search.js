@@ -1,4 +1,7 @@
 const INDEX_URL = "/public/data/site-search-index.json";
+const DICTIONARY_URL = "/public/data/hokkien-hanri-dict.json";
+// Filled with content hashes by tools/build_site.py; unbuilt checkouts revalidate.
+const DATA_VERSIONS = {};
 const RESULTS_PER_PAGE = 10;
 const language = document.documentElement.lang || "en";
 
@@ -29,21 +32,36 @@ const variants = window.TliSiteSearchVariants;
 const input = document.querySelector("#siteSearchInput");
 const clear = document.querySelector("#siteSearchClear");
 const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
+const imeCandidates = document.querySelector("#siteSearchCandidates");
 const filters = document.querySelector("#siteSearchFilters");
 const summary = document.querySelector("#siteSearchSummary");
 const results = document.querySelector("#siteSearchResults");
 const pagination = document.querySelector("#siteSearchPagination");
 let hangulKeyboardEnabled = false;
+const searchCandidatePopup = window.TangliengimImeCore.createCandidatePopupPositioner({
+  control: input,
+  container: imeCandidates,
+  placement: "below",
+});
 const searchImeController = window.TangliengimImeCore.createTextImeController({
   control: input,
+  candidateContainer: imeCandidates,
   entries: [],
   enabled: () => hangulKeyboardEnabled,
   onUpdate: () => {
     state.page = 1;
     render();
   },
+  onCandidatesChanged: searchCandidatePopup.schedule,
   enterBehavior: "none",
 });
+
+async function fetchSearchJson(url) {
+  const version = DATA_VERSIONS[url];
+  const response = await (version ? fetch(`${url}?v=${version}`) : fetch(url, { cache: "no-cache" }));
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  return response.json();
+}
 
 function normalized(value, loose = false) {
   const text = String(value || "").normalize("NFKC").toLocaleLowerCase()
@@ -249,9 +267,7 @@ hangulKeyboardToggle.addEventListener("click", () => {
 async function load() {
   summary.textContent = messages.loading;
   try {
-    const response = await fetch(INDEX_URL);
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const index = await response.json();
+    const index = await fetchSearchJson(INDEX_URL);
     state.hanriFold = { ...(index.hanriFold || {}), ...variants.toneMarkFold };
     state.documents = (index.languages[language] || []).map(document => ({
       ...document,
@@ -274,4 +290,18 @@ async function load() {
   }
 }
 
+async function loadImeDictionary() {
+  try {
+    const data = await fetchSearchJson(DICTIONARY_URL);
+    const entries = data.entries || [];
+    searchImeController.setEntries(
+      entries,
+      window.TangliengimImeCore.createDictionaryIndex(entries),
+    );
+  } catch (error) {
+    console.error("Search IME dictionary could not load", error);
+  }
+}
+
 load();
+loadImeDictionary();

@@ -88,6 +88,8 @@ def main():
     for route in ("/search/", "/zh-hant/search/", "/zh-hans/search/"):
         search_html = local_file(route).read_text(encoding="utf-8")
         assert 'id="hangulKeyboardToggle"' in search_html
+        assert 'id="siteSearchCandidates"' in search_html
+        assert '/shared/web-ime-menu.css' in search_html
         assert 'aria-pressed="false"' in search_html
         scripts = [urlsplit(source).path for source in route_scripts[route]]
         assert scripts.count("/assets/search/search.js") == 1

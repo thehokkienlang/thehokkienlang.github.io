@@ -347,6 +347,7 @@ def search_page(language):
             "keyboard": "Enable Hangul keyboard",
             "placeholder": "Search pages, songs, and stories...",
             "clear": "Clear search",
+            "candidates": "Hanri candidates",
             "filters": "Filter search results",
             "results": "Search results",
             "pages": "Search result pages",
@@ -357,6 +358,7 @@ def search_page(language):
             "keyboard": "啟用諺文鍵盤",
             "placeholder": "搜尋頁面、歌曲與故事…",
             "clear": "清除搜尋",
+            "candidates": "漢字候選詞",
             "filters": "篩選搜尋結果",
             "results": "搜尋結果",
             "pages": "搜尋結果頁面",
@@ -367,6 +369,7 @@ def search_page(language):
             "keyboard": "启用谚文键盘",
             "placeholder": "搜索页面、歌曲与故事…",
             "clear": "清除搜索",
+            "candidates": "汉字候选词",
             "filters": "筛选搜索结果",
             "results": "搜索结果",
             "pages": "搜索结果页面",
@@ -386,7 +389,9 @@ def search_page(language):
         f'<input id="siteSearchInput" class="site-search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" '
         f'placeholder="{html.escape(labels["placeholder"], quote=True)}">'
         f'<button id="siteSearchClear" class="site-search-clear" type="button" '
-        f'aria-label="{html.escape(labels["clear"], quote=True)}" hidden>&times;</button></div>'
+        f'aria-label="{html.escape(labels["clear"], quote=True)}" hidden>&times;</button>'
+        f'<div id="siteSearchCandidates" class="hanri-candidate-menu" role="listbox" '
+        f'aria-label="{html.escape(labels["candidates"], quote=True)}" hidden></div></div>'
         f'<div id="siteSearchFilters" class="site-search-filters" role="group" '
         f'aria-label="{html.escape(labels["filters"], quote=True)}"></div></form>'
         '<p id="siteSearchSummary" class="site-search-summary" aria-live="polite"></p>'
@@ -418,7 +423,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
     is_search = base_route(route) == "/search/"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ""}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ""}
     values["BRAND"] = site_brand(root, language)
     # One pass prevents source content resembling a placeholder from becoming executable template markup.
     return re.sub(r"__([A-Z]+)__", lambda match: values[match[1]], template)

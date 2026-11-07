@@ -22,7 +22,7 @@ ASSET_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const ASSET_VERSIONS = \{\
 GATE_SCRIPT_SOURCE = re.compile(r'"(?P<source>[^"\s]+\.js)"')
 DATA_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const DATA_VERSIONS = \{\};$", re.MULTILINE)
 DATA_URL_SOURCE = re.compile(r'"(?P<url>/public/data/[^"\s?#]+\.json)"')
-DATA_APP_SCRIPTS = ("dictionary/app.js", "ime/ime.js", "translate/translate.js")
+DATA_APP_SCRIPTS = ("dictionary/app.js", "ime/ime.js", "assets/search/search.js", "translate/translate.js")
 
 
 def version_css_imports(css_path: Path, visited: set[Path]) -> None:
