@@ -83,7 +83,7 @@ class HarmonisationTests(unittest.TestCase):
         result = self.convert(source)
         self.assertIn('這<ruby', result)
         self.assertIn('>馬<', result)
-        self.assertIn('>마`</rt>', result)
+        self.assertIn('>마ˋ</rt>', result)
         self.assertIn(' 這馬 嘛 等’這마', result)
         self.assertEqual(readings(record(source)), readings(record(result)))
 

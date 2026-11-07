@@ -13,7 +13,9 @@ from song_title_readings import FirstHeading, phonetics
 
 VOID = {"area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "param", "source", "track", "wbr"}
 BLOCKS = {"p", "h1", "h2", "h3", "h4", "li", "td", "th", "figcaption"}
-UPPER = str.maketrans({"ꞈ": "ˆ", "ˎ": "`", "ˏ": "ˊ", "ˍ": "ˉ", "ˋ": "`"})
+# Ruby readings sit above the syllable, so tone 2 is ˋ there; a typed ` is
+# accepted as input but never written out.
+UPPER = str.maketrans({"ꞈ": "ˆ", "ˎ": "ˋ", "`": "ˋ", "ˏ": "ˊ", "ˍ": "ˉ"})
 TONES = "ˆ`ˋˊˉꞈˎˏˍ12345"
 BOUNDARIES = set(".,;:!?，。；：！？()（）\"“”‘[]【】/…—")
 HANGUL = re.compile(r"[\u1100-\u11ff\u3130-\u318f\ua960-\ua97f\uac00-\ud7a3\ud7b0-\ud7ff]")

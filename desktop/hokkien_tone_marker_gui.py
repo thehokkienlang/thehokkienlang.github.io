@@ -2459,7 +2459,7 @@ def escape_visible_html_text(text: str) -> str:
 
 
 # Extra tone symbols for the newer annotation style:
-# ˆ = tone 1, ` = tone 2, no mark = tone 3, ˊ = tone 4, ˉ = tone 5
+# ˆ = tone 1, ˋ = tone 2, no mark = tone 3, ˊ = tone 4, ˉ = tone 5
 ANNOTATION_SYMBOL_TO_DIGIT = str.maketrans({
     'ˆ': '1',
     '`': '2',
@@ -2476,7 +2476,7 @@ ANNOTATION_SYMBOL_TO_DIGIT = str.maketrans({
 
 ANNOTATION_DIGIT_TO_SYMBOL = str.maketrans({
     '1': 'ˆ',
-    '2': '`',
+    '2': 'ˋ',
     '4': 'ˊ',
     '5': 'ˉ',
 })
@@ -2500,7 +2500,7 @@ def hangul_digits_to_annotation_symbols(s: str) -> str:
     """
     Converts internal digit tones back into the display style:
       1 -> ˆ
-      2 -> `
+      2 -> ˋ  (never a backtick)
       4 -> ˊ
       5 -> ˉ
     Tone 3 stays unmarked.
