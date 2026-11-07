@@ -93,6 +93,18 @@
   text-decoration: none;
 }
 .site-app-nav a:hover { color: var(--site-accent); }
+/* Dictionary and Translator open only for invited visitors (audit A4). */
+.invite-only-note {
+  margin-left: 6px;
+  padding: 1px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 0.72em;
+  font-weight: 500;
+  opacity: 0.75;
+  white-space: nowrap;
+  vertical-align: 0.1em;
+}
 .site-app-nav a[aria-current] { border-bottom: 2px solid var(--site-accent); color: var(--site-accent); }
 .site-app-nav a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
 .site-nav-dropdown { position: relative; }

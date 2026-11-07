@@ -24,6 +24,14 @@ NAV_GROUPS = (
     ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
 )
 NAV = (("/about/", "About"), ("/search/", "Search"))
+# Tools that open only for invited visitors behind a password (audit A4).
+INVITE_ONLY = frozenset({"/dictionary/", "/translate/"})
+
+
+def invite_only_note(href, language):
+    if href not in INVITE_ONLY:
+        return ""
+    return f' <span class="invite-only-note">{html.escape(text("Invite only", language))}</span>'
 
 # Keep nasal words and stacked marks in one shaping run and one Latin font.
 # Restrict this to text nodes; URLs, attributes and authored source stay intact.
@@ -66,7 +74,7 @@ def navigation_links(route, language=None, variants=True):
                 '<span class="site-search-icon" aria-hidden="true"></span>'
                 f'<span class="visually-hidden">{accessible_label}</span></a>'
             )
-        return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}</a>'
+        return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}{invite_only_note(href, language)}</a>'
 
     items = []
     current_route = base_route(route)
@@ -121,7 +129,7 @@ def home_launch(language):
     def destination(path, label, class_name=""):
         url = language_url(path, language) or language_url(path, "zh-Hant")
         class_attr = f' class="{class_name}"' if class_name else ""
-        return f'<a{class_attr} href="{html.escape(url, quote=True)}"><span>{html.escape(label)}</span><span aria-hidden="true">&#8594;</span></a>'
+        return f'<a{class_attr} href="{html.escape(url, quote=True)}"><span>{html.escape(label)}{invite_only_note(path, language)}</span><span aria-hidden="true">&#8594;</span></a>'
 
     paths = (
         ("01", learn, learn_note, "/learn/introduction/", learn_link),
