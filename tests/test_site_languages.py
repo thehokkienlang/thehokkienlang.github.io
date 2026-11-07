@@ -101,12 +101,17 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('class="site-search-link" href="/zh-hant/search/"', nav)
         self.assertIn('aria-label="搜尋"', nav)
         self.assertIn('>學習</summary>', nav)
+        self.assertIn('>探索</summary>', nav)
+        self.assertIn('>工具</summary>', nav)
+        self.assertNotIn('>主頁</a>', nav)
+        self.assertIn('>閩南語輸入法</a>', nav)
+        self.assertIn('>翻譯器 · 預覽</a>', nav)
         self.assertIn('data-language-choice="en"', nav)
         self.assertIn('href="/zh-hans/learn/spelling/"', nav)
         egg = navigation_links("/zh-hant/read/stories/the-egg/", variants=False)
         self.assertIn('data-language-choice="zh-Hans"', egg)
         self.assertIn('href="/zh-hans/read/stories/the-egg/"', egg)
-        self.assertIn('>卵</a>', navigation_links("/zh-hans/", variants=False))
+        self.assertIn('>文学</a>', navigation_links("/zh-hans/", variants=False))
 
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:

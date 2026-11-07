@@ -18,11 +18,12 @@ from site_search import document as search_document, hanri_fold_map
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
 
-NAV = (("/", "Home"), ("/learn/", "Learn"), ("/songs/", "Songs"), ("/read/", "Read"), ("/dictionary/", "Dictionary"), ("/ime/", "IME"), ("/translate/", "Translate"), ("/search/", "Search"), ("/about/", "About"))
-NAV_SECTIONS = {
-    "/learn/": (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation")),
-    "/read/": (("/read/stories/the-egg/", "The Egg"),),
-}
+NAV_GROUPS = (
+    ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation"))),
+    ("Explore", (("/songs/", "Songs"), ("/read/", "Literature"))),
+    ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator · Preview"))),
+)
+NAV = (("/about/", "About"), ("/search/", "Search"))
 
 # Keep nasal words and stacked marks in one shaping run and one Latin font.
 # Restrict this to text nodes; URLs, attributes and authored source stay intact.
@@ -68,17 +69,18 @@ def navigation_links(route, language=None, variants=True):
         return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}</a>'
 
     items = []
-    for href, label in NAV:
-        if href in NAV_SECTIONS:
-            active = " is-current" if base_route(route).startswith(href) else ""
-            children = "".join(link(path, title) for path, title in NAV_SECTIONS[href])
-            items.append(
-                '<details class="site-nav-dropdown" name="site-navigation">'
-                f'<summary class="site-nav-trigger{active}">{text(label, language)}</summary>'
-                f'<div class="site-nav-panel">{children}</div></details>'
-            )
-        else:
-            items.append(link(href, label))
+    current_route = base_route(route)
+    for label, destinations in NAV_GROUPS:
+        active = " is-current" if any(
+            current_route == path or current_route.startswith(path) for path, _title in destinations
+        ) else ""
+        children = "".join(link(path, title) for path, title in destinations)
+        items.append(
+            '<details class="site-nav-dropdown" name="site-navigation">'
+            f'<summary class="site-nav-trigger{active}">{text(label, language)}</summary>'
+            f'<div class="site-nav-panel">{children}</div></details>'
+        )
+    items.extend(link(href, label) for href, label in NAV)
     choices = []
     for code in LANGUAGES:
         destination = language_url(route, code)
