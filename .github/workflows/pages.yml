@@ -46,7 +46,9 @@ jobs:
       - name: Install Python and Tkinter for the pronunciation engine
         run: sudo apt-get update && sudo apt-get install -y python3-tk
       - name: Install Python test dependencies (system Python; mirrors requirements-dev.txt)
-        run: sudo apt-get install -y python3-fonttools python3-brotli
+        run: sudo apt-get install -y python3-fonttools python3-brotli python3-numpy
+      - name: Install ffmpeg for the compressed audio copies
+        run: sudo apt-get install -y ffmpeg
       - name: Build both interfaces from the canonical TSV
         run: python3 tools/build_site.py
       - name: Validate multilingual migration scope and preserved readings
@@ -56,6 +58,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_site_*.py'
       - name: Validate routes, shared resources, and audio
         run: python3 tools/check_site.py
+      - name: Check compressed audio matches the WAV masters
+        run: python3 tools/compressed_audio.py
       - name: Check built keyboard and sandhi integration
         run: node tools/check_web_apps.cjs
       - uses: actions/upload-pages-artifact@v4

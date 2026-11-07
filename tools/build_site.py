@@ -11,6 +11,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
 from dictionary_data import PUBLISHED_SIDECARS, sidecar_path
+from compressed_audio import EXTENSION as COMPRESSED_AUDIO_EXTENSION, write_compressed_copies
 from build_content import build_content, navigation_links, site_brand
 from import_wordpress import write_song_ime_data
 
@@ -22,6 +23,7 @@ ASSET_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const ASSET_VERSIONS = \{\
 GATE_SCRIPT_SOURCE = re.compile(r'"(?P<source>[^"\s]+\.js)"')
 DATA_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const DATA_VERSIONS = \{\};$", re.MULTILINE)
 DATA_URL_SOURCE = re.compile(r'"(?P<url>/public/data/[^"\s?#]+\.json)"')
+AUDIO_FORMAT_LINE = re.compile(r'^(?P<indent>[ \t]*)const COMPRESSED_AUDIO_EXTENSION = "";$', re.MULTILINE)
 DATA_APP_SCRIPTS = ("dictionary/app.js", "ime/ime.js", "assets/search/search.js", "translate/translate.js")
 
 
@@ -110,6 +112,15 @@ def version_data_urls(script_path: Path) -> None:
     script_path.write_text(text, encoding="utf-8")
 
 
+def enable_compressed_audio(player_path: Path, extension: str) -> None:
+    """Tell the built audio player that every WAV has a compressed copy beside it."""
+    text = player_path.read_text(encoding="utf-8")
+    if len(AUDIO_FORMAT_LINE.findall(text)) != 1:
+        raise RuntimeError(f"{player_path} must contain exactly one 'const COMPRESSED_AUDIO_EXTENSION = \"\";' line")
+    text = AUDIO_FORMAT_LINE.sub(lambda match: f'{match["indent"]}const COMPRESSED_AUDIO_EXTENSION = "{extension}";', text)
+    player_path.write_text(text, encoding="utf-8")
+
+
 def main() -> int:
     # Generate data from the exact TSV and pronunciation code being deployed.
     build_dictionary_json()
@@ -129,6 +140,10 @@ def main() -> int:
         index.write_text(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), encoding="utf-8")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
+    # Opus copies beside the WAV masters; the player uses them only when every
+    # WAV has one (before the gate and HTML passes, which hash the player).
+    if write_compressed_copies(OUTPUT / "public" / "audio"):
+        enable_compressed_audio(OUTPUT / "shared" / "web-audio-player.js", COMPRESSED_AUDIO_EXTENSION)
     (OUTPUT / "public" / "data").mkdir(parents=True)
     # Lookup indexes stay build-only; browsers build their own lookups.
     for data_file in (DEFAULT_OUTPUT_PATH, *(sidecar_path(DEFAULT_OUTPUT_PATH, part) for part in PUBLISHED_SIDECARS)):

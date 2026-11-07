@@ -58,6 +58,7 @@ PYTHON_FILES = (
     "tools/website_editor_service.py",
     "tools/lyric_timing.py",
     "tools/check_compound_glosses.py",
+    "tools/compressed_audio.py",
     "tools/dictionary_editor_publish.py",
     "desktop/Hokkien Tangliengim IME Pad.py",
     "desktop/hokkien_tone_marker_gui.py",
@@ -142,6 +143,7 @@ def main() -> int:
 
     if not args.source_only:
         run("Validate published site", sys.executable, "-X", "utf8", "tools/check_site.py")
+        run("Compressed audio copies", sys.executable, "-X", "utf8", "tools/compressed_audio.py")
         run("Validate built Web applications", "node", "tools/check_web_apps.cjs")
 
     print("\nOK: Tangliengim release gate passed.")

@@ -20,16 +20,42 @@ const TangliengimWebAudio = (() => {
     return sharedAudioContext;
   }
 
-  async function decodedAudioBuffer(file) {
-    const url = encodeURI(file);
-    if (decodedAudioCache.has(url)) return decodedAudioCache.get(url);
-    let bufferPromise;
-    bufferPromise = fetch(url)
+  // Filled in by tools/build_site.py ("opus") when every WAV on the built site
+  // has a compressed copy beside it. Empty in unbuilt checkouts: WAV only.
+  const COMPRESSED_AUDIO_EXTENSION = "";
+  // null until the first compressed copy is tried; false if this browser can't
+  // decode the format, after which the session uses the WAV masters.
+  let compressedAudioDecodes = null;
+
+  function fetchAndDecode(url) {
+    return fetch(url)
       .then((response) => {
         if (!response.ok) throw new Error(`HTTP ${response.status}`);
         return response.arrayBuffer();
       })
-      .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer))
+      .then((arrayBuffer) => audioContext().decodeAudioData(arrayBuffer));
+  }
+
+  async function loadAudioBuffer(url) {
+    if (COMPRESSED_AUDIO_EXTENSION && compressedAudioDecodes !== false && /\.wav$/i.test(url)) {
+      try {
+        const buffer = await fetchAndDecode(url.replace(/\.wav$/i, `.${COMPRESSED_AUDIO_EXTENSION}`));
+        compressedAudioDecodes = true;
+        return buffer;
+      } catch (error) {
+        // The first failure means the format is unsupported; a later one means
+        // only this copy is unavailable, so just this file falls back.
+        if (compressedAudioDecodes === null) compressedAudioDecodes = false;
+      }
+    }
+    return fetchAndDecode(url);
+  }
+
+  async function decodedAudioBuffer(file) {
+    const url = encodeURI(file);
+    if (decodedAudioCache.has(url)) return decodedAudioCache.get(url);
+    let bufferPromise;
+    bufferPromise = loadAudioBuffer(url)
       .catch((error) => {
         if (decodedAudioCache.get(url) === bufferPromise) decodedAudioCache.delete(url);
         throw error;
