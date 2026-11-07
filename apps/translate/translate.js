@@ -1,6 +1,15 @@
 (() => {
   "use strict";
   const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+  const RUNTIME_URL = "/public/data/hokkien-hanri-dict-runtime.json";
+  // Filled with content hashes by tools/build_site.py; unbuilt checkouts revalidate.
+  const DATA_VERSIONS = {};
+  async function fetchDictionaryJson(url) {
+    const version = DATA_VERSIONS[url];
+    const response = await (version ? fetch(`${url}?v=${version}`) : fetch(url, { cache: "no-cache" }));
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    return response.json();
+  }
   const LIMIT = 2000;
   const ImeCore = window.TangliengimImeCore;
   const phoneticCore = window.TangliengimPhoneticOutput;
@@ -229,10 +238,10 @@
 
   async function loadDictionary() {
     try {
-      const response = await fetch(DATA_URL, { cache: "no-cache" }); if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      const data = await response.json(); state.entries = canonicalEntries(data.entries || []); state.index = ImeCore.createDictionaryIndex(data.entries || []);
-      state.unitRoman = new Map(Object.entries(data.runtime?.unitRoman || {})); state.rawHangulAudio = new Map(Object.entries(data.runtime?.rawHangulAudio || {}));
-      state.jamoLomari = new Map(Object.entries(data.runtime?.jamoLomari || {})); state.jamoAudio = new Map(Object.entries(data.runtime?.jamoAudio || {}));
+      const [data, runtimeData] = await Promise.all([fetchDictionaryJson(DATA_URL), fetchDictionaryJson(RUNTIME_URL)]);
+      const runtime = runtimeData.runtime || {}; state.entries = canonicalEntries(data.entries || []); state.index = ImeCore.createDictionaryIndex(data.entries || []);
+      state.unitRoman = new Map(Object.entries(runtime.unitRoman || {})); state.rawHangulAudio = new Map(Object.entries(runtime.rawHangulAudio || {}));
+      state.jamoLomari = new Map(Object.entries(runtime.jamoLomari || {})); state.jamoAudio = new Map(Object.entries(runtime.jamoAudio || {}));
       buildTranslationIndexes(state.entries); await ime.preferences.ready; ime.setEntries(state.index.entries, state.index);
       performTranslation();
     } catch (error) { showToast(`Dictionary unavailable: ${error.message}`); }

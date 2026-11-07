@@ -4,7 +4,7 @@ Build and validation scripts for the dictionary and web IME.
 
 `organize_audio_files.py` groups `public/audio` into initial-consonant folders using the desktop IME's own Lomari/Hangul audio filename mapping.
 
-`build_dictionary_json.py` converts the canonical TSV into shared web JSON.
+`build_dictionary_json.py` converts the canonical TSV into shared web JSON: a core file every app loads, a `-runtime` sidecar (audio/Lomari maps) that only the IME and translator load, and a build-only `-indexes` sidecar for checks. `dictionary_data.py` / `dictionary_data.cjs` reassemble the full document for checks.
 
 The authoritative current contract is [`docs/dictionary-tsv-schema.md`](../docs/dictionary-tsv-schema.md).
 Use `python tools/check_release.py` as the normal build-and-release gate; it

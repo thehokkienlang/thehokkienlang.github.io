@@ -4,7 +4,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const root = path.resolve(__dirname,'..');
-const data = JSON.parse(fs.readFileSync(path.join(root,'public/data/hokkien-hanri-dict.json')));
+const { loadDictionaryData } = require('./dictionary_data.cjs');
+const data = loadDictionaryData(path.join(root,'public/data/hokkien-hanri-dict.json'));
 const context = vm.createContext({document:{addEventListener(){}}});
 context.window = context;
 for (const file of ['shared/web-hangul-ime.js','shared/web-ime-core.js']) vm.runInContext(fs.readFileSync(path.join(root,file),'utf8'),context);
@@ -48,7 +49,7 @@ assert.deepEqual(ids(core.rankEntries([...examples].reverse(),'y')),['A','B','C'
 const beforeFlag = process.argv.indexOf('--before');
 if (beforeFlag !== -1) {
   const dir = process.argv[beforeFlag+1];
-  const before = JSON.parse(fs.readFileSync(path.join(dir,'public/data/hokkien-hanri-dict.json')));
+  const before = loadDictionaryData(path.join(dir,'public/data/hokkien-hanri-dict.json'));
   const snapshot = JSON.parse(fs.readFileSync(path.join(dir,'static-snapshot.json')));
   const prior = new Map(before.entries.map(e=>[e.id,e]));
   assert.equal(data.entries.length,prior.size);

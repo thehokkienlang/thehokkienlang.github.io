@@ -998,6 +998,7 @@ def run_desktop_shell(
         repo_root / "apps" / "ime" / "index.html",
         repo_root / "shared" / "web-ime-core.js",
         repo_root / "public" / "data" / "hokkien-hanri-dict.json",
+        repo_root / "public" / "data" / "hokkien-hanri-dict-runtime.json",
     ]
     missing = [str(path) for path in required if not path.is_file()]
     if missing:

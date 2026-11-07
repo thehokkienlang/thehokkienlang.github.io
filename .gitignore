@@ -10,6 +10,8 @@ public/audio/_hokkien_ime_playback.wav
 _site/
 .dictionary-editor/
 public/data/hokkien-hanri-dict.json
+public/data/hokkien-hanri-dict-runtime.json
+public/data/hokkien-hanri-dict-indexes.json
 migration/song-ime-data.js
 
 # C extensions

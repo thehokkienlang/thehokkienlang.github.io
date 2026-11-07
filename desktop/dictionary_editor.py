@@ -13,6 +13,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "tools"))
 from dictionary_editor_service import DictionaryEditorService, EditorError, DATA_FILES, MAIN, REGISTRY, CATEGORIES, fingerprint
 from dictionary_editor_publish import DictionaryPublisher
+from dictionary_data import SIDECARS, sidecar_path
 
 
 class DictionaryEditorController:
@@ -103,7 +104,11 @@ class DictionaryEditorController:
             with self.service.locked():
                 if fingerprint(self.service.files()) != fingerprint(snapshot):
                     continue
-                os.replace(output, self.service.repo / "public" / "data" / "hokkien-hanri-dict.json")
+                target = self.service.repo / "public" / "data" / "hokkien-hanri-dict.json"
+                # Sidecars first, so a reader never pairs new entries with old maps.
+                for part in SIDECARS:
+                    os.replace(sidecar_path(output, part), sidecar_path(target, part))
+                os.replace(output, target)
                 self.generation += 1
                 self.source_signature = self.signature()
                 break

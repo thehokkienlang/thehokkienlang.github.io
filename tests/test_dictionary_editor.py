@@ -617,6 +617,9 @@ class HttpTests(unittest.TestCase):
                 if len(calls) == 1:
                     server.editor.service.save([dict(hanri='新', reading='신1')])
                 output.write_text(json.dumps({'sourceSha256': 'fixture'}), encoding='utf-8')
+                for part in ('runtime', 'indexes'):
+                    output.with_name(f'{output.stem}-{part}{output.suffix}').write_text(
+                        json.dumps({'sourceSha256': 'fixture', part: {}}), encoding='utf-8')
                 return subprocess.CompletedProcess(command, 0, '', '')
             try:
                 with patch.object(controller_module.subprocess, 'run', side_effect=build):
@@ -625,6 +628,8 @@ class HttpTests(unittest.TestCase):
                 self.assertEqual(result['generation'], 1)
                 generated = json.loads((repo / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
                 self.assertEqual(generated['source'], 'data/' + MAIN)
+                for part in ('runtime', 'indexes'):
+                    self.assertTrue((repo / f'public/data/hokkien-hanri-dict-{part}.json').is_file(), part)
             finally:
                 server.server_close()
 

@@ -28,6 +28,7 @@ from validate_dictionary_tsv import validate_registry
 from simplified_lookup import simplified_field_errors
 from dictionary_ranking import annotate_entries, canonical_key, read_records
 from dictionary_references import load_categories
+from dictionary_data import sidecar_path, split_dictionary_data
 
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
@@ -665,18 +666,27 @@ def main() -> int:
     args = parser.parse_args()
 
     data = build_dictionary(args.input, args.audio_root, args.categories, args.registry)
-    encoded = json.dumps(data, ensure_ascii=False, separators=(",", ":"), sort_keys=False) + "\n"
 
     if args.check:
         print(f"ok: {len(data['entries'])} entries, {data['counts'].get('active_entries', 0)} active")
         return 0
 
+    # Browsers download only what they use: every app loads the core file, the
+    # IME and translator also load -runtime, and -indexes is for checks only.
+    files = split_dictionary_data(data)
     args.output.parent.mkdir(parents=True, exist_ok=True)
-    if args.output.is_file() and args.output.read_text(encoding="utf-8") == encoded:
-        print(f"unchanged {args.output.relative_to(REPO_ROOT)}")
-    else:
-        args.output.write_text(encoded, encoding="utf-8", newline="\n")
-        print(f"wrote {args.output.relative_to(REPO_ROOT)} ({len(encoded.encode('utf-8'))} bytes)")
+    for part, document in files.items():
+        path = args.output if part == "core" else sidecar_path(args.output, part)
+        encoded = json.dumps(document, ensure_ascii=False, separators=(",", ":"), sort_keys=False) + "\n"
+        try:
+            shown = path.relative_to(REPO_ROOT)
+        except ValueError:
+            shown = path
+        if path.is_file() and path.read_text(encoding="utf-8") == encoded:
+            print(f"unchanged {shown}")
+        else:
+            path.write_text(encoded, encoding="utf-8", newline="\n")
+            print(f"wrote {shown} ({len(encoded.encode('utf-8'))} bytes)")
     print(f"entries: {len(data['entries'])}; active: {data['counts'].get('active_entries', 0)}")
     return 0
 

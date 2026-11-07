@@ -1,5 +1,6 @@
 // Run the real shared engine and app bootstrap without browser dependencies.
 const assert = require('node:assert/strict');
+const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
@@ -62,8 +63,21 @@ async function loadApp(route, script) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
   }
   await new Promise(resolve => setImmediate(resolve));
-  assert.equal(requests[0].url, '/public/data/hokkien-hanri-dict.json');
-  assert.equal(requests[0].options.cache, 'no-cache');
+  // Every app loads the core file; only the IME also needs the runtime maps.
+  // Built apps use content-hash URLs; unbuilt sources revalidate.
+  const expectedData = ['/public/data/hokkien-hanri-dict.json'];
+  if (route === 'ime') expectedData.push('/public/data/hokkien-hanri-dict-runtime.json');
+  assert.deepEqual(requests.map(request => request.url.split('?')[0]), expectedData);
+  for (const request of requests) {
+    const pathname = request.url.split('?')[0];
+    if (sourceMode) {
+      assert.equal(request.options?.cache, 'no-cache', `${route} source must revalidate ${pathname}`);
+    } else {
+      const version = crypto.createHash('sha256').update(fs.readFileSync(path.join(root, pathname))).digest('hex').slice(0, 12);
+      assert.equal(request.url, `${pathname}?v=${version}`, `${route} must request a content-hash URL`);
+      assert.equal(request.options, undefined, `${route} must let the browser cache a versioned URL`);
+    }
+  }
   assert.ok(vm.runInContext('state.entries.length > 2000', context));
   const controllerName = route === 'ime' ? 'imeController' : 'searchImeController';
   assert.ok(vm.runInContext(`${controllerName}.candidatesByReading.size > 0`, context));

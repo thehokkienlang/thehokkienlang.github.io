@@ -77,3 +77,7 @@ jobs:
       - name: Publish dictionary and IME together
         id: deployment
         uses: actions/deploy-pages@v4
+        with:
+          # The ~190 MiB site (mostly audio) can take GitHub Pages longer than
+          # the default 10 minutes to publish (the a6185e0 deploy timed out).
+          timeout: 1800000

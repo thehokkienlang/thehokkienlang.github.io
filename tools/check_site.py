@@ -8,6 +8,7 @@ from html.parser import HTMLParser
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
 from dictionary_schema import DICTIONARY_COLUMNS
+from dictionary_data import load_dictionary_data, sidecar_path
 
 ROOT = Path(__file__).resolve().parents[1]
 SITE = ROOT / "_site"
@@ -136,7 +137,11 @@ def main():
     for source in ("/shared/web-hangul-ime.js", "/shared/web-ime-core.js", "/shared/web-audio-player.js"):
         assert f'"{source}"' in dictionary_gate, f"Dictionary gate does not load {source}"
 
-    data = json.loads(local_file("/public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))
+    core_path = local_file("/public/data/hokkien-hanri-dict.json")
+    core_keys = set(json.loads(core_path.read_text(encoding="utf-8")))
+    assert not {"indexes", "runtime"} & core_keys, "The published dictionary core must not carry lookup indexes or runtime maps"
+    assert not sidecar_path(core_path, "indexes").exists(), "Lookup indexes are build-only and must not be published"
+    data = load_dictionary_data(core_path, parts=("runtime",))
     assert data["schemaVersion"] == 10
     assert data["columns"] == list(DICTIONARY_COLUMNS)
     assert all(

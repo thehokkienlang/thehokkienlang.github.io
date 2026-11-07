@@ -58,6 +58,44 @@ class SiteAssetVersionsTests(unittest.TestCase):
             self.assertEqual(len(build_site.ASSET_VERSIONS_LINE.findall(text)), 1, app)
             self.assertIn("ASSET_VERSIONS[source] || Date.now()", text, app)
 
+    def test_app_data_urls_use_content_hashes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            (output / "public" / "data").mkdir(parents=True)
+            (output / "ime").mkdir()
+            data = output / "public" / "data" / "dict.json"
+            runtime = output / "public" / "data" / "dict-runtime.json"
+            data.write_text("one", encoding="utf-8")
+            runtime.write_text("maps", encoding="utf-8")
+            script = output / "ime" / "ime.js"
+            source = ('const DATA_URL = "/public/data/dict.json";\n'
+                      'const RUNTIME_URL = "/public/data/dict-runtime.json";\n'
+                      "const DATA_VERSIONS = {};\n")
+            script.write_text(source, encoding="utf-8")
+            with patch.object(build_site, "OUTPUT", output):
+                build_site.version_data_urls(script)
+                first = script.read_text(encoding="utf-8")
+                self.assertIn('"/public/data/dict.json": "', first)
+                self.assertIn('"/public/data/dict-runtime.json": "', first)
+                self.assertNotIn("const DATA_VERSIONS = {};", first)
+                data.write_text("two", encoding="utf-8")
+                script.write_text(source, encoding="utf-8")
+                build_site.version_data_urls(script)
+                self.assertNotEqual(first, script.read_text(encoding="utf-8"))
+
+    def test_apps_version_every_data_file_they_fetch(self):
+        expected = {
+            "dictionary/app.js": {"/public/data/hokkien-hanri-dict.json"},
+            "ime/ime.js": {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"},
+            "translate/translate.js": {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"},
+        }
+        self.assertEqual(set(build_site.DATA_APP_SCRIPTS), set(expected))
+        for script, urls in expected.items():
+            text = (ROOT / "apps" / script).read_text(encoding="utf-8")
+            self.assertEqual(len(build_site.DATA_VERSIONS_LINE.findall(text)), 1, script)
+            self.assertEqual({match["url"] for match in build_site.DATA_URL_SOURCE.finditer(text)}, urls, script)
+            self.assertNotIn("indexes.json", text, script)
+
 
 if __name__ == "__main__":
     unittest.main()

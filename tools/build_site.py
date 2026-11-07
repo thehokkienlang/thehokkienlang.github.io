@@ -10,6 +10,7 @@ from pathlib import Path
 from urllib.parse import unquote, urljoin, urlsplit
 
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
+from dictionary_data import PUBLISHED_SIDECARS, sidecar_path
 from build_content import build_content, navigation_links, site_brand
 from import_wordpress import write_song_ime_data
 
@@ -19,6 +20,9 @@ ASSET_ATTRIBUTE = re.compile(r'(?P<prefix>\b(?:src|href)=")(?P<url>[^"#]+)(?P<su
 CSS_IMPORT = re.compile(r'(@import\s+url\(")([^"]+)("\))')
 ASSET_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const ASSET_VERSIONS = \{\};$", re.MULTILINE)
 GATE_SCRIPT_SOURCE = re.compile(r'"(?P<source>[^"\s]+\.js)"')
+DATA_VERSIONS_LINE = re.compile(r"^(?P<indent>[ \t]*)const DATA_VERSIONS = \{\};$", re.MULTILINE)
+DATA_URL_SOURCE = re.compile(r'"(?P<url>/public/data/[^"\s?#]+\.json)"')
+DATA_APP_SCRIPTS = ("dictionary/app.js", "ime/ime.js", "translate/translate.js")
 
 
 def version_css_imports(css_path: Path, visited: set[Path]) -> None:
@@ -83,6 +87,29 @@ def version_gate_scripts(gate_path: Path) -> None:
     gate_path.write_text(text, encoding="utf-8")
 
 
+def version_data_urls(script_path: Path) -> None:
+    """Give an app's dictionary data URLs content-hash versions.
+
+    The apps fetch their JSON from script code, so the HTML attribute pass
+    cannot see it. With a version the browser may use its normal cache, and a
+    new build still gets new URLs; unbuilt checkouts keep revalidating.
+    """
+    text = script_path.read_text(encoding="utf-8")
+    if len(DATA_VERSIONS_LINE.findall(text)) != 1:
+        raise RuntimeError(f"{script_path} must contain exactly one 'const DATA_VERSIONS = {{}};' line")
+    versions = {}
+    for match in DATA_URL_SOURCE.finditer(text):
+        data = OUTPUT / match["url"].lstrip("/")
+        if not data.is_file():
+            raise FileNotFoundError(f"Missing data file in {script_path.name}: {match['url']}")
+        versions[match["url"]] = hashlib.sha256(data.read_bytes()).hexdigest()[:12]
+    if not versions:
+        raise RuntimeError(f"{script_path} names no data files to version")
+    frozen = json.dumps(versions, ensure_ascii=False, sort_keys=True)
+    text = DATA_VERSIONS_LINE.sub(lambda match: f"{match['indent']}const DATA_VERSIONS = Object.freeze({frozen});", text)
+    script_path.write_text(text, encoding="utf-8")
+
+
 def main() -> int:
     # Generate data from the exact TSV and pronunciation code being deployed.
     build_dictionary_json()
@@ -103,9 +130,14 @@ def main() -> int:
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     (OUTPUT / "public" / "data").mkdir(parents=True)
-    shutil.copy2(DEFAULT_OUTPUT_PATH, OUTPUT / "public" / "data" / DEFAULT_OUTPUT_PATH.name)
+    # Lookup indexes stay build-only; browsers build their own lookups.
+    for data_file in (DEFAULT_OUTPUT_PATH, *(sidecar_path(DEFAULT_OUTPUT_PATH, part) for part in PUBLISHED_SIDECARS)):
+        shutil.copy2(data_file, OUTPUT / "public" / "data" / data_file.name)
     content_routes = build_content(ROOT, OUTPUT)
     shutil.copytree(ROOT / "apps" / "search", OUTPUT / "assets" / "search")
+    # Before the gate and HTML passes, which hash these scripts.
+    for script in DATA_APP_SCRIPTS:
+        version_data_urls(OUTPUT / script)
     for app in ("dictionary", "translate"):
         version_gate_scripts(OUTPUT / app / "gate.js")
     visited_css = set()

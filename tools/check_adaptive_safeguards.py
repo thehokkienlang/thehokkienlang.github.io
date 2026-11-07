@@ -210,7 +210,7 @@ def bridge(folder):
 
 
 def main():
-    watched = list((ROOT / 'data').glob('*.tsv')) + list((ROOT / 'tests/fixtures').glob('*baseline*.json')) + [ROOT / 'public/data/hokkien-hanri-dict.json']
+    watched = list((ROOT / 'data').glob('*.tsv')) + list((ROOT / 'tests/fixtures').glob('*baseline*.json')) + [ROOT / 'public/data' / name for name in ('hokkien-hanri-dict.json', 'hokkien-hanri-dict-runtime.json', 'hokkien-hanri-dict-indexes.json')]
     hashes = {p: hashlib.sha256(p.read_bytes()).digest() for p in watched}
     shared_cases()
     with tempfile.TemporaryDirectory(prefix='tangliengim-exodus-ii-') as temporary:

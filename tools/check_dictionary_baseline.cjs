@@ -4,6 +4,7 @@ const crypto = require('node:crypto');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const { loadDictionaryData } = require('./dictionary_data.cjs');
 
 const root = path.resolve(__dirname, '..');
 const jsonPath = path.join(root, 'public/data/hokkien-hanri-dict.json');
@@ -124,7 +125,7 @@ function firstDifference(expected, actual) {
 }
 
 function main() {
-  const data = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+  const data = loadDictionaryData(jsonPath);
   for (const [source, hash] of [
     [data.source, data.sourceSha256],
     [data.idRegistrySource, data.idRegistrySourceSha256],
@@ -137,7 +138,7 @@ function main() {
   const actual = snapshot(data);
   const beforeIndex = process.argv.indexOf('--compare-before');
   if (beforeIndex !== -1) {
-    const before = JSON.parse(fs.readFileSync(process.argv[beforeIndex + 1], 'utf8'));
+    const before = loadDictionaryData(process.argv[beforeIndex + 1]);
     const previous = snapshot(before);
     for (const name of ['entries', 'entryIdentity', 'categories', 'runtime', 'counts', 'skippedRows']) {
       assert.equal(actual.jsonSections[name], previous.jsonSections[name], `Unrelated migration regression: ${name}`);

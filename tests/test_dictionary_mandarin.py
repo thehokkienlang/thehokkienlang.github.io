@@ -8,6 +8,7 @@ import unittest
 from tools.complete_mandarin_lookup import completed_rows, review_report
 from tools.dictionary_schema import DICTIONARY_COLUMNS, is_comment_row, resolve_dictionary_record
 from tools.tangliengim_collation import row_sort_key
+from tools.dictionary_data import load_dictionary_data
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -53,7 +54,7 @@ class MandarinLookupTests(unittest.TestCase):
         self.assertEqual(resolve_dictionary_record(enriched)['entry_id'], record['entry_id'])
 
     def test_runtime_metadata_and_indexes(self):
-        data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
+        data = load_dictionary_data(ROOT / 'public/data/hokkien-hanri-dict.json')
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: resolve_dictionary_record(row) for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
         self.assertEqual(data['columns'], list(DICTIONARY_COLUMNS))
@@ -72,7 +73,7 @@ class MandarinLookupTests(unittest.TestCase):
         self.assertIn('U+4ECA_U+4ED4_U+65E5_00', data['indexes']['byMandarinTrad']['今天'])
 
     def test_second_pass_searches_keep_source_identity(self):
-        data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
+        data = load_dictionary_data(ROOT / 'public/data/hokkien-hanri-dict.json')
         for trad, simp, headword in (
             ('計較', '计较', '計較'), ('繼續', '继续', '繼續'),
             ('鑰匙', '钥匙', '鎖匙'), ('去年', '去年', '舊年'),
@@ -84,7 +85,7 @@ class MandarinLookupTests(unittest.TestCase):
 
     def test_reviewed_english_corrections_reach_runtime_and_metadata(self):
         audit = json.loads((ROOT / 'docs/english-gloss-corrections.json').read_text(encoding='utf-8'))['corrections']
-        data = json.loads((ROOT / 'public/data/hokkien-hanri-dict.json').read_text(encoding='utf-8'))
+        data = load_dictionary_data(ROOT / 'public/data/hokkien-hanri-dict.json')
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
         archived = source_records('dictionary_defunct.tsv')

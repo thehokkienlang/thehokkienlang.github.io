@@ -1,4 +1,15 @@
 const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+// Filled with content hashes by tools/build_site.py; unbuilt checkouts revalidate.
+const DATA_VERSIONS = {};
+
+async function fetchDictionaryJson(url) {
+  const version = DATA_VERSIONS[url];
+  const response = await (version ? fetch(`${url}?v=${version}`) : fetch(url, { cache: "no-cache" }));
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json();
+}
 const siteText = window.TliSiteLanguage?.text || (value => value);
 const RESULTS_PER_PAGE = 10;
 const ImeCore = window.TangliengimImeCore;
@@ -596,11 +607,7 @@ function setInputMode(mode) {
 
 async function loadDictionary() {
   try {
-    const response = await fetch(DATA_URL, { cache: "no-cache" });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    const data = await response.json();
+    const data = await fetchDictionaryJson(DATA_URL);
     await searchImeController.preferences.ready;
     state.entries = data.entries || [];
     state.dictionaryIndex = createDictionaryIndex(state.entries);

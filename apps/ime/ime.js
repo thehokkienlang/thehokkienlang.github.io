@@ -1,4 +1,17 @@
 const DATA_URL = "/public/data/hokkien-hanri-dict.json";
+// Audio and Lomari maps; only the IME and translator need them.
+const RUNTIME_URL = "/public/data/hokkien-hanri-dict-runtime.json";
+// Filled with content hashes by tools/build_site.py; unbuilt checkouts revalidate.
+const DATA_VERSIONS = {};
+
+async function fetchDictionaryJson(url) {
+  const version = DATA_VERSIONS[url];
+  const response = await (version ? fetch(`${url}?v=${version}`) : fetch(url, { cache: "no-cache" }));
+  if (!response.ok) {
+    throw new Error(`HTTP ${response.status}`);
+  }
+  return response.json();
+}
 const siteText = window.TliSiteLanguage?.text || (value => value);
 
 const imeText = document.querySelector("#imeText");
@@ -366,17 +379,14 @@ function setSandhiMode(mode) {
 
 async function loadDictionary() {
   try {
-    const response = await fetch(DATA_URL, { cache: "no-cache" });
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
-    }
-    const data = await response.json();
+    const [data, runtimeData] = await Promise.all([fetchDictionaryJson(DATA_URL), fetchDictionaryJson(RUNTIME_URL)]);
+    const runtime = runtimeData.runtime || {};
     await imeController.preferences.ready;
     setEntries(data.entries || []);
-    state.unitRoman = new Map(Object.entries(data.runtime?.unitRoman || {}));
-    state.rawHangulAudio = new Map(Object.entries(data.runtime?.rawHangulAudio || {}));
-    state.jamoLomari = new Map(Object.entries(data.runtime?.jamoLomari || {}));
-    state.jamoAudio = new Map(Object.entries(data.runtime?.jamoAudio || {}));
+    state.unitRoman = new Map(Object.entries(runtime.unitRoman || {}));
+    state.rawHangulAudio = new Map(Object.entries(runtime.rawHangulAudio || {}));
+    state.jamoLomari = new Map(Object.entries(runtime.jamoLomari || {}));
+    state.jamoAudio = new Map(Object.entries(runtime.jamoAudio || {}));
     imeController.setEntries(state.entries, dictionaryIndex);
     updateImePresentation();
     // A successful load is the normal state, so keep the toolbar quiet.
