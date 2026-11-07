@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import json
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -64,6 +65,48 @@ class WebsiteEditorTests(unittest.TestCase):
         self.assertTrue(all(row["entry_id"] in active for row in snapshot["categories"]["memberships"]))
         self.assertTrue(all(row["entry_id"] in active for row in snapshot["priorities"]["rows"]))
         self.assertTrue(all(row["target_entry_id"] in active for row in snapshot["references"]["rows"]))
+
+    def test_song_renderer_generates_grey_parentheses_ruby_and_lomari(self):
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "릐호", "titleSource": "릐호",
+            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+            "lyrics": [{"kind": "line", "text": "릐호", "grey": True}],
+        })
+        self.assertEqual(result["route"], "/songs/릐호/")
+        self.assertIn('font-size: 1em;color:gray', result["body"])
+        self.assertIn("(li", result["body"])
+        self.assertIn("호)", result["body"])
+        self.assertIn("youtube.com/embed/HNYkSBkQ33Y", result["body"])
+
+    def test_structured_song_save_updates_all_canonical_registries(self):
+        with tempfile.TemporaryDirectory() as folder:
+            initial, _ = self.fixture(folder)
+            repo = initial.repo
+            (repo / "desktop").mkdir()
+            (repo / "data").mkdir()
+            (repo / "content/songs").mkdir(parents=True)
+            (repo / "migration").mkdir()
+            shutil.copy2(ROOT / "desktop/hokkien_tone_marker_gui.py", repo / "desktop/hokkien_tone_marker_gui.py")
+            shutil.copy2(ROOT / "data/hokkien_hanri_dict.tsv", repo / "data/hokkien_hanri_dict.tsv")
+            (repo / "content/song-categories.json").write_text(json.dumps([{
+                "id": "modern", "labels": {"en": "Modern"}, "routes": [],
+            }]), encoding="utf-8")
+            (repo / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
+            (repo / "migration/wordpress-map.json").write_text(json.dumps({"records": []}), encoding="utf-8")
+            service = WebsiteEditorService(repo)
+            snapshot = service.song_editor_snapshot()
+            saved = service.save_song("", "", snapshot["categoryRevision"], snapshot["urlRevision"],
+                                      snapshot["manifestRevision"], {
+                "title": "릐호", "titleSource": "릐호", "videoUrl": "HNYkSBkQ33Y", "category": "modern",
+                "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
+            })
+            record = json.loads((repo / saved["file"]).read_text(encoding="utf-8"))
+            self.assertEqual(record["route"], "/songs/릐호/")
+            self.assertEqual(record["songEditor"]["lyrics"][0]["text"], "릐호")
+            self.assertIn(record["route"], json.loads((repo / "content/song-categories.json").read_text())[0]["routes"])
+            self.assertEqual(json.loads((repo / "migration/song-urls.json").read_text())[0]["new_url"], record["route"])
+            self.assertEqual(json.loads((repo / "migration/wordpress-map.json").read_text())["records"][0]["file"], saved["file"])
 
 
 if __name__ == "__main__":

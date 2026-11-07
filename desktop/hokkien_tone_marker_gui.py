@@ -3051,12 +3051,16 @@ def convert_to_lomari_ruby_below(input_sentence: str) -> str:
     )
 
 
-def make_song_block(core_html: str, lomari: str) -> str:
+def make_song_block(core_html: str, lomari: str, *, grey: bool = False) -> str:
     """Return combined Hangul + smaller Lomari HTML block."""
     escaped_lomari = lomari.replace("--", "&#045;&#045;")
+    if grey:
+        core_html = f"({core_html})"
+        escaped_lomari = f"({escaped_lomari})"
+    main_style = "display: block;font-size: 1em" + (";color:gray" if grey else "")
     return (
         "<p style='font-family:Sans-serif, Noto Sans TC'>\n"
-        "  <span style=\"display: block;font-size: 1em\">\n"
+        f"  <span style=\"{main_style}\">\n"
         f"    {core_html}\n"
         "  </span>\n"
         "  <span style=\"display: block;font-size: 0.7em;color: gray;"
@@ -3067,7 +3071,7 @@ def make_song_block(core_html: str, lomari: str) -> str:
     )
 
 
-def make_multiline_song_html(source_text: str) -> tuple[str, str]:
+def make_multiline_song_html(source_text: str, *, grey: bool = False) -> tuple[str, str]:
     """Render each non-empty lyric line as its own song <p> block."""
     lines = [line.strip() for line in str(source_text or '').splitlines() if line.strip()]
     if not lines:
@@ -3083,7 +3087,7 @@ def make_multiline_song_html(source_text: str) -> tuple[str, str]:
             include_lomari_title=False,
             use_wiktionary=False,
         )
-        html, lomari = wrap_core_html(core, "song", line)
+        html, lomari = wrap_core_html(core, "song", line, song_grey=grey)
         if numbered:
             html = f"<!-- #{index} -->\n{html}"
         html_blocks.append(html)
@@ -3185,7 +3189,7 @@ def make_novel_first_line_block(core_html: str, lomari: str) -> str:
     )
 
 
-def wrap_core_html(core_html: str, style: str, source_text: str = "") -> tuple[str, str]:
+def wrap_core_html(core_html: str, style: str, source_text: str = "", *, song_grey: bool = False) -> tuple[str, str]:
     """
     Wrap an already-converted Hangul HTML fragment.
 
@@ -3204,7 +3208,7 @@ def wrap_core_html(core_html: str, style: str, source_text: str = "") -> tuple[s
     elif style == "song":
         reading_for_lomari = mixed_sentence_to_hangul_reading(source_text)
         lomari = auto_lomari_from_hangul(reading_for_lomari)
-        html = make_song_block(core_html, lomari)
+        html = make_song_block(core_html, lomari, grey=song_grey)
     elif style == "lomari_next_line":
         reading_for_lomari = mixed_sentence_to_hangul_reading(source_text)
         lomari = auto_lomari_from_hangul(reading_for_lomari)
@@ -3222,7 +3226,7 @@ def wrap_core_html(core_html: str, style: str, source_text: str = "") -> tuple[s
     return nowrap_after_annotation(html), lomari
 
 
-def convert_hangul_to_html(input_text: str, style: str = "plain") -> dict:
+def convert_hangul_to_html(input_text: str, style: str = "plain", *, song_grey: bool = False) -> dict:
     """
     Convert Hangul / Hanri-Hangul text to HTML.
 
@@ -3241,7 +3245,7 @@ def convert_hangul_to_html(input_text: str, style: str = "plain") -> dict:
     s = normalize_apostrophes(s)
     s = sandhi_raw_hangul_before_explicit_hyphen(s)
     if style == "song":
-        html, lomari = make_multiline_song_html(s)
+        html, lomari = make_multiline_song_html(s, grey=song_grey)
         return {
             "input": s,
             "core": html,
@@ -3281,7 +3285,7 @@ def convert_hangul_to_html(input_text: str, style: str = "plain") -> dict:
         include_lomari_title=(style not in {"plain", "song"}),
         use_wiktionary=False,
     )
-    html, lomari = wrap_core_html(core, style, s)
+    html, lomari = wrap_core_html(core, style, s, song_grey=song_grey)
 
     return {
         "input": s,

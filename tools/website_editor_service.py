@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import html as html_lib
 import json
 import os
 import re
@@ -9,7 +10,9 @@ import subprocess
 import sys
 import tempfile
 import unicodedata
+from datetime import datetime
 from pathlib import Path
+from urllib.parse import parse_qs, urlsplit
 
 from assign_dictionary_entry_ids import _atomic_write
 from dictionary_editor_service import EditorError, MAIN, read_table, table_bytes
@@ -52,6 +55,33 @@ class WebsiteEditorService:
         self.repo = Path(repo).resolve()
         self.content = self.repo / CONTENT_ROOT
         self.data = self.repo / "data"
+        self._song_converter = None
+        self._song_converter_stamp = None
+
+    def _tone_marker(self):
+        path = self.repo / "desktop" / "hokkien_tone_marker_gui.py"
+        dictionary = self.data / MAIN
+        stamp = (path.stat().st_mtime_ns, dictionary.stat().st_mtime_ns)
+        if self._song_converter is None or self._song_converter_stamp != stamp:
+            import importlib.util
+            name = "tangliengim_song_editor_tone_marker"
+            previous = os.environ.get("HOKKIEN_HANRI_DICT_PATH")
+            os.environ["HOKKIEN_HANRI_DICT_PATH"] = str(dictionary)
+            try:
+                spec = importlib.util.spec_from_file_location(name, path)
+                if spec is None or spec.loader is None:
+                    raise WebsiteEditorError("The shared TLI renderer could not be loaded.")
+                module = importlib.util.module_from_spec(spec)
+                sys.modules[name] = module
+                spec.loader.exec_module(module)
+            finally:
+                if previous is None:
+                    os.environ.pop("HOKKIEN_HANRI_DICT_PATH", None)
+                else:
+                    os.environ["HOKKIEN_HANRI_DICT_PATH"] = previous
+            self._song_converter = module
+            self._song_converter_stamp = stamp
+        return self._song_converter
 
     def _inside(self, root: Path, relative: str, *, suffix=None) -> Path:
         if not isinstance(relative, str) or not relative or "\0" in relative:
@@ -186,6 +216,287 @@ class WebsiteEditorService:
         _atomic_write(path, output)
         return {'ok': True, 'revision': digest(output), 'timing': clean,
                 'message': 'Lyric timings saved locally. Nothing was committed or pushed.'}
+
+    @staticmethod
+    def _json_bytes(value) -> bytes:
+        return (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
+
+    def _song_support_files(self):
+        return (
+            self.content / "song-categories.json",
+            self.repo / "migration" / "song-urls.json",
+            self.repo / "migration" / "wordpress-map.json",
+        )
+
+    def _song_categories(self):
+        path, _, _ = self._song_support_files()
+        raw, categories = path.read_bytes(), json.loads(path.read_text(encoding="utf-8"))
+        if not isinstance(categories, list):
+            raise WebsiteEditorError("Song categories are not valid JSON data.")
+        return raw, categories
+
+    def song_editor_snapshot(self):
+        category_raw, categories = self._song_categories()
+        _, urls_path, manifest_path = self._song_support_files()
+        songs = []
+        for path in sorted((self.content / "songs").glob("*.json")):
+            try:
+                raw, record = self._load_json(path)
+            except WebsiteEditorError:
+                continue
+            if record.get("type") != "songs" or not isinstance(record.get("songEditor"), dict):
+                continue
+            songs.append({
+                "file": path.relative_to(self.repo).as_posix(),
+                "revision": digest(raw),
+                "title": record.get("title", path.stem),
+                "route": record.get("route", ""),
+            })
+        labels = [{"id": row.get("id", ""), "label": row.get("labels", {}).get("en", row.get("id", ""))}
+                  for row in categories]
+        return {
+            "ok": True,
+            "songs": songs,
+            "categories": labels,
+            "categoryRevision": digest(category_raw),
+            "urlRevision": digest(urls_path.read_bytes()),
+            "manifestRevision": digest(manifest_path.read_bytes()),
+        }
+
+    def song_editor_song(self, relative):
+        path = self._inside(self.content / "songs", relative, suffix=".json")
+        if not path.is_file():
+            raise WebsiteEditorError("This song no longer exists. Reload the song list.", code="stale")
+        raw, record = self._load_json(path)
+        draft = record.get("songEditor")
+        if not isinstance(draft, dict) or draft.get("version") != 1:
+            raise WebsiteEditorError(
+                "This legacy song has no structured authoring source. Edit it in Website Pages to avoid a lossy conversion.")
+        return {
+            "ok": True,
+            "file": path.relative_to(self.repo).as_posix(),
+            "revision": digest(raw),
+            "route": record.get("route", ""),
+            "draft": draft,
+        }
+
+    @staticmethod
+    def _youtube_id(value):
+        text = str(value or "").strip()
+        if re.fullmatch(r"[A-Za-z0-9_-]{11}", text):
+            return text
+        try:
+            parsed = urlsplit(text)
+        except ValueError:
+            return None
+        host = parsed.netloc.lower().removeprefix("www.")
+        candidate = ""
+        if host == "youtu.be":
+            candidate = parsed.path.strip("/").split("/", 1)[0]
+        elif host in {"youtube.com", "m.youtube.com", "music.youtube.com"}:
+            if parsed.path == "/watch":
+                candidate = parse_qs(parsed.query).get("v", [""])[0]
+            else:
+                parts = parsed.path.strip("/").split("/")
+                if len(parts) >= 2 and parts[0] in {"embed", "shorts", "live"}:
+                    candidate = parts[1]
+        return candidate if re.fullmatch(r"[A-Za-z0-9_-]{11}", candidate) else None
+
+    def _normalize_song_draft(self, draft, *, existing_route=""):
+        if not isinstance(draft, dict):
+            raise WebsiteEditorError("Song data must be an object.")
+        title = self._plain(draft.get("title"), "Song title", required=True)
+        if len(title) > 160 or any(char in title for char in "/\\?#"):
+            raise WebsiteEditorError("Song title is too long or contains a route separator.")
+        title_source = self._plain(draft.get("titleSource"), "TLI title", required=True)
+        if len(title_source) > 500:
+            raise WebsiteEditorError("TLI title is too long.")
+        video_url = self._plain(draft.get("videoUrl"), "YouTube link", required=True)
+        video_id = self._youtube_id(video_url)
+        if not video_id:
+            raise WebsiteEditorError("Enter a valid YouTube video link or video ID.")
+        _, categories = self._song_categories()
+        category = self._plain(draft.get("category"), "Song category", required=True)
+        if category not in {row.get("id") for row in categories}:
+            raise WebsiteEditorError("Choose an existing song category.")
+        raw_lyrics = draft.get("lyrics")
+        if not isinstance(raw_lyrics, list) or len(raw_lyrics) > 600:
+            raise WebsiteEditorError("Lyrics must be a list of at most 600 rows.")
+        lyrics = []
+        for item in raw_lyrics:
+            if not isinstance(item, dict):
+                raise WebsiteEditorError("Each lyric row must be structured data.")
+            if item.get("kind") == "break":
+                if lyrics and lyrics[-1].get("kind") != "break":
+                    lyrics.append({"kind": "break"})
+                continue
+            text = self._plain(item.get("text"), "Lyric line", required=True)
+            if len(text) > 1200:
+                raise WebsiteEditorError("A lyric line is too long.")
+            lyrics.append({"kind": "line", "text": text, "grey": bool(item.get("grey"))})
+        while lyrics and lyrics[-1].get("kind") == "break":
+            lyrics.pop()
+        if not any(item.get("kind") == "line" for item in lyrics):
+            raise WebsiteEditorError("Add at least one lyric line.")
+        route_title = re.sub(r"\s+", "", title)
+        route = existing_route or f"/songs/{route_title}/"
+        return {
+            "version": 1,
+            "title": title,
+            "titleSource": title_source,
+            "videoUrl": f"https://www.youtube.com/watch?v={video_id}",
+            "category": category,
+            "lyrics": lyrics,
+        }, route, video_id
+
+    @staticmethod
+    def _youtube_embed(video_id):
+        safe = html_lib.escape(video_id, quote=True)
+        return (
+            '<figure class="wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube '
+            'wp-embed-aspect-16-9 wp-has-aspect-ratio"><div class="wp-block-embed__wrapper">\n'
+            '<span class="embed-youtube" style="text-align:center; display: block;">'
+            f'<iframe loading="lazy" class="youtube-player" width="640" height="360" '
+            f'src="https://www.youtube.com/embed/{safe}?version=3&amp;rel=1&amp;showsearch=0&amp;showinfo=1'
+            '&amp;iv_load_policy=1&amp;fs=1&amp;hl=en&amp;autohide=2&amp;wmode=transparent" '
+            'allowfullscreen="true" style="border:0;" sandbox="allow-scripts allow-same-origin '
+            'allow-popups allow-presentation allow-popups-to-escape-sandbox"></iframe></span>\n'
+            '</div></figure>'
+        )
+
+    def render_song_draft(self, draft, *, existing_route=""):
+        clean, route, video_id = self._normalize_song_draft(draft, existing_route=existing_route)
+        converter = self._tone_marker()
+        try:
+            title_html = converter.convert_hangul_to_html(clean["titleSource"], "title")["html"]
+            visible_title = converter.visible_source_for_lomari_next_line(clean["titleSource"])
+            comparable = lambda value: re.sub(r"[\s’']+", "", unicodedata.normalize("NFC", value))
+            if comparable(visible_title) != comparable(clean["title"]):
+                raise WebsiteEditorError("The visible TLI title must match the song title.")
+            blocks = []
+            for item in clean["lyrics"]:
+                if item["kind"] == "break":
+                    blocks.append("<br>")
+                else:
+                    blocks.append(converter.convert_hangul_to_html(
+                        item["text"], "song", song_grey=item["grey"])["html"])
+        except WebsiteEditorError:
+            raise
+        except Exception as error:
+            raise WebsiteEditorError(f"TLI rendering failed: {error}") from error
+        content_blocks = [
+            self._youtube_embed(video_id),
+            '<h3 class="wp-block-heading">漢諺混寫 Hanri-Hangul mixed script</h3>',
+            *blocks,
+        ]
+        preview_body = "\n\n\n".join(content_blocks) + "\n"
+        body = f'<h2 class="wp-block-heading">{title_html}</h2>\n\n\n' + preview_body
+        return {"ok": True, "draft": clean, "route": route, "videoId": video_id,
+                "titleHtml": title_html, "previewBody": preview_body, "body": body}
+
+    def _next_song_identity(self):
+        values = []
+        for path in (self.content / "songs").glob("song-*.json"):
+            match = re.fullmatch(r"song-(\d+)\.json", path.name)
+            if match:
+                values.append(int(match.group(1)))
+        identity = max(values, default=0) + 1
+        while (self.content / "songs" / f"song-{identity}.json").exists():
+            identity += 1
+        return identity
+
+    def save_song(self, relative, revision, category_revision, url_revision, manifest_revision, draft):
+        existing = None
+        path = None
+        existing_route = ""
+        if relative:
+            path = self._inside(self.content / "songs", relative, suffix=".json")
+            raw, existing = self._load_json(path)
+            if digest(raw) != revision:
+                raise WebsiteEditorError("This song changed outside the editor. Reload before saving.", code="stale")
+            if not isinstance(existing.get("songEditor"), dict):
+                raise WebsiteEditorError("Legacy HTML-only songs cannot be overwritten by the structured editor.")
+            existing_route = existing.get("route", "")
+        rendered = self.render_song_draft(draft, existing_route=existing_route)
+        clean, route, body = rendered["draft"], rendered["route"], rendered["body"]
+        category_path, urls_path, manifest_path = self._song_support_files()
+        category_raw, url_raw, manifest_raw = (category_path.read_bytes(), urls_path.read_bytes(), manifest_path.read_bytes())
+        if (digest(category_raw) != category_revision or digest(url_raw) != url_revision or
+                digest(manifest_raw) != manifest_revision):
+            raise WebsiteEditorError("Song categories or route data changed outside this window. Reload first.", code="stale")
+        categories, urls, manifest = (json.loads(category_raw), json.loads(url_raw), json.loads(manifest_raw))
+        for other in (self.content / "songs").glob("*.json"):
+            if path and other.resolve() == path.resolve():
+                continue
+            try:
+                other_record = json.loads(other.read_text(encoding="utf-8"))
+            except (UnicodeError, json.JSONDecodeError):
+                continue
+            if other_record.get("route") == route:
+                raise WebsiteEditorError("Another song already uses this title and website route.")
+
+        is_new = existing is None
+        if is_new:
+            source_id = self._next_song_identity()
+            identity = f"song-{source_id}"
+            path = self.content / "songs" / f"{identity}.json"
+            source_url = "https://thehokkienlang.github.io" + route
+            record = {"id": identity, "type": "songs", "language": "en", "sourceId": source_id,
+                      "sourceUrl": source_url}
+        else:
+            record = dict(existing)
+            source_id = record["sourceId"]
+            source_url = record["sourceUrl"]
+        record.update({
+            "title": clean["title"],
+            "originalTitle": clean["title"] + " 諺文歌詞",
+            "route": route,
+            "sourceModified": datetime.now().astimezone().isoformat(timespec="seconds"),
+            "orthography": {"target": "3.2", "review": "structured-song-editor"},
+            "body": body,
+            "songEditor": clean,
+        })
+        record["sourceSha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
+
+        for category in categories:
+            category["routes"] = [value for value in category.get("routes", []) if value != route]
+        target_category = next(row for row in categories if row.get("id") == clean["category"])
+        target_category.setdefault("routes", []).append(route)
+        if is_new:
+            urls.append({"old_url": source_url, "new_url": route})
+            manifest.setdefault("records", []).append({
+                "sourceUrl": source_url, "sourceId": source_id, "route": route,
+                "file": path.relative_to(self.repo).as_posix(),
+            })
+        elif not any(row.get("file") == path.relative_to(self.repo).as_posix() for row in manifest.get("records", [])):
+            raise WebsiteEditorError("The song is missing from the website content manifest.")
+
+        outputs = {
+            path: self._json_bytes(record),
+            category_path: self._json_bytes(categories),
+            urls_path: self._json_bytes(urls),
+            manifest_path: self._json_bytes(manifest),
+        }
+        changed = []
+        for target, output in outputs.items():
+            before = target.read_bytes() if target.exists() else b""
+            if before != output:
+                _atomic_write(target, output)
+                changed.append(target.relative_to(self.repo).as_posix())
+        return {
+            "ok": True,
+            "file": path.relative_to(self.repo).as_posix(),
+            "revision": digest(outputs[path]),
+            "categoryRevision": digest(outputs[category_path]),
+            "urlRevision": digest(outputs[urls_path]),
+            "manifestRevision": digest(outputs[manifest_path]),
+            "route": route,
+            "draft": clean,
+            "body": body,
+            "changedPaths": changed,
+            "publishPaths": [target.relative_to(self.repo).as_posix() for target in outputs],
+            "message": f'Saved {clean["title"]} locally. Nothing was pushed yet.',
+        }
 
     def table_snapshot(self) -> dict:
         entries, by_id = self.entries()

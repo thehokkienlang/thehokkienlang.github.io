@@ -431,11 +431,13 @@ def main() -> None:
     assert all(route in hub_html for route in (
         'href="/website-editor/"',
         'href="/editor/"',
+        'href="/website-editor/song-editor.html"',
         'href="/website-editor/lyric-timing.html"',
     ))
     for editor_page in (
         ROOT / "desktop" / "website_editor_ui" / "index.html",
         ROOT / "desktop" / "dictionary_editor_ui" / "index.html",
+        ROOT / "desktop" / "website_editor_ui" / "song-editor.html",
         ROOT / "desktop" / "website_editor_ui" / "lyric-timing.html",
     ):
         assert 'href="/editors/"' in editor_page.read_text(encoding="utf-8"), editor_page

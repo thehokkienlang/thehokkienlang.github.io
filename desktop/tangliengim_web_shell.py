@@ -380,7 +380,7 @@ def _safe_repo_file(repo_root: Path, request_path: str) -> Path | None:
         relative = Path("desktop") / "dictionary_editor_ui" / suffix
     elif path.startswith("/website-editor/"):
         suffix = path.removeprefix("/website-editor/") or "index.html"
-        if suffix not in {"index.html", "website-editor.css", "website-editor.js", "lyric-timing.html", "lyric-timing.js", "lyric-timing.css", "lyric-companion.js", "youtube-setup.html"}:
+        if suffix not in {"index.html", "website-editor.css", "website-editor.js", "song-editor.html", "song-editor.js", "song-editor.css", "lyric-timing.html", "lyric-timing.js", "lyric-timing.css", "lyric-companion.js", "youtube-setup.html"}:
             return None
         relative = Path("desktop") / "website_editor_ui" / suffix
     elif path.startswith("/preview-assets/"):
@@ -510,6 +510,7 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             data = data.replace(b'</head>', b'<script src="/desktop/editor-lifetime.js" defer></script>\n</head>')
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',
                       self.server.repo_root / 'desktop/website_editor_ui/index.html',
+                      self.server.repo_root / 'desktop/website_editor_ui/song-editor.html',
                       self.server.repo_root / 'desktop/website_editor_ui/lyric-timing.html'):
             data = data.replace(b'__EDITOR_TOKEN__', self.server.editor_token.encode())
         if target in (self.server.repo_root / 'desktop/dictionary_editor_ui/index.html',

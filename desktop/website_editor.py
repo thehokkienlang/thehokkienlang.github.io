@@ -95,6 +95,20 @@ class WebsiteEditorController:
         if action == "save-lyric-timing":
             return self.service.save_lyric_timing(payload.get('file'), payload.get('sourceRevision'),
                                                   payload.get('revision'), payload.get('timing'))
+        if action == "song-editor-snapshot":
+            return self.service.song_editor_snapshot()
+        if action == "song-editor-song":
+            return self.service.song_editor_song(payload.get("file"))
+        if action == "render-song":
+            return self.service.render_song_draft(payload.get("draft"), existing_route=payload.get("route") or "")
+        if action == "save-song":
+            return self.service.save_song(
+                payload.get("file"), payload.get("revision"), payload.get("categoryRevision"),
+                payload.get("urlRevision"), payload.get("manifestRevision"), payload.get("draft"),
+            )
+        if action == "publish-song":
+            return self.start_job("publish-song", lambda progress: self._publish_song(
+                payload.get("paths"), payload.get("title"), progress))
         if action == "validate-page":
             title, body = self.service.validate_page_fields(payload.get("title"), payload.get("body"))
             return {"ok": True, "title": title, "body": body, "message": "Draft fields are valid and ready to preview."}
@@ -132,6 +146,22 @@ class WebsiteEditorController:
     def _push(self, progress):
         progress("Pushing the current branch to GitHub")
         return self.service.push()
+
+    def _publish_song(self, paths, title, progress):
+        if not isinstance(paths, list):
+            raise WebsiteEditorError("Save the song before publishing it.")
+        validation = self.validate("site", progress)
+        changed = {item["path"] for item in self.service.changes()["files"]}
+        selected = [path for path in paths if path in changed]
+        if not selected:
+            raise WebsiteEditorError("This song has no unpublished source changes.")
+        clean_title = self.service._plain(title, "Song title", required=True)
+        progress("Committing the validated song source")
+        committed = self.service.commit(f"Publish song: {clean_title}", selected, validation["fingerprint"])
+        progress("Pushing the song to GitHub")
+        pushed = self.service.push()
+        return {"ok": True, "commit": pushed["commit"], "paths": selected,
+                "message": f"Published {clean_title} to GitHub ({committed['commit'][:7]})."}
 
 
 def main():

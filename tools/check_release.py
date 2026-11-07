@@ -26,6 +26,7 @@ JAVASCRIPT_FILES = (
     "desktop/editor_lifetime.js",
     "desktop/dictionary_editor_ui/editor.js",
     "desktop/website_editor_ui/website-editor.js",
+    "desktop/website_editor_ui/song-editor.js",
     "desktop/website_editor_ui/lyric-timing.js",
     "desktop/website_editor_ui/lyric-companion.js",
     "desktop/youtube_companion/background.js",

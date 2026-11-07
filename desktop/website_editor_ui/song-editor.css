@@ -1,0 +1,43 @@
+.song-editor-shell { display:grid; grid-template-columns:230px minmax(460px,1fr) minmax(380px,.9fr); min-height:calc(100vh - 74px); background:#fff; }
+.song-browser { min-width:0; padding:16px; border-right:1px solid var(--line); background:#f8fafa; }
+.song-browser-heading,.lyrics-heading,.song-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.song-browser-heading { margin-bottom:12px; }
+.song-list { margin-top:12px; }
+.song-list button { display:block; width:100%; min-height:0; padding:10px 8px; border:0; border-bottom:1px solid #e6ecee; border-radius:0; text-align:left; background:transparent; }
+.song-list button.active { color:var(--teal); background:#eaf6f3; font-weight:700; }
+.song-list small { display:block; margin-top:3px; overflow:hidden; color:var(--muted); font-size:11px; text-overflow:ellipsis; }
+.song-list-empty { padding:18px 8px; color:var(--muted); font-size:13px; line-height:1.5; }
+.song-form-panel { min-width:0; padding:22px; border-right:1px solid var(--line); }
+.song-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+.song-fields label { display:grid; gap:5px; min-width:0; font-size:13px; font-weight:700; }
+.route-field { grid-column:1/-1; }
+.tli-input-wrap { position:relative; display:block; }
+.tli-input-wrap>.hanri-candidate-menu { max-width:min(520px,calc(100vw - 50px)); }
+.lyrics-heading { margin:28px 0 12px; padding-bottom:10px; border-bottom:3px solid var(--ink); }
+.lyrics-heading h2 { display:inline; font:700 24px Georgia,"Noto Serif TC",serif; }
+.lyrics-heading span { margin-left:9px; color:var(--muted); font-size:12px; }
+.lyrics-actions { display:flex; gap:8px; }
+.lyric-rows { display:grid; gap:6px; }
+.lyric-row { position:relative; display:grid; grid-template-columns:34px minmax(0,1fr) auto auto; gap:8px; align-items:center; padding:8px; border-bottom:1px solid var(--line); }
+.lyric-row-number { color:var(--muted); font-size:12px; text-align:center; }
+.lyric-input-wrap { position:relative; min-width:0; }
+.lyric-input-wrap input { font-size:17px; }
+.line-tools { display:flex; gap:4px; }
+.line-tools button { width:32px; min-height:32px; padding:0; }
+.grey-toggle { display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; white-space:nowrap; }
+.grey-toggle input { appearance:none; position:relative; width:36px; height:22px; padding:0; border:1px solid #aebfbd; border-radius:999px; background:#c7d3d1; cursor:pointer; }
+.grey-toggle input::before { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s ease; }
+.grey-toggle input:checked { border-color:#7d878b; background:#7d878b; }
+.grey-toggle input:checked::before { transform:translateX(14px); }
+.verse-break { display:flex; align-items:center; gap:8px; padding:8px; color:var(--muted); font-size:12px; }
+.verse-break::before,.verse-break::after { content:""; flex:1; border-top:1px dashed #aebbc0; }
+.verse-break button { width:32px; min-height:30px; padding:0; }
+.song-actions { position:sticky; bottom:0; z-index:5; justify-content:flex-start; margin:22px -22px -22px; padding:14px 22px; border-top:1px solid var(--line); background:#fff; }
+.song-actions #songState { margin-left:auto; color:var(--muted); font-size:12px; }
+.publish-progress { margin-top:18px; border:1px solid var(--line); }
+.publish-progress strong { display:block; padding:10px 12px; }
+.publish-progress pre { max-height:240px; margin:0; padding:12px; overflow:auto; color:#dfe9e8; background:#17252b; font:12px/1.5 Consolas,monospace; white-space:pre-wrap; }
+.song-preview-panel { min-width:0; background:#f5f8f8; }
+#songPreview { position:sticky; top:122px; width:100%; height:calc(100vh - 123px); border:0; background:#fff; }
+@media(max-width:1180px) { .song-editor-shell { grid-template-columns:210px 1fr; } .song-preview-panel { grid-column:1/-1; border-top:1px solid var(--line); } #songPreview { position:static; height:650px; } }
+@media(max-width:760px) { .song-editor-shell { grid-template-columns:1fr; } .song-browser,.song-form-panel { border-right:0; border-bottom:1px solid var(--line); } .song-fields { grid-template-columns:1fr; } .route-field { grid-column:auto; } .lyric-row { grid-template-columns:28px minmax(0,1fr); } .grey-toggle,.line-tools { grid-column:2; } .song-actions { align-items:stretch; flex-wrap:wrap; } .song-actions #songState { width:100%; margin-left:0; } }

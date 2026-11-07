@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="editor-token" content="__EDITOR_TOKEN__">
+  <title>Song Editor · Tangliengim</title>
+  <link rel="stylesheet" href="website-editor.css">
+  <link rel="stylesheet" href="/shared/web-ime-menu.css">
+  <link rel="stylesheet" href="song-editor.css">
+  <script src="/shared/web-hangul-ime.js" defer></script>
+  <script src="/shared/web-ime-core.js" defer></script>
+  <script src="song-editor.js" defer></script>
+</head>
+<body>
+  <header class="cms-header">
+    <div class="identity"><span class="identity-mark" aria-hidden="true">東<br><b>롕</b></span><div><span>THEHOKKIENLANG</span><h1>Song Editor</h1></div></div>
+    <div class="header-status"><a class="editor-hub-link" href="/editors/">← Editors</a><a class="editor-hub-link" href="/website-editor/">Website Editor</a><span class="local-badge">Local only</span></div>
+  </header>
+  <div id="songNotice" class="notice" role="status" aria-live="polite" hidden></div>
+  <main class="song-editor-shell">
+    <aside class="song-browser">
+      <div class="song-browser-heading"><strong>Songs</strong><button id="newSong" type="button">New</button></div>
+      <input id="songFilter" type="search" placeholder="Find songs" autocomplete="off">
+      <div id="songList" class="song-list"></div>
+    </aside>
+    <section class="song-form-panel">
+      <form id="songForm">
+        <div class="song-fields">
+          <label>Song title<input id="songTitle" required autocomplete="off"></label>
+          <label class="tli-field">TLI title
+            <span class="tli-input-wrap"><input id="songTitleSource" required autocomplete="off" spellcheck="false" aria-controls="titleCandidates" aria-autocomplete="list"><span id="titleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
+          </label>
+          <label>YouTube link<input id="songVideo" type="url" required autocomplete="off"></label>
+          <label>Category<select id="songCategory" required></select></label>
+          <label class="route-field">Published route<input id="songRoute" readonly></label>
+        </div>
+        <div class="lyrics-heading"><div><h2>Lyrics</h2><span id="lineCount"></span></div><div class="lyrics-actions"><button id="addLine" type="button">Add line</button><button id="addBreak" type="button">Verse break</button></div></div>
+        <div id="lyricRows" class="lyric-rows"></div>
+      </form>
+      <div class="song-actions"><button id="previewSong" type="button">Refresh preview</button><button id="saveSong" type="button" class="primary">Save locally</button><button id="publishSong" type="button">Publish to GitHub</button><span id="songState"></span></div>
+      <section id="publishProgress" class="publish-progress" hidden><strong id="publishStatus"></strong><pre id="publishLog"></pre></section>
+    </section>
+    <section class="song-preview-panel" aria-label="Song preview">
+      <div class="panel-bar"><strong>Generated website preview</strong><a id="openSong" class="editor-hub-link" target="_blank" rel="noopener" hidden>Open built page</a></div>
+      <iframe id="songPreview" title="Generated song preview" sandbox="allow-same-origin allow-scripts allow-presentation"></iframe>
+    </section>
+  </main>
+</body>
+</html>

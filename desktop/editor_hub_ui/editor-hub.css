@@ -12,11 +12,12 @@ h1 { margin:0; font-size:20px; }
 .hub-intro { display:grid; grid-template-columns:minmax(280px,.9fr) minmax(300px,1.1fr); gap:48px; align-items:end; margin-bottom:34px; }
 .hub-intro h2 { margin:0; font:700 clamp(34px,5vw,54px)/1.08 Georgia,"Noto Serif TC",serif; }
 .hub-intro>p { max-width:620px; margin:0; color:var(--muted); font-size:16px; line-height:1.65; }
-.editor-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); border-top:3px solid var(--ink); border-left:1px solid var(--line); }
+.editor-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); border-top:3px solid var(--ink); border-left:1px solid var(--line); }
 .editor-card { position:relative; display:grid; min-height:280px; align-content:start; gap:13px; padding:28px; border-right:1px solid var(--line); border-bottom:1px solid var(--line); color:inherit; text-decoration:none; background:#fff; }
 .editor-card::before { content:""; position:absolute; inset:0 0 auto; height:4px; background:var(--teal); transform:scaleX(0); transform-origin:left; transition:transform .18s ease; }
 .editor-card.dictionary::before { background:var(--red); }
 .editor-card.lyrics::before { background:var(--gold); }
+.editor-card.songs::before { background:#53698f; }
 .editor-card:hover,.editor-card:focus-visible { background:linear-gradient(145deg,#fff,#edf6f4); }
 .editor-card:hover::before,.editor-card:focus-visible::before { transform:scaleX(1); }
 .editor-card:focus-visible { outline:3px solid #58aaa2; outline-offset:-3px; }
