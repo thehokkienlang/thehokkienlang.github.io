@@ -85,16 +85,17 @@ class SiteAssetVersionsTests(unittest.TestCase):
 
     def test_apps_version_every_data_file_they_fetch(self):
         expected = {
-            "dictionary/app.js": {"/public/data/hokkien-hanri-dict.json"},
-            "ime/ime.js": {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"},
-            "translate/translate.js": {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"},
+            "dictionary/app.js": ("dictionary/app.js", {"/public/data/hokkien-hanri-dict.json"}),
+            "ime/ime.js": ("ime/ime.js", {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"}),
+            "assets/search/search.js": ("search/search.js", {"/public/data/site-search-index.json", "/public/data/hokkien-hanri-dict.json"}),
+            "translate/translate.js": ("translate/translate.js", {"/public/data/hokkien-hanri-dict.json", "/public/data/hokkien-hanri-dict-runtime.json"}),
         }
         self.assertEqual(set(build_site.DATA_APP_SCRIPTS), set(expected))
-        for script, urls in expected.items():
-            text = (ROOT / "apps" / script).read_text(encoding="utf-8")
-            self.assertEqual(len(build_site.DATA_VERSIONS_LINE.findall(text)), 1, script)
-            self.assertEqual({match["url"] for match in build_site.DATA_URL_SOURCE.finditer(text)}, urls, script)
-            self.assertNotIn("indexes.json", text, script)
+        for published_script, (source_script, urls) in expected.items():
+            text = (ROOT / "apps" / source_script).read_text(encoding="utf-8")
+            self.assertEqual(len(build_site.DATA_VERSIONS_LINE.findall(text)), 1, published_script)
+            self.assertEqual({match["url"] for match in build_site.DATA_URL_SOURCE.finditer(text)}, urls, published_script)
+            self.assertNotIn("indexes.json", text, published_script)
 
 
 if __name__ == "__main__":
