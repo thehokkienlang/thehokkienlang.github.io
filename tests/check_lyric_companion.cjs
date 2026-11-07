@@ -206,7 +206,7 @@ async function sharedCandidateChecks() {
 }
 
 async function editorClickChecks() {
-  const elements = new Map(), seeks = [];
+  const elements = new Map(), seeks = [], documentListeners = {};
   const classes = () => {
     const values = new Set();
     return {toggle(name, enabled) { if (enabled) values.add(name); else values.delete(name); },
@@ -225,7 +225,7 @@ async function editorClickChecks() {
   const fixture = {ok: true, title: 'Test', videoId, lines: [0, 1, 2].map(i => ({id: 'line-' + i, label: 'Line ' + i, html: '<p>Line ' + i + '</p>'})),
     timing: {status: 'draft', cues: [{start: 0, end: 5}, {start: 20, end: 25}, {start: null, end: null}]}};
   const document = {getElementById: get, createElement: element, createTextNode: text => ({textContent: text}),
-    addEventListener() {},
+    addEventListener(name, fn) { documentListeners[name] = fn; },
     querySelector: () => ({content: 'test-token'}),
     querySelectorAll: () => get('cueRows').children};
   const context = {document, location: {search: '?file=test', href: 'http://127.0.0.1:61717/website-editor/lyric-timing.html?file=test',
@@ -276,7 +276,7 @@ async function editorClickChecks() {
   get('seekStart').onclick();
   assert.deepEqual(seeks, [20, 0], 'The first sentence can seek to zero.');
   get('seekEnd').onclick();
-  assert.deepEqual(seeks, [20, 0, 5], 'Go to end seeks to the selected sentence end.');
+  assert.deepEqual(seeks, [20, 0, 4.5], 'Go to end seeks half a second before the selected sentence end.');
   rows[1].children[1].onfocus();
   assert.equal(seeks.length, 3, 'Focusing timestamp inputs must not seek.');
   rows[2].children[0].onclick();
@@ -316,6 +316,15 @@ async function editorClickChecks() {
   assert.equal(seeks.length, beforeMark, 'Selecting and marking a sentence must not seek first.');
   assert.equal(rows[1].children[1].value, '00:09.800', 'Mark start uses the current playback time with a 0.2-second reaction-time lead.');
   assert.equal(previousEnd.value, '00:09.700', 'Mark start also leaves the same 0.1-second gap.');
+  get('markStart').disabled = false;
+  let prevented = false;
+  await documentListeners.keydown({key:'r', target:{closest:() => null}, preventDefault() { prevented = true; }});
+  assert.equal(prevented, true, 'R marks the selected start.');
+  prevented = false;
+  await documentListeners.keydown({key:'r', target:{closest:() => ({})}, preventDefault() { prevented = true; }});
+  assert.equal(prevented, false, 'Typing R in an editable field is not intercepted.');
+  await documentListeners.keydown({key:'r', isComposing:true, target:{closest:() => null}, preventDefault() { prevented = true; }});
+  assert.equal(prevented, false, 'IME composition is not interrupted.');
   tick(0, 1);
   assert.equal(get('togglePlayback').textContent, '\u23f8');
   assert.equal(rows[0].classList.contains('playing'), true);
@@ -353,6 +362,8 @@ async function editorClickChecks() {
   assert.equal(rows[0].children[2].value, '00:30.100');
   assert.equal(rows[1].children[1].value, '00:30.200');
   assert.equal(rows[1].children[2].value, '00:30.300');
+  rows[1].children[0].onclick(); get('seekEnd').onclick();
+  assert.equal(seeks.at(-1), 30.2, 'Go to end must not seek before a short sentence starts.');
   assert.equal(rows[2].children[1].value, '', 'Do not invent timings for an untimed line.');
   function draft(index, key, value) {
     const input = rows[index].children[key === 'start' ? 1 : 2];

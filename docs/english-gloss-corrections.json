@@ -850,6 +850,96 @@
       "reason": "User-reviewed lexical sense; whole-word gloss checked and Simplified metadata derived with pinned OpenCC.",
       "source": "",
       "revision": null
+    },
+    {
+      "entry_id": "U+86B5_U+4ED4_00",
+      "hanri": "蚵仔",
+      "reading": "오아2",
+      "old_english": "diminutive suffix",
+      "new_english": "oyster",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+7A97_U+4ED4_00",
+      "hanri": "窗仔",
+      "reading": "탕5아2",
+      "old_english": "diminutive suffix",
+      "new_english": "window",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+86B6_U+4ED4_00",
+      "hanri": "蚶仔",
+      "reading": "함5아2",
+      "old_english": "diminutive suffix",
+      "new_english": "cockle",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+4EAD_U+4ED4_U+8DE4_00",
+      "hanri": "亭仔跤",
+      "reading": "톙아1카1",
+      "old_english": "diminutive suffix",
+      "new_english": "covered arcade; five-foot way",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+7F85_U+99AC_U+5B57_00",
+      "hanri": "羅馬字",
+      "reading": "로마1띠5",
+      "old_english": "horse; character; word",
+      "new_english": "romanisation",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+5C11_U+5E74_U+4EBA_00",
+      "hanri": "少年人",
+      "reading": "ᄉᆤ2롄랑4",
+      "old_english": "year; person; people",
+      "new_english": "young person",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+9EBB_U+6CB9_U+96DE_00",
+      "hanri": "麻油雞",
+      "reading": "뫄유괴1",
+      "old_english": "oil; chicken",
+      "new_english": "sesame-oil chicken",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+516B_U+9EDE_U+6A94_00",
+      "hanri": "八點檔",
+      "reading": "뵣1댬1덩2",
+      "old_english": "eight; point; dot",
+      "new_english": "prime-time TV drama",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+8FAD_U+982D_U+8DEF_00",
+      "hanri": "辭頭路",
+      "reading": "시ᄐᅷ러5",
+      "old_english": "head; road",
+      "new_english": "quit one's job",
+      "reason": "User-reviewed lexical sense (site audit 3.5, 7 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
+      "source": "",
+      "revision": null
     }
   ]
 }

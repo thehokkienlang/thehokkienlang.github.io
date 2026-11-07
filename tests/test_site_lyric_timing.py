@@ -62,11 +62,17 @@ class LyricTimingTests(unittest.TestCase):
 
     def test_ranges_missing_values_and_review_gate(self):
         record = song()
-        for start, end in [(2,1), (-1,2), (1,None), (True,2), (math.nan,2), (1,math.inf)]:
+        for start, end in [(2,1), (-1,2), (True,2), (math.nan,2), (1,math.inf)]:
             data = blank_timing(record); data['cues'][0].update(start=start, end=end)
             with self.subTest(start=start, end=end), self.assertRaises(ValueError): validate_timing(record, data)
         data = blank_timing(record); data['status'] = 'reviewed'
         with self.assertRaisesRegex(ValueError, 'every lyric'): validate_timing(record, data)
+        data['cues'][0].update(start=1, end=None)
+        with self.assertRaisesRegex(ValueError, 'every lyric'): validate_timing(record, data)
+        data['status'] = 'draft'
+        data['cues'][1].update(start=None, end=4)
+        self.assertEqual(validate_timing(record, data)['cues'], data['cues'])
+        data['status'] = 'reviewed'
         data['cues'][0].update(start=10, end=15)
         data['cues'][1].update(start=14, end=20)
         with self.assertRaisesRegex(ValueError, 'overlapping'): validate_timing(record, data)
@@ -122,6 +128,31 @@ class LyricTimingTests(unittest.TestCase):
             self.assertTrue(reloaded['warning'])
             self.assertEqual(reloaded['timing']['status'], 'draft')
             service.save_lyric_timing(reloaded['file'], reloaded['sourceRevision'], reloaded['revision'], reloaded['timing'])
+
+    def test_timing_three_way_merge_and_explicit_conflict(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder); source = root/'content/songs/song-test.json'; source.parent.mkdir(parents=True)
+            source.write_text(json.dumps(song(), ensure_ascii=False), encoding='utf-8')
+            service = WebsiteEditorService(root)
+            opened = service.lyric_timing('content/songs/song-test.json')
+            base = copy.deepcopy(opened['timing'])
+            mine = copy.deepcopy(base); mine['cues'][0].update(start=1, end=2)
+            theirs = copy.deepcopy(base); theirs['cues'][1].update(start=4, end=5)
+            saved = service.save_lyric_timing(opened['file'], opened['sourceRevision'], opened['revision'], theirs)
+            labels = [line['label'] for line in opened['lines']]
+            merged = service.save_lyric_timing(opened['file'], opened['sourceRevision'], opened['revision'], mine, base, labels)
+            self.assertEqual([(c['start'], c['end']) for c in merged['timing']['cues']], [(1, 2), (4, 5)])
+            fresh = service.lyric_timing(opened['file']); base = copy.deepcopy(fresh['timing'])
+            theirs = copy.deepcopy(base); theirs['cues'][0]['end'] = 2.5
+            service.save_lyric_timing(fresh['file'], fresh['sourceRevision'], fresh['revision'], theirs)
+            mine = copy.deepcopy(base); mine['cues'][0]['end'] = 3
+            conflict = service.save_lyric_timing(fresh['file'], fresh['sourceRevision'], fresh['revision'], mine, base, labels)
+            self.assertTrue(conflict['conflict'])
+            self.assertEqual(service.lyric_timing(fresh['file'])['timing']['cues'][0]['end'], 2.5)
+            result = service.save_lyric_timing(fresh['file'], fresh['sourceRevision'], fresh['revision'], mine, base, labels, conflict['revision'])
+            self.assertEqual(result['timing']['cues'][0]['end'], 3)
+            source.write_text(source.read_text(encoding='utf-8') + '\n', encoding='utf-8')
+            self.assertTrue(service.save_lyric_timing(fresh['file'], result['sourceRevision'], result['revision'], result['timing'], result['timing'], labels)['ok'])
 
     def test_published_sidecars_match_authored_lyrics(self):
         for identity, count in (('song-11533', 24), ('song-8502', 24), ('song-192', 32), ('song-5643', 56), ('song-231', 40), ('song-9996', 22), ('song-10032', 41)):

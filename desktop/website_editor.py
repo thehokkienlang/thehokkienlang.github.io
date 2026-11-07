@@ -94,7 +94,8 @@ class WebsiteEditorController:
             return self.service.lyric_timing(payload.get("file"))
         if action == "save-lyric-timing":
             return self.service.save_lyric_timing(payload.get('file'), payload.get('sourceRevision'),
-                                                  payload.get('revision'), payload.get('timing'))
+                                                  payload.get('revision'), payload.get('timing'), payload.get('base'),
+                                                  payload.get('labels'), payload.get('overwriteRevision'))
         if action == "song-editor-snapshot":
             return self.service.song_editor_snapshot()
         if action == "song-editor-song":

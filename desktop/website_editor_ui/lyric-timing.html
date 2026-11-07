@@ -15,6 +15,7 @@
   <script src="lyric-timing.js" defer></script>
 </head>
 <body>
+  <div class="timing-sticky-header">
   <header class="cms-header"><div><span class="local-badge">Local only</span><h1 id="timingTitle">Lyric timing</h1></div><nav class="editor-header-links" aria-label="Editor navigation"><a class="editor-hub-link" href="/editors/">← Editors</a><a href="/website-editor/">Website Editor</a></nav></header>
   <div class="timing-actions">
     <div id="songSearchBox" class="song-search-box">
@@ -27,8 +28,9 @@
     <span id="songImeStatus" role="status" aria-live="polite">Loading TLI candidates...</span>
     <label>Status<select id="timingStatus"><option value="draft">Draft</option><option value="reviewed">Reviewed</option></select></label>
     <span id="completion"></span><button id="reloadTiming">Reload</button><button id="saveTiming" class="primary" disabled>Save timings locally</button>
+    <p id="timingNotice" role="status" aria-live="polite">Loading song…</p>
   </div>
-  <p id="timingNotice" role="status" aria-live="polite">Loading song…</p>
+  </div>
   <main class="timing-workspace">
     <section class="timing-player" aria-label="Timing player">
       <div class="playback-options">
@@ -38,12 +40,12 @@
       </div>
       <div class="clock-row"><output id="clock">00:00.000</output><span id="playerState">Waiting for YouTube</span></div>
       <input id="playbackSeek" class="playback-seek" type="range" min="0" max="0" step="0.001" value="0" disabled aria-label="Video playback position">
-      <div class="timing-commands"><button id="markStart" disabled title="Mark the selected sentence's start at the current video time">Mark start</button><button id="seekStart" disabled title="Seek to the selected sentence's start">Go to start</button><button id="seekEnd" disabled title="Seek to the selected sentence's end">Go to end</button><button id="clearCue" disabled>Clear times</button><button id="undoTiming" disabled aria-label="Undo timing edit" title="Undo timing edit">↶</button></div>
+      <div class="timing-commands"><button id="seekStart" disabled title="Seek to the selected sentence's start">Go to start</button><button id="seekEnd" disabled title="Seek to 0.5 seconds before the selected sentence's end">Go to end</button><button id="clearCue" disabled>Clear times</button><button id="undoTiming" disabled aria-label="Undo timing edit" title="Undo timing edit">↶</button></div>
       <label class="advance-option"><input id="previewHighlight" type="checkbox" checked> Highlight preview</label>
       <iframe id="lyricPreview" title="Selected lyric preview" sandbox="allow-same-origin allow-scripts"></iframe>
     </section>
     <section class="timing-lines" aria-label="Sentences">
-      <div class="timing-column-labels"><span>Sentence</span><span>Start</span><span>End</span></div>
+      <div class="timing-column-labels"><span class="sentence-heading"><span>Sentence</span><button id="markStart" class="primary" disabled title="Mark the selected sentence's start at the current video time (R)">Mark start (R)</button></span><span>Start</span><span>End</span></div>
       <div id="cueRows"></div>
     </section>
   </main>

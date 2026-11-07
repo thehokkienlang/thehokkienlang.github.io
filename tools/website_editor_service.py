@@ -201,10 +201,37 @@ class WebsiteEditorService:
                 'revision': digest(raw), 'title': record['title'], 'videoId': video, 'timing': data,
                 'lines': [{key: line[key] for key in ('id', 'label', 'html')} for line in lines]}
 
-    def save_lyric_timing(self, relative, source_revision, revision, data):
+    def save_lyric_timing(self, relative, source_revision, revision, data, base=None, labels=None, overwrite_revision=None):
         opened = self.lyric_timing(relative)
-        if opened['sourceRevision'] != source_revision or opened['revision'] != revision:
-            raise WebsiteEditorError('Lyrics or timings changed outside this window. Reload before saving; your draft remains on screen.', code='stale')
+        if opened['sourceRevision'] != source_revision:
+            if not isinstance(labels, list) or labels != [line['label'] for line in opened['lines']]:
+                raise WebsiteEditorError('Lyric text or order changed outside this window. Your draft remains on screen; save a backup before reloading.', code='stale')
+            if data.get('videoId') != opened['videoId'] or len(data.get('cues', [])) != len(opened['timing']['cues']):
+                raise WebsiteEditorError('The recording or lyric count changed. Your draft remains on screen.', code='stale')
+            data = {**data, 'cues': [{**cue, 'fingerprint': current['fingerprint']} for cue, current in zip(data['cues'], opened['timing']['cues'])]}
+        if opened['revision'] != revision:
+            if not isinstance(base, dict) or opened['warning']:
+                raise WebsiteEditorError('Timings changed outside this window. Your draft remains on screen.', code='stale')
+            current = opened['timing']
+            if len(base.get('cues', [])) != len(data['cues']) or len(current['cues']) != len(data['cues']):
+                raise WebsiteEditorError('The lyric count changed. Your draft remains on screen.', code='stale')
+            merged = []
+            conflict = False
+            for prior, mine, theirs in zip(base['cues'], data['cues'], current['cues']):
+                if prior.get('id') != mine.get('id') or mine.get('id') != theirs.get('id'):
+                    raise WebsiteEditorError('Lyric order changed. Your draft remains on screen.', code='stale')
+                combined = dict(theirs)
+                for key in ('start', 'end'):
+                    mine_changed = mine.get(key) != prior.get(key)
+                    theirs_changed = theirs.get(key) != prior.get(key)
+                    conflict |= mine_changed and theirs_changed and mine.get(key) != theirs.get(key)
+                    if mine_changed:
+                        combined[key] = mine.get(key)
+                merged.append(combined)
+            conflict |= data.get('status') != base.get('status') and current.get('status') != base.get('status') and data.get('status') != current.get('status')
+            if conflict and overwrite_revision != opened['revision']:
+                return {'ok': False, 'conflict': True, 'revision': opened['revision'], 'error': 'Some of the same timings changed on disk. Overwrite those conflicting changes with your draft?'}
+            data = {**data, 'cues': merged, 'status': data['status'] if data['status'] != base.get('status') else current['status']}
         record = self.page(relative)['page']
         try:
             clean = validate_timing(record, data)
@@ -214,7 +241,7 @@ class WebsiteEditorService:
         path.parent.mkdir(parents=True, exist_ok=True)
         output = (json.dumps(clean, ensure_ascii=False, indent=2) + '\n').encode('utf-8')
         _atomic_write(path, output)
-        return {'ok': True, 'revision': digest(output), 'timing': clean,
+        return {'ok': True, 'revision': digest(output), 'sourceRevision': opened['sourceRevision'], 'lines': opened['lines'], 'timing': clean,
                 'message': 'Lyric timings saved locally. Nothing was committed or pushed.'}
 
     @staticmethod

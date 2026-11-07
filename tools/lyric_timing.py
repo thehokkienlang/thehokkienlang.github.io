@@ -110,14 +110,17 @@ def validate_timing(record, data):
         if not isinstance(cue, dict) or any(cue.get(key) != line[key] for key in ('id', 'fingerprint')):
             raise ValueError('A lyric line changed. Reload and review its timing before saving.')
         start, end = cue.get('start'), cue.get('end')
-        if start is None and end is None:
+        values = [value for value in (start, end) if value is not None]
+        if not all(isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) for value in values):
+            raise ValueError(f'{cue["id"]}: enter valid sentence times.')
+        if start is None or end is None:
             complete = False
-        elif not all(isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value) for value in (start, end)):
-            raise ValueError(f'{cue["id"]}: mark both start and end times, or clear both.')
-        elif not 0 <= start < end <= 86400 or start < previous_end:
+        if (any(not 0 <= value <= 86400 for value in values)
+                or (start is not None and end is not None and start >= end)
+                or (values and values[0] < previous_end)):
             raise ValueError(f'{cue["id"]}: times must increase, with end after start and no overlapping sentences.')
-        else:
-            previous_end = end
+        if values:
+            previous_end = values[-1]
         clean['cues'].append({**line, 'start': start, 'end': end})
     if data['status'] == 'reviewed' and not complete:
         raise ValueError('Time every lyric line before marking the song reviewed.')

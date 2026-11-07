@@ -1,6 +1,12 @@
 (() => {
   'use strict';
   const $ = id => document.getElementById(id);
+  const stickyHeader = document.querySelector('.timing-sticky-header');
+  if (stickyHeader && typeof ResizeObserver !== 'undefined') {
+    const updateHeaderHeight = () => document.documentElement.style.setProperty('--timing-header-height', `${stickyHeader.getBoundingClientRect().height}px`);
+    new ResizeObserver(updateHeaderHeight).observe(stickyHeader);
+    updateHeaderHeight();
+  }
   const file = new URLSearchParams(location.search).get('file');
   const token = document.querySelector('meta[name="editor-token"]').content;
   let snapshot, timing, selected = 0, dirty = false, connection, loading = false;
@@ -293,8 +299,10 @@
     tell('Marked start at ' + clock(time) + '.');
   }
   function seekSelected(key = 'start') {
-    const time = timing?.cues[selected][key];
+    const cue = timing?.cues[selected];
+    let time = cue?.[key];
     if (!Number.isFinite(time)) return tell('This sentence has no ' + key + ' time yet.');
+    if (key === 'end') time = Math.max(0, Number.isFinite(cue.start) ? cue.start : 0, time - 0.5);
     if (!Number.isFinite(connection?.time())) return tell('Connect the YouTube player and wait for any advertisement to finish before seeking.', true);
     connection.seek(time);
   }
@@ -364,6 +372,12 @@
     finally { loading = false; }
   }
   $('markStart').onclick = markStart;
+  document.addEventListener('keydown', event => {
+    if (event.key.toLowerCase() !== 'r' || event.repeat || event.isComposing || event.ctrlKey || event.altKey || event.metaKey || event.shiftKey || $('markStart').disabled) return;
+    if (event.target?.closest?.('input, textarea, select, [contenteditable]:not([contenteditable="false"]), [role="textbox"], [role="combobox"]')) return;
+    event.preventDefault();
+    return markStart();
+  });
   $('togglePlayback').onclick = () => connection?.toggle();
   $('playbackSeek').oninput = () => {
     if ($('playbackSeek').disabled) return;
@@ -405,8 +419,24 @@
       if (timing.cues.some(c => c.start !== null && !Number.isFinite(c.start) || c.end !== null && !Number.isFinite(c.end))) throw new Error('Enter valid numbers for the sentence times.');
       const before = structuredClone(timing);
       fillEmptyEnds(); repairTimeline(); remember(before);
-      const result = await request('save-lyric-timing', { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing });
-      snapshot.revision = result.revision; timing = result.timing; savedState = structuredClone(timing); dirty = false; progress(); tell(result.message);
+      const payload = { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing,
+        base:savedState, labels:snapshot.lines.map(line => line.label) };
+      let response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
+        headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
+      let result = await response.json();
+      if (result.conflict) {
+        if (!confirm(result.error + '\n\nThis cannot be undone from this editor. Continue?')) return;
+        payload.overwriteRevision = result.revision;
+        response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
+          headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
+        result = await response.json();
+      }
+      if (!response.ok || !result.ok) throw new Error(result.error || 'Save failed.');
+      snapshot.revision = result.revision; snapshot.sourceRevision = result.sourceRevision || snapshot.sourceRevision;
+      snapshot.lines = result.lines || snapshot.lines;
+      timing = result.timing; savedState = structuredClone(timing); dirty = false;
+      timing.cues.forEach((cue, index) => { inputs[index].start.value = clock(cue.start); inputs[index].end.value = clock(cue.end); });
+      progress(); tell(result.message);
     } catch (error) { tell(error.message, true); }
     finally { $('saveTiming').disabled = false; }
   };
