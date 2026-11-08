@@ -127,8 +127,9 @@ def main():
     assert '/shared/web-ime-menu.css?v=' in ime_html
     assert '/shared/web-ime-menu.css?v=' in dictionary_html
     assert 'hanri-candidate-menu' in ime_html and 'hanri-candidate-menu' in dictionary_view
-    assert "client-side courtesy lock" in dictionary_gate
-    assert "localStorage.setItem" in dictionary_gate and "localStorage.removeItem" in dictionary_gate
+    access_gate = local_file("/shared/web-access-gate.js").read_text(encoding="utf-8")
+    assert "client-side courtesy lock" in access_gate
+    assert "localStorage.setItem" in access_gate and "localStorage.removeItem" in access_gate
     ime_shared = [
         urlsplit(src).path
         for src in route_scripts["/ime/"]

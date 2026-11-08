@@ -27,6 +27,25 @@ class InviteOnlyLabelTests(unittest.TestCase):
             page = (ROOT / "apps" / app / "index.html").read_text(encoding="utf-8")
             self.assertIn("currently available to invited visitors", page, app)
 
+    def test_dictionary_and_translator_share_one_lock(self):
+        screens = {}
+        for app in ("dictionary", "translate"):
+            page = (ROOT / "apps" / app / "index.html").read_text(encoding="utf-8")
+            self.assertIn('/shared/web-access-gate.js', page, app)
+            self.assertIn('/shared/web-access-gate.css', page, app)
+            self.assertLess(page.index('web-access-gate.js'), page.index('src="gate.js"'), app)
+            self.assertIn('<body class="access-locked"', page, app)
+            screen = re.search(r'<main id="lockScreen".*?</main>', page, re.S).group(0)
+            screens[app] = re.sub(r"(?i)dictionary|translator", "TOOL", screen)
+            gate = (ROOT / "apps" / app / "gate.js").read_text(encoding="utf-8")
+            self.assertIn("TliAccessGate.start", gate, app)
+            self.assertNotIn("DIGEST", gate, app)
+            self.assertNotIn("localStorage", gate, app)
+        self.assertEqual(screens["dictionary"], screens["translate"])
+        shared = (ROOT / "shared/web-access-gate.js").read_text(encoding="utf-8")
+        for old_key in ("tangliengim.dictionary.access.v1", "tangliengim.translator.access.v1"):
+            self.assertIn(old_key, shared)
+
     def test_built_home_page_marks_the_dictionary_link(self):
         home = ROOT / "_site/index.html"
         if not home.is_file():

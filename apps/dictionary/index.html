@@ -15,12 +15,14 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="/shared/web-ime-menu.css">
     <link rel="stylesheet" href="/shared/web-site-navigation.css">
+    <link rel="stylesheet" href="/shared/web-access-gate.css">
     <script src="/shared/web-site-language.js" defer></script>
     <script src="/shared/web-ruby-selection.js" defer></script>
     <script src="/shared/web-site-navigation.js" defer></script>
+    <script src="/shared/web-access-gate.js" defer></script>
     <script src="gate.js" defer></script>
   </head>
-  <body class="dictionary-locked" data-site-section="dictionary">
+  <body class="access-locked" data-site-section="dictionary">
     <header class="site-app-header">
         __SITE_BRAND__
         <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
@@ -41,7 +43,7 @@
             required
             autofocus
           >
-          <button id="enterDictionaryButton" type="submit">Enter dictionary</button>
+          <button id="enterToolButton" type="submit" data-site-text="Enter dictionary">Enter dictionary</button>
           <p id="accessError" class="access-error" role="status" aria-live="polite" hidden>
             That password is not correct.
           </p>

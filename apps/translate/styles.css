@@ -3,12 +3,7 @@
 :root { --ink:#17252b; --muted:#647278; --line:#d6e1df; --paper:#fff; --accent:#08756b; --accent-dark:#07594f; --accent-soft:#dff1ed; --red:#b33b46; }
 * { box-sizing:border-box; }
 [hidden] { display:none !important; }
-.translator-lock { width:min(460px,calc(100% - 36px)); margin:64px auto; }
-.translator-lock form { display:grid; gap:14px; }
-.translator-lock input { width:100%; padding:12px; border:1px solid var(--line); border-radius:4px; font:inherit; }
-.translator-lock button { padding:12px; border:0; border-radius:4px; background:var(--accent); color:#fff; cursor:pointer; }
-.translator-lock input[aria-invalid="true"], #accessError { color:var(--red); }
-#lockTranslatorButton { float:right; padding:8px 12px; border:1px solid var(--line); border-radius:4px; background:var(--paper); cursor:pointer; }
+#lockTranslatorButton { float:right; }
 body { min-height:100vh; margin:0; color:var(--ink); background:linear-gradient(180deg,#f8fbfa 0,#f1f6f5 100%); font-family:"TLI Western Punctuation","TLI Noto Sans","Segoe UI",sans-serif; }
 button,textarea,select { font:inherit; }
 button { color:inherit; }

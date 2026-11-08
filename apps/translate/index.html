@@ -11,27 +11,42 @@
     <link rel="stylesheet" href="/shared/web-ime-menu.css">
     <link rel="stylesheet" href="/shared/web-site-navigation.css">
     <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="/shared/web-access-gate.css">
     <script src="/shared/web-site-language.js" defer></script>
     <script src="/shared/web-site-navigation.js" defer></script>
+    <script src="/shared/web-access-gate.js" defer></script>
     <script src="gate.js" defer></script>
   </head>
-  <body data-site-section="translate">
+  <body class="access-locked" data-site-section="translate">
     <header class="site-app-header">
       __SITE_BRAND__
       <nav class="site-app-nav" aria-label="Main navigation">__SITE_NAVIGATION__</nav>
     </header>
 
-    <main id="lockScreen" class="translator-lock">
-      <form id="accessForm">
-        <p>This translator is currently available to invited visitors.</p>
-        <label for="passwordInput">Password</label>
-        <input id="passwordInput" type="password" autocomplete="current-password" aria-describedby="accessError" required autofocus>
-        <button id="enterTranslatorButton" type="submit">Enter translator</button>
-        <p id="accessError" role="status" hidden></p>
-      </form>
+    <main id="lockScreen" class="lock-screen">
+      <section class="lock-panel" aria-label="Translator access">
+        <p class="lock-note">This translator is currently available to invited visitors.</p>
+
+        <form id="accessForm" class="access-form">
+          <label for="passwordInput">Password</label>
+          <input
+            id="passwordInput"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            aria-describedby="accessError"
+            required
+            autofocus
+          >
+          <button id="enterToolButton" type="submit" data-site-text="Enter translator">Enter translator</button>
+          <p id="accessError" class="access-error" role="status" aria-live="polite" hidden>
+            That password is not correct.
+          </p>
+        </form>
+      </section>
     </main>
     <main id="translatorRoot" class="translator-shell" hidden>
-      <button id="lockTranslatorButton" type="button">Lock translator</button>
+      <button id="lockTranslatorButton" class="access-lock-button" type="button" data-site-text="Lock translator">Lock translator</button>
       <header class="translator-heading">
         <div>
           <p class="eyebrow">Preview</p>

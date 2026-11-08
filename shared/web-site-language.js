@@ -15,6 +15,10 @@
     "Browse:": ["分類：", "分类："], "Food": ["飲食", "饮食"], "Place names": ["地名", "地名"],
     "Password": ["密碼", "密码"], "Enter dictionary": ["進入詞典", "进入词典"],
     "Lock dictionary": ["鎖定詞典", "锁定词典"],
+    "Enter translator": ["進入翻譯器", "进入翻译器"], "Lock translator": ["鎖定翻譯器", "锁定翻译器"],
+    "This translator is currently available to invited visitors.": ["本翻譯器目前僅供受邀訪客使用。", "本翻译器目前仅供受邀访客使用。"],
+    "The translator could not be opened. Please try again.": ["無法開啟翻譯器，請重試。", "无法打开翻译器，请重试。"],
+    "Unable to check the password. Please reload and try again.": ["無法驗證密碼，請重新載入後再試。", "无法验证密码，请重新加载后再试。"],
     "This dictionary is currently available to invited visitors.": ["本詞典目前僅供受邀訪客使用。", "本词典目前仅供受邀访客使用。"],
     "That password is not correct.": ["密碼不正確。", "密码不正确。"],
     "The dictionary could not be opened. Please try again.": ["無法開啟詞典，請重試。", "无法打开词典，请重试。"],
@@ -86,8 +90,11 @@
     const labels = {
       ".site-app-header h1": location.pathname.startsWith("/dictionary/") ? "Dictionary" : "IME Pad",
       ".search-label": "Search", ".toggle-label": "Enable Hangul keyboard", ".category-title": "Browse:",
-      "label[for=passwordInput]": "Password", "#enterDictionaryButton": "Enter dictionary",
-      "#lockDictionaryButton": "Lock dictionary", ".lock-note": "This dictionary is currently available to invited visitors.",
+      "label[for=passwordInput]": "Password",
+      "#lockDictionaryButton": "Lock dictionary",
+      ".lock-note": location.pathname.startsWith("/translate/")
+        ? "This translator is currently available to invited visitors."
+        : "This dictionary is currently available to invited visitors.",
       ".construction-notice": "This website is still under construction. Entries, translations, and features are being actively refined.",
       ".pad-label": "Hanri + Hangul", ".sandhi-label": "Sandhi:", "#taipeiButton": "Taipei", "#singaporeButton": "Singapore",
       "#keyboardGuideButton > span:first-child": "Keyboard guide", "#keyboardGuideOptions > span:first-child": "Lomari mode",
