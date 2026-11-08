@@ -6,7 +6,7 @@
   "cues": [
     {
       "id": "line-001",
-      "fingerprint": "b9408a0592d81620e1a3ffb78b0c81d89a73366d23758f47390d890cb45c196c",
+      "fingerprint": "1b0d2b6756b73e976fcfa0f525a9a353308884085286c10d425d3e925325be09",
       "start": 23.75,
       "end": 34.2
     },
@@ -24,7 +24,7 @@
     },
     {
       "id": "line-004",
-      "fingerprint": "954c13ef69ff1a17c0757f2923e3f4bc9a546f03374afa569edb81441a5aff7d",
+      "fingerprint": "60477db5d1337a958c55360c080ddfa08064c3db2514fe9cd1e2eb26bc152517",
       "start": 53.5,
       "end": 59.2
     },
@@ -48,7 +48,7 @@
     },
     {
       "id": "line-008",
-      "fingerprint": "b9408a0592d81620e1a3ffb78b0c81d89a73366d23758f47390d890cb45c196c",
+      "fingerprint": "1b0d2b6756b73e976fcfa0f525a9a353308884085286c10d425d3e925325be09",
       "start": 87.6,
       "end": 98
     },
@@ -66,7 +66,7 @@
     },
     {
       "id": "line-011",
-      "fingerprint": "954c13ef69ff1a17c0757f2923e3f4bc9a546f03374afa569edb81441a5aff7d",
+      "fingerprint": "60477db5d1337a958c55360c080ddfa08064c3db2514fe9cd1e2eb26bc152517",
       "start": 117.2,
       "end": 123.3
     },
