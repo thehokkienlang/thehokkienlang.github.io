@@ -1,0 +1,1183 @@
+{
+  "project": "Orthography v3.3 Hanri assignments",
+  "date": "2026-11-08",
+  "spellings": {
+    "감": "噉",
+    "今 (달)": "𦤾"
+  },
+  "scope": "Songs and stories in mixed writing; URLs, readings, neutral domains and pure-Hangul texts preserved",
+  "changes": [
+    {
+      "base": "감",
+      "hanri": "噉",
+      "count": 81
+    },
+    {
+      "base": "今",
+      "hanri": "𦤾",
+      "count": 8
+    }
+  ],
+  "records": {
+    "content/songs/song-11533.json": {
+      "file": "content/songs/song-11533.json",
+      "route": "/songs/生份에릐/",
+      "beforeSha256": "a2e5378221ad909c82e56d7b451b0f457f2d09d45c5abf0d99c4e83c2a10a3fa",
+      "afterSha256": "41c93746a483851e3e1f6f7c37418f8a1f3d01645e3d990b49d24a05cf2f2f8f",
+      "edits": [
+        {
+          "start": 2048,
+          "end": 2072,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 3504,
+          "end": 3528,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6735,
+          "end": 6759,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "生份’에 릐ˋ",
+      "titleAfter": "生份’에 릐ˋ"
+    },
+    "content/songs/song-11187.json": {
+      "file": "content/songs/song-11187.json",
+      "route": "/songs/爸囝情深/",
+      "beforeSha256": "94e646a541148f3d83af2cd514767a9d77a6b1212fe08b76240fe701c61f3e67",
+      "afterSha256": "1087ea883abe3109440f59aaea7865e622a23201c36ec275477d79fa5ead4bfa",
+      "edits": [
+        {
+          "start": 2791,
+          "end": 2815,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 5314,
+          "end": 5338,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6713,
+          "end": 6737,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "爸囝 情深",
+      "titleAfter": "爸囝 情深"
+    },
+    "content/songs/song-11143.json": {
+      "file": "content/songs/song-11143.json",
+      "route": "/songs/門/",
+      "beforeSha256": "c850de250db1d535fbb2ba51b1d360ad69ff93a4e58fe72fb6154aa740228d68",
+      "afterSha256": "6a4c49d8ac47dabd3e5fabc04b432684648be762e62e0145b85933ed435df1c0",
+      "edits": [
+        {
+          "start": 1551,
+          "end": 1575,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6910,
+          "end": 6934,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "門",
+      "titleAfter": "門"
+    },
+    "content/songs/song-10294.json": {
+      "file": "content/songs/song-10294.json",
+      "route": "/songs/메삐메삐/",
+      "beforeSha256": "0aac91d49beef0d23fe6714bd3e5d57c8772265687b81fdbd536852fbac30048",
+      "afterSha256": "f71148104e42723bae316d9baa369d39d0ad550a484c18fdd739d3c161bc4afb",
+      "edits": [
+        {
+          "start": 1029,
+          "end": 1053,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 2057,
+          "end": 2081,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 3655,
+          "end": 3679,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 4731,
+          "end": 4755,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "Maybe Maybe",
+      "titleAfter": "Maybe Maybe"
+    },
+    "content/songs/song-10032.json": {
+      "file": "content/songs/song-10032.json",
+      "route": "/songs/菝仔/",
+      "beforeSha256": "afb6867d9f426cf6f2ffe0c328b39b2d879ec667a9a29fcf67ea4f4eadc5c136",
+      "afterSha256": "400e5dc60c5ce567d176706f1a1383d76ceacd40915d00d6db745da20488969f",
+      "edits": [
+        {
+          "start": 5337,
+          "end": 5361,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 5980,
+          "end": 6004,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "菝仔",
+      "titleAfter": "菝仔"
+    },
+    "content/songs/song-8647.json": {
+      "file": "content/songs/song-8647.json",
+      "route": "/songs/落雨聲/",
+      "beforeSha256": "acbc62ec92c2e53c4c33690bb4ebffe908fd649dc1d4b2ce9784016d03514abe",
+      "afterSha256": "76f75bd10a1bc41ce8af2964e034acf6d326c8c9861891454e8085628a3b309f",
+      "edits": [
+        {
+          "start": 2405,
+          "end": 2429,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6217,
+          "end": 6241,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "落雨聲",
+      "titleAfter": "落雨聲"
+    },
+    "content/songs/song-8567.json": {
+      "file": "content/songs/song-8567.json",
+      "route": "/songs/雨水꽈問릐/",
+      "beforeSha256": "06f2374fd79f2f9feb8f0e523a849514b932bd73254ba7d9b15479d2b6a2dfa1",
+      "afterSha256": "20072541a27ccc3ad3f96f1c5eda5763baca59e1fc8a49859adb856e7ff238ad",
+      "edits": [
+        {
+          "start": 5830,
+          "end": 5854,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 10193,
+          "end": 10217,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 13178,
+          "end": 13202,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "雨水 꽈ˋ 問’릐",
+      "titleAfter": "雨水 꽈ˋ 問’릐"
+    },
+    "content/songs/song-8035.json": {
+      "file": "content/songs/song-8035.json",
+      "route": "/songs/愛릐無條件/",
+      "beforeSha256": "ce578a4611d641da8b22c07d3259df55aacdad97c9326f076d3714d111e4d120",
+      "afterSha256": "6a263d5536ab42f36539d2a5097f4f2f6f89e1b4268fce0a0730c6628052f4e4",
+      "edits": [
+        {
+          "start": 2592,
+          "end": 2616,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 7749,
+          "end": 7773,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "愛릐ˋ 無條件",
+      "titleAfter": "愛릐ˋ 無條件"
+    },
+    "content/songs/song-6339.json": {
+      "file": "content/songs/song-6339.json",
+      "route": "/songs/水/",
+      "beforeSha256": "7a018b36d117249cd7dcdcb5e663b8ff55193960dc79450b46e19e5f29538995",
+      "afterSha256": "216324314f69e88d34eb7552f70fd71bea11f24787542296c55c0eab0a681b40",
+      "edits": [
+        {
+          "start": 14071,
+          "end": 14072,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "달ˉ아ˆ-",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "水",
+      "titleAfter": "水"
+    },
+    "content/songs/song-6247.json": {
+      "file": "content/songs/song-6247.json",
+      "route": "/songs/無眠/",
+      "beforeSha256": "505165b160540f1a22a05ab8fc9f021de747ec49e15f233de355df9ad3b4c567",
+      "afterSha256": "452f65f70be177a3ed0a5d12d531feb608e04e86e9ab46d20966231a6de551c4",
+      "edits": [
+        {
+          "start": 1772,
+          "end": 1796,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6104,
+          "end": 6128,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "無眠",
+      "titleAfter": "無眠"
+    },
+    "content/songs/song-6204.json": {
+      "file": "content/songs/song-6204.json",
+      "route": "/songs/請問릐감欲做꽈에ᄁힻ흐뗀/",
+      "beforeSha256": "75daf1704632d6eb71ec3a4940283091f94b8754a8919015732fe40008d58600",
+      "afterSha256": "0d879d834d1af2c2d11282af3eeedfe4e15c1042751f98b369baad3d054a6430",
+      "edits": [
+        {
+          "start": 1532,
+          "end": 1556,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6198,
+          "end": 6222,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 10904,
+          "end": 10928,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 12645,
+          "end": 12669,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 14386,
+          "end": 14410,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "請問릐ˋ 감ˆ欲做꽈ˋ’에 Girlfriend",
+      "titleAfter": "請問릐ˋ 噉欲做꽈ˋ’에 Girlfriend"
+    },
+    "content/songs/song-6135.json": {
+      "file": "content/songs/song-6135.json",
+      "route": "/songs/萬千花蕊慈母悲哀/",
+      "beforeSha256": "6d4983a5a1463a6ae1610ec991394b8c2bbca103ee82f12116699140b27573e8",
+      "afterSha256": "b160af2abb8f0a2382e19c7441120a4b742404a16ebfaff15bf9b06a8c697773",
+      "edits": [
+        {
+          "start": 9855,
+          "end": 9879,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "萬千花蕊 慈母 悲哀",
+      "titleAfter": "萬千花蕊 慈母 悲哀"
+    },
+    "content/songs/song-6057.json": {
+      "file": "content/songs/song-6057.json",
+      "route": "/songs/一吋相思一吋淚/",
+      "beforeSha256": "a73a8b0b472e6378c8132a1c0780981b5fcf7c01d8078f6070315413c9b23981",
+      "afterSha256": "8f6f32a468aea7af98eeb96c56cd883c4d1e9cc5a590903fc25ff2e4519a664f",
+      "edits": [
+        {
+          "start": 2139,
+          "end": 2163,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6952,
+          "end": 6976,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "一吋相思 一吋淚",
+      "titleAfter": "一吋相思 一吋淚"
+    },
+    "content/songs/song-5887.json": {
+      "file": "content/songs/song-5887.json",
+      "route": "/songs/再會랗心愛에無緣에人/",
+      "beforeSha256": "aab6e7efb4d52f9642aa86a7cde43697227c10f25e9fc4a777587caf94f01373",
+      "afterSha256": "a83acc51069a5484e775fc9d8dd18c10faa79b34431a2750a39fdfb4a23b433c",
+      "edits": [
+        {
+          "start": 2986,
+          "end": 2987,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "ᄀᅷˋ달ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 8000,
+          "end": 8001,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "ᄀᅷˋ달ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11089,
+          "end": 11090,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "ᄀᅷˋ달ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "再會’랗 心愛’에 無緣’에 人",
+      "titleAfter": "再會’랗 心愛’에 無緣’에 人"
+    },
+    "content/songs/song-5643.json": {
+      "file": "content/songs/song-5643.json",
+      "route": "/songs/곻愛릐一擺/",
+      "beforeSha256": "564b219fbf1f5a386e9d9f9f8aee3e7397b404c7adfb16eb0b0996ecef69ae07",
+      "afterSha256": "e4c9435d79c06ab6aeea98d161059a9d9e4bcd5d3c61981fe0a8d511259694d9",
+      "edits": [
+        {
+          "start": 6049,
+          "end": 6073,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11276,
+          "end": 11300,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 14097,
+          "end": 14121,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "곻ˆ愛릐ˋ 一擺",
+      "titleAfter": "곻ˆ愛릐ˋ 一擺"
+    },
+    "content/songs/song-5599.json": {
+      "file": "content/songs/song-5599.json",
+      "route": "/songs/失落에夢/",
+      "beforeSha256": "79f7820c25df3f25c8315e78da9e0d40f9d8059962349bc2c1bff55ea41d6821",
+      "afterSha256": "af8ab98add310a6a4de5f65833e4fab2acc72e257d44b278632773180a4e0f8c",
+      "edits": [
+        {
+          "start": 1305,
+          "end": 1329,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 4069,
+          "end": 4093,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "失落’에 夢",
+      "titleAfter": "失落’에 夢"
+    },
+    "content/songs/song-5437.json": {
+      "file": "content/songs/song-5437.json",
+      "route": "/songs/情難忘/",
+      "beforeSha256": "577a8a729d978e5ecac7a049f70a906364cc37aee9763d851803fd4ea65079bd",
+      "afterSha256": "df42974a19d263af782f5551f63e78c40e5b7cada78c6a8298588d35ada10702",
+      "edits": [
+        {
+          "start": 2097,
+          "end": 2121,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 3146,
+          "end": 3170,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 5348,
+          "end": 5372,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6397,
+          "end": 6421,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 7760,
+          "end": 7784,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "情 難忘",
+      "titleAfter": "情 難忘"
+    },
+    "content/songs/song-5375.json": {
+      "file": "content/songs/song-5375.json",
+      "route": "/songs/꽈問天/",
+      "beforeSha256": "30e7ee9c88a1e9b79346a58271d3cc36ff220f9568bc29b8bd730047de84edb9",
+      "afterSha256": "063b47e93dc9b2036f1492c49923a0b15c7dd8e098f90da2c6ecc05a013c20e2",
+      "edits": [
+        {
+          "start": 3159,
+          "end": 3183,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 3978,
+          "end": 4002,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 4646,
+          "end": 4670,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 7551,
+          "end": 7575,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 8370,
+          "end": 8394,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 9038,
+          "end": 9062,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 9937,
+          "end": 9961,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 10756,
+          "end": 10780,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11424,
+          "end": 11448,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "꽈ˋ 問天",
+      "titleAfter": "꽈ˋ 問天"
+    },
+    "content/songs/song-5345.json": {
+      "file": "content/songs/song-5345.json",
+      "route": "/songs/雲中月圓/",
+      "beforeSha256": "1df55b48d657c4d026bae610fb0b5b32d6b69b40c5c0ac81cf63c5bc4abbf3a2",
+      "afterSha256": "327a0f3159a37bd43122d99c8086071c1bf03388f249e67216f38f1391a72c73",
+      "edits": [
+        {
+          "start": 5263,
+          "end": 5287,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 9864,
+          "end": 9888,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11992,
+          "end": 12016,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "雲中 月圓",
+      "titleAfter": "雲中 月圓"
+    },
+    "content/songs/song-4649.json": {
+      "file": "content/songs/song-4649.json",
+      "route": "/songs/小雨/",
+      "beforeSha256": "3ab231db105357cd8d07017f4cfe58dc263ff9a9f1827fd847bee9d99fe4fc2d",
+      "afterSha256": "d2991ffb8c94169c5404accfc2b7879a796eb18e955ddde05e02a2958933dc1e",
+      "edits": [
+        {
+          "start": 1832,
+          "end": 1856,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 3394,
+          "end": 3418,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 5829,
+          "end": 5853,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 7391,
+          "end": 7415,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 8866,
+          "end": 8890,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "小雨",
+      "titleAfter": "小雨"
+    },
+    "content/songs/song-4274.json": {
+      "file": "content/songs/song-4274.json",
+      "route": "/songs/傷心地獄芳花引魂/",
+      "beforeSha256": "5e3b387625f47d87f0e52f5b48c5d49e38b8e557efd073124dbaa65055463799",
+      "afterSha256": "6b790a31a956a3c7c3470c905261ec3ec437347bdaa7806548e50a9a362ac109",
+      "edits": [
+        {
+          "start": 6448,
+          "end": 6472,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "傷心地獄 芳花 引魂",
+      "titleAfter": "傷心地獄 芳花 引魂"
+    },
+    "content/songs/song-4025.json": {
+      "file": "content/songs/song-4025.json",
+      "route": "/songs/浪溜嗹/",
+      "beforeSha256": "d486867a66d92f27ea3904f747afad5b32c2eaa8dbd13ba2d4e159f44be34fa0",
+      "afterSha256": "6d05e79e0f46550c7547fa47c3d46a764ba40e7896fe00aff1d68c1b50d416d8",
+      "edits": [
+        {
+          "start": 7955,
+          "end": 7979,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 10083,
+          "end": 10107,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "浪溜嗹",
+      "titleAfter": "浪溜嗹"
+    },
+    "content/songs/song-486.json": {
+      "file": "content/songs/song-486.json",
+      "route": "/songs/阿媽에話/",
+      "beforeSha256": "8939d07b09a51f298e1bd4308c12f46665f01b8dd09c5d63f7f804b13b882a4d",
+      "afterSha256": "e2d6dce7e8adc4e1e06379d16cd3c890e431cbc6499bfb3e0b1f9f9dbc420834",
+      "edits": [
+        {
+          "start": 6933,
+          "end": 6957,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 7445,
+          "end": 7469,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 8244,
+          "end": 8268,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11155,
+          "end": 11179,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 11667,
+          "end": 11691,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 12466,
+          "end": 12490,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "阿媽’에 話",
+      "titleAfter": "阿媽’에 話"
+    },
+    "content/songs/song-361.json": {
+      "file": "content/songs/song-361.json",
+      "route": "/songs/一人一半感情𣍐散/",
+      "beforeSha256": "14728b330da24e658afecd2eae297f4c7f17d66245f413dafd930050bb22c140",
+      "afterSha256": "06dfc3b958453e1436d7d4989dca85663d4ea4f0123cf7f89e57a13504a65f80",
+      "edits": [
+        {
+          "start": 3774,
+          "end": 3798,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 5305,
+          "end": 5329,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 9264,
+          "end": 9288,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 10795,
+          "end": 10819,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 13081,
+          "end": 13105,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 14612,
+          "end": 14636,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "一人一半 感情𣍐散",
+      "titleAfter": "一人一半 感情𣍐散"
+    },
+    "content/songs/song-192.json": {
+      "file": "content/songs/song-192.json",
+      "route": "/songs/歡喜就好/",
+      "beforeSha256": "c33510756479b0eb0df693f60a496978a06bcf0c89216804c69017f9657cd519",
+      "afterSha256": "e07a270e1034d8191ced32bf4ff7474ce096658da0b956a33d981b1228d3e19b",
+      "edits": [
+        {
+          "start": 1155,
+          "end": 1179,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 6065,
+          "end": 6089,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "歡喜 就好",
+      "titleAfter": "歡喜 就好"
+    },
+    "content/stories/the-egg.json": {
+      "file": "content/stories/the-egg.json",
+      "route": "/read/stories/the-egg/",
+      "beforeSha256": "566ecd0771c2409e293eb9ed66746c38fdf23de8f703cdcbd0a113df936e29b3",
+      "afterSha256": "98924a6b4b77bc91488ad95ec4f0c40ee11b6be77af80dc8f53c1a9a558b2990",
+      "edits": [
+        {
+          "start": 14529,
+          "end": 14553,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 16953,
+          "end": 16977,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 18151,
+          "end": 18152,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "달ˉ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 47593,
+          "end": 47594,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "ᄀᅷˋ달ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 59931,
+          "end": 59955,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "The Egg",
+      "titleAfter": "The Egg"
+    },
+    "content/zh-hant/stories/the-egg.json": {
+      "file": "content/zh-hant/stories/the-egg.json",
+      "route": "/zh-hant/read/stories/the-egg/",
+      "beforeSha256": "18663b05c0081786505fd88fea326615fad8f609e7a08106585ae26a4e34423c",
+      "afterSha256": "dbbce9e1fee7b46c52fcffdfddf5af7edab802f908709ad8360ed44dc7345cf8",
+      "edits": [
+        {
+          "start": 14314,
+          "end": 14338,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 16738,
+          "end": 16762,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 17936,
+          "end": 17937,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "달ˉ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 47378,
+          "end": 47379,
+          "before": "今",
+          "after": "𦤾",
+          "base": "今",
+          "hanri": "𦤾",
+          "reading": "ᄀᅷˋ달ˆ",
+          "rule": "v3.3"
+        },
+        {
+          "start": 59716,
+          "end": 59740,
+          "before": "<ruby>감<rt>ꞈ</rt></ruby>",
+          "after": "<ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby>",
+          "base": "감",
+          "hanri": "噉",
+          "reading": "감ˆ",
+          "rule": "v3.3"
+        }
+      ],
+      "titleBefore": "卵",
+      "titleAfter": "卵"
+    }
+  }
+}

@@ -12,7 +12,7 @@
   src: url("/assets/fonts/tli-hanri-v321-tc.woff2") format("woff2");
   font-weight: 400;
   font-display: swap;
-  unicode-range: U+3701, U+216B8, U+28468, U+8FCC;
+  unicode-range: U+3701, U+216B8, U+28468, U+8FCC, U+5649;
 }
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
@@ -26,7 +26,7 @@
   src: url("/assets/fonts/tli-hanri-v321-tc-bold.woff2") format("woff2");
   font-weight: 700;
   font-display: swap;
-  unicode-range: U+3701, U+216B8, U+28468, U+8FCC;
+  unicode-range: U+3701, U+216B8, U+28468, U+8FCC, U+5649;
 }
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
@@ -45,7 +45,7 @@
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
   font-display: block;
-  unicode-range: U+20895, U+23350, U+2C9B0;
+  unicode-range: U+20895, U+23350, U+2C9B0, U+2693E;
 }
 @font-face {
   font-family: "Tangliengim Hanri Fallback";

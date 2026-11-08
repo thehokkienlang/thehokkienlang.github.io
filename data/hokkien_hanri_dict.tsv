@@ -3,7 +3,6 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 가ˉ		가5	把	〃	disposal; object-marking particle		hangul_override	U+AC00_00
 가ˉ야ˆ		가5야1	咖椰醬	咖椰酱	kaya		hangul_override	U+AC00_U+C57C_00
 가ˉ야ˉ또디ˆ		가5야5또디1	咖椰麵包	咖椰面包	kaya bread; kaya roti		hangul_override	U+AC00_U+C57C_U+B610_U+B514_00
-감ˋ		감2	是否	〃	(question marker)		hangul_override	U+AC10_00
 고ˉ비ˆ		고5비1	咖啡	〃	coffee		hangul_override	U+ACE0_U+BE44_00
 곻		곻	再	〃	again		hangul_override	U+ACFB_00
 꽈ˋ		꽈2	我	〃	I; me		hangul_override	U+AF48_00
@@ -65,6 +64,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 敢	〃	갈2	〃	〃	dare		lexical	U+6562_00
 敢逽	敢逽	갈1나2	如若; 宛若	如若; 宛若	as if		lexical	U+6562_U+903D_00
 甘	〃	감1	〃	〃	sweet; pleasant		lexical	U+7518_00
+噉	〃	감2	是否	〃	(question marker)		lexical	U+5649_00
 感	〃	감2	〃	〃	feel; sense		lexical	U+611F_00
 含	〃	감4	〃	〃	contain; hold in the mouth		lexical	U+542B_00
 感覺	感觉	감1각	〃	感觉	to feel		lexical	U+611F_U+89BA_00
@@ -92,7 +92,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 教	〃	ᄀᅷ	〃	〃	teach; religion		lexical	U+6559_01
 猴	〃	ᄀᅷ4	〃	〃	monkey		lexical	U+7334_00
 厚	〃	ᄀᅷ5	〃	〃	thick; generous		lexical	U+539A_00
-到今	〃	ᄀᅷ2달1	至今	〃	until now		lexical	U+5230_U+4ECA_00
+到𦤾	〃	ᄀᅷ2달1	至今	〃	until now		lexical	U+5230_U+2693E_00
 交代	〃	ᄀᅷ5대5	〃	〃	exchange; hand over; generation; replace		lexical	U+4EA4_U+4EE3_00
 教堂	〃	ᄀᅷ2등4	〃	〃	church		lexical	U+6559_U+5802_00
 九百	〃	ᄀᅷ1밯	〃	〃	nine hundred		lexical	U+4E5D_U+767E_00
@@ -441,10 +441,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 等待	〃	단1태5	〃	〃	wait		lexical	U+7B49_U+5F85_00
 達	达	닫1	〃	达	reach; achieve		lexical	U+9054_00
 擔	担	달1	〃	担	carry		lexical	U+64D4_00
+𦤾	〃	달1	現在; 剛剛	现在; 刚刚	now; just now		lexical	U+2693E_00
 打	〃	달2	〃	〃	hit; strike		lexical	U+6253_00
 膽	胆	달2	〃	胆	gallbladder; courage		lexical	U+81BD_00
 打扮	〃	달1반5	〃	〃	hit; strike; dress up; disguise		lexical	U+6253_U+626E_00
-今仔	〃	달5아2	剛剛	刚刚	just; just now		lexical	U+4ECA_U+4ED4_00
+𦤾仔	〃	달5아2	剛剛	刚刚	just; just now		lexical	U+2693E_U+4ED4_00
 澹	〃	담4	濕; 潮濕	湿; 潮湿	wet; damp		lexical	U+6FB9_00
 談	谈	담4	〃	谈	talk; discuss		lexical	U+8AC7_00
 淡	〃	담5	〃	〃	light; bland; weak		lexical	U+6DE1_00

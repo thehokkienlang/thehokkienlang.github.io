@@ -71,6 +71,49 @@ const TangliengimPhoneticOutput = (() => {
     "-", "－", "—", "\n", "\r",
   ]);
 
+  function punctuationTokenAt(text, index) {
+    const char = text[index];
+    let end = index + 1;
+    if (char === "—" || char === "…") {
+      while (text[end] === char) end += 1;
+    }
+    const continuation = char === "-" || ((char === "—" || char === "…") && end === index + 1);
+    return { type: continuation ? "hyphen" : "separator", text: text.slice(index, end) };
+  }
+
+  function isExplicitApostropheToneOverride(key, reading) {
+    return /^[’']/u.test(key) && [...key + reading].some((char) => toneDigit(char));
+  }
+
+  // A dictionary entry may span an apostrophe only when its reading has one too.
+  function entrySpansUnwrittenApostrophe(matchedText, entry) {
+    return /[’']/u.test(matchedText) && !/[’']/u.test(entry.reading || "");
+  }
+
+  function entryOpensNeutralDomain(matchedText) {
+    return /[’']/u.test(matchedText);
+  }
+
+  function markNeutralDomainEntry(tokens, matchedText, syllablesBeforeApostrophe) {
+    if (!entryOpensNeutralDomain(matchedText)) return tokens;
+    const marked = tokens.map((token, index) => index >= syllablesBeforeApostrophe
+      ? { ...token, externalSandhi: false, apostropheToneOverride: true }
+      : token);
+    marked.splice(syllablesBeforeApostrophe, 0, { type: "separator", text: "’" });
+    return marked;
+  }
+
+  function attachedToneOverrideAt(text, index, imeCore, findOverrideAt) {
+    const match = findOverrideAt(text, index);
+    if (match?.entry && isExplicitApostropheToneOverride(text.slice(index, match.end), match.entry.reading || "")) return match;
+    // The two standard exceptions also retain explicitly typed tones.
+    const unit = readingUnitAt(text, index + 1, imeCore);
+    if (unit && ["ᄅᆤ", "뽀"].includes(unit.text) && toneDigit(text[unit.end])) {
+      return { entry: { reading: text.slice(index + 1, unit.end + 1) }, end: unit.end + 1 };
+    }
+    return null;
+  }
+
   function toneDigit(char) {
     return TONE_DIGITS[char] || "";
   }
@@ -379,6 +422,11 @@ const TangliengimPhoneticOutput = (() => {
       });
     }
 
+    function syllablesBeforeApostrophe(entry) {
+      const before = String(entry.reading || "").split(/[’']/u)[0];
+      return tokensForExplicitReading(before).filter((token) => token.type === "syllable").length;
+    }
+
     function tokensForExplicitReading(reading) {
       const tokens = [];
       let index = 0;
@@ -401,8 +449,12 @@ const TangliengimPhoneticOutput = (() => {
         const char = String.fromCodePoint(reading.codePointAt(index));
         const jamoLomari = findJamoLomari(char);
         if (jamoLomari) tokens.push({ type: "word", text: jamoLomari });
-        else if (char === "-") tokens.push({ type: "hyphen", text: char });
-        else if (/\s/u.test(char) || PUNCTUATION.test(char)) tokens.push({ type: "separator", text: char });
+        else if (PUNCTUATION.test(char)) {
+          const token = punctuationTokenAt(reading, index);
+          tokens.push(token);
+          index += token.text.length;
+          continue;
+        } else if (/\s/u.test(char)) tokens.push({ type: "separator", text: char });
         else tokens.push({ type: "literal", text: char });
         index += char.length;
       }
@@ -422,7 +474,7 @@ const TangliengimPhoneticOutput = (() => {
           const reading = annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt);
           const annotationTokens = tokensForExplicitReading(reading);
           if (
-            text[annotation.end] === "-"
+            punctuationTokenAt(text, annotation.end).type === "hyphen"
             && ![...reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
           ) {
             let finalSyllable = annotationTokens.length - 1;
@@ -437,9 +489,25 @@ const TangliengimPhoneticOutput = (() => {
           continue;
         }
 
+        if (char === "’" || char === "'") {
+          tokens.push({ type: "separator", text: char });
+          const attached = attachedToneOverrideAt(text, index, imeCore, findHangulOverrideAt);
+          if (attached) {
+            const attachedTokens = tokensForExplicitReading(attached.entry.reading)
+              .filter((token) => token.text !== "’" && token.text !== "'")
+              .map((token) => ({ ...token, apostropheToneOverride: true }));
+            tokens.push(...attachSourcePositions(attachedTokens, text, index + 1, attached.end));
+            index = attached.end;
+          } else {
+            index += char.length;
+          }
+          continue;
+        }
+
         const hanriEntry = findHanriEntry(text, index);
-        if (hanriEntry) {
-          tokens.push(...syllablesForEntry(hanriEntry, false));
+        const hanriMatch = hanriEntry ? text.slice(index, index + hanriEntry.hanri.length) : "";
+        if (hanriEntry && !entrySpansUnwrittenApostrophe(hanriMatch, hanriEntry)) {
+          tokens.push(...markNeutralDomainEntry(syllablesForEntry(hanriEntry, false), hanriMatch, syllablesBeforeApostrophe(hanriEntry)));
           index += hanriEntry.hanri.length;
           continue;
         }
@@ -463,9 +531,9 @@ const TangliengimPhoneticOutput = (() => {
           }
 
           const overrideMatch = findHangulOverrideAt(text, index);
-          if (overrideMatch?.entry) {
+          if (overrideMatch?.entry && !entrySpansUnwrittenApostrophe(text.slice(index, overrideMatch.end), overrideMatch.entry)) {
             tokens.push(...attachSourcePositions(
-              syllablesForEntry(overrideMatch.entry, overrideMatch.preserveTones),
+              markNeutralDomainEntry(syllablesForEntry(overrideMatch.entry, overrideMatch.preserveTones), text.slice(index, overrideMatch.end), syllablesBeforeApostrophe(overrideMatch.entry)),
               text,
               index,
               overrideMatch.end
@@ -506,13 +574,24 @@ const TangliengimPhoneticOutput = (() => {
           continue;
         }
 
-        if (char === "-") tokens.push({ type: "hyphen", text: char });
-        else if (/\s/u.test(char)) tokens.push({ type: "separator", text: char });
-        else if (PUNCTUATION.test(char)) tokens.push({ type: "separator", text: char });
+        if (PUNCTUATION.test(char)) {
+          const token = punctuationTokenAt(text, index);
+          tokens.push(token);
+          index += token.text.length;
+          continue;
+        } else if (/\s/u.test(char)) tokens.push({ type: "separator", text: char });
         else tokens.push({ type: "literal", text: char });
         index += char.length;
       }
-      return tokens;
+      let postApostrophe = false;
+      return tokens.map((token) => {
+        if (token.text === "’" || token.text === "'") postApostrophe = true;
+        else if (["separator", "hyphen"].includes(token.type)) postApostrophe = false;
+        if (postApostrophe && token.type === "syllable") {
+          return { ...token, tone: token.apostropheToneOverride ? token.tone : "3", externalSandhi: false };
+        }
+        return token;
+      });
     }
 
     function applyExternalSandhi(tokens) {
@@ -549,7 +628,7 @@ const TangliengimPhoneticOutput = (() => {
           appendPronunciation(token.text);
           previousWasWord = true;
         } else if (token.type === "hyphen") {
-          output.push("-");
+          output.push(token.text);
           previousWasWord = false;
         } else {
           output.push(token.text);
@@ -708,15 +787,25 @@ const TangliengimPhoneticOutput = (() => {
     }
 
     function plan(text) {
+      text = imeCore.normalizeApostrophes(text);
       const segments = [];
       const missing = [];
       let index = 0;
       let pendingChunk = null;
       let phraseChunk = null;
+      let postApostrophe = false;
       const connections = [];
 
-      function appendChunk(chunk, canSandhi) {
+      function appendChunk(chunk, canSandhi, apostropheToneOverride = false) {
         if (chunk.end <= chunk.start) return;
+        if (postApostrophe) {
+          if (!apostropheToneOverride) {
+            for (let offset = chunk.start; offset < chunk.end; offset += 1) {
+              segments[offset] = withAudioTone(segments[offset], "3");
+            }
+          }
+          canSandhi = false;
+        }
         connectAudioChunk(pendingChunk, chunk, segments, connections);
         connectAudioTiming(phraseChunk, chunk, segments);
         phraseChunk = chunk;
@@ -733,7 +822,7 @@ const TangliengimPhoneticOutput = (() => {
           const reading = annotationReadingWithRememberedTones(text, annotation, imeCore, findRememberedHangulEntryAt);
           const chunk = appendEntryAudio({ reading }, segments, missing);
           if (
-            text[annotation.end] === "-"
+            punctuationTokenAt(text, annotation.end).type === "hyphen"
             && ![...reading].some((item) => ANNOTATION_TONE_CHAR.test(item))
           ) {
             applyPendingSandhi(chunk, segments);
@@ -743,22 +832,35 @@ const TangliengimPhoneticOutput = (() => {
           continue;
         }
 
-        if (char === "-") {
+        if (char === "’" || char === "'") {
+          pendingChunk = null;
+          postApostrophe = true;
+          const attached = attachedToneOverrideAt(text, index, imeCore, findHangulOverrideAt);
+          if (attached) {
+            appendChunk(appendEntryAudio(attached.entry, segments, missing), false, true);
+            index = attached.end;
+          } else {
+            index += char.length;
+          }
+          continue;
+        }
+        if (PUNCTUATION.test(char) || /\s/u.test(char)) postApostrophe = false;
+        if (punctuationTokenAt(text, index).type === "hyphen") {
           applyPendingSandhi(pendingChunk, segments);
           pendingChunk = null;
-          phraseChunk = null;
+          if (AUDIO_PHRASE_BOUNDARIES.has(char)) phraseChunk = null;
           index += char.length;
           continue;
         }
         if (AUDIO_PHRASE_BOUNDARIES.has(char)) {
           pendingChunk = null;
           phraseChunk = null;
-          index += char.length;
+          index += punctuationTokenAt(text, index).text.length;
           continue;
         }
         if (/\s|\p{Punctuation}/u.test(char)) {
           pendingChunk = null;
-          index += char.length;
+          index += punctuationTokenAt(text, index).text.length;
           continue;
         }
 
@@ -771,8 +873,11 @@ const TangliengimPhoneticOutput = (() => {
         }
 
         const hanriEntry = findHanriEntry(text, index);
-        if (hanriEntry) {
-          appendChunk(appendEntryAudio(hanriEntry, segments, missing), !hanriEntry.autoSandhi);
+        const hanriMatch = hanriEntry ? text.slice(index, index + hanriEntry.hanri.length) : "";
+        if (hanriEntry && !entrySpansUnwrittenApostrophe(hanriMatch, hanriEntry)) {
+          const opensNeutral = entryOpensNeutralDomain(hanriMatch);
+          appendChunk(appendEntryAudio(hanriEntry, segments, missing), !hanriEntry.autoSandhi && !opensNeutral);
+          if (opensNeutral) postApostrophe = true;
           index += hanriEntry.hanri.length;
           continue;
         }
@@ -783,8 +888,10 @@ const TangliengimPhoneticOutput = (() => {
           const hasExplicitTone = end > unit.end;
           if (!hasExplicitTone) {
             const overrideMatch = findHangulOverrideAt(text, index);
-            if (overrideMatch?.entry) {
-              appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), !overrideMatch.preserveTones);
+            if (overrideMatch?.entry && !entrySpansUnwrittenApostrophe(text.slice(index, overrideMatch.end), overrideMatch.entry)) {
+              const opensNeutral = entryOpensNeutralDomain(text.slice(index, overrideMatch.end));
+              appendChunk(appendEntryAudio(overrideMatch.entry, segments, missing), !overrideMatch.preserveTones && !opensNeutral);
+              if (opensNeutral) postApostrophe = true;
               index = overrideMatch.end;
               continue;
             }

@@ -1,0 +1,81 @@
+{
+  "date": "2026-11-08",
+  "decision": "Author-confirmed Hanri spellings from Orthography v3.3 section 4.5",
+  "beforeFiles": {
+    "hokkien_hanri_dict.tsv": "aaafbd9feed1e605be49f428415638a70e0051bd17f129709d2d85ba4c1be877",
+    "dictionary_entry_id_registry.tsv": "baf69661cc6d615e6a30058748de4b4efde17e1d419ff47803f7b429e271a246",
+    "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+    "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+    "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+    "dictionary_defunct.tsv": "a775e69418c120e444da1b30481a0fcedf2314b2cd6eb35e6fd309eeeebaa920"
+  },
+  "afterFiles": {
+    "hokkien_hanri_dict.tsv": "1459897801ac14df7bdf3ba859dbe53e92f67222ab1cda4cdb64611853670d91",
+    "dictionary_entry_id_registry.tsv": "67b6c80dece79744faa6019a9d4ec1ebb1aac1d7bbd6cf160249c1ca2f92d0cc",
+    "dictionary_priority.tsv": "326711e790a7127b759757b31d51b977414a7505fdb13864d5def0f8990e180b",
+    "dictionary_categories.tsv": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
+    "dictionary_redirects.tsv": "8a821d2e4c7fafb9a19b56b95df4e1dad028bac63eb627ed5fa7062b8f42f388",
+    "dictionary_defunct.tsv": "982e54aeafce8a89f3b0b242cf8a14a498a0fe68aa65f1093f390952064b2eb5"
+  },
+  "saved": [
+    {
+      "hanri": "噉",
+      "simplified": "〃",
+      "reading": "감2",
+      "mandarin_trad": "是否",
+      "mandarin_simp": "〃",
+      "english": "(question marker)",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+5649_00"
+    },
+    {
+      "hanri": "到𦤾",
+      "simplified": "〃",
+      "reading": "ᄀᅷ2달1",
+      "mandarin_trad": "至今",
+      "mandarin_simp": "〃",
+      "english": "until now",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+5230_U+2693E_00"
+    },
+    {
+      "hanri": "𦤾仔",
+      "simplified": "〃",
+      "reading": "달5아2",
+      "mandarin_trad": "剛剛",
+      "mandarin_simp": "刚刚",
+      "english": "just; just now",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+2693E_U+4ED4_00"
+    },
+    {
+      "hanri": "𦤾",
+      "simplified": "〃",
+      "reading": "달1",
+      "mandarin_trad": "現在; 剛剛",
+      "mandarin_simp": "现在; 刚刚",
+      "english": "now; just now",
+      "corrected": "",
+      "entry_type": "lexical",
+      "entry_id": "U+2693E_00"
+    }
+  ],
+  "retiredIds": [
+    "U+AC10_00",
+    "U+5230_U+4ECA_00",
+    "U+4ECA_U+4ED4_00"
+  ],
+  "skipped": [],
+  "changedIds": [
+    "U+2693E_00",
+    "U+2693E_U+4ED4_00",
+    "U+4ECA_U+4ED4_00",
+    "U+5230_U+2693E_00",
+    "U+5230_U+4ECA_00",
+    "U+5649_00",
+    "U+AC10_00"
+  ]
+}

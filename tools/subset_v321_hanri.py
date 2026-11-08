@@ -11,7 +11,7 @@ def main():
     args = parser.parse_args()
     output = Path(__file__).resolve().parents[1] / 'assets/fonts'
     for weight, suffix in ((400, ''), (700, '-bold')):
-        subset_font(args.tc_source, {0x20, 0x3701, 0x216B8, 0x28468, 0x8FCC}, 'TLI Hanri v321 TC' + suffix,
+        subset_font(args.tc_source, {0x20, 0x3701, 0x216B8, 0x28468, 0x8FCC, 0x5649}, 'TLI Hanri v321 TC' + suffix,
                     output / f'tli-hanri-v321-tc{suffix}.woff2', {'wght': weight})
         subset_font(args.sc_source, {0x20, 0x6455, 0x4180, 0x4B55}, 'TLI Hanri v321 SC' + suffix,
                     output / f'tli-hanri-v321-sc{suffix}.woff2', {'wght': weight})

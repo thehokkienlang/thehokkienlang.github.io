@@ -787,7 +787,7 @@ def is_post_apostrophe_tone(reading: str, tone_index: int) -> bool:
         ch = reading[i]
         if ch in {"'", '’'}:
             return saw_hangul_or_hanri
-        if ch.isspace():
+        if ch.isspace() or (unicodedata.category(ch).startswith('P') and ch not in TONE_SYMBOLS):
             return False
         if is_hangul_or_hanri_char(ch):
             saw_hangul_or_hanri = True
@@ -1826,7 +1826,7 @@ def is_audio_hangul_only_override_field(text: str) -> bool:
             ch.isspace()
             or ch in TONE_DIGITS
             or ch in INTERNAL_TONE_MARK_CHARS
-            or ch in {"'", '’', '‘'}
+            or ch in {"'", '’'}
         ):
             continue
         meaningful_chars.append(ch)
@@ -1980,7 +1980,7 @@ def contains_apostrophe_boundary(text: str) -> bool:
     mode.  Skipping such long keys lets the parser first match 飲, then handle
     ’ as a citation-final boundary.
     """
-    return any(ch in str(text) for ch in {"'", '’', '‘'})
+    return any(ch in str(text) for ch in {"'", '’'})
 
 
 def field_is_plain_hanri_key(text: str) -> bool:
@@ -2054,13 +2054,13 @@ def mark_untoned_audio_units(reading: str, default_tone: str = '3') -> str:
 def is_explicit_apostrophe_tone_override(key: str, reading: str) -> bool:
     """True for an attached TSV form such as ’ᄅᆤˋ / ’ᄅᆤ2.
 
-    General post-apostrophe text is forced to tone 3 until the next whitespace.
+    General post-apostrophe text is forced to tone 3 until the next space or punctuation boundary.
     Only a TSV/audio-reading entry that itself starts with an apostrophe and
     carries an explicit tone is allowed to override that low-tone rule.
     """
     key_text = normalize_tone_symbols_to_digits(str(key or ''))
     reading_text = normalize_tone_symbols_to_digits(str(reading or ''))
-    starts_attached = bool(key_text and key_text[0] in {"'", '’', '‘'})
+    starts_attached = bool(key_text and key_text[0] in {"'", '’'})
     return bool(
         starts_attached
         and (reading_has_tones(key_text) or reading_has_tones(reading_text))
@@ -2080,6 +2080,18 @@ AUDIO_READING_INDEX = build_audio_reading_index(HANRI_DICT)
 
 
 AUDIO_READING_INDEX_BY_FIRST = build_audio_reading_index_by_first(AUDIO_READING_INDEX)
+
+
+def is_tone_continuation_at(text: str, index: int) -> bool:
+    """Single Table 8 marks continue sandhi; repeated marks are boundaries."""
+    if index >= len(text):
+        return False
+    ch = text[index]
+    return ch == '-' or (
+        ch in {'—', '…'}
+        and (index == 0 or text[index - 1] != ch)
+        and (index + 1 == len(text) or text[index + 1] != ch)
+    )
 
 
 def is_ignored_audio_punctuation(ch: str) -> bool:
@@ -2927,8 +2939,7 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
                 if parsed:
                     _hanri, reading = parsed
                     if (
-                        end + 1 < len(source)
-                        and source[end + 1] == '-'
+                        is_tone_continuation_at(source, end + 1)
                         and not reading_has_tones(normalize_tone_symbols_to_digits(reading))
                     ):
                         reading = citation_to_sandhi_reading(reading) or reading
@@ -2948,13 +2959,13 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
         # Then, if a known apostrophe-prefixed TSV reading exists, consume that
         # attached form as the next run.  Straight apostrophe is matched against
         # curly-apostrophe TSV keys for pasted/raw text robustness.
-        if ch in {"'", '’', '‘'}:
+        if ch in {"'", '’'}:
             flush_run(explicit_separator_after=True)
             normalized_tail = '’' + tail[1:]
             for key, reading in AUDIO_READING_INDEX:
-                if key and key[0] in {"'", '’', '‘'} and normalized_tail.startswith('’' + key[1:]):
+                if key and key[0] in {"'", '’'} and normalized_tail.startswith('’' + key[1:]):
                     override = is_explicit_apostrophe_tone_override(key, reading)
-                    run_parts.append((reading, True, True, not override, False))
+                    run_parts.append((reading, True, True, not override, override))
                     i += len(key)
                     matched = True
                     break
@@ -3078,27 +3089,29 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
             flush_run(explicit_separator_after=True, continuation_after=True)
             unknown_hanri.append(f'{source[i:latin_end]} (English has no recorded audio)')
             i = latin_end - 1
-        elif ch == '-':
+        elif is_tone_continuation_at(source, i):
+            post_apostrophe_force_tone3 = False
             sandhi_final_raw_run_before_hyphen()
             flush_run(explicit_separator_after=True, continuation_after=True)
+            if is_audio_phrase_boundary(ch) and ch != '-':
+                flush_phrase()
         elif is_audio_phrase_boundary(ch):
             flush_run(explicit_separator_after=True)
             flush_phrase()
-            if ch.isspace():
-                post_apostrophe_force_tone3 = False
+            post_apostrophe_force_tone3 = False
         elif is_ignored_audio_punctuation(ch):
             # Apostrophes break the sandhi run and force the preceding run to
             # stay in citation tone, but they do not create a new trimming
             # phrase. Spaces simply break the sandhi run.  For Singapore audio
             # sandhi, all such explicit separators also make the previous audio
             # unit citation-final for the syllable before it.
-            flush_run(force_citation=(ch in {"'", '’', '‘'}), explicit_separator_after=True)
-            if ch.isspace():
-                post_apostrophe_force_tone3 = False
+            flush_run(force_citation=(ch in {"'", '’'}), explicit_separator_after=True)
+            post_apostrophe_force_tone3 = False
         else:
             # Other symbols are separators for sandhi, not audio errors and not
             # first/last reset punctuation.
             flush_run(explicit_separator_after=True)
+            post_apostrophe_force_tone3 = False
         i += 1
 
     flush_run()

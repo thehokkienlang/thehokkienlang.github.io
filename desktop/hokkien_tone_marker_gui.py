@@ -1543,6 +1543,18 @@ def is_cjk_char(ch: str) -> bool:
     )
 
 
+def is_tone_continuation_at(text: str, index: int) -> bool:
+    """Single Table 8 marks continue sandhi; repeated marks are boundaries."""
+    if index >= len(text):
+        return False
+    ch = text[index]
+    return ch == '-' or (
+        ch in {'—', '…'}
+        and (index == 0 or text[index - 1] != ch)
+        and (index + 1 == len(text) or text[index + 1] != ch)
+    )
+
+
 def is_followed_by_hanri(text: str, index: int) -> bool:
     """
     Checks whether the Hanri character/word ending at text[index] is immediately
@@ -1560,8 +1572,8 @@ def is_followed_by_hanri(text: str, index: int) -> bool:
     if text[j].isspace():
         return False
 
-    # ASCII hyphen is an explicit continuation marker.
-    if text[j] == "-":
+    # Single Table 8 marks are explicit continuation markers.
+    if is_tone_continuation_at(text, j):
         return True
 
     # Punctuation means citation/final tone.
@@ -1670,7 +1682,7 @@ def hangul_override_key(text: str) -> str:
     if not raw or field_contains_cjk(raw):
         return ''
 
-    attached = raw[0] in {"'", '’', '‘'}
+    attached = raw[0] in {"'", '’'}
     body = raw[1:] if attached else raw
     if (
         not body
@@ -1802,9 +1814,6 @@ def apply_hangul_overrides_from_tsv(text: str) -> str:
     load_hanri_reading_index()
     overrides = _HANGUL_OVERRIDE_INDEX or {}
     keys = _HANGUL_OVERRIDE_KEYS or []
-    if not overrides:
-        return text
-
     out = []
     i = 0
     post_apostrophe_force_tone3 = False
@@ -1818,10 +1827,10 @@ def apply_hangul_overrides_from_tsv(text: str) -> str:
                 continue
 
         ch = text[i]
-        if ch in {"'", '’', '‘'}:
+        if ch in {"'", '’'}:
             normalized_tail = '’' + text[i + 1:]
             for key in keys:
-                if key and key[0] in {"'", '’', '‘'} and normalized_tail.startswith('’' + key[1:]):
+                if key and key[0] in {"'", '’'} and normalized_tail.startswith('’' + key[1:]):
                     reading = overrides[key]
                     out.append(reading)
                     i += len(key)
@@ -1832,8 +1841,16 @@ def apply_hangul_overrides_from_tsv(text: str) -> str:
                 out.append(ch)
                 i += 1
             continue
-        if ch.isspace():
+        if ch.isspace() or unicodedata.category(ch).startswith('P'):
             post_apostrophe_force_tone3 = False
+
+        if post_apostrophe_force_tone3:
+            unit = hangul_reading_unit_at(text, i)
+            if unit is not None:
+                unit_text, i = unit
+                # Keep neutral tone explicit until continuation sandhi is applied.
+                out.append(re.sub(r"[12345ˆˋ`ˊˉꞈˎˏˍ]+$", "", unit_text) + "3")
+                continue
 
         matched = False
         if not post_apostrophe_force_tone3:
@@ -2796,9 +2813,9 @@ def render_mixed_tsv_hanri_match(
             out.append(convert_segment_to_ruby(reading_unit or key_unit))
             continue
 
-        if key[i] in {"'", '’', '‘'}:
+        if key[i] in {"'", '’'}:
             out.append(escape_visible_html_text(key[i]))
-            if reading_i < len(reading_text) and reading_text[reading_i] in {"'", '’', '‘'}:
+            if reading_i < len(reading_text) and reading_text[reading_i] in {"'", '’'}:
                 reading_i += 1
             i += 1
             continue
@@ -2833,9 +2850,9 @@ def render_mixed_tsv_lomari_ruby_below(hanri_key: str, reading: str) -> str:
             out.append(lomari_ruby_below(visible_hangul_with_tone_symbols(reading_unit or key_unit), reading_unit or key_unit))
             continue
 
-        if key[i] in {"'", '’', '‘'}:
+        if key[i] in {"'", '’'}:
             out.append(escape_visible_html_text(key[i]))
-            if reading_i < len(reading_text) and reading_text[reading_i] in {"'", '’', '‘'}:
+            if reading_i < len(reading_text) and reading_text[reading_i] in {"'", '’'}:
                 reading_i += 1
             i += 1
             continue
@@ -2960,7 +2977,7 @@ def hangul_reading_unit_at(text: str, index: int) -> tuple[str, int] | None:
 
 
 def sandhi_raw_hangul_before_explicit_hyphen(text: str) -> str:
-    """Treat ASCII hyphen after raw Hangul like a following readable unit."""
+    """Treat single Table 8 marks after raw Hangul like a following readable unit."""
     source = str(text or '')
     out: list[str] = []
     i = 0
@@ -2976,7 +2993,7 @@ def sandhi_raw_hangul_before_explicit_hyphen(text: str) -> str:
         unit = hangul_reading_unit_at(source, i)
         if unit is not None:
             unit_text, end = unit
-            if end < len(source) and source[end] == '-':
+            if is_tone_continuation_at(source, end):
                 unit_digits = normalize_annotation_tones(unit_text)
                 if last_tone_digit_index(unit_digits) is None:
                     unit_text = citation_to_sandhi_reading(unit_digits) or unit_text
@@ -3099,7 +3116,7 @@ def visible_source_for_lomari_next_line(input_sentence: str) -> str:
         if source[i].isspace():
             i += 1
             continue
-        if source[i] in {"'", "’", "‘"}:
+        if source[i] in {"'", "’"}:
             i += 1
             continue
 

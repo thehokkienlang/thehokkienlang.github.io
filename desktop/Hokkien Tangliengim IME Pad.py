@@ -146,8 +146,8 @@ TEXT_CURSOR_BLINK_OFF_MS = 300
 TEXT_CURSOR_TYPING_STEADY_MS = 450
 HTML_JOINABLE_SUFFIX_HANRI = {'仔', '上', '中', '內'}
 SC_FONT_HANRI_CHARS = {'㩼', '摕', '䆀', '䭕'}
-FALLBACK_FONT_HANRI_CHARS = {'𤺪', '𠢕', '𣍐', '𨘗', '𬦰'}
-TC_PATCH_HANRI_CHARS = {'㜁', '𡚸', '𨑨', '迌'}
+FALLBACK_FONT_HANRI_CHARS = {'𤺪', '𠢕', '𣍐', '𨘗', '𬦰', '𦤾'}
+TC_PATCH_HANRI_CHARS = {'㜁', '𡚸', '𨑨', '迌', '噉'}
 
 
 def load_hanri_fallback_font() -> None:

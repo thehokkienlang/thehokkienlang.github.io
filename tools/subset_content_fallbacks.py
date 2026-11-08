@@ -2,7 +2,7 @@
 import argparse
 from pathlib import Path
 
-HANRI_CODEPOINTS = {0x20, 0x20895, 0x23350, 0x24EAA, 0x28468, 0x28617, 0x2C9B0}
+HANRI_CODEPOINTS = {0x20, 0x20895, 0x23350, 0x24EAA, 0x28468, 0x28617, 0x2C9B0, 0x2693E}
 
 
 def subset_font(source, codepoints, family, output, axes=None):

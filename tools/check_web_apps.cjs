@@ -233,7 +233,7 @@ async function loadApp(route, script) {
     const cases = [['自己', '家己'], ['今天', '今仔日'], ['這裡', '쟈ˆ'], ['这里', '쟈ˆ'],
       ['計較', '計較'], ['计较', '計較'], ['繼續', '繼續'], ['继续', '繼續'],
       ['鑰匙', '鎖匙'], ['钥匙', '鎖匙'], ['去年', '舊年'],
-      ['彎腰', '揞腰'], ['弯腰', '揞腰'], ['爆香', '芡芳'], ['剛剛', '今仔'], ['刚刚', '今仔']];
+      ['彎腰', '揞腰'], ['弯腰', '揞腰'], ['爆香', '芡芳'], ['剛剛', '𦤾仔'], ['刚刚', '𦤾仔']];
     return cases.every(([query, headword]) => {
       searchInput.value = query;
       return searchGroups().shown.some(group => group.hanri === headword);
