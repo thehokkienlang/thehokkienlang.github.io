@@ -15,6 +15,7 @@
     "Browse:": ["分類：", "分类："], "Food": ["飲食", "饮食"], "Place names": ["地名", "地名"],
     "Password": ["密碼", "密码"], "Enter dictionary": ["進入詞典", "进入词典"],
     "Lock dictionary": ["鎖定詞典", "锁定词典"],
+    "Show password": ["顯示密碼", "显示密码"],
     "Enter translator": ["進入翻譯器", "进入翻译器"], "Lock translator": ["鎖定翻譯器", "锁定翻译器"],
     "This translator is currently available to invited visitors.": ["本翻譯器目前僅供受邀訪客使用。", "本翻译器目前仅供受邀访客使用。"],
     "The translator could not be opened. Please try again.": ["無法開啟翻譯器，請重試。", "无法打开翻译器，请重试。"],

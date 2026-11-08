@@ -45,7 +45,14 @@ window.TliAccessGate = (() => {
     const password = document.querySelector("#passwordInput");
     const error = document.querySelector("#accessError");
     const button = document.querySelector("#enterToolButton");
+    const show = document.querySelector("#showPasswordInput");
     let opening = false;
+
+    const setShown = shown => {
+      show.checked = shown;
+      password.type = shown ? "text" : "password";
+    };
+    show.addEventListener("change", () => setShown(show.checked));
 
     const showError = message => {
       error.textContent = text(message);
@@ -86,6 +93,7 @@ window.TliAccessGate = (() => {
         showError("That password is not correct.");
         return;
       }
+      setShown(false);
       remember();
       await openTool();
     });

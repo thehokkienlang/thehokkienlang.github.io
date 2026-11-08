@@ -37,6 +37,7 @@ class InviteOnlyLabelTests(unittest.TestCase):
             self.assertIn('<body class="access-locked"', page, app)
             screen = re.search(r'<main id="lockScreen".*?</main>', page, re.S).group(0)
             screens[app] = re.sub(r"(?i)dictionary|translator", "TOOL", screen)
+            self.assertIn('id="showPasswordInput" type="checkbox"', screen, app)
             gate = (ROOT / "apps" / app / "gate.js").read_text(encoding="utf-8")
             self.assertIn("TliAccessGate.start", gate, app)
             self.assertNotIn("DIGEST", gate, app)

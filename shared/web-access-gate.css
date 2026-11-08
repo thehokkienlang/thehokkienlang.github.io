@@ -11,7 +11,7 @@
   width: min(calc(100% - 48px), 430px);
   margin: auto;
   color: #19272a;
-  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans", Arial, sans-serif;
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "TLI Noto Sans", "Noto Sans", Arial, sans-serif;
 }
 
 .lock-panel {
@@ -60,6 +60,26 @@
 
 .access-form input[aria-invalid="true"] {
   border-color: #c2410c;
+}
+
+.access-form .access-show {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  min-height: 28px;
+  color: #5d6c70;
+  cursor: pointer;
+  font-weight: 400;
+}
+
+.access-form .access-show input {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  accent-color: #08756b;
+  cursor: pointer;
 }
 
 .access-form button {
