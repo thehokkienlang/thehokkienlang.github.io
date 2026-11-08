@@ -43,8 +43,8 @@ After subsequent manual edits, the former `갛` override is a lexical `佮` entr
 - `tests/test_dictionary_collation.py`
 - `tests/fixtures/dictionary-baseline.json`
 - `docs/dictionary-tsv-schema.md`
-- `docs/simplified-lookup-review.md` (new)
-- `docs/simplified-lookup-implementation.md` (this report)
+- `docs/history/simplified-lookup-review.md` (new)
+- `docs/history/simplified-lookup-implementation.md` (this report)
 - `tools/README.md`
 
 Generated outputs rebuilt: `public/data/hokkien-hanri-dict.json` and the published-site build output. These are generated files, not additional dictionary sources.

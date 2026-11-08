@@ -166,7 +166,7 @@ new classic/bridge reference tests:
 - `tests/test_dictionary_references.py`
 - `docs/dictionary-tsv-schema.md`
 - `docs/roadmap.md`
-- `docs/exodus-iii-reference-migration.md`
+- `docs/history/exodus-iii-reference-migration.md`
 - `public/data/hokkien-hanri-dict.json` (rebuilt provenance only)
 
 The same narrow classic/bridge changes are applied to the active Local launcher

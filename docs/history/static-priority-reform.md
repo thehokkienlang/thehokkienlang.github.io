@@ -129,10 +129,10 @@ No Exodus I-IV, N/X research or audio polishing was performed.
   `tests/test_dictionary_collation.py`, `tests/test_dictionary_simplified.py`,
   `tests/test_dictionary_mandarin.py`, `tests/fixtures/dictionary-baseline.json`,
   `tests/fixtures/static-reading-defaults.json`.
-- Documentation: this report, `docs/static-priority-migration.json`,
-  `docs/hangul-override-cleanup.json`, `docs/candidate-ranking-model.md`,
+- Documentation: this report, `docs/history/static-priority-migration.json`,
+  `docs/history/hangul-override-cleanup.json`, `docs/candidate-ranking-model.md`,
   `docs/dictionary-tsv-schema.md`, `docs/roadmap.md`,
-  `docs/mandarin-lookup-implementation.md`, `tools/README.md`.
+  `docs/history/mandarin-lookup-implementation.md`, `tools/README.md`.
 - Active Local folder: selectively merged `Hokkien Tangliengim IME Pad.py`
   and `hokkien_tone_marker_gui.py`. Legacy backup is untouched.
 

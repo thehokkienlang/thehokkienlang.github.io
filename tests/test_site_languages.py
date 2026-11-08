@@ -140,6 +140,16 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
                     self.assertEqual(songs.count('<li data-song-search="'),
                                      sum(len(category["routes"]) for category in categories))
+            # Audit A5: each page loads only the scripts it uses.
+            def scripts(relative):
+                page = (output / relative / "index.html").read_text(encoding="utf-8")
+                return {name: name in page for name in ("web-ime-core.js", "web-hangul-ime.js", "web-lyric-sync.js")}
+            for relative, ime, lyric in (("about", False, False), ("learn/spelling", False, False),
+                                         ("zh-hant/learn/tone-sandhi", False, False), ("search", True, False),
+                                         ("songs", True, False), ("songs/浪子回頭", True, True)):
+                with self.subTest(scripts=relative):
+                    self.assertEqual(scripts(relative), {"web-ime-core.js": ime, "web-hangul-ime.js": ime,
+                                                         "web-lyric-sync.js": lyric})
             # Audit A9: only the About pages link to the archived WordPress site.
             archive = {"": "https://hokkienlang.wordpress.com/", "zh-hant/": "https://hokkienlang.wordpress.com/zh-tw/",
                        "zh-hans/": "https://hokkienlang.wordpress.com/zh-cn/"}

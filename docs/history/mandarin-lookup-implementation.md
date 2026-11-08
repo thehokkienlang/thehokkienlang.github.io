@@ -192,11 +192,11 @@ runtime/DOM-harness checks, not a claim of manual device-by-device UI testing.
 
 ```text
 data/hokkien_hanri_dict.tsv
-docs/mandarin-lookup-review.md
-docs/mandarin-lookup-implementation.md
-docs/mandarin-second-pass-decisions.json
-docs/english-gloss-corrections.json
-docs/mandarin-manual-review-completion.json
+docs/history/mandarin-lookup-review.md
+docs/history/mandarin-lookup-implementation.md
+docs/history/mandarin-second-pass-decisions.json
+docs/history/english-gloss-corrections.json
+docs/history/mandarin-manual-review-completion.json
 tools/complete_mandarin_lookup.py
 tools/check_dictionary_baseline.cjs
 tools/check_web_apps.cjs
@@ -218,8 +218,8 @@ data/hokkien_hanri_dict.tsv
 desktop/Hokkien Tangliengim IME Pad.py
 desktop/hokkien_tone_marker_gui.py
 docs/dictionary-tsv-schema.md
-docs/mandarin-lookup-implementation.md
-docs/mandarin-lookup-review.md
+docs/history/mandarin-lookup-implementation.md
+docs/history/mandarin-lookup-review.md
 public/data/hokkien-hanri-dict.json
 tests/fixtures/dictionary-baseline.json
 tests/test_dictionary_collation.py

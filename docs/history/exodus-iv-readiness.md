@@ -130,11 +130,11 @@ Files changed in this phase:
 - `tools/sort_dictionary_tsv.py`, `tools/check_release.py`: read-only order gate,
   one Web integration target per mode.
 - `tests/test_dictionary_contract.py`: five focused contract tests.
-- `docs/dictionary-tsv-schema.md`, `docs/exodus-iv-readiness.md`,
+- `docs/dictionary-tsv-schema.md`, `docs/history/exodus-iv-readiness.md`,
   `docs/candidate-ranking-model.md`, `docs/roadmap.md`, `README.md`, `tools/README.md`.
-- Historical notices in `docs/genesis-3.1-consolidation.md`,
-  `docs/static-priority-reform.md`, `docs/simplified-lookup-implementation.md`,
-  `docs/exodus-iii-reference-migration.md`, `docs/shared-engine-migration.md`.
+- Historical notices in `docs/history/genesis-3.1-consolidation.md`,
+  `docs/history/static-priority-reform.md`, `docs/history/simplified-lookup-implementation.md`,
+  `docs/history/exodus-iii-reference-migration.md`, `docs/history/shared-engine-migration.md`.
 - Matching reader-only changes in the active Local Pad/converter copies;
   their unrelated code and the separate legacy backup remain intact.
 

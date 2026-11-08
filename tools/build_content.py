@@ -26,6 +26,12 @@ NAV_GROUPS = (
     ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
 )
 NAV = (("/about/", "About"), ("/search/", "Search"))
+IME_SCRIPTS = ('<script src="/shared/web-hangul-ime.js" defer></script>'
+               '<script src="/shared/web-ime-core.js" defer></script>')
+LYRIC_SCRIPTS = ('<script src="/shared/web-lyric-player.js" defer></script>'
+                 '<script src="/shared/web-lyric-sync.js" defer></script>')
+TITLE_READING = re.compile(r'class="[^"]*\btitle-reading\b[^"]*"[^>]*>(.*?)</(?:h1|h2|a|span)>', re.S)
+HANGUL = re.compile(r"[\u1100-\u11ff\u3130-\u318f\ua960-\ua97f\uac00-\ud7a3\ud7b0-\ud7ff]")
 SONG_FILTER_TEXT = {
     "en": {"placeholder": "Filter songs by Hanri, Hangul or Lomari", "categories": "Song categories", "all": "All",
            "empty": "No songs match.", "count": "{n} songs"},
@@ -448,6 +454,13 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     section = base_route(route).strip("/").split("/")[0] or "home"
     is_search = base_route(route) == "/search/"
     values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ""}
+    # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
+    # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
+    launch = values["LAUNCH"]
+    needs_ime = is_search or bool(HANGUL.search(values["HEADING"])) or any(
+        HANGUL.search(match) for match in TITLE_READING.findall(body + launch))
+    values["IMESCRIPTS"] = IME_SCRIPTS if needs_ime else ""
+    values["LYRICSCRIPTS"] = LYRIC_SCRIPTS if content_type == "songs" else ""
     values["BRAND"] = site_brand(root, language)
     values["META"] = meta_tags(title, route, page_description(
         title, base_route(route), body, content_type, language, home_introductions[language]), language)
