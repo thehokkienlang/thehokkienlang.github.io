@@ -31,7 +31,7 @@ button { color:inherit; }
 .swap-button:hover,.swap-button:focus-visible { outline:0; color:#fff; background:var(--accent); }
 .translation-text,.tone-overlay { width:100%; min-height:310px; padding:24px 24px 18px; border:0; outline:0; resize:vertical; color:var(--ink); background:transparent; font-size:24px; line-height:1.55; letter-spacing:0; }
 .translation-text { display:block; caret-color:var(--accent); }.english-pane .translation-text { font-family:"TLI Noto Sans","Segoe UI",sans-serif; }
-.hokkien-pane .translation-text,.tone-overlay { font-family:"TLI Western Punctuation","Tangliengim Hangul","Tangliengim Hanri Fallback","TLI Hanri","Noto Sans TC","Noto Sans KR",sans-serif; }
+.hokkien-pane .translation-text,.tone-overlay { font-family:"TLI Western Punctuation","Tangliengim Hangul","TLI Extended Hanri","Tangliengim Hanri Fallback","TLI Hanri","Noto Sans TC","Noto Sans KR",sans-serif; }
 .translation-text::placeholder { color:#a5b1b4; opacity:1; font-size:20px; }.hokkien-input-wrap { position:relative; }
 .tone-overlay { position:absolute; z-index:2; inset:0 auto auto 0; overflow:hidden; pointer-events:none; user-select:none; }.hokkien-input-wrap .translation-text { position:relative; z-index:1; }.candidate-bar { z-index:20; max-width:calc(100% - 32px); }
 .tone-overlay-anchor { position:absolute; width:0; height:0; }

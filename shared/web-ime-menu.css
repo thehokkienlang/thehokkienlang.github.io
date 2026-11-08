@@ -7,6 +7,13 @@
   unicode-range: U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-28616, U+28618-2EBEF;
 }
 /* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
+/* A one-family, one-weight face so the browser can embolden it in bold menus. */
+@font-face {
+  font-family: "TLI Extended Hanri";
+  src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
+  font-display: block;
+  unicode-range: U+2693E;
+}
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tli-hanri-v321-tc.woff2") format("woff2");
@@ -45,7 +52,7 @@
   font-family: "Tangliengim Hanri Fallback";
   src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2");
   font-display: block;
-  unicode-range: U+20895, U+23350, U+2C9B0, U+2693E;
+  unicode-range: U+20895, U+23350, U+2C9B0;
 }
 @font-face {
   font-family: "Tangliengim Hanri Fallback";
@@ -123,7 +130,7 @@
 
 .hanri-candidate-menu .candidate-hanri {
   flex: 0 0 auto;
-  font-family: "TLI Western Punctuation", "TLI Menu Hanri", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
+  font-family: "TLI Western Punctuation", "TLI Menu Hanri", "TLI Extended Hanri", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans", sans-serif;
   font-size: 1.2rem;
   font-weight: 800;
   white-space: nowrap;

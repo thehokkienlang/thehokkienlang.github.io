@@ -24,9 +24,10 @@
 @font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-400-v1.woff2") format("woff2"); font-weight:400; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-700-v1.woff2") format("woff2"); font-weight:700; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
 @font-face { font-family:"TLI Menu Hanri"; src:url("/assets/fonts/tli-menu-hanri-v1.woff2") format("woff2"); font-display:swap; unicode-range:U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-28616, U+28618-2EBEF; }
-.title-reading, .title-reading .tli-ruby-base { font-family:"TLI Western Punctuation", "TLI Menu Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans KR", sans-serif; }
+.title-reading, .title-reading .tli-ruby-base { font-family:"TLI Western Punctuation", "TLI Menu Hanri", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans KR", sans-serif; }
 @font-face { font-family: "TLI Hanri SC"; src: local("Noto Sans SC"), local("Noto Sans CJK SC"); unicode-range: U+3A7C; }
-@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+2C9B0, U+2693E; }
+@font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+20895, U+23350, U+24EAA, U+2C9B0; }
+@font-face { font-family: "TLI Extended Hanri"; src: url("/assets/fonts/tangliengim-content-hanri-v2.woff2") format("woff2"); font-display: swap; unicode-range: U+2693E; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-u28617-400-v1.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+28617; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-u28617-700-v1.woff2") format("woff2"); font-weight: 700; font-display: swap; unicode-range: U+28617; }
 @font-face { font-family: "TLI Rare Hanri"; src: url("/assets/fonts/tli-hanri-v321-tc.woff2") format("woff2"); font-weight: 400; font-display: swap; unicode-range: U+3701, U+216B8, U+28468, U+8FCC, U+5649; }
@@ -36,7 +37,7 @@
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
 .nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; font-kerning: normal; letter-spacing: 0; }
 .imported-content .tli-reading-ruby.tli-bopomofo-reading { --tli-ruby-size: 0.4em; }
-:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
+:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--site-background, #f6f8fb); line-height: 1.8; }
 a { color: var(--accent); text-underline-offset: .18em; }
@@ -66,7 +67,7 @@ body[data-site-section="learn"] .imported-content { font-size: 20px; }
 .imported-content code { font-family: "Tangliengim Hangul", monospace; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
-.imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
+.imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
 .imported-content [style*="font-family: Calibri" i], .imported-content [style*="font-family:Calibri" i] { font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif !important; }
 :is(.content-songs, .content-stories) h1 { font-size: 48px; }
 :is(.content-songs, .content-stories) .imported-content h2 { font-size: 36px; }
@@ -104,7 +105,7 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 /* Italic Hangul slants right, so its mark sits lower and further right to stay
    over the slanted syllable instead of floating to its left. */
 .imported-content :is(i, em) .tli-tone-ruby > .tli-rt { top: -1em; left: 0.5em; }
-.imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
+.imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
 /* Semantic classes that replaced the WordPress inline styles (audit B4, tools/migrate_semantic_markup.py). */
 .imported-content .lyric-line { display: block; font-size: 1em; }
 .imported-content .lyric-muted { color: gray; }
