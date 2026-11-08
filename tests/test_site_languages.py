@@ -140,6 +140,13 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
                     self.assertEqual(songs.count('<li data-song-search="'),
                                      sum(len(category["routes"]) for category in categories))
+            # Only pages with real translated versions declare hreflang alternates.
+            alternate = '<link rel="alternate" hreflang='
+            song_page = (output / "songs/浪子回頭/index.html").read_text(encoding="utf-8")
+            self.assertNotIn(alternate, song_page)
+            about_page = (output / "about/index.html").read_text(encoding="utf-8")
+            self.assertEqual(about_page.count(alternate), 3)
+            self.assertIn('hreflang="zh-Hant" href="https://thehokkienlang.github.io/zh-hant/about/"', about_page)
             # Audit A5: each page loads only the scripts it uses.
             def scripts(relative):
                 page = (output / relative / "index.html").read_text(encoding="utf-8")
