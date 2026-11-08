@@ -156,4 +156,46 @@
     table.before(wrapper);
     wrapper.append(table);
   });
+
+  // Songs page filter (audit A9). Matching ignores case, Lomari diacritics, TLI tone
+  // marks, spaces and hyphens; Hangul is compared syllable by syllable, never as Korean.
+  const filter = document.querySelector("[data-song-filter]");
+  if (filter) {
+    const fold = value => String(value || "").normalize("NFKD")
+      .replace(/[̀-ͯ]/gu, "").replace(/[ˆˋˊˉˇˍˎˏˬꞈ`\s\-’'‘]/gu, "").toLowerCase().normalize("NFC");
+    const input = filter.querySelector(".song-filter-input");
+    const chips = [...filter.querySelectorAll("[data-song-filter-category]")];
+    const summary = filter.querySelector(".song-filter-summary");
+    const empty = filter.querySelector(".song-filter-empty");
+    const catalogue = document.querySelector(".song-catalogue");
+    const sections = [...catalogue.querySelectorAll(".song-category")];
+    const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-search]")]
+      .map(row => ({ row, section, text: fold(row.dataset.songSearch) })));
+    let category = "";
+    const apply = () => {
+      const query = fold(input.value);
+      let shown = 0;
+      rows.forEach(item => {
+        const visible = (!category || item.section.dataset.songCategory === category) && (!query || item.text.includes(query));
+        item.row.hidden = !visible;
+        if (visible) shown += 1;
+      });
+      sections.forEach(section => {
+        const count = section.querySelectorAll("li[data-song-search]:not([hidden])").length;
+        section.hidden = count === 0;
+        const badge = section.querySelector(".song-category-heading > span");
+        if (badge) badge.textContent = String(count).padStart(2, "0");
+      });
+      const filtering = Boolean(query || category);
+      catalogue.classList.toggle("is-filtering", filtering);
+      empty.hidden = shown > 0;
+      summary.textContent = filtering && shown ? filter.dataset.countTemplate.replace("{n}", shown) : "";
+    };
+    input.addEventListener("input", apply);
+    chips.forEach(chip => chip.addEventListener("click", () => {
+      category = chip.dataset.songFilterCategory;
+      chips.forEach(other => other.setAttribute("aria-pressed", String(other === chip)));
+      apply();
+    }));
+  }
 })();

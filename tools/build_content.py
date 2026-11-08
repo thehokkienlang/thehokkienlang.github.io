@@ -26,6 +26,16 @@ NAV_GROUPS = (
     ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
 )
 NAV = (("/about/", "About"), ("/search/", "Search"))
+SONG_FILTER_TEXT = {
+    "en": {"placeholder": "Filter songs by Hanri, Hangul or Lomari", "categories": "Song categories", "all": "All",
+           "empty": "No songs match.", "count": "{n} songs"},
+    "zh-Hant": {"placeholder": "以漢字、諺文或羅馬字篩選歌曲", "categories": "歌曲分類", "all": "全部",
+                "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲"},
+    "zh-Hans": {"placeholder": "以汉字、谚文或罗马字筛选歌曲", "categories": "歌曲分类", "all": "全部",
+                "empty": "没有符合的歌曲。", "count": "{n} 首歌曲"},
+}
+WORDPRESS_ARCHIVE = {"en": "https://hokkienlang.wordpress.com/", "zh-Hant": "https://hokkienlang.wordpress.com/zh-tw/",
+                     "zh-Hans": "https://hokkienlang.wordpress.com/zh-cn/"}
 # Tools that open only for invited visitors behind a password (audit A4).
 INVITE_ONLY = frozenset({"/dictionary/", "/translate/"})
 
@@ -416,7 +426,11 @@ def search_page(language):
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
-    source = f'<p class="source-link"><a data-site-text="Original WordPress page" href="{html.escape(source_url, quote=True)}">{text("Original WordPress page", language)}</a></p>' if source_url and base_route(route) != "/" else ""
+    # One link to the archived WordPress site, on the About page only (audit A9); other
+    # pages no longer end with a link to their WordPress original.
+    source = (f'<p class="source-link"><a data-site-text="Original WordPress site" '
+              f'href="{WORDPRESS_ARCHIVE[language]}">{text("Original WordPress site", language)}</a></p>'
+              if base_route(route) == "/about/" else "")
     home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於大家的閩南語。", "zh-Hans": "记录着属于大家的闽南语。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
@@ -539,6 +553,10 @@ def build_content(root: Path, output: Path):
             "label": label,
             "lomari": song_lomari(imported),
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
+            # What the Songs filter matches (audit A9): Hanri, Hangul reading and Lomari.
+            "search": " ".join(part for part in (
+                re.sub(r"<[^>]+>", " ", label), imported.get("title", ""), sort_reading, song_lomari(imported),
+            ) if part),
         }
 
     def song_index(language):
@@ -551,7 +569,7 @@ def build_content(root: Path, output: Path):
                 item = song_items[route]
                 entry_class = "title-reading song-entry"
                 links.append(
-                    f'<li><a class="{entry_class}" '
+                    f'<li data-song-search="{html.escape(item["search"], quote=True)}"><a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
                     f'<span class="song-entry-title">{item["label"]}</span>'
                     f'<span class="song-entry-lomari">{html.escape(item["lomari"])}</span>'
@@ -569,7 +587,24 @@ def build_content(root: Path, output: Path):
                 f'<h2>{html.escape(title)}</h2><span>{len(items):02d}</span></header>'
                 f'<ol class="song-list">{"".join(links)}</ol></section>'
             )
-        return '<div class="song-catalogue">' + "".join(sections) + '</div>'
+        return song_filter(language) + '<div class="song-catalogue">' + "".join(sections) + '</div>'
+
+    def song_filter(language):
+        words = SONG_FILTER_TEXT[language]
+        chips = [f'<button type="button" class="song-filter-chip" data-song-filter-category="" aria-pressed="true">{words["all"]}</button>']
+        for category in song_categories:
+            label = category["labels"].get(language, category["labels"]["en"])
+            chips.append(
+                f'<button type="button" class="song-filter-chip" data-song-filter-category="{html.escape(category["id"], quote=True)}" '
+                f'aria-pressed="false" style="--category-accent:{html.escape(category["accent"], quote=True)}">{html.escape(label)}</button>')
+        return (
+            f'<div class="song-filter" role="search" data-song-filter data-count-template="{html.escape(words["count"], quote=True)}">'
+            f'<input type="search" class="song-filter-input" placeholder="{words["placeholder"]}" aria-label="{words["placeholder"]}" '
+            'autocomplete="off" spellcheck="false">'
+            f'<div class="song-filter-chips" role="group" aria-label="{words["categories"]}">{"".join(chips)}</div>'
+            '<p class="song-filter-summary" aria-live="polite"></p>'
+            f'<p class="song-filter-empty" hidden>{words["empty"]}</p></div>'
+        )
     sections = {}
     languages = manifest.get("languages", ["en"])
     for language in languages:

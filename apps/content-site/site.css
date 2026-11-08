@@ -173,6 +173,19 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .page-list li { align-items: center; padding: 0; }
 .page-list li > a { flex: 1; min-width: 0; padding: 20px 8px; color: var(--ink); text-decoration: none; }
 .page-list li > a:hover { color: var(--accent); }
+.song-filter { display: grid; gap: 12px; margin: 18px 0 0; }
+.song-filter-input { box-sizing: border-box; width: 100%; max-width: 560px; padding: 11px 14px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: #fff; font: inherit; font-size: 16px; }
+.song-filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+.song-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.song-filter-chip { --category-accent: var(--accent); padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+.song-filter-chip:hover { border-color: var(--category-accent); color: var(--category-accent); }
+.song-filter-chip[aria-pressed="true"] { border-color: var(--category-accent); color: #fff; background: var(--category-accent); }
+.song-filter-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.imported-content .song-filter-summary, .imported-content .song-filter-empty { margin: 0; color: var(--muted); font-size: 14px; }
+.imported-content .song-filter-summary:empty { display: none; }
+.song-catalogue [hidden], .song-filter [hidden] { display: none !important; }
+.song-catalogue.is-filtering .song-list li, .song-catalogue.is-filtering .song-list li:nth-child(odd) { border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.song-catalogue.is-filtering .song-list { border-right: 0; border-bottom: 0; }
 .song-catalogue { display: grid; gap: 44px; margin: 18px 0 54px; }
 .song-category { border-top: 4px solid var(--category-accent); box-shadow: 0 12px 30px rgb(23 37 43 / 5%); }
 .song-category-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 24px; padding: 18px 20px 16px; background: linear-gradient(105deg, var(--category-tint), var(--category-tint-end)); }

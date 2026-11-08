@@ -1,6 +1,7 @@
 """Language equivalence, shared routes, and Chinese publication boundaries."""
 
 import json
+import re
 import sys
 import tempfile
 import unittest
@@ -130,6 +131,25 @@ class SiteLanguageTests(unittest.TestCase):
                 for row in choices:
                     self.assertIn(f'href="{row["new_url"]}?lang={language}"', songs)
                     self.assertNotIn(f'/{folder}{row["new_url"]}', routes)
+            # Audit A9: the Songs page has a filter, and every song carries its search text.
+            categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))
+            for folder in ("", "zh-hant/", "zh-hans/"):
+                songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
+                with self.subTest(songs=folder):
+                    self.assertIn('data-song-filter', songs)
+                    self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
+                    self.assertEqual(songs.count('<li data-song-search="'),
+                                     sum(len(category["routes"]) for category in categories))
+            # Audit A9: only the About pages link to the archived WordPress site.
+            archive = {"": "https://hokkienlang.wordpress.com/", "zh-hant/": "https://hokkienlang.wordpress.com/zh-tw/",
+                       "zh-hans/": "https://hokkienlang.wordpress.com/zh-cn/"}
+            for page in output.rglob("index.html"):
+                html_text = page.read_text(encoding="utf-8")
+                links = re.findall(r'href="(https?://[^"]*wordpress\.com[^"]*)"', html_text)
+                relative = page.relative_to(output).parent.as_posix() + "/"
+                about = {f"{prefix}about/": url for prefix, url in archive.items()}
+                with self.subTest(page=relative):
+                    self.assertEqual(links, [about[relative]] if relative in about else [])
             manifest = json.loads((output / "content-manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["languages"], list(LANGUAGES))
             self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hant"]), 7)

@@ -9,7 +9,7 @@
     "Dictionary": ["詞典", "词典"], "IME Pad": ["輸入法", "输入法"],
     "Open IME": ["開啟輸入法", "打开输入法"], "Songs": ["歌曲", "歌曲"],
     "Hanri-Hangul mixed script": ["漢諺混寫", "汉谚混写"],
-    "Original WordPress page": ["原 WordPress 頁面", "原 WordPress 页面"],
+    "Original WordPress site": ["原 WordPress 網站", "原 WordPress 网站"],
     "Skip to content": ["跳至內容", "跳至内容"], "Search": ["搜尋", "搜索"],
     "Enable Hangul keyboard": ["啟用諺文鍵盤", "启用谚文键盘"],
     "Browse:": ["分類：", "分类："], "Food": ["飲食", "饮食"], "Place names": ["地名", "地名"],
