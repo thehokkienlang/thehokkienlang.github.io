@@ -2,20 +2,6 @@
   "about": "Lomari lines that differ from the Hangul above them, waiting for Haru's review. 'derived' is what the IME converter gives for the Hangul. Fix either the Hangul or the Lomari in content/, then run python tools/lomari_sync.py --write-review.",
   "lines": [
     {
-      "page": "content/songs/song-11143.json",
-      "kind": "lyric",
-      "hokkien": "뽀-옌-份 코ˆ롕-꽈ˎ 팰ˆ-랑ˊ 뎽ˆ시",
-      "stored": "bo-yen khô-lieng-goà phâ̰i-láng tiêng-si",
-      "derived": "bo-yen-份 khô-lieng-goà phâ̰i-láng tiêng-si"
-    },
-    {
-      "page": "content/songs/song-11187.json",
-      "kind": "lyric",
-      "hokkien": "봘ˋ메ˊ 빡새ˋ 澹둏-풰돨ˆ",
-      "stored": "poà̰-mé bak-sài tioh-phue-toâ̰",
-      "derived": "poà̰-mé bak-sài 澹tioh-phue-toâ̰"
-    },
-    {
       "page": "content/songs/song-8597.json",
       "kind": "lyric",
       "hokkien": "구김거ˊ이ˆ 망-취ˉ게ˇ",
