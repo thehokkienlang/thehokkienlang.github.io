@@ -28,9 +28,9 @@ The explicit historical ID importer above intentionally retains old schema
 recognition; it is not a runtime compatibility path. Preserve that tested import
 contract, but do not rerun one-time migration tools as ordinary maintenance.
 
-`populate_mandarin_lookup.py` performed the conservative semantic Mandarin migration using explicit Hokkien equivalents and CC-CEDICT sense confirmation; `--fill-missing` only fills blank Mandarin metadata. Uncertain rows are listed in `docs/mandarin-lookup-review.md`. Neither metadata field participates in canonical collation or IME ranking. This tool is not an automatic translator for new entries.
+`populate_mandarin_lookup.py` performed the conservative semantic Mandarin migration using explicit Hokkien equivalents and CC-CEDICT sense confirmation; `--fill-missing` only fills blank Mandarin metadata. Uncertain rows are listed in `docs/history/mandarin-lookup-review.md`. Neither metadata field participates in canonical collation or IME ranking. This tool is not an automatic translator for new entries.
 
-`complete_mandarin_lookup.py` applies the separately reviewed Wiktionary-led second-pass manifest in `docs/mandarin-second-pass-decisions.json`. It fills blank Mandarin pairs only, guards each decision by permanent ID and original lexical fields, refuses conflicting populated values, and is byte-idempotent. HIGH/MEDIUM decisions are populated; LOW and non-lexical N/A stay blank. This historical migration is not a translator for new rows and does not require live network access. The review report separates optional MEDIUM spot-checks from genuine LOW manual review.
+`complete_mandarin_lookup.py` applies the separately reviewed Wiktionary-led second-pass manifest in `docs/history/mandarin-second-pass-decisions.json`. It fills blank Mandarin pairs only, guards each decision by permanent ID and original lexical fields, refuses conflicting populated values, and is byte-idempotent. HIGH/MEDIUM decisions are populated; LOW and non-lexical N/A stay blank. This historical migration is not a translator for new rows and does not require live network access. The review report separates optional MEDIUM spot-checks from genuine LOW manual review.
 
 `populate_simplified_lookup.py` performed the one-time Simplified lookup-column migration, keeping all previous cells and row order intact. It refuses to overwrite an existing Simplified column. `simplified_lookup.py` is the shared script-preserving converter used by that migration and the Local writer, backed by the pinned OpenCC subset in `tools/vendor/opencc`.
 
@@ -47,7 +47,7 @@ It versions browser assets by their contents so updates do not reuse stale code.
 
 `capture_legacy_parity.py` imports the active desktop reference IME read-only
 and captures selected output into a committed parity fixture. See
-`docs/shared-engine-migration.md` for the migration boundary and refresh command.
+`docs/history/shared-engine-migration.md` for the migration boundary and refresh command.
 
 Exhaustive recording coverage/duration audits, real-device mobile testing and
 linguistic review remain optional focused work. Baseline capture is an explicit

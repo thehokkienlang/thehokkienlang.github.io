@@ -26,9 +26,9 @@ def difference(before, after, reason):
 
 
 def main():
-    path = ROOT / 'docs/harmonisation-3.2-audit.json'
+    path = ROOT / 'docs/history/harmonisation-3.2-audit.json'
     audit = json.loads(path.read_text(encoding='utf-8'))
-    patch = json.loads((ROOT / 'docs/harmonisation-3.2.1-audit.json').read_text(encoding='utf-8'))
+    patch = json.loads((ROOT / 'docs/history/harmonisation-3.2.1-audit.json').read_text(encoding='utf-8'))
     changed = []
     for file, entry in audit['records'].items():
         current = json.loads((ROOT / file).read_text(encoding='utf-8'))['body']
@@ -48,7 +48,7 @@ def main():
             reviewed = patch['records'][file]
             assert digest(previous) == reviewed['beforeSha256']
             entry.setdefault('followUps', []).append({key: reviewed[key] for key in ('beforeSha256', 'afterSha256', 'edits')})
-            entry['followUps'][-1]['reason'] = 'Author-confirmed Hanri assignments; docs/harmonisation-3.2.1-audit.json'
+            entry['followUps'][-1]['reason'] = 'Author-confirmed Hanri assignments; docs/history/harmonisation-3.2.1-audit.json'
         restore_body(current, entry)
         changed.append(file)
     path.write_text(json.dumps(audit, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
@@ -70,7 +70,7 @@ def main():
         restore(current, entry)
         patch_changes.append(file)
     if patch_changes:
-        (ROOT / 'docs/harmonisation-3.2.1-audit.json').write_text(
+        (ROOT / 'docs/history/harmonisation-3.2.1-audit.json').write_text(
             json.dumps(patch, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     print('Recorded reversible follow-ups for', len(changed), 'pages')
     print('Recorded reversible v3.2.1 follow-ups for', len(patch_changes), 'pages')

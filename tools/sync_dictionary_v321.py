@@ -10,7 +10,7 @@ from dictionary_editor_service import DictionaryEditorService, MAIN, read_table
 from dictionary_editor_publish import changed_lookup_sources
 
 ROOT = Path(__file__).resolve().parents[1]
-REPORT = ROOT / "docs/harmonisation-3.2.1-dictionary.json"
+REPORT = ROOT / "docs/history/harmonisation-3.2.1-dictionary.json"
 REPLACEMENTS = {
     "U+BED0_00": ("𡚸", "뻐2"),
     "U+C5D0_U+B2F9_00": ("會當", "에당"),

@@ -143,7 +143,7 @@ def complete(path, manifest, report):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, default=ROOT / 'data/hokkien_hanri_dict.tsv')
-    parser.add_argument('--manifest', type=Path, default=ROOT / 'docs/mandarin-second-pass-decisions.json')
-    parser.add_argument('--report', type=Path, default=ROOT / 'docs/mandarin-lookup-review.md')
+    parser.add_argument('--manifest', type=Path, default=ROOT / 'docs/history/mandarin-second-pass-decisions.json')
+    parser.add_argument('--report', type=Path, default=ROOT / 'docs/history/mandarin-lookup-review.md')
     args = parser.parse_args()
     print(complete(args.input, args.manifest, args.report))

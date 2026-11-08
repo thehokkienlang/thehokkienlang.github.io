@@ -166,7 +166,8 @@ def main() -> int:
     if OUTPUT.exists():
         shutil.rmtree(OUTPUT)
     OUTPUT.mkdir()
-    for filename in ("index.html", "favicon.ico", ".nojekyll"):
+    # The home page is written by build_content (there is no root index.html; audit B6).
+    for filename in ("favicon.ico", ".nojekyll"):
         shutil.copy2(ROOT / filename, OUTPUT / filename)
     for folder in ("assets", "shared"):
         shutil.copytree(ROOT / folder, OUTPUT / folder)

@@ -100,7 +100,7 @@ The full release gate validates source/schema, canonical order, IDs/references,
 static/adaptive ranking and integration, and rebuilds/checks the site. For portable
 source-only CI checks use `python tools/check_release.py --source-only`.
 See [the production data contract](docs/dictionary-tsv-schema.md) for the complete
-maintenance workflow, and [Exodus IV readiness](docs/exodus-iv-readiness.md) for
+maintenance workflow, and [Exodus IV readiness](docs/history/exodus-iv-readiness.md) for
 the final consolidation audit. Generated JSON and personal preference files are
 not independent dictionary sources.
 
@@ -127,7 +127,7 @@ The former `thehokkienlang/dictionary` repository is retained as a historical
 archive. Its history was merged here; active edits and publishing happen here.
 Existing root-site assets are preserved at their original `/assets/` paths.
 
-See [the WordPress migration](docs/wordpress-migration.md) for the imported
+See [the WordPress migration](docs/history/wordpress-migration.md) for the imported
 scope, language routes, and the three-column song URL form at
 `migration/song-url-form.html`. WordPress is not modified by importing or building.
 

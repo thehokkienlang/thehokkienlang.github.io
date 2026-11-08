@@ -35,10 +35,11 @@ current schemas. This consolidation changes no lexical data, IDs, collation,
 ranking formula, pronunciation or audio. IDs remain pre-release: Exodus IV does
 not declare them publicly frozen.
 
-Verified snapshot: 2,737 source records; 2,727 runtime-active source records;
-2,705 generated sandhi views; 5,442 total JSON records. The ten source records
-excluded from ordinary candidates are number pronunciations, not missing data.
-These counts describe this checkpoint and are not schema limits.
+Current counts (source records, runtime-active sources, generated sandhi views,
+total JSON records, ID registry) are printed by `python tools/dictionary_counts.py`,
+which the release gate runs after every build, so this document no longer records
+them by hand. The source records excluded from ordinary candidates are number
+pronunciations, not missing data. Counts are not schema limits.
 
 ## 2. Source-of-truth files
 
@@ -140,9 +141,9 @@ or only surviving rows. Deleted suffixes are not automatically reused, and a
 deleted `_00` does not cause surviving entries to be renumbered.
 
 The ledger header is `entry_id canonical_headword redirect_entry_id` (tabs).
-Currently it contains 2,741 assignments: 2,737 current records and four
-registry-only reservations (`U+B098_00`, `U+B3C4_U+C704_00`, `U+B990_U+D638_00`,
-`U+B990_U+D638_01`). Every current ID must agree with its ledger headword.
+It holds an assignment for every current record and every defunct record, plus
+a few registry-only reservations; `tools/dictionary_counts.py` prints each count.
+Every current ID must agree with its ledger headword.
 All redirect cells are empty; no active `tlg-...` identifiers remain.
 
 Before explicit public freeze, approved identity migrations can update IDs and
@@ -255,9 +256,9 @@ runtime `id = source entry_id + '-sandhi'`; `raw.entry_id` stays the permanent
 source ID. These views have no allocated ledger/TSV records. Fallback candidates
 are transient, not independently permanent dictionary entries.
 
-Ten number source objects remain `active: false` because digit/corrected
-pronunciations are handled separately, leaving 2,727 active sources. Adding 2,705
-active sandhi views to all 2,737 source objects yields 5,442 JSON entries.
+Number source objects remain `active: false` because digit/corrected
+pronunciations are handled separately. The JSON holds every source object plus
+its active sandhi views; `tools/dictionary_counts.py` prints both counts.
 Generated `raw` metadata is resolved, not a source TSV copy for manual editing.
 `runtime` contains shared pronunciation/audio lookup metadata. Build metadata
 records source checksums; `build_site.py` rebuilds data, versions assets by

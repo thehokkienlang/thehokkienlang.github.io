@@ -8,7 +8,7 @@ from pathlib import Path
 from content_harmonisation import apply_edits, digest, propose, restore_body, replay_followups
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_LEDGER = ROOT / "docs/harmonisation-3.2-audit.json"
+DEFAULT_LEDGER = ROOT / "docs/history/harmonisation-3.2-audit.json"
 ARCHIVED = {"/songs/translation-notes/", "/read/literature/lychee-mirror/"}
 
 
@@ -90,7 +90,7 @@ def main():
             record["orthography"] = {"target": "3.2", "review": "mixed-script-audited",
                                      "scope": "section-4 mixed-script spellings",
                                      "v32Changes": "applied" if reviewed["edits"] else "not-required",
-                                     "audit": "docs/harmonisation-3.2-audit.json"}
+                                     "audit": "docs/history/harmonisation-3.2-audit.json"}
             (args.root / item["file"]).write_text(json.dumps(record, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(ledger, ensure_ascii=False, indent=2)+"\n", encoding="utf-8")

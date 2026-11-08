@@ -180,6 +180,6 @@ if __name__ == '__main__':
     parser.add_argument('--input', type=Path, default=ROOT / 'data/hokkien_hanri_dict.tsv')
     parser.add_argument('--reference', type=Path, required=True)
     parser.add_argument('--fill-missing', action='store_true', help='Populate only blank Mandarin fields in the current ten-column TSV')
-    parser.add_argument('--report', type=Path, default=ROOT / 'docs/mandarin-lookup-review.md')
+    parser.add_argument('--report', type=Path, default=ROOT / 'docs/history/mandarin-lookup-review.md')
     args = parser.parse_args()
     print(migrate(args.input, args.reference, args.report, args.fill_missing))

@@ -84,7 +84,7 @@ class MandarinLookupTests(unittest.TestCase):
             self.assertTrue(source_ids <= set(data['indexes']['byMandarinSimp'][simp]))
 
     def test_reviewed_english_corrections_reach_runtime_and_metadata(self):
-        audit = json.loads((ROOT / 'docs/english-gloss-corrections.json').read_text(encoding='utf-8'))['corrections']
+        audit = json.loads((ROOT / 'docs/history/english-gloss-corrections.json').read_text(encoding='utf-8'))['corrections']
         data = load_dictionary_data(ROOT / 'public/data/hokkien-hanri-dict.json')
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
@@ -116,7 +116,7 @@ class MandarinLookupTests(unittest.TestCase):
         self.assertIn(kilometre['entry_id'], data['indexes']['byMandarinTrad']['公里'])
 
     def test_completed_manual_reviews_preserve_identity_and_bound_component(self):
-        report = json.loads((ROOT / 'docs/mandarin-manual-review-completion.json').read_text(encoding='utf-8'))
+        report = json.loads((ROOT / 'docs/history/mandarin-manual-review-completion.json').read_text(encoding='utf-8'))
         with (ROOT / 'data/hokkien_hanri_dict.tsv').open(encoding='utf-8', newline='') as handle:
             rows = {row['entry_id']: row for row in csv.DictReader(handle, delimiter='\t') if row['entry_id']}
         archived = source_records('dictionary_defunct.tsv')
@@ -134,7 +134,7 @@ class MandarinLookupTests(unittest.TestCase):
             self.assertTrue(resolved['mandarin_simp'])
         self.assertIn('U+87EE_00', remaining_ids)
         # Explicit user clarification, 2026-10-14: label the bound character.
-        bound = json.loads((ROOT / 'docs/audit-2026-10-14-empty-definitions.json').read_text(encoding='utf-8'))
+        bound = json.loads((ROOT / 'docs/history/audit-2026-10-14-empty-definitions.json').read_text(encoding='utf-8'))
         annotation = next(item for item in bound['rows'] if item['entry_id'] == 'U+87EE_00')
         self.assertEqual(annotation['reason_group'], 'explicit_user_bound_character_definition')
         for field, value in annotation['after'].items():

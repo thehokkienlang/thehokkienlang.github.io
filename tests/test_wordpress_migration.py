@@ -93,7 +93,7 @@ class MigrationTests(unittest.TestCase):
     @unittest.skipUnless(os.environ.get('TLI_HISTORICAL_AUDIT') == '1', 'Historical migration audit is opt-in')
     def test_all_imported_pronunciations_match_the_original(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))
-        audit_path = ROOT / "docs/harmonisation-3.2-audit.json"
+        audit_path = ROOT / "docs/history/harmonisation-3.2-audit.json"
         audit = json.loads(audit_path.read_text(encoding="utf-8"))["records"] if audit_path.exists() else {}
         self.assertTrue(set(PAGES).issubset({item["sourceId"] for item in manifest["records"]}))
         for item in manifest["records"]:

@@ -13,7 +13,7 @@ from harmonise_content_v32 import active_records
 from song_title_readings import phonetics
 
 ROOT = Path(__file__).resolve().parents[1]
-LEDGER = "docs/harmonisation-3.2.1-audit.json"
+LEDGER = "docs/history/harmonisation-3.2.1-audit.json"
 SPELLINGS = {
     "오로": "呵咾", "다버": "丈夫", "자뻐": "㜁𡚸", "뻐": "𡚸",
     "에당": "會當", "당": "當", "텧": "摕",

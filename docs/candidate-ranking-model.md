@@ -243,7 +243,7 @@ No source data or baselines are refreshed by learning or by these checks.
 
 ## Reviewed baseline
 
-docs/static-priority-migration.json classifies preserved priority-tier effects,
+docs/history/static-priority-migration.json classifies preserved priority-tier effects,
 preserved reading/segmentation defaults and expected equal-priority row-tie changes.
 Unrelated lexical/search/identity/audio changes are rejected before baseline capture.
 tools/check_static_ranking.cjs checks row independence, sparse slots and preserved

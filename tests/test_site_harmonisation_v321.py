@@ -35,7 +35,7 @@ class PatchTests(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get('TLI_HISTORICAL_AUDIT') == '1', 'Historical migration audit is opt-in')
     def test_reviewed_pages_are_reversible_and_urls_unchanged(self):
-        path = ROOT / 'docs/harmonisation-3.2.1-audit.json'
+        path = ROOT / 'docs/history/harmonisation-3.2.1-audit.json'
         if not path.exists():
             self.skipTest('Migration has not been applied')
         for file, entry in json.loads(path.read_text(encoding='utf-8'))['records'].items():

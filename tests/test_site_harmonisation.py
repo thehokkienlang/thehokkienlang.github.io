@@ -106,7 +106,7 @@ class HarmonisationTests(unittest.TestCase):
 
     @unittest.skipUnless(os.environ.get('TLI_HISTORICAL_AUDIT') == '1', 'Historical migration audit is opt-in')
     def test_all_authored_languages_and_readings_survive(self):
-        path = ROOT / 'docs/harmonisation-3.2-audit.json'
+        path = ROOT / 'docs/history/harmonisation-3.2-audit.json'
         if not path.exists():
             self.skipTest('Run the reviewed content migration first')
         ledger = json.loads(path.read_text(encoding='utf-8'))

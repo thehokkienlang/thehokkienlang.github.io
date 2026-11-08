@@ -19,7 +19,7 @@ class DictionaryHarmonisationTests(unittest.TestCase):
         cls.rows = {row['entry_id']: row for row in read_table((ROOT / 'data/hokkien_hanri_dict.tsv').read_bytes())[1]
                     if not is_comment_record(row)}
         cls.archived = {row['entry_id']: row for row in read_table((ROOT / 'data/dictionary_defunct.tsv').read_bytes())[1]}
-        cls.report = json.loads((ROOT / 'docs/harmonisation-3.2-dictionary.json').read_text(encoding='utf-8'))
+        cls.report = json.loads((ROOT / 'docs/history/harmonisation-3.2-dictionary.json').read_text(encoding='utf-8'))
 
     def test_reviewed_additions_have_the_approved_readings(self):
         additions = list(self.report['added'])

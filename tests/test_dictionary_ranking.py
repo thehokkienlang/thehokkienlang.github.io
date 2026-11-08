@@ -91,7 +91,7 @@ class StaticRankingTests(unittest.TestCase):
         import csv
         with (ROOT/'data/hokkien_hanri_dict.tsv').open(encoding='utf-8',newline='') as stream:
             entries={r['entry_id']:r for r in csv.DictReader(stream,delimiter='\t') if r['entry_id']}
-        report=json.loads((ROOT/'docs/hangul-override-cleanup.json').read_text(encoding='utf-8'))
+        report=json.loads((ROOT/'docs/history/hangul-override-cleanup.json').read_text(encoding='utf-8'))
         for pair in report['removedOverrides']:
             self.assertNotIn(pair['old']['entry_id'],entries)
             retained=entries[pair['retained']['entry_id']]

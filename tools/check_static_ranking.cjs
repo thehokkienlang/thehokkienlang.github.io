@@ -77,7 +77,7 @@ if (beforeFlag !== -1) {
     }
     changes.push({lookup_key:core.rankingLookupKey(key),before:oldIds,after:current,classification:'C: equal legacy-priority row ties replaced by canonical ordering'});
   }
-  const reportPath = path.join(root,'docs/static-priority-migration.json');
+  const reportPath = path.join(root,'docs/history/static-priority-migration.json');
   const report = JSON.parse(fs.readFileSync(reportPath));
   report.rowTieGroupsChanged = changes.length;
   report.rowTieChanges = changes;

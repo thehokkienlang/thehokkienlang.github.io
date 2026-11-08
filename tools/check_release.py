@@ -121,6 +121,7 @@ def main() -> int:
         run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
     else:
         run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
+    run("Dictionary counts", sys.executable, "-X", "utf8", "tools/dictionary_counts.py")
     run("Dictionary collation and audio portability", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
         "-s", "tests", "-p", "test_dictionary_*.py")
     run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")

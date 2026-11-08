@@ -57,6 +57,6 @@ def populate(path: Path, report: Path) -> dict:
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--input", type=Path, default=ROOT / "data/hokkien_hanri_dict.tsv")
-    parser.add_argument("--report", type=Path, default=ROOT / "docs/simplified-lookup-review.md")
+    parser.add_argument("--report", type=Path, default=ROOT / "docs/history/simplified-lookup-review.md")
     args = parser.parse_args()
     print(populate(args.input, args.report))
