@@ -161,9 +161,37 @@
   // marks, spaces and hyphens; Hangul is compared syllable by syllable, never as Korean.
   const filter = document.querySelector("[data-song-filter]");
   if (filter) {
+    const language = document.documentElement.lang;
+    const labels = language === "zh-Hant"
+      ? { filter: "篩選歌曲", keyboard: "啟用諺文鍵盤", candidates: "漢字候選詞" }
+      : language === "zh-Hans"
+        ? { filter: "筛选歌曲", keyboard: "启用谚文键盘", candidates: "汉字候选词" }
+        : { filter: "Filter songs", keyboard: "Enable Hangul keyboard", candidates: "Hanri candidates" };
     const fold = value => String(value || "").normalize("NFKD")
       .replace(/[̀-ͯ]/gu, "").replace(/[ˆˋˊˉˇˍˎˏˬꞈ`\s\-’'‘]/gu, "").toLowerCase().normalize("NFC");
     const input = filter.querySelector(".song-filter-input");
+    input.id ||= "songFilterInput";
+    const heading = document.createElement("div");
+    heading.className = "song-filter-heading";
+    const label = document.createElement("label");
+    label.htmlFor = input.id;
+    label.textContent = labels.filter;
+    const toggle = document.createElement("button");
+    toggle.className = "hangul-keyboard-toggle";
+    toggle.type = "button";
+    toggle.setAttribute("aria-pressed", "false");
+    toggle.innerHTML = `<span class="toggle-label">${labels.keyboard}</span><span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span>`;
+    heading.append(label, toggle);
+    const inputWrap = document.createElement("div");
+    inputWrap.className = "song-filter-input-wrap";
+    const candidates = document.createElement("div");
+    candidates.id = "songFilterCandidates";
+    candidates.className = "hanri-candidate-menu";
+    candidates.setAttribute("role", "listbox");
+    candidates.setAttribute("aria-label", labels.candidates);
+    candidates.hidden = true;
+    input.before(heading, inputWrap);
+    inputWrap.append(input, candidates);
     const chips = [...filter.querySelectorAll("[data-song-filter-category]")];
     const summary = filter.querySelector(".song-filter-summary");
     const empty = filter.querySelector(".song-filter-empty");
@@ -197,5 +225,56 @@
       chips.forEach(other => other.setAttribute("aria-pressed", String(other === chip)));
       apply();
     }));
+
+    const loadScript = src => new Promise((resolve, reject) => {
+      const existing = [...document.scripts].find(script => new URL(script.src, location.href).pathname === src);
+      if (existing) {
+        if (existing.dataset.loaded === "true" || existing.readyState === "complete") resolve();
+        else {
+          existing.addEventListener("load", resolve, { once: true });
+          existing.addEventListener("error", reject, { once: true });
+        }
+        return;
+      }
+      const script = document.createElement("script");
+      script.src = src;
+      script.addEventListener("load", () => { script.dataset.loaded = "true"; resolve(); }, { once: true });
+      script.addEventListener("error", reject, { once: true });
+      document.head.append(script);
+    });
+    const setupIme = async () => {
+      if (!window.TangliengimHangulIme) await loadScript("/shared/web-hangul-ime.js");
+      if (!window.TangliengimImeCore) await loadScript("/shared/web-ime-core.js");
+      const imeCore = window.TangliengimImeCore;
+      let enabled = false;
+      const popup = imeCore.createCandidatePopupPositioner({
+        control: input,
+        container: candidates,
+        boundary: inputWrap,
+        placement: "below",
+      });
+      const controller = imeCore.createTextImeController({
+        control: input,
+        candidateContainer: candidates,
+        entries: [],
+        enabled: () => enabled,
+        onUpdate: apply,
+        onCandidatesChanged: popup.schedule,
+        enterBehavior: "none",
+      });
+      toggle.addEventListener("click", () => {
+        enabled = !enabled;
+        toggle.setAttribute("aria-pressed", String(enabled));
+        input.classList.toggle("hangul-ime-active", enabled);
+        controller.setEnabled();
+        input.focus();
+      });
+      const response = await fetch("/public/data/hokkien-hanri-dict.json", { cache: "no-cache" });
+      if (!response.ok) throw new Error(`Dictionary request failed: ${response.status}`);
+      const data = await response.json();
+      const entries = data.entries || [];
+      controller.setEntries(entries, imeCore.createDictionaryIndex(entries));
+    };
+    setupIme().catch(error => console.error("Songs TLI IME could not load", error));
   }
 })();
