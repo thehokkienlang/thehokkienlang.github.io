@@ -7,6 +7,7 @@ import json
 import importlib.util
 import io
 import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -76,10 +77,10 @@ def check_hidden_tones_in_bracketed_tsv_input() -> None:
     sys.modules[gui_spec.name] = converter
     gui_spec.loader.exec_module(converter)
     exported = converter.convert_hangul_to_html('[德國뎩걱]', 'plain')['html']
+    # Semantic ruby since audit B4: shared/web-ruby.css positions the reading.
     assert 'class="tli-reading-ruby"' in exported
-    assert 'font-size: var(--tli-ruby-size, 0.55em)' in exported
-    assert 'bottom: calc(100% - var(--tli-ruby-overlap, 0.05em))' in exported
-    assert 'transform: translateX(-50%)' in exported
+    assert '<rt class="tli-rt">' in exported
+    assert not re.search(r'<(ruby|rt)\b[^>]*\sstyle=', exported), exported
     assert 'top: -1.2em' not in exported
     with patch.dict(os.environ, {"HOKKIEN_GITHUB_REPO_PATH": str(ROOT)}):
         os.environ.pop("HOKKIEN_HANRI_DICT_PATH", None)

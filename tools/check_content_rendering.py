@@ -140,7 +140,7 @@ def main():
                             assert title.locator('.tli-rt').inner_text() == '능ˉ'
                             assert page.locator('.story-subtitle').inner_text() == ('The Egg' if language == 'en' else '蛋')
                             assert '2352652016' in page.locator('iframe[src*="w.soundcloud.com"]').get_attribute('src')
-                        paragraphs = page.locator('p[style*="text-indent:2em"]')
+                        paragraphs = page.locator('p.indent-2em')
                         paragraphs.first.locator(".tli-ruby").first.wait_for()
                         page.evaluate("document.fonts.ready")
                         page.screenshot(path=str(args.output / f"{engine_name}-{width}-{language}-egg-header.png"))

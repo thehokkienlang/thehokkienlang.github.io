@@ -137,6 +137,7 @@ def main() -> int:
     run("Editor browser lifetime", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
         "-s", "tests", "-p", "test_desktop_editor_lifetime.py")
     run("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")
+    run("Lomari follows the Hokkien text", sys.executable, "-X", "utf8", "tools/lomari_sync.py", "--check")
     run("Compound gloss review (warning only)", sys.executable, "-X", "utf8", "tools/check_compound_glosses.py")
     run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
     check_legacy_parity()

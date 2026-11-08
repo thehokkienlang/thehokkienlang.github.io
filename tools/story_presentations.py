@@ -54,8 +54,10 @@ class SimplifiedHTML(HTMLParser):
     def handle_starttag(self, tag, attrs):
         self.parts.append(self.get_starttag_text())
         attributes = dict(attrs)
-        hokkien_paragraph = tag == 'p' and re.search(
-            r'(?:^|;)\s*text-indent\s*:\s*2em\s*(?:;|$)', attributes.get('style', ''), re.I)
+        # Story paragraphs are Hokkien: class indent-2em, or the older inline text-indent.
+        hokkien_paragraph = tag == 'p' and (
+            'indent-2em' in (attributes.get('class') or '').split()
+            or re.search(r'(?:^|;)\s*text-indent\s*:\s*2em\s*(?:;|$)', attributes.get('style') or '', re.I))
         hokkien_language = attributes.get('lang', '').lower().split('-')[0] == 'nan'
         if tag in {'script', 'style', 'ruby', 'rt', 'rp', 'code', 'pre'} or hokkien_paragraph or hokkien_language:
             self.protected.append(tag)

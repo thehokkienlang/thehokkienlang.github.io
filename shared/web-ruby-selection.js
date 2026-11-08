@@ -55,8 +55,10 @@
     container.append(fragment);
     // Keep paragraph and explicit line breaks in the plain-text clipboard.
     container.querySelectorAll("br").forEach(node => node.replaceWith("\n"));
-    container.querySelectorAll("p, div, li, h1, h2, h3, h4, h5, h6, tr, [style]").forEach(node => {
-      if (node.matches("[style]") && !node.matches("p, div, li, h1, h2, h3, h4, h5, h6, tr") && node.style.display !== "block") return;
+    // Lyric and Lomari lines are block spans (classes since audit B4; inline styles before).
+    container.querySelectorAll("p, div, li, h1, h2, h3, h4, h5, h6, tr, .lyric-line, .lyric-lomari, [style]").forEach(node => {
+      if (node.matches("[style]") && !node.matches("p, div, li, h1, h2, h3, h4, h5, h6, tr, .lyric-line, .lyric-lomari")
+          && node.style.display !== "block") return;
       node.append("\n");
     });
     event.clipboardData.setData("text/plain", container.textContent.replace(/\n{3,}/g, "\n\n").trim());

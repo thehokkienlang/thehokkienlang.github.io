@@ -40,10 +40,14 @@ class LyricParser(HTMLParser):
             return
         self.stack.append(tag)
         if tag == 'span':
+            # Lines are marked by class since the semantic-markup migration (audit B4);
+            # older or pasted markup still uses the WordPress inline styles.
             style = attrs.get('style', '')
-            if re.search(r'font-size\s*:\s*0?\.7em', style):
+            classes = (attrs.get('class') or '').split()
+            if 'lyric-lomari' in classes or re.search(r'font-size\s*:\s*0?\.7em', style):
                 self.current['lomari'] = True
-            if re.search(r'display\s*:\s*block', style) and not self.current['foundMain']:
+            block = {'lyric-line', 'lyric-lomari'} & set(classes) or re.search(r'display\s*:\s*block', style)
+            if block and not self.current['foundMain']:
                 self.current['main'] = len(self.stack)
                 self.current['foundMain'] = True
 

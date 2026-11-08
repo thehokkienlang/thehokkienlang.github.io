@@ -48,7 +48,7 @@ class StoryPresentationTests(unittest.TestCase):
         def paragraphs(body):
             result = []
             def walk(node):
-                if node.tag == 'p' and 'text-indent:2em' in node.attrs.get('style', ''):
+                if node.tag == 'p' and 'indent-2em' in node.attrs.get('class', '').split():
                     result.append(body[node.start:node.end])
                 for child in node.children:
                     walk(child)

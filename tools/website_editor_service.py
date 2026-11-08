@@ -168,10 +168,49 @@ class WebsiteEditorService:
         title, body = self.validate_page_fields(title, body)
         record["title"] = title
         record["body"] = body
+        relative_path = path.relative_to(self.repo).as_posix()
+        rewritten, home_changed = self._sync_lomari(relative_path, record)
         output = (json.dumps(record, ensure_ascii=False, indent=2) + "\n").encode("utf-8")
         if output != raw:
             _atomic_write(path, output)
-        return {"ok": True, "revision": digest(output), "message": f"Saved {title} locally.", "page": record}
+        message = f"Saved {title} locally." + self._lomari_note(rewritten, home_changed)
+        return {"ok": True, "revision": digest(output), "message": message, "page": record,
+                "lomariRewritten": rewritten, "changedPaths": [relative_path] + home_changed}
+
+    def _sync_lomari(self, relative: str, record: dict) -> tuple[int, list[str]]:
+        """Regenerate Lomari from the Hokkien text (audit B7): the page's own lines, and for a song
+        its button on the home page. Lines waiting in docs/lomari-review.json are left alone."""
+        import lomari_sync
+
+        songs = lomari_sync.song_records(self.repo)
+        if record.get("type") == "songs":
+            for link in (record.get("sourceUrl"), record.get("route")):
+                if link:
+                    songs[lomari_sync.unquote(link).rstrip("/").lower()] = record
+        under_review = lomari_sync.review_keys(self.repo)
+        rewritten = 0
+        if relative not in lomari_sync.EXCLUDED:
+            record["body"], rewritten = lomari_sync.sync_body(relative, record["body"], songs, under_review)
+        home_changed = []
+        home = self.repo / lomari_sync.HOME
+        if record.get("type") == "songs" and relative != lomari_sync.HOME and home.is_file():
+            home_raw, home_record = self._load_json(home)
+            home_record["body"], count = lomari_sync.sync_body(
+                lomari_sync.HOME, home_record["body"], songs, under_review)
+            if count:
+                _atomic_write(home, (json.dumps(home_record, ensure_ascii=False, indent=2) + "\n").encode("utf-8"))
+                home_changed.append(lomari_sync.HOME)
+        return rewritten, home_changed
+
+    @staticmethod
+    def _lomari_note(rewritten: int, home_changed: list[str]) -> str:
+        notes = []
+        if rewritten:
+            notes.append(f"{rewritten} Lomari line{'s' if rewritten != 1 else ''} regenerated from the Hangul")
+        if home_changed:
+            notes.append("the home-page song button updated")
+        text = "; ".join(notes)
+        return f" {text[:1].upper()}{text[1:]}." if notes else ""
 
     def entries(self) -> tuple[list[dict], dict[str, dict]]:
         records = read_records(self.data / MAIN)
@@ -483,6 +522,8 @@ class WebsiteEditorService:
             "body": body,
             "songEditor": clean,
         })
+        rewritten, home_changed = self._sync_lomari(path.relative_to(self.repo).as_posix(), record)
+        body = record["body"]
         record["sourceSha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
 
         for category in categories:
@@ -520,9 +561,10 @@ class WebsiteEditorService:
             "route": route,
             "draft": clean,
             "body": body,
-            "changedPaths": changed,
-            "publishPaths": [target.relative_to(self.repo).as_posix() for target in outputs],
-            "message": f'Saved {clean["title"]} locally. Nothing was pushed yet.',
+            "changedPaths": changed + home_changed,
+            "publishPaths": [target.relative_to(self.repo).as_posix() for target in outputs] + home_changed,
+            "lomariRewritten": rewritten,
+            "message": f'Saved {clean["title"]} locally.{self._lomari_note(rewritten, home_changed)} Nothing was pushed yet.',
         }
 
     def table_snapshot(self) -> dict:

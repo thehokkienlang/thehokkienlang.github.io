@@ -1011,8 +1011,8 @@ def step2_process_precomposed(text: str) -> str:
         if is_hangul_precomposed(c) and i+1 < len(text) and text[i+1] in tone_map:
             t = tone_map[text[i+1]]
             out += (
-                f"<ruby style=\"position: relative\">{c}"
-                f"<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">{t}</rt>"
+                # Semantic markup; shared/web-ruby.css places the mark (audit B4).
+                f"<ruby>{c}<rt>{t}</rt>"
                 f"</ruby>"
             )
             i += 1
@@ -1037,8 +1037,7 @@ def step3_process_special_jamo(text: str) -> str:
             if i+1 < len(text) and text[i+1] in tone_map:
                 t = tone_map[text[i+1]]
                 out += (
-                    f"<ruby style=\"position: relative\">{grp}"
-                    f"<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">{t}</rt>"
+                    f"<ruby>{grp}<rt>{t}</rt>"
                     f"</ruby>"
                 )
                 i += 1
@@ -1070,8 +1069,7 @@ def step4_process_extra_consonants(text: str) -> str:
             if i+1 < len(text) and text[i+1] in tone_map:
                 t = tone_map[text[i+1]]
                 out += (
-                    f"<ruby style=\"position: relative\">{grp}"
-                    f"<rt style=\"font-size: 120%;position: absolute;top: -1.15em;left: 0.2em;z-index: -1\">{t}</rt>"
+                    f"<ruby>{grp}<rt>{t}</rt>"
                     f"</ruby>"
                 )
                 i += 1
@@ -2719,16 +2717,10 @@ def annotate_chinese_word(
     lomari_escaped = html_lib.escape(lomari, quote=True)
 
     title_attr = f' title="{lomari_escaped}"' if include_lomari_title and not use_wiktionary else ''
-    ruby_style = 'position: relative;display: inline-block;vertical-align: baseline;line-height: 1;text-indent: 0;isolation: isolate'
-    if not use_wiktionary:
-        ruby_style += ';white-space: nowrap'
+    # Semantic ruby: shared/web-ruby.css positions the reading (audit B4).
     ruby_html = (
-        f'<ruby class="tli-reading-ruby" style="{ruby_style}"{title_attr}>{chinese_escaped}'
-        '<rt class="tli-rt" style="font-size: var(--tli-ruby-size, 0.55em);position: absolute;'
-        'top: auto;bottom: calc(100% - var(--tli-ruby-overlap, 0.05em));left: 50%;'
-        'right: auto;width: max-content;margin: 0;padding: 0;transform: translateX(-50%);'
-        'line-height: 1.15;text-indent: 0;text-align: center;white-space: nowrap">'
-        f'{hangul_escaped}</rt></ruby>'
+        f'<ruby class="tli-reading-ruby"{title_attr}>{chinese_escaped}'
+        f'<rt class="tli-rt">{hangul_escaped}</rt></ruby>'
     )
 
     # Default: no Wiktionary link
@@ -3056,14 +3048,14 @@ def make_song_block(core_html: str, lomari: str, *, grey: bool = False) -> str:
     if grey:
         core_html = f"({core_html})"
         escaped_lomari = f"({escaped_lomari})"
-    main_style = "display: block;font-size: 1em" + (";color:gray" if grey else "")
+    # Classes styled by apps/content-site/site.css (audit B4).
+    main_class = "lyric-line lyric-muted" if grey else "lyric-line"
     return (
-        "<p style='font-family:Sans-serif, Noto Sans TC'>\n"
-        f"  <span style=\"{main_style}\">\n"
+        "<p>\n"
+        f"  <span class=\"{main_class}\">\n"
         f"    {core_html}\n"
         "  </span>\n"
-        "  <span style=\"display: block;font-size: 0.7em;color: gray;"
-        "margin-top: -5px;font-family: Calibri\">\n"
+        "  <span class=\"lyric-lomari\">\n"
         f"    {escaped_lomari}\n"
         "  </span>\n"
         "</p>"
@@ -3144,12 +3136,11 @@ def make_lomari_next_line_span(visible_text: str, lomari: str) -> str:
     lomari = capitalize_first_lomari_letter(lomari)
     escaped_lomari = html_lib.escape(lomari, quote=True).replace("--", "&#045;&#045;")
     return (
-        '<span style="font-family:Sans-serif, Noto Sans TC">'
-        '<span style="display: block;font-size: 1em">'
+        '<span>'
+        '<span class="lyric-line">'
         f'{escaped_visible}'
         '</span>'
-        '<span style="display: block;font-size: 0.7em;'
-        'margin-top: -5px;font-family: Calibri">'
+        '<span class="lyric-lomari lyric-lomari-ink">'
         f'{escaped_lomari}'
         '</span>'
         '</span>'
@@ -3176,12 +3167,11 @@ def make_novel_first_line_block(core_html: str, lomari: str) -> str:
     escaped_lomari = lomari.replace("--", "&#045;&#045;")
     emphasized = emphasize_first_annotation(core_html)
     return (
-        '<p style="font-family:Sans-serif, Noto Sans TC;text-indent:2em">\n'
-        '  <span style="display: block;font-size: 1em">\n'
+        '<p class="indent-2em">\n'
+        '  <span class="lyric-line">\n'
         f'    {emphasized}\n'
         '  </span>\n'
-        '  <span style="display: block;font-size: 0.7em;color: gray;'
-        'margin-top: -5px;font-family: Calibri">\n'
+        '  <span class="lyric-lomari">\n'
         f'    {escaped_lomari}\n'
         '  </span>\n'
         '</p>'

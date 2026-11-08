@@ -40,6 +40,55 @@ class WebsiteEditorTests(unittest.TestCase):
                 service.save_page(opened["file"], opened["revision"], "Old draft", "<p>Unsafe</p>")
             self.assertEqual(saved["message"], "Saved Edited locally.")
 
+    def test_page_save_regenerates_lomari_from_the_hangul(self):
+        """Audit B7: editing Hanri-Hangul in the page editor rewrites its Lomari, and the home button."""
+        with tempfile.TemporaryDirectory() as folder:
+            service, _ = self.fixture(folder)
+            repo = Path(folder)
+            lyric = ('<p>\n  <span class="lyric-line">\n    <ruby>薰<rt>{r}</rt></ruby> <ruby>點<rt>댬ˋ</rt></ruby>\n'
+                     '  </span>\n  <span class="lyric-lomari">\n    hûn tiàm\n  </span>\n</p>')
+            title = '<h2 class="wp-block-heading"><span>{t}</span></h2>\n'
+            song = repo / "content/songs/song-1.json"
+            song.parent.mkdir(parents=True)
+            song.write_text(json.dumps({"id": "song-1", "type": "songs", "title": "薰", "route": "/songs/薰/",
+                                        "body": title.format(t="훈ˆ") + lyric.format(r="훈ˆ")},
+                                       ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+            home = repo / "content/pages/home.json"
+            home.write_text(json.dumps({"id": "home", "type": "pages", "title": "Home", "body": (
+                '<a href="/songs/薰/"><span><span class="lyric-line">薰</span>'
+                '<span class="lyric-lomari lyric-lomari-ink">Hûn</span></span></a>')},
+                ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+            opened = service.page("content/songs/song-1.json")
+            saved = service.save_page(opened["file"], opened["revision"], "薰",
+                                      title.format(t="훈ˉ") + lyric.format(r="훈ˉ"))
+            body = json.loads(song.read_text(encoding="utf-8"))["body"]
+            self.assertIn('<span class="lyric-lomari">\n    hūn tiàm\n  </span>', body)
+            self.assertIn("ruby>薰<rt>훈ˉ</rt>", body)
+            self.assertEqual(saved["lomariRewritten"], 1)
+            self.assertIn("1 Lomari line regenerated from the Hangul", saved["message"])
+            self.assertIn("content/pages/home.json", saved["changedPaths"])
+            self.assertIn(">Hūn</span>", json.loads(home.read_text(encoding="utf-8"))["body"])
+
+            # A page whose Lomari already follows its Hangul is saved as typed.
+            opened = service.page("content/songs/song-1.json")
+            again = service.save_page(opened["file"], opened["revision"], "薰", body)
+            self.assertEqual(again["lomariRewritten"], 0)
+            self.assertEqual(again["message"], "Saved 薰 locally.")
+
+    def test_structured_song_lomari_already_follows_its_hangul(self):
+        import lomari_sync
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "릐호", "titleSource": "릐호", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+            "category": "modern", "lyrics": [{"kind": "line", "text": "꽈ˎ 슐-래-슐-킈 죠ˋ걀", "grey": False},
+                                             {"kind": "line", "text": "릐호", "grey": True}],
+        })
+        found = list(lomari_sync.lines("content/songs/new.json", result["body"], {}))
+        self.assertEqual(len(found), 2)
+        for _match, kind, _source, derived in found:
+            self.assertTrue(lomari_sync.follows(kind, lomari_sync._plain(_match.group(4)), derived))
+
     def test_page_paths_cannot_escape_content_or_edit_generated_files(self):
         with tempfile.TemporaryDirectory() as folder:
             service, _ = self.fixture(folder)
@@ -74,7 +123,7 @@ class WebsiteEditorTests(unittest.TestCase):
             "lyrics": [{"kind": "line", "text": "릐호", "grey": True}],
         })
         self.assertEqual(result["route"], "/songs/릐호/")
-        self.assertIn('font-size: 1em;color:gray', result["body"])
+        self.assertIn('class="lyric-line lyric-muted"', result["body"])
         self.assertIn("(li", result["body"])
         self.assertIn("호)", result["body"])
         self.assertIn("youtube.com/embed/HNYkSBkQ33Y", result["body"])

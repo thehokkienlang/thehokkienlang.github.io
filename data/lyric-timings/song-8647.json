@@ -72,13 +72,13 @@
     },
     {
       "id": "line-012",
-      "fingerprint": "a1194d8d92ff1dbad1f5d3d37ee4b1cab3df4f3128e8ef444f39a0fd1244dbb3",
+      "fingerprint": "6198082e835e76ce5fad1df58765342a622869446d86b08fdb1819049e312849",
       "start": 105.8,
       "end": 114.9
     },
     {
       "id": "line-013",
-      "fingerprint": "81717dea73baa25fc291c8db02d75a2fd506bee241776b5933fdf949b156a026",
+      "fingerprint": "6c685d44a3ddb6908aca992eba48e03a0e17c25f7fc0e5ef5ecb80bdb750ee91",
       "start": 115,
       "end": 121.23
     },
@@ -96,7 +96,7 @@
     },
     {
       "id": "line-016",
-      "fingerprint": "01e707dd77617a7beed59253b14b9c4b3d6ef97064fb79aaa715e5392663274b",
+      "fingerprint": "3f2469d5a472dd0a026f8315a061963666ade20c0dad99e6e03e03879f7a44e2",
       "start": 134.302,
       "end": 170
     },
@@ -144,13 +144,13 @@
     },
     {
       "id": "line-024",
-      "fingerprint": "a1194d8d92ff1dbad1f5d3d37ee4b1cab3df4f3128e8ef444f39a0fd1244dbb3",
+      "fingerprint": "6198082e835e76ce5fad1df58765342a622869446d86b08fdb1819049e312849",
       "start": 216.2,
       "end": 225.5
     },
     {
       "id": "line-025",
-      "fingerprint": "81717dea73baa25fc291c8db02d75a2fd506bee241776b5933fdf949b156a026",
+      "fingerprint": "6c685d44a3ddb6908aca992eba48e03a0e17c25f7fc0e5ef5ecb80bdb750ee91",
       "start": 225.6,
       "end": 231.799
     },
@@ -162,7 +162,7 @@
     },
     {
       "id": "line-027",
-      "fingerprint": "39373f58a924e0b14d51371a159712c535ce5bfb3cf79aebe0ffab8c866819f9",
+      "fingerprint": "ec86ce435be7315c478e77b1427d2a5e64d5171b63dafb64d2e189339514ad49",
       "start": 238.6,
       "end": 244.95
     },
@@ -174,7 +174,7 @@
     },
     {
       "id": "line-029",
-      "fingerprint": "81717dea73baa25fc291c8db02d75a2fd506bee241776b5933fdf949b156a026",
+      "fingerprint": "6c685d44a3ddb6908aca992eba48e03a0e17c25f7fc0e5ef5ecb80bdb750ee91",
       "start": 250.981,
       "end": 257.207
     },
@@ -192,7 +192,7 @@
     },
     {
       "id": "line-032",
-      "fingerprint": "01e707dd77617a7beed59253b14b9c4b3d6ef97064fb79aaa715e5392663274b",
+      "fingerprint": "3f2469d5a472dd0a026f8315a061963666ade20c0dad99e6e03e03879f7a44e2",
       "start": 270.349,
       "end": 279.488
     },

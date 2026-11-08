@@ -1,0 +1,54 @@
+{
+  "about": "Lomari lines that differ from the Hangul above them, waiting for Haru's review. 'derived' is what the IME converter gives for the Hangul. Fix either the Hangul or the Lomari in content/, then run python tools/lomari_sync.py --write-review.",
+  "lines": [
+    {
+      "page": "content/songs/song-11143.json",
+      "kind": "lyric",
+      "hokkien": "뽀-옌-份 코ˆ롕-꽈ˎ 팰ˆ-랑ˊ 뎽ˆ시",
+      "stored": "bo-yen khô-lieng-goà phâ̰i-láng tiêng-si",
+      "derived": "bo-yen-份 khô-lieng-goà phâ̰i-láng tiêng-si"
+    },
+    {
+      "page": "content/songs/song-11187.json",
+      "kind": "lyric",
+      "hokkien": "봘ˋ메ˊ 빡새ˋ 澹둏-풰돨ˆ",
+      "stored": "poà̰-mé bak-sài tioh-phue-toâ̰",
+      "derived": "poà̰-mé bak-sài 澹tioh-phue-toâ̰"
+    },
+    {
+      "page": "content/songs/song-8597.json",
+      "kind": "lyric",
+      "hokkien": "구김거ˊ이ˆ 망-취ˉ게ˇ",
+      "stored": "ku-kim-kór-î mang-chūi-kě",
+      "derived": "ku-kim-kór-î mang-chūi-keˇ"
+    },
+    {
+      "page": "content/songs/song-8597.json",
+      "kind": "lyric",
+      "hokkien": "뀋에ˊ 믕-훼ˉ 훼ˉ 쀄엥ˇ",
+      "stored": "gueh-é mng-huē huē bue-ěng",
+      "derived": "gueh-é mng-huē huē bue-engˇ"
+    },
+    {
+      "page": "content/songs/song-8597.json",
+      "kind": "lyric",
+      "hokkien": "샹호ˊ-낭게ˉ 디거ˇ 췌",
+      "stored": "siang-hó-nang-kē ti-kǒr chue",
+      "derived": "siang-hó-nang-kē ti-korˇ chue"
+    },
+    {
+      "page": "content/songs/song-8597.json",
+      "kind": "lyric",
+      "hokkien": "신ˉ 도-호추ˇ ᄉᆤˆ니게ˉ",
+      "stored": "sīn to-ho-chǔ siâu-ni-kē",
+      "derived": "sīn to-ho-chuˇ siâu-ni-kē"
+    },
+    {
+      "page": "content/songs/song-8597.json",
+      "kind": "lyric",
+      "hokkien": "찓즈ˋ ᄎᆤˉᄎᆤˉ 유-턈ˉ쉐ˇ",
+      "stored": "jsit-j̀ chiāu-chiāu yu-thiām-suě",
+      "derived": "jsit-j̀ chiāu-chiāu yu-thiām-sueˇ"
+    }
+  ]
+}

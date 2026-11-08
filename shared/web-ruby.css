@@ -49,6 +49,10 @@
   white-space: nowrap;
 }
 
+.tli-reading-ruby {
+  white-space: nowrap;
+}
+
 .tli-reading-ruby.bopomofo-title {
   --tli-ruby-size: 0.37em;
 }
