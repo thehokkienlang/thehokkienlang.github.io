@@ -148,7 +148,7 @@ def home_launch(language):
     return (
         '<section class="home-launch">'
         '<aside class="home-specimen" aria-label="Tangliengim writing specimen">'
-        '<ruby><span lang="zh-Hant">聲音</span><rt lang="ko">샬ˉ임ˆ</rt></ruby>'
+        '<ruby><span lang="zh-Hant">聲音</span><rt lang="nan-Hang">샬ˉ임ˆ</rt></ruby>'
         f'<span class="home-specimen-lomari">siā̰-îm</span>'
         f'{specimen_meaning}</aside>'
         f'<div class="home-paths">{path_html}</div>'
