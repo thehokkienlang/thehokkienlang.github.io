@@ -266,6 +266,7 @@ body[data-site-section="home"] .imported-content .home-compare-heading h2::befor
 .imported-content .home-compare-card h3 { margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; line-height: 1.4; }
 .home-compare-word { margin-top: 56px; color: var(--ink); font-size: 64px; font-weight: 700; line-height: 1.2; }
 .imported-content .home-compare-lomari { margin: 8px 0 0; color: var(--accent); font-family: "TLI Noto Sans", sans-serif; font-size: 22px; font-feature-settings: "mark", "mkmk"; }
+.home-compare-korean .home-compare-word { position: relative; top: -3px; }
 .home-compare-korean .home-compare-lomari { color: var(--muted); }
 .home-compare-card .tli-listen { margin-top: 18px; }
 .home-compare-korean .tli-listen { border-color: #5d6c70; background: #5d6c70; }
