@@ -51,7 +51,7 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
     createElement: () => makeLine(),
     createTreeWalker: main => { let index = -1; return {get currentNode() { return main.childNodes[index]; }, nextNode() { return ++index < main.childNodes.length; }}; },
     querySelectorAll: () => [frame],
-    querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
+    querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-tone-guide' ? null : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
   const seeks = [];
   let selection = '', selectionNode;
   const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), destroy() {}}); }};
