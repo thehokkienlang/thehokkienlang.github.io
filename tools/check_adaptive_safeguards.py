@@ -37,6 +37,8 @@ def worker(path, count, interrupt=False):
     else:
         for _ in range(count):
             store.record('x', 'A')
+        # record() defers a count when the lock stays busy past its short wait.
+        assert store.flush(30), 'Deferred selections must be saved before a process exits'
 
 
 def shared_cases():
@@ -139,6 +141,20 @@ def files(folder):
     return path
 
 
+def deferred_flush(path):
+    """A selection deferred by a busy lock survives once flush() can reach the file."""
+    store, holder = FilePreferenceStore(IDS, path), FilePreferenceStore(IDS, path)
+    store.reset()
+    with holder._file_lock() as held:
+        assert held, 'Test must hold the writer lock'
+        assert store.record('x', 'A') == 1
+        assert store.flush(0) is False, 'flush must report a selection it could not save'
+    assert not holder.load()['selections'], 'A deferred selection is not on disk yet'
+    assert store.flush(), 'flush must save once the lock is free'
+    assert holder.load()['selections']['x']['A'] == 1, 'flush must persist the deferred selection'
+    assert store.flush(0) is True, 'Nothing is left to flush'
+
+
 def processes(path):
     store = FilePreferenceStore(IDS, path);store.reset()
     command = [sys.executable, '-B', '-X', 'utf8', str(Path(__file__).resolve()), '--worker', str(path), '25']
@@ -216,6 +232,7 @@ def main():
     with tempfile.TemporaryDirectory(prefix='tangliengim-exodus-ii-') as temporary:
         folder = Path(temporary)
         path = files(folder)
+        deferred_flush(folder / 'deferred.json')
         processes(path)
         bridge(folder)
     assert hashes == {p: hashlib.sha256(p.read_bytes()).digest() for p in watched}, 'Safeguards must not mutate source data or baselines'

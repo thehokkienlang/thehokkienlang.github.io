@@ -256,6 +256,29 @@ class FilePreferenceStore:
                     self._reset_pending = False
                 return payload['selections'][key][identity]
 
+    def flush(self, wait_seconds: float = 5.0) -> bool:
+        """Save selections that record() had to defer; True once nothing is left unsaved.
+
+        record() waits only briefly for the file so typing never stalls. Call this
+        when a process is about to exit, where a deferred count would otherwise be lost.
+        """
+        deadline = time.monotonic() + wait_seconds
+        while True:
+            with _LOCK:
+                if not self._pending and not self._reset_pending:
+                    return True
+                with self._file_lock() as locked:
+                    if locked and self._refresh():
+                        payload = self._snapshot()
+                        if self._save(payload):
+                            self._base = payload
+                            self._pending = {}
+                            self._reset_pending = False
+                            return True
+            if time.monotonic() >= deadline:
+                return False
+            time.sleep(0.01)
+
     def reset(self) -> None:
         with _LOCK:
             with self._file_lock() as locked:
