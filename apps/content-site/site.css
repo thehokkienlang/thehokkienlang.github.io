@@ -210,9 +210,9 @@ html[lang="en"] [data-content-lang="en"], html[lang="zh-Hant"] [data-content-lan
 .page-list li > a { flex: 1; min-width: 0; padding: 20px 8px; color: var(--ink); text-decoration: none; }
 .page-list li > a:hover { color: var(--accent); }
 .song-filter { display: grid; gap: 12px; margin: 18px 0 0; }
-.song-filter-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; width: 100%; max-width: 560px; }
+.song-filter-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; width: 100%; }
 .song-filter-heading > label { color: var(--muted); font-size: 14px; font-weight: 700; }
-.song-filter-input-wrap { position: relative; width: 100%; max-width: 560px; }
+.song-filter-input-wrap { position: relative; width: 100%; }
 .song-filter-input { box-sizing: border-box; width: 100%; padding: 11px 14px; border: 1px solid var(--line); border-radius: 6px; color: var(--ink); background: #fff; font: inherit; font-size: 16px; }
 .song-filter-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
 .song-filter .hangul-keyboard-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 34px; padding: 0; border: 0; background: transparent; color: var(--muted); cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; outline: none; }
