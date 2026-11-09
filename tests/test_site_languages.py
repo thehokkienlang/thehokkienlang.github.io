@@ -94,6 +94,10 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertEqual(result.count('<h3>Same</h3>'), 0)
         self.assertIn('<ruby>學生<rt>학솅ˆ</rt></ruby>', result)
         self.assertEqual(result.count('<button>Listen</button>'), 1)
+        self.assertIn('/assets/audio/ko-haksaeng.mp3', result)
+        self.assertIn('HappyMidnight', result)
+        self.assertIn('https://creativecommons.org/licenses/by-sa/4.0/', result)
+        self.assertTrue((ROOT / 'assets/audio/ko-haksaeng.mp3').is_file())
         self.assertLess(result.index('home-compare-hokkien'), result.index('<button>Listen</button>'))
         self.assertIn('<div class="home-essay"><p>Intro</p><h2>Why</h2><p>Reason</p>', result)
 

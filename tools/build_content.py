@@ -140,10 +140,31 @@ def listen_button(root, language, hanri, reading):
     for entry in _runtime_entries[path]:
         segments = (entry.get("audio") or {}).get("segments") or []
         if entry.get("hanri") == hanri and entry.get("reading") == reading and segments:
-            clips = html.escape(json.dumps(segments, ensure_ascii=False, separators=(",", ":")), quote=True)
-            return (f'<button type="button" class="tli-listen" data-tli-audio="{clips}">'
-                    f'<span class="tli-listen-icon" aria-hidden="true"></span><span>{LISTEN_LABEL[language]}</span></button>')
+            return play_button(language, segments)
     return ""
+
+
+def play_button(language, segments):
+    clips = html.escape(json.dumps(segments, ensure_ascii=False, separators=(",", ":")), quote=True)
+    return (f'<button type="button" class="tli-listen" data-tli-audio="{clips}">'
+            f'<span class="tli-listen-icon" aria-hidden="true"></span><span>{LISTEN_LABEL[language]}</span></button>')
+
+
+# The one real Korean word on the site, for comparison with Hokkien. Recorded by a Korean
+# speaker; it never goes through the Hokkien audio planner.
+KOREAN_CLIP = [{"file": "/assets/audio/ko-haksaeng.mp3", "trimStart": False, "trimEnd": False, "speed": 1,
+                "shortOverlapFinal": False, "englishClusterHelper": False}]
+KOREAN_CLIP_SOURCE = "https://commons.wikimedia.org/wiki/File:Ko-%ED%95%99%EC%83%9D.ogg"
+KOREAN_CLIP_LICENCE = "https://creativecommons.org/licenses/by-sa/4.0/"
+KOREAN_CLIP_LABEL = {"en": "Audio", "zh-Hant": "錄音", "zh-Hans": "录音"}
+
+
+def korean_clip_credit(language):
+    separator = ": " if language == "en" else "："
+    comma = ", " if language == "en" else "，"
+    return (f'<p class="home-compare-credit">{KOREAN_CLIP_LABEL[language]}{separator}'
+            f'<a href="{KOREAN_CLIP_SOURCE}">HappyMidnight</a>{comma}'
+            f'<a href="{KOREAN_CLIP_LICENCE}">CC BY-SA 4.0</a></p>')
 
 
 def home_launch(language, listen=""):
@@ -325,14 +346,14 @@ def home_compare_card(item, class_name, listen=""):
             f'<p class="home-compare-lomari">{lomari}</p>{listen}</div>')
 
 
-def home_compare(section, listen=""):
+def home_compare(section, language, listen=""):
     """The "same blocks, different sounds" explanation as two side-by-side cards, in the page's own words."""
-    # There is no Listen button on the Korean side: the site has only Hokkien recordings.
+    korean = play_button(language, KOREAN_CLIP) + korean_clip_credit(language)
     return (
         '<section class="home-compare"><div class="home-compare-heading">'
         f'<h2>{section["title"]}</h2><p>{section["lead"]}</p></div>'
         '<div class="home-compare-cards">'
-        f'{home_compare_card(section["first"], "home-compare-korean")}'
+        f'{home_compare_card(section["first"], "home-compare-korean", korean)}'
         f'{home_compare_card(section["second"], "home-compare-hokkien", listen)}'
         f'</div><p class="home-compare-note">{section["note"]}</p></section>'
     )
@@ -355,7 +376,7 @@ def curate_home_body(body, language, song_records=(), listen=""):
     )
     # What to explore comes first; the longer "Why TLI?" essay follows it.
     section = SAME_BLOCKS.search(introduction)
-    compare = home_compare(section, listen) if section else ""
+    compare = home_compare(section, language, listen) if section else ""
     if section:
         introduction = introduction[:section.start()] + introduction[section.end():]
     return compare + home_showcase(language, song_records) + f'<div class="home-essay">{introduction.rstrip()}</div>'
