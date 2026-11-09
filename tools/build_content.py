@@ -124,7 +124,29 @@ def navigation_links(route, language=None, variants=True):
     return "".join(items)
 
 
-def home_launch(language):
+LISTEN_LABEL = {"en": "Listen", "zh-Hant": "聆聽", "zh-Hans": "收听"}
+_runtime_entries = {}
+
+
+def listen_button(root, language, hanri, reading):
+    """A play button carrying the dictionary's audio clips for one exact entry.
+
+    Embedding the clip list means the homepage plays a word without downloading
+    the whole dictionary. Without built data or a matching entry there is no button.
+    """
+    path = Path(root) / "public/data/hokkien-hanri-dict.json"
+    if path not in _runtime_entries:
+        _runtime_entries[path] = json.loads(path.read_text(encoding="utf-8"))["entries"] if path.is_file() else []
+    for entry in _runtime_entries[path]:
+        segments = (entry.get("audio") or {}).get("segments") or []
+        if entry.get("hanri") == hanri and entry.get("reading") == reading and segments:
+            clips = html.escape(json.dumps(segments, ensure_ascii=False, separators=(",", ":")), quote=True)
+            return (f'<button type="button" class="tli-listen" data-tli-audio="{clips}">'
+                    f'<span class="tli-listen-icon" aria-hidden="true"></span><span>{LISTEN_LABEL[language]}</span></button>')
+    return ""
+
+
+def home_launch(language, listen=""):
     labels = {
         "en": (
             "Learn TLI", "Understand the script, spelling, and tone sandhi.", "Start with the introduction",
@@ -134,12 +156,12 @@ def home_launch(language):
         "zh-Hant": (
             "學習東寧音", "了解文字、拼寫與變調。", "從使用說明開始",
             "閱讀閩南語", "讓故事與文學的讀音緊貼原文。", "瀏覽讀物",
-            "聆聽語言", "附有諺文讀音與羅馬字的歌曲。", "探索歌曲", "書寫工具", "聲音",
+            "收聽閩南歌曲", "附有諺文讀音與羅馬字的歌曲。", "探索歌曲", "書寫工具", "聲音",
         ),
         "zh-Hans": (
             "学习东宁音", "了解文字、拼写与变调。", "从使用说明开始",
             "阅读闽南语", "让故事与文学的读音紧贴原文。", "浏览读物",
-            "聆听语言", "附有谚文读音与罗马字的歌曲。", "探索歌曲", "书写工具", "声音",
+            "收听闽南歌曲", "附有谚文读音与罗马字的歌曲。", "探索歌曲", "书写工具", "声音",
         ),
     }
     learn, learn_note, learn_link, read, read_note, read_link, hear, hear_note, hear_link, tools, student = labels[language]
@@ -166,7 +188,7 @@ def home_launch(language):
         '<aside class="home-specimen" aria-label="Tangliengim writing specimen">'
         '<ruby><span lang="zh-Hant">聲音</span><rt lang="nan-Hang">샬ˉ임ˆ</rt></ruby>'
         f'<span class="home-specimen-lomari">siā̰-îm</span>'
-        f'{specimen_meaning}</aside>'
+        f'{specimen_meaning}{listen}</aside>'
         f'<div class="home-paths">{path_html}</div>'
         f'<div class="home-tools"><h2>{html.escape(tools)}</h2><div>{destination("/ime/", text("Open IME", language))}{destination("/dictionary/", text("Dictionary", language))}</div></div>'
         '</section>'
@@ -177,15 +199,11 @@ def home_showcase(language, song_records=()):
     labels = {
         "en": {
             "label": "Explore TheHokkienLang",
-            "learn_meta": "01 · Learn",
-            "learn_title": "Learn TLI",
-            "learn_copy": "Begin with the script, then move through spelling, romanisation, and tone.",
-            "learn_link": "Start learning",
-            "tone_meta": "02 · Listen closely",
+            "tone_meta": "Listen closely",
             "tone_title": "Guide to Hokkien tone sandhi",
             "tone_copy": "Follow the sound changes that give a Hokkien phrase its rhythm, and see how TLI records what is heard.",
             "tone_link": "Read the tone-sandhi guide",
-            "read_meta": "03 · Read",
+            "read_meta": "Read",
             "read_title": "Literature works",
             "read_copy": "Meet Hokkien on the page through short fiction and dramatic literature, with pronunciation kept close to the text.",
             "egg_kind": "Short story",
@@ -194,7 +212,7 @@ def home_showcase(language, song_records=()):
             "mirror_kind": "Classical literature",
             "mirror_title": "Tale of the Lychee Mirror",
             "mirror_note": "A Hokkien dramatic tradition in a reading edition.",
-            "songs_meta": "04 · Hear",
+            "songs_meta": "Hear",
             "songs_title": "Songs",
             "songs_copy": "From timeless classics to newer voices, explore lyrics with Hanri-Hangul readings and Lomari.",
             "songs_link": "Browse the songbook",
@@ -202,15 +220,11 @@ def home_showcase(language, song_records=()):
         },
         "zh-Hant": {
             "label": "探索 TheHokkienLang",
-            "learn_meta": "01 · 學習",
-            "learn_title": "學習東寧音",
-            "learn_copy": "從文字系統開始，再逐步認識拼寫、羅馬字與聲調。",
-            "learn_link": "開始學習",
-            "tone_meta": "02 · 細聽",
+            "tone_meta": "細聽",
             "tone_title": "閩南語變調解析",
             "tone_copy": "了解變調如何構成閩南語詞句的節奏，以及東寧音如何記錄實際讀音。",
             "tone_link": "閱讀變調指南",
-            "read_meta": "03 · 閱讀",
+            "read_meta": "閱讀",
             "read_title": "文學讀物",
             "read_copy": "透過短篇小說與戲曲文學閱讀閩南語，讓讀音緊貼原文。",
             "egg_kind": "短篇小說",
@@ -219,7 +233,7 @@ def home_showcase(language, song_records=()):
             "mirror_kind": "古典文學",
             "mirror_title": "《荔鏡記》",
             "mirror_note": "閩南戲曲傳統的閱讀版本。",
-            "songs_meta": "04 · 聆聽",
+            "songs_meta": "聆聽",
             "songs_title": "歌曲",
             "songs_copy": "從歷久不衰的經典到新世代聲音，閱讀附有漢諺讀音與羅馬字的歌詞。",
             "songs_link": "瀏覽歌單",
@@ -227,15 +241,11 @@ def home_showcase(language, song_records=()):
         },
         "zh-Hans": {
             "label": "探索 TheHokkienLang",
-            "learn_meta": "01 · 学习",
-            "learn_title": "学习东宁音",
-            "learn_copy": "从文字系统开始，再逐步认识拼写、罗马字与声调。",
-            "learn_link": "开始学习",
-            "tone_meta": "02 · 细听",
+            "tone_meta": "细听",
             "tone_title": "闽南语变调解析",
             "tone_copy": "了解变调如何构成闽南语词句的节奏，以及东宁音如何记录实际读音。",
             "tone_link": "阅读变调指南",
-            "read_meta": "03 · 阅读",
+            "read_meta": "阅读",
             "read_title": "文学读物",
             "read_copy": "通过短篇小说与戏曲文学阅读闽南语，让读音紧贴原文。",
             "egg_kind": "短篇小说",
@@ -244,7 +254,7 @@ def home_showcase(language, song_records=()):
             "mirror_kind": "古典文学",
             "mirror_title": "《荔镜记》",
             "mirror_note": "闽南戏曲传统的阅读版本。",
-            "songs_meta": "04 · 聆听",
+            "songs_meta": "聆听",
             "songs_title": "歌曲",
             "songs_copy": "从历久不衰的经典到新世代声音，阅读附有汉谚读音与罗马字的歌词。",
             "songs_link": "浏览歌单",
@@ -284,10 +294,6 @@ def home_showcase(language, song_records=()):
     return (
         f'<section class="home-showcase" aria-label="{html.escape(labels["label"], quote=True)}">'
         '<div class="home-feature-pair">'
-        '<article class="home-feature home-feature-learn">'
-        f'<span class="home-feature-meta">{html.escape(labels["learn_meta"])}</span>'
-        f'<h2>{html.escape(labels["learn_title"])}</h2><p>{html.escape(labels["learn_copy"])}</p>'
-        f'{link("/learn/introduction/", labels["learn_link"])}</article>'
         '<article class="home-feature home-feature-tone">'
         f'<span class="home-feature-meta">{html.escape(labels["tone_meta"])}</span>'
         f'<h2>{html.escape(labels["tone_title"])}</h2><p>{html.escape(labels["tone_copy"])}</p>'
@@ -303,7 +309,36 @@ def home_showcase(language, song_records=()):
     )
 
 
-def curate_home_body(body, language, song_records=()):
+SAME_BLOCKS = re.compile(
+    r'\s*<h3\b[^>]*>(?P<title>.*?)</h3>\s*<p\b[^>]*>(?P<lead>.*?)</p>\s*'
+    r'<ul\b[^>]*>\s*<li\b[^>]*>(?P<first>.*?)</li>\s*<li\b[^>]*>(?P<second>.*?)</li>\s*</ul>\s*'
+    r'<p\b[^>]*>(?P<note>.*?)</p>', re.S)
+
+
+def home_compare_card(item, class_name, listen=""):
+    """One side of the comparison, from a list item such as: Label: <strong>word</strong> (<em>lomari</em>)."""
+    label, _, sample = re.match(r"\s*(.*?)\s*([:：])\s*(.*)$", item, re.S).groups()
+    word = re.sub(r"</?span\b[^>]*>", "", re.search(r"<strong>(.*?)</strong>", sample, re.S).group(1))
+    lomari = re.search(r"<em>(.*?)</em>", sample, re.S).group(1)
+    return (f'<div class="home-compare-card {class_name}"><h3>{label}</h3>'
+            f'<div class="home-compare-word">{word}</div>'
+            f'<p class="home-compare-lomari">{lomari}</p>{listen}</div>')
+
+
+def home_compare(section, listen=""):
+    """The "same blocks, different sounds" explanation as two side-by-side cards, in the page's own words."""
+    # There is no Listen button on the Korean side: the site has only Hokkien recordings.
+    return (
+        '<section class="home-compare"><div class="home-compare-heading">'
+        f'<h2>{section["title"]}</h2><p>{section["lead"]}</p></div>'
+        '<div class="home-compare-cards">'
+        f'{home_compare_card(section["first"], "home-compare-korean")}'
+        f'{home_compare_card(section["second"], "home-compare-hokkien", listen)}'
+        f'</div><p class="home-compare-note">{section["note"]}</p></section>'
+    )
+
+
+def curate_home_body(body, language, song_records=(), listen=""):
     marker = {"en": "Learn TLI", "zh-Hant": "學習東寧音", "zh-Hans": "学习东宁音"}[language]
     marker_position = body.find(marker)
     if marker_position == -1:
@@ -318,7 +353,12 @@ def curate_home_body(body, language, song_records=()):
         introduction,
         flags=re.IGNORECASE,
     )
-    return introduction.rstrip() + home_showcase(language, song_records)
+    # What to explore comes first; the longer "Why TLI?" essay follows it.
+    section = SAME_BLOCKS.search(introduction)
+    compare = home_compare(section, listen) if section else ""
+    if section:
+        introduction = introduction[:section.start()] + introduction[section.end():]
+    return compare + home_showcase(language, song_records) + f'<div class="home-essay">{introduction.rstrip()}</div>'
 
 
 LEADING_LANGUAGE_SWITCHER = re.compile(
@@ -437,7 +477,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     source = (f'<p class="source-link"><a data-site-text="Original WordPress site" '
               f'href="{WORDPRESS_ARCHIVE[language]}">{text("Original WordPress site", language)}</a></p>'
               if base_route(route) == "/about/" else "")
-    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於大家的閩南語。", "zh-Hans": "记录着属于大家的闽南语。"}
+    home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於閩南語的聲音。", "zh-Hans": "记录着属于闽南语的声音。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
         "zh-Hant": "將發音、聲調和語意融為一體的東寧音（TLI）：一看就懂、一讀就通。",
@@ -457,7 +497,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
     is_search = base_route(route) == "/search/"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ""}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
     # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
     # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
     launch = values["LAUNCH"]
@@ -533,7 +573,8 @@ def build_content(root: Path, output: Path):
         if record['type'] == 'songs':
             body = decorate_lyrics(root, record, body)
         if base_route(route) == "/":
-            body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"])
+            body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"],
+                                    listen_button(root, record["language"], "學生", "학솅1"))
         body = describe_images(body, record["language"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
         indexed_languages = LANGUAGES if record["type"] == "songs" else (record["language"],)

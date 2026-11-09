@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher, site_brand
+from build_content import build_content, curate_home_body, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher, site_brand
 from site_languages import LANGUAGES, base_route, language_for_route, language_url
 
 
@@ -73,16 +73,29 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertIn(language_url("/songs/", language), links)
             self.assertIn(language_url("/read/", language), links)
 
-    def test_home_showcase_curates_four_destinations_in_each_language(self):
+    def test_home_showcase_curates_three_destinations_in_each_language(self):
         for language in LANGUAGES:
             body = home_showcase(language)
-            self.assertEqual(body.count('class="home-feature '), 4)
-            self.assertIn(language_url("/learn/introduction/", language), body)
+            self.assertEqual(body.count('class="home-feature '), 3)
             self.assertIn(language_url("/learn/tone-sandhi/", language), body)
             self.assertNotIn("lychee-mirror", body)
             self.assertIn("/read/stories/the-egg/", body)
             self.assertIn(language_url("/songs/", language), body)
             self.assertNotIn("hokkienlang.wordpress.com", body)
+
+    def test_home_body_leads_with_the_comparison_and_ends_with_the_essay(self):
+        body = ('<p>Intro</p><h2>Why</h2><p>Reason</p><h3>Same</h3><p>Take "student":</p>'
+                '<ul><li>In Korean: <strong>학생</strong> (<em>hak-saeng</em>)</li>'
+                '<li>In Hokkien: <strong><span style="x"><ruby>學生<rt>학솅ˆ</rt></ruby></span></strong> (<em>hak-siêng</em>)</li></ul>'
+                '<p>Note</p><h2>Learn TLI</h2>')
+        result = curate_home_body(body, "en", listen='<button>Listen</button>')
+        self.assertLess(result.index('home-compare'), result.index('home-showcase'))
+        self.assertLess(result.index('home-showcase'), result.index('home-essay'))
+        self.assertEqual(result.count('<h3>Same</h3>'), 0)
+        self.assertIn('<ruby>學生<rt>학솅ˆ</rt></ruby>', result)
+        self.assertEqual(result.count('<button>Listen</button>'), 1)
+        self.assertLess(result.index('home-compare-hokkien'), result.index('<button>Listen</button>'))
+        self.assertIn('<div class="home-essay"><p>Intro</p><h2>Why</h2><p>Reason</p>', result)
 
     def test_equivalent_pages_and_unavailable_translation(self):
         for language, prefix in (("en", ""), ("zh-Hant", "/zh-hant"), ("zh-Hans", "/zh-hans")):

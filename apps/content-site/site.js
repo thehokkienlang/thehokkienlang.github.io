@@ -157,6 +157,32 @@
     wrapper.append(table);
   });
 
+  // Homepage Listen buttons play the dictionary clips embedded by the build.
+  let listenPlayer = null;
+  let listening = null;
+  const stopListening = () => {
+    listening?.classList.remove("is-playing");
+    listening = null;
+  };
+  document.querySelectorAll("[data-tli-audio]").forEach(button => button.addEventListener("click", async () => {
+    listenPlayer ||= window.TangliengimWebAudio.createPlayer();
+    if (listening === button) {
+      listenPlayer.stop();
+      stopListening();
+      return;
+    }
+    stopListening();
+    listening = button;
+    button.classList.add("is-playing");
+    try {
+      await listenPlayer.play(JSON.parse(button.dataset.tliAudio));
+    } catch (error) {
+      console.error(error);
+    } finally {
+      if (listening === button) stopListening();
+    }
+  }));
+
   // Songs page filter (audit A9). Matching ignores case, Lomari diacritics, TLI tone
   // marks, spaces and hyphens; Hangul is compared syllable by syllable, never as Korean.
   const filter = document.querySelector("[data-song-filter]");
