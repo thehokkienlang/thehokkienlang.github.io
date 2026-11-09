@@ -56,6 +56,11 @@
     const toneOnly = readings.length > 0 && readings.every(reading =>
       /^[\sˆˋˊˉˇˍˎˏˬꞈ`]+$/u.test(reading.textContent));
     if (readings.length > 0) annotation.classList.add(toneOnly ? "tli-tone-ruby" : "tli-reading-ruby");
+    // A final tone mark widens the reading but barely registers, so the Hangul looks left of centre.
+    if (!toneOnly && !ruby.closest(".title-reading")) readings.forEach(reading => {
+      const syllables = reading.textContent.match(/[가-힣ᄀ-ᅟꥠ-꥿]/gu) || [];
+      if (syllables.length >= 2 && /[ˆˋˊˉˇˍˎˏˬꞈ`]\s*$/u.test(reading.textContent)) reading.classList.add("tli-rt-tone-end");
+    });
     if (ruby.closest('.imported-content') && readings.some(reading => /[\u3105-\u312f\u31a0-\u31bf]/u.test(reading.textContent))) {
       annotation.classList.add('tli-bopomofo-reading');
     }
@@ -155,6 +160,28 @@
     wrapper.className = "table-scroll";
     table.before(wrapper);
     wrapper.append(table);
+  });
+
+  // Side-by-side language columns become tabs on phones, where they would otherwise stack.
+  document.querySelectorAll(".song-language-compare").forEach(compare => {
+    const columns = [...compare.children].filter(column => column.matches(".wp-block-column"));
+    if (columns.length < 2) return;
+    const tabs = document.createElement("div");
+    tabs.className = "song-version-tablist song-language-tabs";
+    const buttons = columns.map(column => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.append(...[...(column.querySelector("h4")?.childNodes || [])].map(node => node.cloneNode(true)));
+      button.addEventListener("click", () => show(columns.indexOf(column)));
+      tabs.append(button);
+      return button;
+    });
+    const show = selected => columns.forEach((column, index) => {
+      column.classList.toggle("is-tab-hidden", index !== selected);
+      buttons[index].setAttribute("aria-pressed", String(index === selected));
+    });
+    compare.before(tabs);
+    show(0);
   });
 
   // Homepage Listen buttons play the dictionary clips embedded by the build.

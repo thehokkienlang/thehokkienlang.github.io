@@ -53,6 +53,11 @@
   white-space: nowrap;
 }
 
+/* Hangul readings ending in a tone mark: centre on the Hangul, not on the light mark after it. */
+.tli-reading-ruby > .tli-rt.tli-rt-tone-end {
+  transform: translateX(calc(-50% + 0.18em)) !important;
+}
+
 .tli-reading-ruby.bopomofo-title {
   --tli-ruby-size: 0.37em;
 }

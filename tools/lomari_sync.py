@@ -14,8 +14,9 @@ from it. Lines under review are never rewritten.
     python tools/lomari_sync.py --fix                # rewrite drifted Lomari from the Hangul
     python tools/lomari_sync.py --write-review       # record today's differences for review
 
-Not tied: Mandarin lines (no Hangul, or bopomofo readings) and 荔鏡記, whose
-Lomari uses an older nasal convention (left for later by decision).
+Not tied: Mandarin lines (no Hangul, or bopomofo readings), 荔鏡記, whose Lomari
+uses an older nasal convention (left for later by decision), and the Teochew song
+月下煮茶, whose romanisation is written by hand.
 """
 
 from __future__ import annotations
@@ -35,7 +36,8 @@ from song_title_readings import phonetics, song_lomari  # noqa: E402
 
 CONTENT = ROOT / "content"
 REVIEW = ROOT / "docs" / "lomari-review.json"
-EXCLUDED = {"content/literature/lychee-mirror.json"}
+# 荔鏡記 uses an older nasal convention; 月下煮茶 is sung in Teochew, with a hand-written romanisation.
+EXCLUDED = {"content/literature/lychee-mirror.json", "content/songs/song-8597.json"}
 NL, CRLF = "\n", "\r\n"
 HOME = "content/pages/home.json"
 

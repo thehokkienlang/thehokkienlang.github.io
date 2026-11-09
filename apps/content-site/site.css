@@ -170,6 +170,33 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .content-songs > h1::after { content: ""; display: block; width: 92px; margin-top: 24px; border-bottom: 4px solid var(--site-voice, #b33b46); transform: translateY(28px); }
 .content-songs .source-link a { color: var(--site-voice, #b33b46); }
 .content-songs .imported-content .song-script-heading { margin-top: 8px; margin-bottom: 20px; font-size: 24px; line-height: 1.4; }
+.imported-content .song-video-compact { max-width: 640px; }
+.song-tone-guide { margin: 0 0 28px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.song-tone-guide summary { padding: 12px 18px; color: var(--accent); cursor: pointer; font-weight: 700; }
+.song-tone-guide summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 8px; }
+.imported-content .song-tone-guide blockquote { margin: 4px 18px 16px; }
+.imported-content .song-tone-guide > p { margin: 0 18px 18px; color: var(--muted); }
+.song-language-compare p:has(.lyric-line) { padding-bottom: 12px; border-bottom: 1px solid var(--line); }
+.song-version-tablist.song-language-tabs { display: none; }
+.song-language-tabs button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+@media (max-width: 700px) {
+  .song-version-tablist.song-language-tabs { display: flex; }
+  .song-language-compare > .wp-block-column.is-tab-hidden { display: none; }
+  .song-language-compare > .wp-block-column > h4 { display: none; }
+}
+/* Side by side, each line shares a grid row with its counterpart, so a wrapped line moves both. */
+@media (min-width: 701px) {
+  .song-language-compare { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-flow: row dense; row-gap: 0; }
+  .song-language-compare > .wp-block-column { display: contents; }
+  .song-language-compare > .wp-block-column > * { grid-column: 1; }
+  .song-language-compare > .wp-block-column:nth-of-type(2) > * { grid-column: 2; }
+  /* Grid items keep both margins, and a bare <br> would become a stray item; a margin replaces the stanza gap. */
+  .song-language-compare > .wp-block-column > p { margin-top: 0; }
+  .song-language-compare > .wp-block-column > br { display: none; }
+  .song-language-compare > .wp-block-column > p:has(+ br) { margin-bottom: 4.4em; }
+}
+[data-content-lang] { display: none; }
+html[lang="en"] [data-content-lang="en"], html[lang="zh-Hant"] [data-content-lang="zh-Hant"], html[lang="zh-Hans"] [data-content-lang="zh-Hans"] { display: inline; }
 .song-version-tabs { margin-top: 18px; }
 .song-version-tablist { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
 .song-version-tablist button { min-height: 40px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; }
@@ -246,7 +273,7 @@ body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child
 .home-launch { position: relative; margin-top: 68px; }
 .home-specimen { display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; margin-top: 14px; font-size: 76px; }
-.home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
+.home-specimen rt { position: relative; left: 0.18em; color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
 .home-specimen-lomari { margin-top: -6px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 15px; }
 .home-specimen .tli-listen { margin-top: 14px; }
@@ -264,7 +291,7 @@ body[data-site-section="home"] .imported-content .home-compare-heading h2::befor
 .home-compare-card { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding: 26px 32px 30px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 .home-compare-hokkien { border-color: var(--accent); background: #e8f4f1; }
 .imported-content .home-compare-card h3 { margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; line-height: 1.4; }
-.home-compare-word { margin-top: 56px; color: var(--ink); font-size: 64px; font-weight: 700; line-height: 1.2; }
+.home-compare-word { --tli-ruby-size: 0.45em; margin-top: 50px; color: var(--ink); font-size: 64px; font-weight: 700; line-height: 1.2; }
 .imported-content .home-compare-lomari { margin: 8px 0 0; color: var(--accent); font-family: "TLI Noto Sans", sans-serif; font-size: 22px; font-feature-settings: "mark", "mkmk"; }
 .home-compare-korean .home-compare-word { position: relative; top: -3px; }
 .home-compare-korean .home-compare-lomari { color: var(--muted); }

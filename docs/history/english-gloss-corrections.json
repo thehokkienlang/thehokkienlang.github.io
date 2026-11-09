@@ -1100,6 +1100,36 @@
       "reason": "User-reviewed lexical sense (site audit C3, 8 Nov 2026); replaced a suffix or component-character gloss with the whole-word meaning.",
       "source": "",
       "revision": null
+    },
+    {
+      "entry_id": "U+95A9_U+5357_U+8A9E_00",
+      "hanri": "閩南語",
+      "reading": "빤람꾸2",
+      "old_english": "Minnan language; Southern Min",
+      "new_english": "Hokkien; Minnan language; Southern Min",
+      "reason": "User-requested Translator default for the English word (9 Nov 2026).",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+82F1_U+8A9E_00",
+      "hanri": "英語",
+      "reading": "옝5꾸2",
+      "old_english": "language",
+      "new_english": "English",
+      "reason": "User-requested Translator default for the English word (9 Nov 2026).",
+      "source": "",
+      "revision": null
+    },
+    {
+      "entry_id": "U+83EF_U+8A9E_00",
+      "hanri": "華語",
+      "reading": "화꾸2",
+      "old_english": "Mandarin Chinese",
+      "new_english": "Mandarin; Mandarin Chinese",
+      "reason": "User-requested Translator default for the English word (9 Nov 2026).",
+      "source": "",
+      "revision": null
     }
   ]
 }

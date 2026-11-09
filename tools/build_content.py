@@ -15,6 +15,7 @@ from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
 from site_search import document as search_document, hanri_fold_map
+from simplified_lookup import simplified_headword
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
 from image_descriptions import describe_images
@@ -71,6 +72,22 @@ def song_script_heading(body):
         '<h3 class="wp-block-heading song-script-heading" data-site-text="Hanri-Hangul mixed script">Hanri-Hangul mixed script</h3>',
         body,
     )
+
+
+SONG_FOOTNOTE = re.compile(r"\(中\)\s*((?:(?!\(en\)|</td>).)*?)\s*<br\s*/?>\s*\(en\)\s*((?:(?!</td>).)*?)(\s*</td>)", re.S)
+
+
+def simplified_markup(markup):
+    return "".join(part if part.startswith("<") else (simplified_headword(part) or part)
+                   for part in re.split(r"(<[^>]+>)", markup))
+
+
+def split_song_notes(body):
+    """Footnotes are written "(中) ... (en) ..."; each language's page shows only its own."""
+    return SONG_FOOTNOTE.sub(lambda match: (
+        f'<span data-content-lang="zh-Hant">{match[1]}</span>'
+        f'<span data-content-lang="zh-Hans">{simplified_markup(match[1])}</span>'
+        f'<span data-content-lang="en">{match[2]}</span>{match[3]}'), body)
 
 
 def song_version(record):
@@ -645,7 +662,7 @@ def build_content(root: Path, output: Path):
             rendered_versions = []
             for version_record in versions_by_route[route]:
                 _, version_body = song_title(version_record)
-                version_body = song_script_heading(version_body)
+                version_body = split_song_notes(song_script_heading(version_body))
                 version_body = PresentationHTML(version_record).render(remove_leading_language_switcher(version_body))
                 version_body = decorate_lyrics(root, version_record, version_body)
                 rendered_versions.append((version_record, version_body))
@@ -653,7 +670,7 @@ def build_content(root: Path, output: Path):
         else:
             heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
         if record["type"] == "songs" and route not in versions_by_route:
-            body = song_script_heading(body)
+            body = split_song_notes(song_script_heading(body))
         if not (record["type"] == "songs" and route in versions_by_route):
             body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         if record['type'] == 'songs' and route not in versions_by_route:

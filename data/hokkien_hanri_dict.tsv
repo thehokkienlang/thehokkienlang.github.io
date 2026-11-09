@@ -561,6 +561,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 中國	中国	뎡5걱	〃	中国	China		lexical	U+4E2D_U+570B_00
 中國人	中国人	뎡5걱1랑4	〃	中国人	Chinese person		lexical	U+4E2D_U+570B_U+4EBA_00
 中晝	中昼	뎡5ᄃᅷ	中午	〃	middle; in		lexical	U+4E2D_U+665D_00
+中文	〃	뎡5뿐4	〃	〃	Chinese		lexical	U+4E2D_U+6587_00
 中山	〃	뎡5산1	〃	〃	Zhongshan; Sun Yat-sen		lexical	U+4E2D_U+5C71_00
 重新	〃	뎡신1	〃	〃	again; anew		lexical	U+91CD_U+65B0_00
 重要	〃	뎡ᄋᆤ	〃	〃	important		lexical	U+91CD_U+8981_00
@@ -1110,7 +1111,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 閩東	闽东	빤당1	〃	闽东	Mindong		lexical	U+95A9_U+6771_00
 閩東語	闽东语	빤당5꾸2	〃	闽东语	Mindong language; Eastern Min		lexical	U+95A9_U+6771_U+8A9E_00
 閩南	闽南	빤람4	〃	闽南	Minnan; Southern Min		lexical	U+95A9_U+5357_00
-閩南語	闽南语	빤람꾸2	〃	闽南语	Minnan language; Southern Min		lexical	U+95A9_U+5357_U+8A9E_00
+閩南語	闽南语	빤람꾸2	〃	闽南语	Hokkien; Minnan language; Southern Min		lexical	U+95A9_U+5357_U+8A9E_00
 慢慢	〃	빤빤5	〃	〃	slow		lexical	U+6162_U+6162_00
 曼煎粿	〃	빤졘5궤2	曼煎糕	〃	apam balik		lexical	U+66FC_U+714E_U+7CBF_00
 萬箍	万箍	빤커1	萬元	万元	ten thousand dollars		lexical	U+842C_U+7B8D_00
@@ -1694,7 +1695,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 用	〃	옝5	〃	〃	use		lexical	U+7528_01
 應該	应该	옝5개1	〃	应该	should; respond; owe		lexical	U+61C9_U+8A72_00
 英國	英国	옝5걱	〃	英国	United Kingdom; Britain		lexical	U+82F1_U+570B_00
-英語	英语	옝5꾸2	〃	英语	language		lexical	U+82F1_U+8A9E_00
+英語	英语	옝5꾸2	〃	英语	English		lexical	U+82F1_U+8A9E_00
 英文	〃	옝5뿐4	〃	〃	writing; literature		lexical	U+82F1_U+6587_00
 下昏暗	〃	옝5암	傍晚	〃	dusk; evening		lexical	U+4E0B_U+660F_U+6697_00
 永遠	永远	옝1완2	〃	永远	forever		lexical	U+6C38_U+9060_00
@@ -2700,7 +2701,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 好漢	好汉	호1한	〃	好汉	good man		lexical	U+597D_U+6F22_00
 好好	〃	호1호2	〃	〃	good		lexical	U+597D_U+597D_00
 華	华	화4	〃	华	splendid; Chinese		lexical	U+83EF_00
-華語	华语	화꾸2	〃	华语	Mandarin Chinese		lexical	U+83EF_U+8A9E_00
+華語	华语	화꾸2	〃	华语	Mandarin; Mandarin Chinese		lexical	U+83EF_U+8A9E_00
 花容月貌	〃	화5영꽏ᄆᅷ5	〃	〃	moon; month		lexical	U+82B1_U+5BB9_U+6708_U+8C8C_00
 反	〃	환2	〃	〃	opposite; turn against		lexical	U+53CD_00
 凡	〃	환4	〃	〃	ordinary; all		lexical	U+51E1_00

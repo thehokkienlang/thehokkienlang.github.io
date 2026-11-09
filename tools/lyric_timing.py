@@ -18,6 +18,7 @@ class LyricParser(HTMLParser):
         for match in re.finditer('\n', body):
             self.offsets.append(match.end())
         self.lines, self.videos, self.stack = [], [], []
+        self.skip_depth = 0
         self.current = None
         self.feed(body)
 
@@ -33,7 +34,10 @@ class LyricParser(HTMLParser):
                 match = re.fullmatch(r'/embed/([A-Za-z0-9_-]{11})', url.path)
                 if match:
                     self.videos.append(match[1])
-        if tag == 'p':
+        # A column marked data-no-lyric-timing (a translation, say) is not part of the recording.
+        if tag == 'div' and (self.skip_depth or 'data-no-lyric-timing' in attrs):
+            self.skip_depth += 1
+        if tag == 'p' and not self.skip_depth:
             self.current = {'start': self.source_offset(), 'text': [], 'label': [], 'lomari': False, 'main': None, 'foundMain': False}
             self.stack = []
         if self.current is None or tag in ('br', 'img', 'hr', 'wbr', 'input', 'source', 'meta', 'link'):
@@ -53,6 +57,8 @@ class LyricParser(HTMLParser):
                 self.current['foundMain'] = True
 
     def handle_endtag(self, tag):
+        if tag == 'div' and self.skip_depth:
+            self.skip_depth -= 1
         if self.current is None:
             return
         if tag == 'p':

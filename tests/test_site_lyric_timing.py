@@ -74,6 +74,14 @@ class LyricTimingTests(unittest.TestCase):
         self.assertEqual([(cue['start'], cue['end']) for cue in recovered['cues']], [(1.25, 2.75), (3.0, 4.5)])
         self.assertEqual(recovered['cues'][0]['fingerprint'], song_lines(changed)[1][0]['fingerprint'])
 
+    def test_translation_column_is_not_timed(self):
+        record = json.loads((ROOT / 'content/songs/song-8597.json').read_text(encoding='utf-8'))
+        lines = song_lines(record)[1]
+        self.assertEqual(len(lines), 34)
+        self.assertEqual([line['id'] for line in lines][-1], 'line-034')
+        hokkien_only = record['body'][record['body'].index('data-no-lyric-timing'):]
+        self.assertTrue(all(line['html'] not in hokkien_only for line in lines if line['html'] not in record['body'][:record['body'].index('data-no-lyric-timing')]))
+
     def test_hand_sized_lyric_lines_are_not_dropped(self):
         for name in ('song-727', 'song-727-fong-fei-fei'):
             record = json.loads((ROOT / 'content/songs' / f'{name}.json').read_text(encoding='utf-8'))

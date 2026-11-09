@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from build_content import build_content, curate_home_body, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher, site_brand
+from build_content import build_content, curate_home_body, split_song_notes, introduce_tli, navigation_links, home_launch, home_showcase, remove_leading_language_switcher, site_brand
 from site_languages import LANGUAGES, base_route, language_for_route, language_url
 
 
@@ -100,6 +100,15 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertTrue((ROOT / 'assets/audio/ko-haksaeng.mp3').is_file())
         self.assertLess(result.index('home-compare-hokkien'), result.index('<button>Listen</button>'))
         self.assertIn('<div class="home-essay"><p>Intro</p><h2>Why</h2><p>Reason</p>', result)
+
+    def test_song_footnotes_show_one_language_per_page(self):
+        cell = "<td>\n (中) 眼淚（俗字寫作「目屎」）。<br>\n (en) Tears.\n </td>"
+        result = split_song_notes(cell)
+        self.assertNotIn("(中)", result)
+        self.assertNotIn("(en)", result)
+        self.assertIn('<span data-content-lang="zh-Hant">眼淚（俗字寫作「目屎」）。</span>', result)
+        self.assertIn('<span data-content-lang="zh-Hans">眼泪（俗字写作「目屎」）。</span>', result)
+        self.assertIn('<span data-content-lang="en">Tears.</span>', result)
 
     def test_equivalent_pages_and_unavailable_translation(self):
         for language, prefix in (("en", ""), ("zh-Hant", "/zh-hant"), ("zh-Hans", "/zh-hans")):

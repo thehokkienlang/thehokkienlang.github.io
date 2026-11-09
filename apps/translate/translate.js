@@ -78,6 +78,11 @@
     return String(entry.english || "").split(";").map(value => value.trim()).find(Boolean) || "";
   }
 
+  const ENGLISH_DEFAULTS = {
+    English: "U+82F1_U+8A9E_00", Hokkien: "U+95A9_U+5357_U+8A9E_00",
+    Chinese: "U+4E2D_U+6587_00", Mandarin: "U+83EF_U+8A9E_00",
+  };
+
   function buildTranslationIndexes(entries) {
     state.englishMap.clear(); state.exactHanri.clear(); state.exactReading.clear(); state.maxEnglishWords = 1;
     for (const entry of canonicalEntries(entries)) {
@@ -93,6 +98,13 @@
     }
     for (const map of [state.englishMap, state.exactHanri, state.exactReading]) {
       for (const [key, values] of map) map.set(key, ImeCore.rankEntries(values, key));
+    }
+    // The everyday words for these two languages lead, ahead of other entries sharing the gloss.
+    for (const [english, entryId] of Object.entries(ENGLISH_DEFAULTS)) {
+      const key = ImeCore.normalizeEnglishSearch(english);
+      const values = state.englishMap.get(key) || [];
+      const preferred = values.filter(entry => (entry.raw?.entry_id || entry.id) === entryId);
+      if (preferred.length) state.englishMap.set(key, [...preferred, ...values.filter(entry => !preferred.includes(entry))]);
     }
   }
 
