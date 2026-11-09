@@ -44,7 +44,8 @@ class LyricParser(HTMLParser):
             # older or pasted markup still uses the WordPress inline styles.
             style = attrs.get('style', '')
             classes = (attrs.get('class') or '').split()
-            if 'lyric-lomari' in classes or re.search(r'font-size\s*:\s*0?\.7em', style):
+            # A few lines keep hand-sized Lomari (0.61-0.65em), so the size alone cannot identify it.
+            if 'lyric-lomari' in classes or re.search(r'font-size\s*:\s*0?\.7em|font-family\s*:\s*calibri', style, re.I):
                 self.current['lomari'] = True
             block = {'lyric-line', 'lyric-lomari'} & set(classes) or re.search(r'display\s*:\s*block', style)
             if block and not self.current['foundMain']:
@@ -97,6 +98,40 @@ def blank_timing(record):
     video, lines = song_lines(record)
     return {'schemaVersion': 1, 'songId': record['id'], 'videoId': video, 'status': 'draft',
             'cues': [{'id': line['id'], 'fingerprint': line['fingerprint'], 'start': None, 'end': None} for line in lines]}
+
+
+def reconcile_timing(record, data):
+    """Carry authored times onto the current lyric structure without discarding them."""
+    expected = blank_timing(record)
+    if not isinstance(data, dict) or data.get('schemaVersion') != expected['schemaVersion'] or data.get('songId') != expected['songId']:
+        raise ValueError('The timing file does not belong to this song.')
+    stored = data.get('cues')
+    if not isinstance(stored, list) or any(not isinstance(cue, dict) for cue in stored):
+        raise ValueError('The timing file has no recoverable sentence timings.')
+
+    unused = set(range(len(stored)))
+    reconciled = []
+    for index, line in enumerate(expected['cues']):
+        def find(match):
+            return next((candidate for candidate in sorted(unused) if match(stored[candidate])), None)
+
+        source_index = find(lambda cue: cue.get('id') == line['id'] and cue.get('fingerprint') == line['fingerprint'])
+        if source_index is None:
+            source_index = find(lambda cue: cue.get('fingerprint') == line['fingerprint'])
+        if source_index is None:
+            source_index = find(lambda cue: cue.get('id') == line['id'])
+        if source_index is None and index in unused:
+            source_index = index
+
+        source = stored[source_index] if source_index is not None else {}
+        if source_index is not None:
+            unused.remove(source_index)
+        reconciled.append({**line, 'start': source.get('start'), 'end': source.get('end')})
+
+    status = data.get('status') if data.get('status') in ('draft', 'reviewed') else 'draft'
+    if status == 'reviewed' and any(cue['start'] is None or cue['end'] is None for cue in reconciled):
+        status = 'draft'
+    return {**expected, 'status': status, 'cues': reconciled}
 
 
 def validate_timing(record, data):

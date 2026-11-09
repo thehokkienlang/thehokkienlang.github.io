@@ -1,0 +1,224 @@
+{
+  "schemaVersion": 1,
+  "songId": "song-8567",
+  "videoId": "FfgdYsKyzHA",
+  "status": "draft",
+  "cues": [
+    {
+      "id": "line-001",
+      "fingerprint": "2fddb3e0f43857773f43dce2fd8761887e283343f88fbeabe9a4861213f74fe0",
+      "start": 25.1,
+      "end": 30.6
+    },
+    {
+      "id": "line-002",
+      "fingerprint": "826bc7f6e22ac31c74e9947391813674c2b84623ab74d57bf45e37d26e90237b",
+      "start": 30.7,
+      "end": 35.9
+    },
+    {
+      "id": "line-003",
+      "fingerprint": "9da65e754bd5491e3d63fca6726ad34d1be92fc463201e39b2454acacc6ccec1",
+      "start": 36,
+      "end": 41.5
+    },
+    {
+      "id": "line-004",
+      "fingerprint": "00171983894086bcf3ce67823dce41880d8148a0d2c9f851528fc66f1e07a870",
+      "start": 41.6,
+      "end": 47.08
+    },
+    {
+      "id": "line-005",
+      "fingerprint": "92042ecd038d7a056d8f66e8a5bef1538a377b5089a3d080b990ac3405b983f2",
+      "start": 47.18,
+      "end": 52.42
+    },
+    {
+      "id": "line-006",
+      "fingerprint": "dd1626f59b6eed4634d1096d1867f1afb9ee9ed211c09c01011c1bed62104b43",
+      "start": 52.52,
+      "end": 57.88
+    },
+    {
+      "id": "line-007",
+      "fingerprint": "5868db09b7791f6c6a8e3a0a726244a71f60771d0ec40acddba26991f135e7c2",
+      "start": 57.98,
+      "end": 63.37
+    },
+    {
+      "id": "line-008",
+      "fingerprint": "0ab92cb8ebe0fb400d489ffddd55f13bf61e30b6533134a93913060f7097dd64",
+      "start": 63.47,
+      "end": 68.94
+    },
+    {
+      "id": "line-009",
+      "fingerprint": "c1be7b466808187d28e9fc1f7202a9d48fbac3034c711e0e8784b8f1bdc3fe57",
+      "start": 69.04,
+      "end": 74.22
+    },
+    {
+      "id": "line-010",
+      "fingerprint": "2d64184d20cd5dcf7057aade865691f60ed013dd5ef67d21973333962243bcda",
+      "start": 74.32,
+      "end": 79.75
+    },
+    {
+      "id": "line-011",
+      "fingerprint": "da63fb8b7996467dbd8dbe8cdb7928b91cc2cea79bd94e47648b51cef46ebf6b",
+      "start": 79.85,
+      "end": 85.26
+    },
+    {
+      "id": "line-012",
+      "fingerprint": "c5d7eb0e3c0099aac0951fca5996c795efd7dc608e2d0e0cfa4e4983218a0f69",
+      "start": 85.36,
+      "end": 90.75
+    },
+    {
+      "id": "line-013",
+      "fingerprint": "fa0a0c3d8dfd469f4e3b80ad8069d80d79a453a0e8e927bfcaf45283a0567f2a",
+      "start": 90.85,
+      "end": 96.11
+    },
+    {
+      "id": "line-014",
+      "fingerprint": "81f9c137f5c4bf39f046527329a3714030c0fbc0ce6c62d65b8ec30269237858",
+      "start": 96.21,
+      "end": 101.65
+    },
+    {
+      "id": "line-015",
+      "fingerprint": "aa2b4cd4c4581d4b94c7fdfa87374e8c66b53ed5e3f5b34a2c3921255529e637",
+      "start": 101.75,
+      "end": 107
+    },
+    {
+      "id": "line-016",
+      "fingerprint": "6f8cc66d154162d7caff2dc1b3176d6597b10c8f94cf37270967d7062c6316b8",
+      "start": 107.1,
+      "end": 134.4
+    },
+    {
+      "id": "line-017",
+      "fingerprint": "92042ecd038d7a056d8f66e8a5bef1538a377b5089a3d080b990ac3405b983f2",
+      "start": 134.5,
+      "end": 139.8
+    },
+    {
+      "id": "line-018",
+      "fingerprint": "dd1626f59b6eed4634d1096d1867f1afb9ee9ed211c09c01011c1bed62104b43",
+      "start": 139.9,
+      "end": 145.1
+    },
+    {
+      "id": "line-019",
+      "fingerprint": "5868db09b7791f6c6a8e3a0a726244a71f60771d0ec40acddba26991f135e7c2",
+      "start": 145.2,
+      "end": 150.65
+    },
+    {
+      "id": "line-020",
+      "fingerprint": "0ab92cb8ebe0fb400d489ffddd55f13bf61e30b6533134a93913060f7097dd64",
+      "start": 150.75,
+      "end": 156.317
+    },
+    {
+      "id": "line-021",
+      "fingerprint": "c1be7b466808187d28e9fc1f7202a9d48fbac3034c711e0e8784b8f1bdc3fe57",
+      "start": 156.417,
+      "end": 161.76
+    },
+    {
+      "id": "line-022",
+      "fingerprint": "2d64184d20cd5dcf7057aade865691f60ed013dd5ef67d21973333962243bcda",
+      "start": 161.86,
+      "end": 167.205
+    },
+    {
+      "id": "line-023",
+      "fingerprint": "da63fb8b7996467dbd8dbe8cdb7928b91cc2cea79bd94e47648b51cef46ebf6b",
+      "start": 167.305,
+      "end": 172.79
+    },
+    {
+      "id": "line-024",
+      "fingerprint": "c5d7eb0e3c0099aac0951fca5996c795efd7dc608e2d0e0cfa4e4983218a0f69",
+      "start": 172.89,
+      "end": 178.15
+    },
+    {
+      "id": "line-025",
+      "fingerprint": "fa0a0c3d8dfd469f4e3b80ad8069d80d79a453a0e8e927bfcaf45283a0567f2a",
+      "start": 178.25,
+      "end": 183.579
+    },
+    {
+      "id": "line-026",
+      "fingerprint": "81f9c137f5c4bf39f046527329a3714030c0fbc0ce6c62d65b8ec30269237858",
+      "start": 183.679,
+      "end": 189.085
+    },
+    {
+      "id": "line-027",
+      "fingerprint": "aa2b4cd4c4581d4b94c7fdfa87374e8c66b53ed5e3f5b34a2c3921255529e637",
+      "start": 189.185,
+      "end": 194.68
+    },
+    {
+      "id": "line-028",
+      "fingerprint": "6f8cc66d154162d7caff2dc1b3176d6597b10c8f94cf37270967d7062c6316b8",
+      "start": 194.78,
+      "end": 199.959
+    },
+    {
+      "id": "line-029",
+      "fingerprint": "c1be7b466808187d28e9fc1f7202a9d48fbac3034c711e0e8784b8f1bdc3fe57",
+      "start": 200.059,
+      "end": 205.45
+    },
+    {
+      "id": "line-030",
+      "fingerprint": "2d64184d20cd5dcf7057aade865691f60ed013dd5ef67d21973333962243bcda",
+      "start": 205.55,
+      "end": 210.951
+    },
+    {
+      "id": "line-031",
+      "fingerprint": "da63fb8b7996467dbd8dbe8cdb7928b91cc2cea79bd94e47648b51cef46ebf6b",
+      "start": 211.051,
+      "end": 216.36
+    },
+    {
+      "id": "line-032",
+      "fingerprint": "c5d7eb0e3c0099aac0951fca5996c795efd7dc608e2d0e0cfa4e4983218a0f69",
+      "start": 216.46,
+      "end": 221.928
+    },
+    {
+      "id": "line-033",
+      "fingerprint": "fa0a0c3d8dfd469f4e3b80ad8069d80d79a453a0e8e927bfcaf45283a0567f2a",
+      "start": 222.028,
+      "end": 227.319
+    },
+    {
+      "id": "line-034",
+      "fingerprint": "81f9c137f5c4bf39f046527329a3714030c0fbc0ce6c62d65b8ec30269237858",
+      "start": 227.419,
+      "end": 232.76
+    },
+    {
+      "id": "line-035",
+      "fingerprint": "aa2b4cd4c4581d4b94c7fdfa87374e8c66b53ed5e3f5b34a2c3921255529e637",
+      "start": 232.86,
+      "end": 238.22
+    },
+    {
+      "id": "line-036",
+      "fingerprint": "6f8cc66d154162d7caff2dc1b3176d6597b10c8f94cf37270967d7062c6316b8",
+      "start": 238.32,
+      "end": 244.63
+    }
+  ]
+}

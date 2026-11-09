@@ -18,7 +18,9 @@ from assign_dictionary_entry_ids import _atomic_write
 from dictionary_editor_service import EditorError, MAIN, read_table, table_bytes
 from dictionary_ranking import PRIORITY_COLUMNS, load_priority, read_records
 from dictionary_references import CATEGORY_COLUMNS, load_categories
-from lyric_timing import blank_timing, song_lines, timing_path, validate_timing
+from lyric_timing import blank_timing, reconcile_timing, song_lines, timing_path, validate_timing
+from song_editor_import import fragment_source, legacy_lyrics, legacy_suffix, title_segments
+from song_title_readings import song_sort_reading, song_title
 
 REDIRECT_COLUMNS = ("kind", "source", "source_reading", "target_entry_id", "reason", "sources", "date")
 GENERATED_PREFIXES = ("_site/", "public/data/")
@@ -129,9 +131,12 @@ class WebsiteEditorService:
             if record.get('type') == 'songs':
                 from song_title_readings import song_sort_reading
                 search_text += ' ' + record.get('originalTitle', '') + ' ' + song_sort_reading(record)
+            version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
+            version_label = str(version.get("label") or "").strip()
+            display_title = record.get("title", path.stem) + (f" — {version_label}" if version_label else "")
             pages.append({
                 "file": relative, "revision": digest(raw), "id": record.get("id", path.stem),
-                "title": record.get("title", path.stem), "route": record.get("route", ""),
+                "title": display_title, "route": record.get("route", ""),
                 "type": record.get("type", path.parent.name), "language": record.get("language", "en"),
                 "archived": bool(record.get("archived")),
                 "searchText": search_text,
@@ -232,8 +237,8 @@ class WebsiteEditorService:
             try:
                 data = validate_timing(record, stored) if raw else blank_timing(record)
             except ValueError:
-                data = blank_timing(record)
-                warning = 'The lyrics, recording, or stored times changed. This draft has cleared times for review; saving will replace the old timing file.'
+                data = reconcile_timing(record, stored)
+                warning = 'The lyrics, recording, or stored timing structure changed. Existing times were preserved; review affected sentences before saving.'
         except (ValueError, json.JSONDecodeError) as error:
             raise WebsiteEditorError(str(error)) from error
         return {'ok': True, 'file': opened['file'], 'sourceRevision': opened['revision'], 'warning': warning,
@@ -310,13 +315,27 @@ class WebsiteEditorService:
                 raw, record = self._load_json(path)
             except WebsiteEditorError:
                 continue
-            if record.get("type") != "songs" or not isinstance(record.get("songEditor"), dict):
+            if record.get("type") != "songs":
                 continue
+            try:
+                title_reading = song_sort_reading(record)
+            except (KeyError, TypeError, ValueError):
+                title_reading = ""
+            editor_source = record.get("songEditor")
+            version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
+            version_label = str(version.get("label") or "").strip()
+            display_title = record.get("title", path.stem) + (f" — {version_label}" if version_label else "")
             songs.append({
                 "file": path.relative_to(self.repo).as_posix(),
                 "revision": digest(raw),
-                "title": record.get("title", path.stem),
+                "title": display_title,
                 "route": record.get("route", ""),
+                "editable": isinstance(editor_source, dict),
+                "searchText": " ".join(filter(None, (
+                    record.get("title", path.stem), record.get("route", ""),
+                    record.get("originalTitle", ""), title_reading,
+                    editor_source.get("titleSource", "") if isinstance(editor_source, dict) else "",
+                ))),
             })
         labels = [{"id": row.get("id", ""), "label": row.get("labels", {}).get("en", row.get("id", ""))}
                   for row in categories]
@@ -335,16 +354,55 @@ class WebsiteEditorService:
             raise WebsiteEditorError("This song no longer exists. Reload the song list.", code="stale")
         raw, record = self._load_json(path)
         draft = record.get("songEditor")
-        if not isinstance(draft, dict) or draft.get("version") != 1:
-            raise WebsiteEditorError(
-                "This legacy song has no structured authoring source. Edit it in Website Pages to avoid a lossy conversion.")
+        imported = not isinstance(draft, dict) or draft.get("version") != 1
+        if imported:
+            draft, _suffix = self._import_legacy_song(record)
         return {
             "ok": True,
             "file": path.relative_to(self.repo).as_posix(),
             "revision": digest(raw),
             "route": record.get("route", ""),
             "draft": draft,
+            "imported": imported,
         }
+
+    def _import_legacy_song(self, record):
+        body = str(record.get("body") or "")
+        lyrics = legacy_lyrics(body)
+        if not lyrics:
+            raise WebsiteEditorError("No editable lyric lines could be recovered from this existing song.")
+        try:
+            title_html, _ = song_title(record)
+            title_source = fragment_source(title_html)
+            legacy_title = {
+                "title": str(record.get("title") or "").strip(),
+                "source": title_source,
+                "segments": title_segments(title_html),
+            }
+        except (KeyError, TypeError, ValueError):
+            title_source = str(record.get("title") or "").strip()
+            legacy_title = None
+        video = re.search(r"youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{11})", body)
+        if not video:
+            raise WebsiteEditorError("The existing song's YouTube video could not be recovered.")
+        _, categories = self._song_categories()
+        route = record.get("route", "")
+        version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
+        category_route = version.get("groupRoute") or route
+        category = next((row.get("id", "") for row in categories if category_route in row.get("routes", [])), "")
+        if not category and categories:
+            category = categories[0].get("id", "")
+        draft = {
+            "version": 1,
+            "title": str(record.get("title") or "").strip(),
+            "titleSource": title_source,
+            "videoUrl": f"https://www.youtube.com/watch?v={video.group(1)}",
+            "category": category,
+            "lyrics": lyrics,
+        }
+        if legacy_title:
+            draft["legacyTitle"] = legacy_title
+        return draft, legacy_suffix(body)
 
     @staticmethod
     def _youtube_id(value):
@@ -404,16 +462,61 @@ class WebsiteEditorService:
             lyrics.pop()
         if not any(item.get("kind") == "line" for item in lyrics):
             raise WebsiteEditorError("Add at least one lyric line.")
+        legacy_title = self._normalize_legacy_title(draft.get("legacyTitle"), title, title_source)
         route_title = re.sub(r"\s+", "", title)
         route = existing_route or f"/songs/{route_title}/"
-        return {
+        clean = {
             "version": 1,
             "title": title,
             "titleSource": title_source,
             "videoUrl": f"https://www.youtube.com/watch?v={video_id}",
             "category": category,
             "lyrics": lyrics,
-        }, route, video_id
+        }
+        if legacy_title:
+            clean["legacyTitle"] = legacy_title
+        return clean, route, video_id
+
+    @staticmethod
+    def _normalize_legacy_title(value, title, title_source):
+        if not isinstance(value, dict) or value.get("title") != title or value.get("source") != title_source:
+            return None
+        raw_segments = value.get("segments")
+        if not isinstance(raw_segments, list) or not raw_segments or len(raw_segments) > 200:
+            return None
+        segments = []
+        for segment in raw_segments:
+            if not isinstance(segment, dict):
+                return None
+            if set(segment) == {"text"}:
+                text = str(segment["text"])
+                if len(text) > 500 or any(char in text for char in "\0\r\n"):
+                    return None
+                segments.append({"text": text})
+                continue
+            if set(segment) != {"base", "reading", "system"}:
+                return None
+            base, reading, system = str(segment["base"]), str(segment["reading"]), segment["system"]
+            if not base or len(base) > 200 or len(reading) > 500 or system not in {"hangul", "bopomofo"}:
+                return None
+            if any(char in base + reading for char in "\0\r\n"):
+                return None
+            segments.append({"base": base, "reading": reading, "system": system})
+        return {"title": title, "source": title_source, "segments": segments}
+
+    @staticmethod
+    def _render_legacy_title(value):
+        result = []
+        for segment in value["segments"]:
+            if "text" in segment:
+                result.append(html_lib.escape(segment["text"]))
+                continue
+            css = "hanri-title" + (" bopomofo-title" if segment["system"] == "bopomofo" else "")
+            result.append(
+                f'<ruby class="{css}">{html_lib.escape(segment["base"])}'
+                f'<rt>{html_lib.escape(segment["reading"])}</rt></ruby>'
+            )
+        return "".join(result)
 
     @staticmethod
     def _youtube_embed(video_id):
@@ -434,11 +537,14 @@ class WebsiteEditorService:
         clean, route, video_id = self._normalize_song_draft(draft, existing_route=existing_route)
         converter = self._tone_marker()
         try:
-            title_html = converter.convert_hangul_to_html(clean["titleSource"], "title")["html"]
-            visible_title = converter.visible_source_for_lomari_next_line(clean["titleSource"])
-            comparable = lambda value: re.sub(r"[\s’']+", "", unicodedata.normalize("NFC", value))
-            if comparable(visible_title) != comparable(clean["title"]):
-                raise WebsiteEditorError("The visible TLI title must match the song title.")
+            if clean.get("legacyTitle"):
+                title_html = self._render_legacy_title(clean["legacyTitle"])
+            else:
+                title_html = converter.convert_hangul_to_html(clean["titleSource"], "title")["html"]
+                visible_title = converter.visible_source_for_lomari_next_line(clean["titleSource"])
+                comparable = lambda value: re.sub(r"[\s’']+", "", unicodedata.normalize("NFC", value))
+                if comparable(visible_title) != comparable(clean["title"]):
+                    raise WebsiteEditorError("The visible TLI title must match the song title.")
             blocks = []
             for item in clean["lyrics"]:
                 if item["kind"] == "break":
@@ -480,11 +586,17 @@ class WebsiteEditorService:
             raw, existing = self._load_json(path)
             if digest(raw) != revision:
                 raise WebsiteEditorError("This song changed outside the editor. Reload before saving.", code="stale")
-            if not isinstance(existing.get("songEditor"), dict):
-                raise WebsiteEditorError("Legacy HTML-only songs cannot be overwritten by the structured editor.")
             existing_route = existing.get("route", "")
+        suffix = ""
+        if existing is not None:
+            if isinstance(existing.get("songEditor"), dict):
+                suffix = str(existing.get("songEditorLegacySuffix") or "")
+            else:
+                _imported, suffix = self._import_legacy_song(existing)
         rendered = self.render_song_draft(draft, existing_route=existing_route)
         clean, route, body = rendered["draft"], rendered["route"], rendered["body"]
+        if suffix:
+            body = body.rstrip() + "\n\n" + suffix.lstrip()
         category_path, urls_path, manifest_path = self._song_support_files()
         category_raw, url_raw, manifest_raw = (category_path.read_bytes(), urls_path.read_bytes(), manifest_path.read_bytes())
         if (digest(category_raw) != category_revision or digest(url_raw) != url_revision or
@@ -515,28 +627,34 @@ class WebsiteEditorService:
             source_url = record["sourceUrl"]
         record.update({
             "title": clean["title"],
-            "originalTitle": clean["title"] + " 諺文歌詞",
+            # Keeps the WordPress title of an imported song, so saving never rewrites its origin.
+            "originalTitle": (existing or {}).get("originalTitle") or clean["title"] + " 諺文歌詞",
             "route": route,
             "sourceModified": datetime.now().astimezone().isoformat(timespec="seconds"),
             "orthography": {"target": "3.2", "review": "structured-song-editor"},
             "body": body,
             "songEditor": clean,
         })
+        if suffix:
+            record["songEditorLegacySuffix"] = suffix
         rewritten, home_changed = self._sync_lomari(path.relative_to(self.repo).as_posix(), record)
         body = record["body"]
         record["sourceSha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
 
-        for category in categories:
-            category["routes"] = [value for value in category.get("routes", []) if value != route]
-        target_category = next(row for row in categories if row.get("id") == clean["category"])
-        target_category.setdefault("routes", []).append(route)
+        version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
+        grouped_variant = bool(version.get("groupRoute") and route != version.get("groupRoute"))
+        if not grouped_variant:
+            for category in categories:
+                category["routes"] = [value for value in category.get("routes", []) if value != route]
+            target_category = next(row for row in categories if row.get("id") == clean["category"])
+            target_category.setdefault("routes", []).append(route)
         if is_new:
             urls.append({"old_url": source_url, "new_url": route})
             manifest.setdefault("records", []).append({
                 "sourceUrl": source_url, "sourceId": source_id, "route": route,
                 "file": path.relative_to(self.repo).as_posix(),
             })
-        elif not any(row.get("file") == path.relative_to(self.repo).as_posix() for row in manifest.get("records", [])):
+        elif not grouped_variant and not any(row.get("file") == path.relative_to(self.repo).as_posix() for row in manifest.get("records", [])):
             raise WebsiteEditorError("The song is missing from the website content manifest.")
 
         outputs = {

@@ -1,17 +1,28 @@
 (() => {
   'use strict';
-  const data = document.getElementById('lyric-timing-data');
-  if (!data || !window.TliLyricPlayer) return;
+  const first = document.getElementById('lyric-timing-data');
+  if (!first || !window.TliLyricPlayer) return;
+  // A song with several versions has one timed recording per tab panel; each syncs on its own.
+  if (first.closest?.('[role="tabpanel"]')) {
+    document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+      const data = panel.querySelector('#lyric-timing-data');
+      if (data) start(data, panel);
+    });
+  } else {
+    start(first, document);
+  }
+
+  function start(data, scope) {
   const timing = JSON.parse(data.textContent);
   if (!timing.cues.some(cue => Number.isFinite(cue.start) && Number.isFinite(cue.end))) return;
-  let iframe = [...document.querySelectorAll('iframe')].find(frame => {
+  let iframe = [...scope.querySelectorAll('iframe')].find(frame => {
     try { return new URL(frame.src).pathname === '/embed/' + timing.videoId; } catch { return false; }
   });
   if (!iframe) return;
-  const controls = document.querySelector('.lyric-sync-controls');
+  const controls = scope.querySelector('.lyric-sync-controls');
   const status = controls.querySelector('[data-lyric-status]');
   const follow = controls.querySelector('input');
-  (document.querySelector('.song-script-heading') || iframe.closest('figure') || iframe).insertAdjacentElement('afterend', controls);
+  (scope.querySelector('.song-script-heading') || iframe.closest('figure') || iframe).insertAdjacentElement('afterend', controls);
   follow.checked = matchMedia('(max-width: 700px)').matches;
   controls.hidden = false;
   let active = null;
@@ -38,7 +49,7 @@
   };
   for (const cue of timing.cues) {
     if (!Number.isFinite(cue.start) || !Number.isFinite(cue.end)) continue;
-    const line = document.querySelector(`[data-lyric-id="${cue.id}"]`);
+    const line = scope.querySelector(`[data-lyric-id="${cue.id}"]`);
     if (!line) continue;
     const main = line.querySelector(':scope > span');
     if (!main) continue;
@@ -81,7 +92,7 @@
     TliLyricPlayer.connect(iframe, (time, state) => {
     status.textContent = '';
     const cue = state === 0 ? null : TliLyricPlayer.cueAt(timing.cues, time);
-    const next = cue ? document.querySelector(`[data-lyric-id="${cue.id}"]`) : null;
+    const next = cue ? scope.querySelector(`[data-lyric-id="${cue.id}"]`) : null;
     if (next === active) return;
     active?.classList.remove('lyric-active');
     active?.removeAttribute('aria-current');
@@ -95,5 +106,8 @@
     if (pendingSeek !== null) { controller.seek(pendingSeek, true); pendingSeek = null; }
   }).catch(fail).finally(() => { connecting = false; });
   }
-  connectPlayer();
+  // A hidden tab's player connects when that tab is first shown.
+  if (scope.hidden) scope.addEventListener('song-version-shown', connectPlayer, { once: true });
+  else connectPlayer();
+  }
 })();

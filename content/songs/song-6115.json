@@ -7,15 +7,177 @@
   "route": "/songs/靠站/",
   "sourceUrl": "https://hokkienlang.wordpress.com/2025/12/09/%e9%9d%a0%e7%ab%99-%ec%bd%94%ec%9e%a0-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
   "sourceId": 6115,
-  "sourceModified": "2026-10-21T14:59:38+08:00",
-  "sourceSha256": "d5769d232d58106c4efc110a535f413621bd687a3685d9e12fad4f055f9c0c38",
+  "sourceModified": "2026-11-09T11:26:41+08:00",
+  "sourceSha256": "6388f36ac846585fd131dcc0e6ff03694ed1179a309f61fbcd14e0063585dbfc",
   "orthography": {
     "target": "3.2",
-    "review": "mixed-script-audited",
-    "scope": "section-4 mixed-script spellings",
-    "v32Changes": "applied",
-    "audit": "docs/history/harmonisation-3.2-audit.json",
-    "v321Audit": "docs/history/harmonisation-3.2.1-audit.json"
+    "review": "structured-song-editor"
   },
-  "body": "\n<h2 class=\"wp-block-heading\"><span><ruby>코<rt>ˎ</rt></ruby><ruby>잠<rt>ˍ</rt></ruby></span></h2>\n\n\n\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-4-3 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/RxKa6V2HuoQ?version=3&amp;rel=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;fs=1&amp;hl=en&amp;autohide=2&amp;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>\n\n\n\n<h3 class=\"wp-block-heading\">漢諺混寫 Hanri-Hangul mixed script</h3>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>坐<rt>제-</rt></ruby><ruby>著<rt>둏-</rt></ruby><ruby>最後<rt>줴ˋᄋᅷ-</rt></ruby><ruby title=\"jît\">這<rt>짇ˆ-</rt></ruby><ruby>班<rt>반ˉ-</rt></ruby><ruby>夜快車<rt>야쾌ˋ챠ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    je-tioh-juè-au-jît-pān-ya-khoài-chiâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>無<rt>뽀-</rt></ruby><ruby>奈<rt>내-</rt></ruby><ruby>心情<rt>심ˉ졩ˊ</rt></ruby> <ruby>綴<rt>뒈ˋ-</rt></ruby><ruby>車<rt>챠ˉ-</rt></ruby><ruby>行<rt>걀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bo-nai-sīm-jiéng tuè-chiā-kiá̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>車站<rt>챠ˉ잠ˉ</rt></ruby> <ruby>一站<rt>짇잠ˉ</rt></ruby> <ruby>譀叫<rt>함ˋ교</rt></ruby>’짇샬\n  </span>\n  <span class=\"lyric-lomari\">\n    chiā-jām jit-jām hàm-kio’jit-sia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>毋<rt>음-</rt></ruby><ruby>敢<rt>갈ˆ-</rt></ruby><ruby>斡頭<rt>왇ᄐᅷˊ</rt></ruby> <ruby>叫<rt>교ˋ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby>’에 <ruby>名<rt>먀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    m-kâ̰-oat-tháu kiò-lì’e miá\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>希望<rt>히ˉ빵-</rt></ruby><ruby>會當<rt>에당ˋ-</rt></ruby><ruby>揣<rt>췌-</rt></ruby><ruby>著<rt>둏-</rt></ruby><ruby>理想<rt>리ˆ셩ˋ</rt></ruby>’에 <ruby>車站<rt>챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>好好<rt>호ˆ호ˆ-</rt></ruby><ruby>靠站<rt>코ˋ잠ˉ</rt></ruby> <ruby>過<rt>궤ˋ-</rt></ruby><ruby>一暗<rt>짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>明日<rt>뼹띧ˆ</rt></ruby> <ruby>若<rt>나</rt></ruby><ruby>醒<rt>칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>飄撇<rt>ᄑᆤˉ폗ˆ-</rt></ruby><ruby>笑容<rt>쵸ˋ영ˊ</rt></ruby> <ruby>隨<rt>쉬-</rt></ruby><ruby>風<rt>헝ˉ-</rt></ruby><ruby>送<rt>상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>一聲<rt>짇샬ˉ-</rt></ruby><ruby>再會<rt>재ˋ훼ˉ</rt></ruby> <ruby>無<rt>뽀-</rt></ruby><ruby>緣<rt>옌ˊ</rt></ruby>’에 <ruby>人<rt>랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>抑<rt>얗</rt></ruby> <ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>坐<rt>제-</rt></ruby><ruby>著<rt>둏-</rt></ruby><ruby>最後<rt>줴ˋᄋᅷ-</rt></ruby><ruby title=\"jît\">這<rt>짇ˆ-</rt></ruby><ruby>班<rt>반ˉ-</rt></ruby><ruby>夜快車<rt>야쾌ˋ챠ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    je-tioh-juè-au-jît-pān-ya-khoài-chiâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>無<rt>뽀-</rt></ruby><ruby>奈<rt>내-</rt></ruby><ruby>心情<rt>심ˉ졩ˊ</rt></ruby> <ruby>綴<rt>뒈ˋ-</rt></ruby><ruby>車<rt>챠ˉ-</rt></ruby><ruby>行<rt>걀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bo-nai-sīm-jiéng tuè-chiā-kiá̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>車站<rt>챠ˉ잠ˉ</rt></ruby> <ruby>一站<rt>짇잠ˉ</rt></ruby> <ruby>譀叫<rt>함ˋ교</rt></ruby>’짇샬\n  </span>\n  <span class=\"lyric-lomari\">\n    chiā-jām jit-jām hàm-kio’jit-sia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>毋<rt>음-</rt></ruby><ruby>敢<rt>갈ˆ-</rt></ruby><ruby>斡頭<rt>왇ᄐᅷˊ</rt></ruby> <ruby>叫<rt>교ˋ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby>’에 <ruby>名<rt>먀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    m-kâ̰-oat-tháu kiò-lì’e miá\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>希望<rt>히ˉ빵-</rt></ruby><ruby>會當<rt>에당ˋ-</rt></ruby><ruby>揣<rt>췌-</rt></ruby><ruby>著<rt>둏-</rt></ruby><ruby>理想<rt>리ˆ셩ˋ</rt></ruby>’에 <ruby>車站<rt>챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>好好<rt>호ˆ호ˆ-</rt></ruby><ruby>靠站<rt>코ˋ잠ˉ</rt></ruby> <ruby>過<rt>궤ˋ-</rt></ruby><ruby>一暗<rt>짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>明日<rt>뼹띧ˆ</rt></ruby> <ruby>若<rt>나</rt></ruby><ruby>醒<rt>칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>飄撇<rt>ᄑᆤˉ폗ˆ-</rt></ruby><ruby>笑容<rt>쵸ˋ영ˊ</rt></ruby> <ruby>隨<rt>쉬-</rt></ruby><ruby>風<rt>헝ˉ-</rt></ruby><ruby>送<rt>상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>一聲<rt>짇샬ˉ-</rt></ruby><ruby>再會<rt>재ˋ훼ˉ</rt></ruby> <ruby>無<rt>뽀-</rt></ruby><ruby>緣<rt>옌ˊ</rt></ruby>’에 <ruby>人<rt>랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>抑<rt>얗</rt></ruby> <ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>希望<rt>히ˉ빵-</rt></ruby><ruby>會當<rt>에당ˋ-</rt></ruby><ruby>揣<rt>췌-</rt></ruby><ruby>著<rt>둏-</rt></ruby><ruby>理想<rt>리ˆ셩ˋ</rt></ruby>’에 <ruby>車站<rt>챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>好好<rt>호ˆ호ˆ-</rt></ruby><ruby>靠站<rt>코ˋ잠ˉ</rt></ruby> <ruby>過<rt>궤ˋ-</rt></ruby><ruby>一暗<rt>짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>明日<rt>뼹띧ˆ</rt></ruby> <ruby>若<rt>나</rt></ruby><ruby>醒<rt>칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>飄撇<rt>ᄑᆤˉ폗ˆ-</rt></ruby><ruby>笑容<rt>쵸ˋ영ˊ</rt></ruby> <ruby>隨<rt>쉬-</rt></ruby><ruby>風<rt>헝ˉ-</rt></ruby><ruby>送<rt>상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>一聲<rt>짇샬ˉ-</rt></ruby><ruby>再會<rt>재ˋ훼ˉ</rt></ruby> <ruby>無<rt>뽀-</rt></ruby><ruby>緣<rt>옌ˊ</rt></ruby>’에 <ruby>人<rt>랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby>妝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>媠媠<rt>쉬ˆ쉬ˋ</rt></ruby> <ruby>抑<rt>얗</rt></ruby> <ruby>嫁<rt>게ˋ-</rt></ruby><ruby>別人<rt>받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n<br>\n"
+  "body": "<h2 class=\"wp-block-heading\"><span style=\"font-family:Sans-serif, Noto Sans TC\"><ruby class=\"tli-reading-ruby\" title=\"khò\">靠<rt class=\"tli-rt\">코ˋ</rt></ruby><ruby class=\"tli-reading-ruby\" title=\"jām\">站<rt class=\"tli-rt\">잠ˉ</rt></ruby></span></h2>\n\n\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/RxKa6V2HuoQ?version=3&amp;rel=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;fs=1&amp;hl=en&amp;autohide=2&amp;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>\n\n\n<h3 class=\"wp-block-heading\">漢諺混寫 Hanri-Hangul mixed script</h3>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">坐<rt class=\"tli-rt\">제-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏-</rt></ruby><ruby class=\"tli-reading-ruby\">最後<rt class=\"tli-rt\">줴ˋᄋᅷ-</rt></ruby><ruby class=\"tli-reading-ruby\">這<rt class=\"tli-rt\">짇ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">班<rt class=\"tli-rt\">반ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">夜快車<rt class=\"tli-rt\">야쾌ˋ챠ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    je-tioh-juè-au-jît-pān-ya-khoài-chiâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀-</rt></ruby><ruby class=\"tli-reading-ruby\">奈<rt class=\"tli-rt\">내-</rt></ruby><ruby class=\"tli-reading-ruby\">心情<rt class=\"tli-rt\">심ˉ졩ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">綴<rt class=\"tli-rt\">뒈ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">車<rt class=\"tli-rt\">챠ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">行<rt class=\"tli-rt\">걀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bo-nai-sīm-jiéng tuè-chiā-kiá̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">車站<rt class=\"tli-rt\">챠ˉ잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">一站<rt class=\"tli-rt\">짇잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">譀叫<rt class=\"tli-rt\">함ˋ교</rt></ruby>’짇샬\n  </span>\n  <span class=\"lyric-lomari\">\n    chiā-jām jit-jām hàm-kio’jit-sia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">毋<rt class=\"tli-rt\">음-</rt></ruby><ruby class=\"tli-reading-ruby\">敢<rt class=\"tli-rt\">갈ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">斡頭<rt class=\"tli-rt\">왇ᄐᅷˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">叫<rt class=\"tli-rt\">교ˋ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">名<rt class=\"tli-rt\">먀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    m-kâ̰-oat-tháu kiò-lì’e miá\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">希望<rt class=\"tli-rt\">히ˉ빵-</rt></ruby><ruby class=\"tli-reading-ruby\">會當<rt class=\"tli-rt\">에당ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">揣<rt class=\"tli-rt\">췌-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏-</rt></ruby><ruby class=\"tli-reading-ruby\">理想<rt class=\"tli-rt\">리ˆ셩ˋ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">車站<rt class=\"tli-rt\">챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">好好<rt class=\"tli-rt\">호ˆ호ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">靠站<rt class=\"tli-rt\">코ˋ잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">過<rt class=\"tli-rt\">궤ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">一暗<rt class=\"tli-rt\">짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">明日<rt class=\"tli-rt\">뼹띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">若<rt class=\"tli-rt\">나-</rt></ruby><ruby class=\"tli-reading-ruby\">醒<rt class=\"tli-rt\">칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">飄撇<rt class=\"tli-rt\">ᄑᆤˉ폗ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">笑容<rt class=\"tli-rt\">쵸ˋ영ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">隨<rt class=\"tli-rt\">쉬-</rt></ruby><ruby class=\"tli-reading-ruby\">風<rt class=\"tli-rt\">헝ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">送<rt class=\"tli-rt\">상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">一聲<rt class=\"tli-rt\">짇샬ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">再會<rt class=\"tli-rt\">재ˋ훼ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀-</rt></ruby><ruby class=\"tli-reading-ruby\">緣<rt class=\"tli-rt\">옌ˊ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> 얗 <ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">坐<rt class=\"tli-rt\">제-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏-</rt></ruby><ruby class=\"tli-reading-ruby\">最後<rt class=\"tli-rt\">줴ˋᄋᅷ-</rt></ruby><ruby class=\"tli-reading-ruby\">這<rt class=\"tli-rt\">짇ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">班<rt class=\"tli-rt\">반ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">夜快車<rt class=\"tli-rt\">야쾌ˋ챠ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    je-tioh-juè-au-jît-pān-ya-khoài-chiâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀-</rt></ruby><ruby class=\"tli-reading-ruby\">奈<rt class=\"tli-rt\">내-</rt></ruby><ruby class=\"tli-reading-ruby\">心情<rt class=\"tli-rt\">심ˉ졩ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">綴<rt class=\"tli-rt\">뒈ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">車<rt class=\"tli-rt\">챠ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">行<rt class=\"tli-rt\">걀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bo-nai-sīm-jiéng tuè-chiā-kiá̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">車站<rt class=\"tli-rt\">챠ˉ잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">一站<rt class=\"tli-rt\">짇잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">譀叫<rt class=\"tli-rt\">함ˋ교</rt></ruby>’짇샬\n  </span>\n  <span class=\"lyric-lomari\">\n    chiā-jām jit-jām hàm-kio’jit-sia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">毋<rt class=\"tli-rt\">음-</rt></ruby><ruby class=\"tli-reading-ruby\">敢<rt class=\"tli-rt\">갈ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">斡頭<rt class=\"tli-rt\">왇ᄐᅷˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">叫<rt class=\"tli-rt\">교ˋ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">名<rt class=\"tli-rt\">먀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    m-kâ̰-oat-tháu kiò-lì’e miá\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">希望<rt class=\"tli-rt\">히ˉ빵-</rt></ruby><ruby class=\"tli-reading-ruby\">會當<rt class=\"tli-rt\">에당ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">揣<rt class=\"tli-rt\">췌-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏-</rt></ruby><ruby class=\"tli-reading-ruby\">理想<rt class=\"tli-rt\">리ˆ셩ˋ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">車站<rt class=\"tli-rt\">챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">好好<rt class=\"tli-rt\">호ˆ호ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">靠站<rt class=\"tli-rt\">코ˋ잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">過<rt class=\"tli-rt\">궤ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">一暗<rt class=\"tli-rt\">짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">明日<rt class=\"tli-rt\">뼹띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">若<rt class=\"tli-rt\">나-</rt></ruby><ruby class=\"tli-reading-ruby\">醒<rt class=\"tli-rt\">칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">飄撇<rt class=\"tli-rt\">ᄑᆤˉ폗ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">笑容<rt class=\"tli-rt\">쵸ˋ영ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">隨<rt class=\"tli-rt\">쉬-</rt></ruby><ruby class=\"tli-reading-ruby\">風<rt class=\"tli-rt\">헝ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">送<rt class=\"tli-rt\">상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">一聲<rt class=\"tli-rt\">짇샬ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">再會<rt class=\"tli-rt\">재ˋ훼ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀-</rt></ruby><ruby class=\"tli-reading-ruby\">緣<rt class=\"tli-rt\">옌ˊ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> 얗 <ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">希望<rt class=\"tli-rt\">히ˉ빵-</rt></ruby><ruby class=\"tli-reading-ruby\">會當<rt class=\"tli-rt\">에당ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">揣<rt class=\"tli-rt\">췌-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏-</rt></ruby><ruby class=\"tli-reading-ruby\">理想<rt class=\"tli-rt\">리ˆ셩ˋ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">車站<rt class=\"tli-rt\">챠ˉ잠ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hī-bang-e-tàng-chue-tioh-lî-siòng’e chiā-jām\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">好好<rt class=\"tli-rt\">호ˆ호ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">靠站<rt class=\"tli-rt\">코ˋ잠ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">過<rt class=\"tli-rt\">궤ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">一暗<rt class=\"tli-rt\">짇암</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hô-hô-khò-jām kuè-jit-am\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">明日<rt class=\"tli-rt\">뼹띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">若<rt class=\"tli-rt\">나-</rt></ruby><ruby class=\"tli-reading-ruby\">醒<rt class=\"tli-rt\">칠ˋ</rt></ruby>’래\n  </span>\n  <span class=\"lyric-lomari\">\n    bieng-rît na-chḭ̀’lai\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">飄撇<rt class=\"tli-rt\">ᄑᆤˉ폗ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">笑容<rt class=\"tli-rt\">쵸ˋ영ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">隨<rt class=\"tli-rt\">쉬-</rt></ruby><ruby class=\"tli-reading-ruby\">風<rt class=\"tli-rt\">헝ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">送<rt class=\"tli-rt\">상</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    phiāu-phiêt-chiò-yóng sui-hōng-sang\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">一聲<rt class=\"tli-rt\">짇샬ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">再會<rt class=\"tli-rt\">재ˋ훼ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀-</rt></ruby><ruby class=\"tli-reading-ruby\">緣<rt class=\"tli-rt\">옌ˊ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jit-siā̰-jài-huē bo-yén’e láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jn̄g-kâh-sûi-sùi bêh-kè-pat-láng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>아<rt>ˍ</rt></ruby> <ruby class=\"tli-reading-ruby\">妝<rt class=\"tli-rt\">증ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠媠<rt class=\"tli-rt\">쉬ˆ쉬ˋ</rt></ruby> 얗 <ruby class=\"tli-reading-ruby\">嫁<rt class=\"tli-rt\">게ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">別人<rt class=\"tli-rt\">받랑ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    ā jn̄g-kâh-sûi-sùi yah kè-pat-láng\n  </span>\n</p>\n",
+  "songEditor": {
+    "version": 1,
+    "title": "靠站",
+    "titleSource": "[靠코ˋ][站잠ˉ]",
+    "videoUrl": "https://www.youtube.com/watch?v=RxKa6V2HuoQ",
+    "category": "after-dark",
+    "lyrics": [
+      {
+        "kind": "line",
+        "text": "[坐제-][著둏-][最後줴ˋᄋᅷ-][這짇ˆ-][班반ˉ-][夜快車야쾌ˋ챠ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[無뽀-][奈내-][心情심ˉ졩ˊ] [綴뒈ˋ-][車챠ˉ-][行걀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[車站챠ˉ잠ˉ] [一站짇잠ˉ] [譀叫함ˋ교]’짇샬",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[毋음-][敢갈ˆ-][斡頭왇ᄐᅷˊ] [叫교ˋ-]릐2’에 [名먀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[希望히ˉ빵-][會當에당ˋ-][揣췌-][著둏-][理想리ˆ셩ˋ]’에 [車站챠ˉ잠ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[好好호ˆ호ˆ-][靠站코ˋ잠ˉ] [過궤ˋ-][一暗짇암]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[明日뼹띧ˆ] [若나][醒칠ˋ]’래",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[飄撇ᄑᆤˉ폗ˆ-][笑容쵸ˋ영ˊ] [隨쉬-][風헝ˉ-][送상]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[一聲짇샬ˉ-][再會재ˋ훼ˉ] [無뽀-][緣옌ˊ]’에 [人랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] [欲뼇ˆ-][嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "아5 [妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] 얗 [嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[坐제-][著둏-][最後줴ˋᄋᅷ-][這짇ˆ-][班반ˉ-][夜快車야쾌ˋ챠ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[無뽀-][奈내-][心情심ˉ졩ˊ] [綴뒈ˋ-][車챠ˉ-][行걀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[車站챠ˉ잠ˉ] [一站짇잠ˉ] [譀叫함ˋ교]’짇샬",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[毋음-][敢갈ˆ-][斡頭왇ᄐᅷˊ] [叫교ˋ-]릐2’에 [名먀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[希望히ˉ빵-][會當에당ˋ-][揣췌-][著둏-][理想리ˆ셩ˋ]’에 [車站챠ˉ잠ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[好好호ˆ호ˆ-][靠站코ˋ잠ˉ] [過궤ˋ-][一暗짇암]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[明日뼹띧ˆ] [若나][醒칠ˋ]’래",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[飄撇ᄑᆤˉ폗ˆ-][笑容쵸ˋ영ˊ] [隨쉬-][風헝ˉ-][送상]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[一聲짇샬ˉ-][再會재ˋ훼ˉ] [無뽀-][緣옌ˊ]’에 [人랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] [欲뼇ˆ-][嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "아5 [妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] 얗 [嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[希望히ˉ빵-][會當에당ˋ-][揣췌-][著둏-][理想리ˆ셩ˋ]’에 [車站챠ˉ잠ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[好好호ˆ호ˆ-][靠站코ˋ잠ˉ] [過궤ˋ-][一暗짇암]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[明日뼹띧ˆ] [若나][醒칠ˋ]’래",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[飄撇ᄑᆤˉ폗ˆ-][笑容쵸ˋ영ˊ] [隨쉬-][風헝ˉ-][送상]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[一聲짇샬ˉ-][再會재ˋ훼ˉ] [無뽀-][緣옌ˊ]’에 [人랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] [欲뼇ˆ-][嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "아5 [妝증ˉ-][徦갛ˆ-][媠媠쉬ˆ쉬ˋ] 얗 [嫁게ˋ-][別人받랑ˊ]",
+        "grey": false
+      }
+    ]
+  }
 }

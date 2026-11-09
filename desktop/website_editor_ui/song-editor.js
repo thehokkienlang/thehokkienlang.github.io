@@ -3,9 +3,9 @@
   const $ = id => document.getElementById(id);
   const token = document.querySelector('meta[name="editor-token"]').content;
   const state = {
-    snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null,
+    snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null, searchController: null,
     file: '', revision: '', route: '', dirty: false, previewTimer: null, renderGeneration: 0,
-    publishPaths: [], job: null,
+    publishPaths: [], job: null, legacyTitle: null, renderingRows: false,
   };
 
   async function request(action, payload = {}) {
@@ -23,12 +23,170 @@
     node.classList.toggle('error', error);
   }
   function markDirty() {
-    state.dirty = true; $('songState').textContent = 'Unsaved'; schedulePreview();
+    if (state.renderingRows) return;
+    state.dirty = true; $('songState').textContent = 'Unsaved';
   }
   function setControllerText(controller, value) {
     controller.composer.setText(value, value.length);
     controller.updateControlFromComposer({allowCandidateMenu: false});
     controller.dismissCandidates(false);
+  }
+  function sourceToLyricPresentation(value) {
+    const source = String(value || '');
+    const hanri = [], hangul = [];
+    let text = '', index = 0;
+    while (index < source.length) {
+      if (source[index] === '[') {
+        const close = source.indexOf(']', index + 1);
+        const inner = close >= 0 ? source.slice(index + 1, close) : '';
+        const match = inner.match(/^([\p{Unified_Ideograph}\u3007]+)(.+)$/u);
+        if (match) {
+          const start = text.length;
+          text += match[1];
+          hanri.push({start, end: text.length, hanri: match[1], reading: match[2]});
+          index = close + 1;
+          continue;
+        }
+      }
+      const unit = window.TangliengimImeCore.readingUnitAt(source, index);
+      if (!unit) break;
+      const start = text.length;
+      text += unit.text;
+      const tone = source[unit.end];
+      if (unit.canCarryTone && window.TangliengimImeCore.isToneMark(tone)) {
+        hangul.push({start, end: text.length, reading: `${unit.text}${tone}`});
+        index = unit.end + 1;
+      } else {
+        index = unit.end;
+      }
+    }
+    return {text, hanri, hangul};
+  }
+  function setLyricControllerSource(controller, source) {
+    const parsed = sourceToLyricPresentation(source);
+    controller.rememberedHanriReadings = [];
+    controller.rememberedHangulReadings = [];
+    controller.composer.setText(parsed.text, parsed.text.length);
+    controller.internalUpdate = true;
+    controller.control.value = parsed.text;
+    controller.control.setSelectionRange(parsed.text.length, parsed.text.length);
+    controller.internalUpdate = false;
+    controller.rememberedTextSnapshot = parsed.text;
+    parsed.hanri.forEach(span => controller.rememberHanriReading(span.start, {
+      hanri: span.hanri, reading: span.reading, readingBase: span.reading,
+      kind: 'lexical', generatedCandidate: true,
+    }, parsed.text));
+    parsed.hangul.forEach(span => controller.rememberHangulReading(
+      span.start, span.end, span.reading, null, parsed.text, true
+    ));
+    controller.dismissCandidates(false);
+  }
+  function lyricControllerSource(controller) {
+    const text = controller.control.value;
+    const spans = [
+      ...controller.getRememberedHanriReadings(text).map(span => ({...span, kind: 'hanri'})),
+      ...controller.getRememberedHangulReadings(text).map(span => ({...span, kind: 'hangul'})),
+    ].sort((left, right) => left.start - right.start || right.end - left.end);
+    let source = '', cursor = 0;
+    for (const span of spans) {
+      if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== (span.hanri || span.hangul)) continue;
+      source += text.slice(cursor, span.start);
+      source += span.kind === 'hanri' ? `[${span.hanri}${span.reading}]` : span.reading;
+      cursor = span.end;
+    }
+    return source + text.slice(cursor);
+  }
+  function lyricRubyPresentation(controller) {
+    const text = controller.control.value;
+    const spans = controller.getRememberedHanriReadings(text)
+      .sort((left, right) => left.start - right.start || left.end - right.end);
+    const segments = [];
+    let value = '', cursor = 0;
+    for (const span of spans) {
+      if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== span.hanri) continue;
+      value += text.slice(cursor, span.start);
+      const start = value.length;
+      value += span.reading;
+      segments.push({start, end: value.length, span});
+      cursor = span.end;
+    }
+    return {value: value + text.slice(cursor), segments};
+  }
+  function syncLyricRubyInput(controller, selection = null) {
+    const rubyInput = controller.control.closest('.lyric-input-wrap')?.querySelector('.lyric-ruby-input');
+    if (!rubyInput) return;
+    const presentation = lyricRubyPresentation(controller);
+    rubyInput.value = presentation.value;
+    rubyInput.rubyPresentation = presentation;
+    if (selection && document.activeElement === rubyInput) {
+      const caret = Math.max(0, Math.min(presentation.value.length, selection.start));
+      rubyInput.setSelectionRange(caret, caret);
+    }
+    rubyInput.imeController?.syncComposerFromControl();
+  }
+  function applyLyricRubyEdit(controller, rubyInput) {
+    const previous = rubyInput.rubyPresentation || lyricRubyPresentation(controller);
+    const before = previous.value;
+    const after = rubyInput.value;
+    if (before === after) return;
+
+    let prefix = 0;
+    while (prefix < before.length && prefix < after.length && before[prefix] === after[prefix]) prefix += 1;
+    let suffix = 0;
+    while (suffix < before.length - prefix && suffix < after.length - prefix &&
+      before[before.length - 1 - suffix] === after[after.length - 1 - suffix]) suffix += 1;
+    const oldEnd = before.length - suffix;
+    const newEnd = after.length - suffix;
+    const matchingSegments = previous.segments.filter(item => prefix >= item.start && oldEnd <= item.end);
+    // A caret between adjacent ruby spans belongs to the span on its right.
+    const segment = matchingSegments[matchingSegments.length - 1];
+    if (!segment) {
+      syncLyricRubyInput(controller);
+      return;
+    }
+
+    const oldReading = before.slice(segment.start, segment.end);
+    const replacement = after.slice(prefix, newEnd);
+    const nextReading = oldReading.slice(0, prefix - segment.start) + replacement +
+      oldReading.slice(oldEnd - segment.start);
+    const text = controller.control.value;
+    if (nextReading) {
+      controller.rememberHanriReading(segment.span.start, {
+        ...(segment.span.entry || {}),
+        hanri: segment.span.hanri,
+        reading: nextReading,
+        readingBase: nextReading,
+        kind: segment.span.entry?.kind || 'lexical',
+        generatedCandidate: true,
+      }, text);
+    } else {
+      controller.rememberedHanriReadings = controller.rememberedHanriReadings.filter(item =>
+        item.start !== segment.span.start || item.end !== segment.span.end
+      );
+      controller.rememberedTextSnapshot = text;
+    }
+    renderLyricAnnotations(controller);
+    syncLyricRubyInput(controller, {start: segment.start + nextReading.length});
+    markDirty();
+  }
+  function syncLyricOverlayViewport(controller) {
+    const overlay = controller.control.closest('.lyric-text-wrap')?.querySelector('.lyric-annotation-overlay');
+    if (!overlay) return;
+    overlay.style.width = `${controller.control.clientWidth}px`;
+    overlay.style.height = `${controller.control.clientHeight}px`;
+    const offset = `translate(${-controller.control.scrollLeft}px, ${-controller.control.scrollTop}px)`;
+    for (const anchor of overlay.children) anchor.style.transform = offset;
+  }
+  function renderLyricAnnotations(controller) {
+    const overlay = controller.control.closest('.lyric-text-wrap')?.querySelector('.lyric-annotation-overlay');
+    if (!overlay) return;
+    const text = controller.control.value;
+    overlay.replaceChildren(
+      window.TangliengimImeCore.renderToneOverlayMarks(
+        text, controller.getHangulToneReadingsForDisplay(text), controller.control
+      )
+    );
+    syncLyricOverlayViewport(controller);
   }
   function attachIme(control, menu, onUpdate = markDirty) {
     const popup = window.TangliengimImeCore.createCandidatePopupPositioner({
@@ -42,15 +200,29 @@
     state.controllers.push(controller);
     return controller;
   }
+  function attachRubyIme(control, onUpdate) {
+    const controller = window.TangliengimImeCore.createTextImeController({
+      control,
+      candidateContainer: null,
+      entries: [],
+      dictionaryIndex: null,
+      onUpdate,
+      enterBehavior: 'none',
+      toneInputStyle: 'symbols',
+    });
+    state.controllers.push(controller);
+    return controller;
+  }
   function destroyLineControllers() {
-    state.controllers.filter(controller => controller !== state.titleController).forEach(controller => controller.destroy?.());
-    state.controllers = state.titleController ? [state.titleController] : [];
+    const retained = new Set([state.titleController, state.searchController].filter(Boolean));
+    state.controllers.filter(controller => !retained.has(controller)).forEach(controller => controller.destroy?.());
+    state.controllers = state.controllers.filter(controller => retained.has(controller));
   }
 
   function lineDrafts() {
     return [...$('lyricRows').children].map(row => row.dataset.kind === 'break'
       ? {kind: 'break'}
-      : {kind: 'line', text: row.querySelector('.lyric-input').value, grey: row.querySelector('.grey-input').checked});
+      : {kind: 'line', text: lyricControllerSource(row.querySelector('.lyric-input').imeController), grey: row.querySelector('.grey-input').checked});
   }
   function currentDraft() {
     return {
@@ -60,6 +232,7 @@
       videoUrl: $('songVideo').value,
       category: $('songCategory').value,
       lyrics: lineDrafts(),
+      ...(state.legacyTitle ? {legacyTitle: state.legacyTitle} : {}),
     };
   }
   function newButton(label, title, action) {
@@ -73,29 +246,114 @@
     else row.parentElement.insertBefore(sibling, row);
     renumberRows(); markDirty();
   }
+  let draggedLine = null;
+  function clearDragState() {
+    $('lyricRows').querySelectorAll('.lyric-row').forEach(row => {
+      row.classList.remove('dragging', 'drop-before', 'drop-after');
+    });
+    draggedLine = null;
+  }
+  function dragLineOver(event, row) {
+    if (!draggedLine || row === draggedLine) return;
+    event.preventDefault();
+    const bounds = row.getBoundingClientRect();
+    const after = event.clientY >= bounds.top + bounds.height / 2;
+    $('lyricRows').querySelectorAll('.lyric-row').forEach(item => item.classList.remove('drop-before', 'drop-after'));
+    row.classList.add(after ? 'drop-after' : 'drop-before');
+    if (event.dataTransfer) event.dataTransfer.dropEffect = 'move';
+  }
+  function dropLine(event, row) {
+    if (!draggedLine || row === draggedLine) return clearDragState();
+    event.preventDefault();
+    const after = row.classList.contains('drop-after');
+    $('lyricRows').insertBefore(draggedLine, after ? row.nextElementSibling : row);
+    const moved = draggedLine;
+    clearDragState();
+    selectLineRow(moved);
+    renumberRows();
+    markDirty();
+  }
+  function selectLineRow(row) {
+    $('lyricRows').querySelectorAll('.lyric-row.selected').forEach(item => {
+      item.classList.remove('selected');
+      item.setAttribute('aria-selected', 'false');
+    });
+    if (!row?.isConnected) return;
+    row.classList.add('selected');
+    row.setAttribute('aria-selected', 'true');
+  }
   function removeRow(row) {
     row.remove();
     if (!$('lyricRows').querySelector('.lyric-row')) addLineRow({kind: 'line', text: '', grey: false});
     renumberRows(); markDirty();
   }
+  function duplicateRow(row) {
+    const copy = addLineRow({
+      kind: 'line',
+      text: lyricControllerSource(row.querySelector('.lyric-input').imeController),
+      grey: row.querySelector('.grey-input').checked,
+    }, row.nextElementSibling);
+    markDirty();
+    copy.querySelector('.lyric-input').focus();
+  }
   function addLineRow(item = {kind: 'line', text: '', grey: false}, before = null) {
     const row = document.createElement('div'); row.className = 'lyric-row'; row.dataset.kind = 'line';
+    row.setAttribute('aria-selected', 'false');
+    row.addEventListener('pointerdown', () => selectLineRow(row));
+    row.addEventListener('focusin', () => selectLineRow(row));
+    row.addEventListener('dragover', event => dragLineOver(event, row));
+    row.addEventListener('drop', event => dropLine(event, row));
     const number = document.createElement('span'); number.className = 'lyric-row-number';
     const wrap = document.createElement('span'); wrap.className = 'lyric-input-wrap';
+    const rubyInput = document.createElement('input'); rubyInput.className = 'lyric-ruby-input'; rubyInput.type = 'text';
+    rubyInput.autocomplete = 'off'; rubyInput.spellcheck = false; rubyInput.setAttribute('aria-label', 'Editable ruby readings');
+    rubyInput.title = 'Edit the Hangul readings above their matching lyric text';
+    const textWrap = document.createElement('span'); textWrap.className = 'lyric-text-wrap';
     const input = document.createElement('input'); input.className = 'lyric-input'; input.type = 'text';
     input.autocomplete = 'off'; input.spellcheck = false; input.setAttribute('aria-label', 'TLI lyric line');
     const menu = document.createElement('span'); menu.className = 'hanri-candidate-menu'; menu.role = 'listbox'; menu.hidden = true;
-    wrap.append(input, menu);
+    const overlay = document.createElement('span'); overlay.className = 'lyric-annotation-overlay'; overlay.setAttribute('aria-hidden', 'true');
+    textWrap.append(input, overlay, menu);
+    wrap.append(rubyInput, textWrap);
     const grey = document.createElement('label'); grey.className = 'grey-toggle';
     const check = document.createElement('input'); check.type = 'checkbox'; check.className = 'grey-input'; check.checked = Boolean(item.grey);
     check.onchange = markDirty; grey.append(check, document.createTextNode('Grey out'));
     const tools = document.createElement('span'); tools.className = 'line-tools';
-    tools.append(newButton('↑', 'Move line up', () => moveRow(row, -1)), newButton('↓', 'Move line down', () => moveRow(row, 1)), newButton('×', 'Remove line', () => removeRow(row)));
+    const dragHandle = newButton('⠿', 'Drag line to reorder', () => {});
+    dragHandle.className = 'line-drag-handle'; dragHandle.draggable = true;
+    dragHandle.addEventListener('dragstart', event => {
+      draggedLine = row;
+      selectLineRow(row);
+      row.classList.add('dragging');
+      if (event.dataTransfer) {
+        event.dataTransfer.effectAllowed = 'move';
+        event.dataTransfer.setData('text/plain', 'lyric-line');
+      }
+    });
+    dragHandle.addEventListener('dragend', clearDragState);
+    tools.append(
+      dragHandle,
+      newButton('↑', 'Move line up', () => moveRow(row, -1)),
+      newButton('↓', 'Move line down', () => moveRow(row, 1)),
+      newButton('⧉', 'Duplicate line below', () => duplicateRow(row)),
+      newButton('↵', 'Insert verse break above', () => addBreakRow(row)),
+      newButton('×', 'Remove line', () => removeRow(row)),
+    );
     row.append(number, wrap, grey, tools);
     if (before) $('lyricRows').insertBefore(row, before); else $('lyricRows').append(row);
-    const controller = attachIme(input, menu);
-    setControllerText(controller, item.text || '');
-    input.addEventListener('input', markDirty);
+    let controller;
+    controller = attachIme(input, menu, () => {
+      renderLyricAnnotations(controller);
+      syncLyricRubyInput(controller);
+      markDirty();
+    });
+    input.imeController = controller;
+    const rubyController = attachRubyIme(rubyInput, () => applyLyricRubyEdit(controller, rubyInput));
+    rubyInput.imeController = rubyController;
+    setLyricControllerSource(controller, item.text || '');
+    renderLyricAnnotations(controller);
+    syncLyricRubyInput(controller);
+    input.addEventListener('scroll', () => syncLyricOverlayViewport(controller));
     renumberRows();
     return row;
   }
@@ -114,9 +372,14 @@
   }
   function renderRows(lyrics) {
     destroyLineControllers(); $('lyricRows').replaceChildren();
-    (lyrics?.length ? lyrics : [{kind: 'line', text: '', grey: false}]).forEach(item => {
-      if (item.kind === 'break') addBreakRow(); else addLineRow(item);
-    });
+    state.renderingRows = true;
+    try {
+      (lyrics?.length ? lyrics : [{kind: 'line', text: '', grey: false}]).forEach(item => {
+        if (item.kind === 'break') addBreakRow(); else addLineRow(item);
+      });
+    } finally {
+      state.renderingRows = false;
+    }
     state.dirty = false; $('songState').textContent = state.file ? 'Saved source loaded' : 'New song';
   }
 
@@ -142,9 +405,9 @@
     clearTimeout(state.previewTimer);
     state.previewTimer = setTimeout(() => renderPreview(), 450);
   }
-
   function setDraft(draft, {file = '', revision = '', route = ''} = {}) {
     state.file = file; state.revision = revision; state.route = route; state.publishPaths = [];
+    state.legacyTitle = draft.legacyTitle || null;
     $('songTitle').value = draft.title || '';
     setControllerText(state.titleController, draft.titleSource || '');
     $('songVideo').value = draft.videoUrl || '';
@@ -164,12 +427,16 @@
     try {
       const result = await request('song-editor-song', {file});
       setDraft(result.draft, result);
-      notice(`Loaded ${result.draft.title}.`);
+      notice(result.imported
+        ? `Loaded ${result.draft.title}. Existing ruby lyrics were imported and are now editable.`
+        : `Loaded ${result.draft.title}.`);
     } catch (error) { notice(error.message, true); }
   }
   function renderSongList() {
-    const query = $('songFilter').value.trim().toLocaleLowerCase();
-    const songs = state.snapshot.songs.filter(song => !query || `${song.title} ${song.route}`.toLocaleLowerCase().includes(query));
+    const searchKey = value => String(value || '').normalize('NFKD').toLocaleLowerCase()
+      .replace(/[\u0300-\u036fˆˋˊˉˇꞈˎˏˍ`’'\s\-1-5\[\]()]/gu, '');
+    const query = searchKey($('songFilter').value);
+    const songs = state.snapshot.songs.filter(song => !query || searchKey(song.searchText || `${song.title} ${song.route}`).includes(query));
     if (!songs.length) {
       const empty = document.createElement('div'); empty.className = 'song-list-empty';
       empty.textContent = state.snapshot.songs.length ? 'No matching songs.' : 'Songs created here will appear in this list.';
@@ -179,7 +446,11 @@
       const button = document.createElement('button'); button.type = 'button'; button.classList.toggle('active', song.file === state.file);
       const title = document.createElement('span'); title.textContent = song.title;
       const route = document.createElement('small'); route.textContent = song.route;
-      button.append(title, route); button.onclick = () => openSong(song.file); return button;
+      const mode = document.createElement('small'); mode.className = 'song-record-kind';
+      mode.textContent = song.editable ? 'Editable song' : 'Existing song';
+      button.append(title, route, mode);
+      button.onclick = () => openSong(song.file);
+      return button;
     }));
   }
   async function refreshSnapshot() {
@@ -203,8 +474,14 @@
     state.snapshot.urlRevision = result.urlRevision;
     state.snapshot.manifestRevision = result.manifestRevision;
     const listed = state.snapshot.songs.find(song => song.file === result.file);
-    if (listed) Object.assign(listed, {title: result.draft.title, route: result.route, revision: result.revision});
-    else state.snapshot.songs.unshift({file: result.file, title: result.draft.title, route: result.route, revision: result.revision});
+    if (listed) Object.assign(listed, {
+      title: result.draft.title, route: result.route, revision: result.revision, editable: true,
+      searchText: `${result.draft.title} ${result.route} ${result.draft.titleSource}`,
+    });
+    else state.snapshot.songs.unshift({
+      file: result.file, title: result.draft.title, route: result.route, revision: result.revision,
+      editable: true, searchText: `${result.draft.title} ${result.route} ${result.draft.titleSource}`,
+    });
     $('songState').textContent = 'Saved locally';
     $('openSong').hidden = false; $('openSong').href = '/preview-site' + result.route;
     renderSongList();
@@ -242,20 +519,26 @@
       state.snapshot = snapshot; state.dictionary = dictionary.entries;
       state.dictionaryIndex = window.TangliengimImeCore.createDictionaryIndex(state.dictionary);
       $('songCategory').replaceChildren(...snapshot.categories.map(category => new Option(category.label, category.id)));
-      state.titleController = attachIme($('songTitleSource'), $('titleCandidates'));
-      await state.titleController.preferences.ready;
+      state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList);
+      state.titleController = attachIme($('songTitleSource'), $('titleCandidates'), () => {
+        state.legacyTitle = null; markDirty();
+      });
+      await Promise.all([state.searchController.preferences.ready, state.titleController.preferences.ready]);
       newSong(); renderSongList();
     } catch (error) { notice(error.message, true); }
   }
 
   $('newSong').onclick = newSong;
-  $('songFilter').oninput = renderSongList;
+  $('songFilter').addEventListener('input', renderSongList);
   $('addLine').onclick = () => { addLineRow(); markDirty(); $('lyricRows').lastElementChild.querySelector('input').focus(); };
-  $('addBreak').onclick = () => addBreakRow();
   $('previewSong').onclick = () => renderPreview({loud:true});
   $('saveSong').onclick = () => saveSong().catch(error => notice(error.message, true));
   $('publishSong').onclick = publishSong;
-  $('songTitle').oninput = markDirty; $('songVideo').oninput = markDirty; $('songCategory').onchange = markDirty;
+  $('songTitle').oninput = () => { state.legacyTitle = null; markDirty(); };
+  $('songVideo').oninput = markDirty; $('songCategory').onchange = markDirty;
+  window.addEventListener('resize', () => state.controllers.forEach(controller => {
+    if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);
+  }));
   window.addEventListener('beforeunload', event => { if (state.dirty || state.job) { event.preventDefault(); event.returnValue = ''; } });
   init();
 })();

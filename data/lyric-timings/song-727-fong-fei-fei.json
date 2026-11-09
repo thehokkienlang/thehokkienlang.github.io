@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "songId": "song-727-fong-fei-fei",
+  "videoId": "UBirevB-fPg",
+  "status": "draft",
+  "cues": [
+    {
+      "id": "line-001",
+      "fingerprint": "92a63b23e522908ae2766c96054b89cca1e8266d256cc7184ea34d4de1395a0a",
+      "start": 6.2,
+      "end": 20.7
+    },
+    {
+      "id": "line-002",
+      "fingerprint": "3a16f82add831be681821ab5104ee473ca45fb124e40e0a265348c1c23ef566a",
+      "start": 20.8,
+      "end": 35.1
+    },
+    {
+      "id": "line-003",
+      "fingerprint": "0b66d6aa9d36e13dac34a2a7bded25e0dad2e7fe7df5eaee8edcccfef81820ac",
+      "start": 35.2,
+      "end": 49.6
+    },
+    {
+      "id": "line-004",
+      "fingerprint": "d582754a78498638b801fc19dd03f899ca2d685f93d472b5de20f1510a5c5ef0",
+      "start": 49.7,
+      "end": 67.183
+    },
+    {
+      "id": "line-005",
+      "fingerprint": "25d404e99b03735ec88ed386e65635f99fffc985db95cd73bc1f26a5c62b35e6",
+      "start": 67.283,
+      "end": 81.891
+    },
+    {
+      "id": "line-006",
+      "fingerprint": "85f1d86847802b99c1ad6e803e72eb53401dbfcc456c28daff66d859ae55579e",
+      "start": 81.991,
+      "end": 96.246
+    },
+    {
+      "id": "line-007",
+      "fingerprint": "96ccdb33b602aba1afe49428799a72031994b214ae2619c52835a40bd2adcafd",
+      "start": 96.346,
+      "end": 110.554
+    },
+    {
+      "id": "line-008",
+      "fingerprint": "4b07c1097c6945508464ec80de000daff5082a83dc3be0ded093e43d73f05733",
+      "start": 110.654,
+      "end": 168.143
+    },
+    {
+      "id": "line-009",
+      "fingerprint": "25d404e99b03735ec88ed386e65635f99fffc985db95cd73bc1f26a5c62b35e6",
+      "start": 168.243,
+      "end": 182.635
+    },
+    {
+      "id": "line-010",
+      "fingerprint": "85f1d86847802b99c1ad6e803e72eb53401dbfcc456c28daff66d859ae55579e",
+      "start": 182.735,
+      "end": 197.012
+    },
+    {
+      "id": "line-011",
+      "fingerprint": "96ccdb33b602aba1afe49428799a72031994b214ae2619c52835a40bd2adcafd",
+      "start": 197.112,
+      "end": 211.419
+    },
+    {
+      "id": "line-012",
+      "fingerprint": "d7860dc3d374736e603c3ce2f6590023e330aac3ea9e70cf05ea4bdcdb155fa5",
+      "start": 211.519,
+      "end": 226.252
+    }
+  ]
+}

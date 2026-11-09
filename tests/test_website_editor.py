@@ -89,6 +89,79 @@ class WebsiteEditorTests(unittest.TestCase):
         for _match, kind, _source, derived in found:
             self.assertTrue(lomari_sync.follows(kind, lomari_sync._plain(_match.group(4)), derived))
 
+    def test_song_snapshot_includes_existing_songs_and_title_readings(self):
+        with tempfile.TemporaryDirectory() as folder:
+            service, _ = self.fixture(folder)
+            song = Path(folder) / "content/songs/song-1.json"
+            song.parent.mkdir(parents=True)
+            song.write_text(json.dumps({
+                "id": "song-1", "type": "songs", "title": "薰", "originalTitle": "薰 諺文歌詞",
+                "route": "/songs/薰/", "body": '<h2><ruby>薰<rt>훈ˆ</rt></ruby></h2>',
+            }, ensure_ascii=False), encoding="utf-8")
+            (Path(folder) / "content/song-categories.json").write_text("[]\n", encoding="utf-8")
+            (Path(folder) / "migration").mkdir()
+            (Path(folder) / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
+            (Path(folder) / "migration/wordpress-map.json").write_text('{"records": []}\n', encoding="utf-8")
+
+            listed = service.song_editor_snapshot()["songs"]
+            self.assertEqual(len(listed), 1)
+            self.assertFalse(listed[0]["editable"])
+            self.assertIn("薰", listed[0]["searchText"])
+            self.assertIn("훈", listed[0]["searchText"])
+
+    def test_existing_song_lines_are_imported_and_can_be_saved(self):
+        with tempfile.TemporaryDirectory() as folder:
+            service, _ = self.fixture(folder)
+            repo = Path(folder)
+            (repo / "desktop").mkdir()
+            (repo / "data").mkdir()
+            (repo / "shared").mkdir()
+            shutil.copy2(ROOT / "desktop/hokkien_tone_marker_gui.py", repo / "desktop/hokkien_tone_marker_gui.py")
+            shutil.copy2(ROOT / "data/hokkien_hanri_dict.tsv", repo / "data/hokkien_hanri_dict.tsv")
+            shutil.copy2(ROOT / "shared/tli-sandhi.json", repo / "shared/tli-sandhi.json")
+            (repo / "content/songs").mkdir(parents=True)
+            (repo / "content/song-categories.json").write_text(json.dumps([{
+                "id": "modern", "labels": {"en": "Modern"}, "routes": ["/songs/薰/"]
+            }]), encoding="utf-8")
+            (repo / "migration").mkdir()
+            (repo / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
+            (repo / "migration/wordpress-map.json").write_text(json.dumps({"records": [{
+                "file": "content/songs/song-1.json", "route": "/songs/薰/"
+            }]}), encoding="utf-8")
+            body = (
+                '<h2><ruby>薰<rt>훈ˆ</rt></ruby></h2>'
+                '<iframe src="https://www.youtube.com/embed/HNYkSBkQ33Y"></iframe>'
+                '<p><span class="lyric-line"><ruby>薰<rt>훈ˆ</rt></ruby> '
+                '<ruby>點<rt>댬ˋ</rt></ruby></span><span class="lyric-lomari">hûn tiàm</span></p>'
+                '<br><p><span class="lyric-line lyric-muted">(<ruby>想<rt>슐-</rt></ruby>'
+                '<ruby>릐<rt>ˎ</rt></ruby>)</span><span class="lyric-lomari">(siṵ-lì)</span></p>'
+                '<table id="notes"><tr><td>Keep this note.</td></tr></table>'
+            )
+            song = repo / "content/songs/song-1.json"
+            song.write_text(json.dumps({
+                "id": "song-1", "sourceId": 1, "sourceUrl": "https://example.com/song-1",
+                "type": "songs", "language": "en", "title": "薰", "route": "/songs/薰/", "body": body,
+            }, ensure_ascii=False), encoding="utf-8")
+
+            snapshot = service.song_editor_snapshot()
+            opened = service.song_editor_song("content/songs/song-1.json")
+            self.assertTrue(opened["imported"])
+            self.assertEqual(opened["draft"]["titleSource"], "[薰훈ˆ]")
+            self.assertEqual(opened["draft"]["lyrics"], [
+                {"kind": "line", "text": "[薰훈ˆ] [點댬ˋ]", "grey": False},
+                {"kind": "break"},
+                {"kind": "line", "text": "[想슐-]릐ˎ", "grey": True},
+            ])
+            opened["draft"]["lyrics"][0]["text"] = "[薰훈ˆ]"
+            saved = service.save_song(
+                opened["file"], opened["revision"], snapshot["categoryRevision"],
+                snapshot["urlRevision"], snapshot["manifestRevision"], opened["draft"],
+            )
+            record = json.loads(song.read_text(encoding="utf-8"))
+            self.assertEqual(record["songEditor"]["lyrics"][0]["text"], "[薰훈ˆ]")
+            self.assertIn("Keep this note.", record["body"])
+            self.assertTrue(saved["draft"]["lyrics"][0]["text"] == "[薰훈ˆ]")
+
     def test_page_paths_cannot_escape_content_or_edit_generated_files(self):
         with tempfile.TemporaryDirectory() as folder:
             service, _ = self.fixture(folder)
@@ -158,6 +231,8 @@ class WebsiteEditorTests(unittest.TestCase):
             self.assertIn(record["route"], json.loads((repo / "content/song-categories.json").read_text())[0]["routes"])
             self.assertEqual(json.loads((repo / "migration/song-urls.json").read_text())[0]["new_url"], record["route"])
             self.assertEqual(json.loads((repo / "migration/wordpress-map.json").read_text())["records"][0]["file"], saved["file"])
+            listed = service.song_editor_snapshot()["songs"][0]
+            self.assertIn("릐호", listed["searchText"])
 
 
 if __name__ == "__main__":

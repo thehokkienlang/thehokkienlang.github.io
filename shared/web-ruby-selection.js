@@ -55,6 +55,19 @@
     container.append(fragment);
     // Keep paragraph and explicit line breaks in the plain-text clipboard.
     container.querySelectorAll("br").forEach(node => node.replaceWith("\n"));
+    // Source indentation is not part of a lyric: the Lomari line follows its Hanri-Hangul line directly.
+    container.querySelectorAll(".lyric-line, .lyric-lomari, span[style*='display']").forEach(node => {
+      if (!node.matches(".lyric-line, .lyric-lomari") && node.style.display !== "block") return;
+      const [first, last] = [node.firstChild, node.lastChild];
+      if (first?.nodeType === Node.TEXT_NODE) first.textContent = first.textContent.replace(/^\s+/, "");
+      if (last?.nodeType === Node.TEXT_NODE) last.textContent = last.textContent.replace(/\s+$/, "");
+      const parent = node.parentNode;
+      if (parent?.matches?.("p")) {
+        [...parent.childNodes].forEach(child => {
+          if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) child.remove();
+        });
+      }
+    });
     // Lyric and Lomari lines are block spans (classes since audit B4; inline styles before).
     container.querySelectorAll("p, div, li, h1, h2, h3, h4, h5, h6, tr, .lyric-line, .lyric-lomari, [style]").forEach(node => {
       if (node.matches("[style]") && !node.matches("p, div, li, h1, h2, h3, h4, h5, h6, tr, .lyric-line, .lyric-lomari")

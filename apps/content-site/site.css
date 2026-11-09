@@ -170,6 +170,13 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .content-songs > h1::after { content: ""; display: block; width: 92px; margin-top: 24px; border-bottom: 4px solid var(--site-voice, #b33b46); transform: translateY(28px); }
 .content-songs .source-link a { color: var(--site-voice, #b33b46); }
 .content-songs .imported-content .song-script-heading { margin-top: 8px; margin-bottom: 20px; font-size: 24px; line-height: 1.4; }
+.song-version-tabs { margin-top: 18px; }
+.song-version-tablist { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 24px; padding-bottom: 10px; border-bottom: 1px solid var(--line); }
+.song-version-tablist button { min-height: 40px; padding: 8px 16px; border: 1px solid var(--line); border-radius: 999px; background: #fff; color: var(--muted); cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; }
+.song-version-tablist button:hover, .song-version-tablist button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+.song-version-tablist button[aria-selected="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
+.song-version-panel[hidden] { display: none !important; }
+.song-version-panel > :first-child { margin-top: 0; }
 .content-index .imported-content { max-width: 100%; }
 .page-list { border-top: 2px solid var(--ink); }
 .page-list li { align-items: center; padding: 0; }
@@ -231,16 +238,16 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .wp-block-buttons a:hover { color: var(--accent); }
 
 body[data-site-section="home"] .content-shell { margin-top: 54px; }
-body[data-site-section="home"] .content-shell > h1 { max-width: 760px; margin-bottom: 12px; font-size: 58px; line-height: 1.08; }
+body[data-site-section="home"] .content-shell > h1 { text-wrap: balance; max-width: 760px; margin-bottom: 12px; font-size: 58px; line-height: 1.08; }
 body[data-site-section="home"] .site-introduction { max-width: 720px; margin-bottom: 0; font-size: 21px; }
 body[data-site-section="home"] .imported-content { max-width: 100%; margin-top: 60px; padding-top: 32px; border-top: 1px solid var(--line); }
 body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child { display: none; }
 .home-kicker { margin: 0 0 12px; color: var(--accent); font-size: 13px; font-weight: 700; text-transform: uppercase; }
 .home-launch { position: relative; margin-top: 68px; }
-.home-specimen { position: absolute; top: -353px; right: 0; display: flex; width: min(32%, 340px); box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
+.home-specimen { display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; margin-top: 14px; font-size: 76px; }
 .home-specimen rt { color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
-.home-specimen-lomari { margin-top: 10px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
+.home-specimen-lomari { margin-top: -6px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 15px; }
 .home-specimen .tli-listen { margin-top: 14px; }
 .tli-listen { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; color: #fff; background: var(--accent); cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; }
@@ -267,11 +274,18 @@ body[data-site-section="home"] .imported-content .home-compare-heading h2::befor
 .imported-content .home-compare-credit a { color: inherit; }
 .imported-content .home-compare-note { max-width: 760px; margin: 22px 0 0; color: var(--muted); font-size: 18px; line-height: 1.65; }
 .home-essay { margin-top: 72px; padding-top: 16px; border-top: 1px solid var(--line); }
+/* Wide screens: the sample card shares the hero's grid, so it fits any headline length. */
 @media (min-width: 1181px) {
-  .home-launch { margin-top: 88px; }
+  body[data-site-section="home"] .content-shell { display: grid; grid-template-columns: minmax(0, 1fr) 340px; grid-template-rows: auto auto 1fr; column-gap: 40px; }
+  body[data-site-section="home"] .content-shell > :not(.home-kicker, h1, .site-introduction, .home-launch) { grid-column: 1 / -1; }
+  body[data-site-section="home"] .content-shell > :is(.home-kicker, h1, .site-introduction) { grid-column: 1; }
+  .home-launch { display: contents; }
+  .home-specimen { grid-column: 2; grid-row: 1 / span 3; align-self: start; }
+  .home-paths { grid-column: 1 / -1; margin-top: 40px; }
+  .home-tools { grid-column: 1 / -1; }
 }
 @media (max-width: 1180px) {
-  .home-specimen { position: relative; top: auto; right: auto; width: 100%; max-width: 420px; margin: 0 0 34px; }
+  .home-specimen { max-width: 420px; margin: 0 0 34px; }
 }
 .home-paths { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 3px solid var(--ink); }
 .home-path { min-width: 0; padding: 32px 28px 36px; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); }

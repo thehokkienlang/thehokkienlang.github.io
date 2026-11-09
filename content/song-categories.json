@@ -168,18 +168,18 @@
     "tint": "#e6d4ee",
     "tintEnd": "#d1dff0",
     "routes": [
-      "/songs/靠站/",
       "/songs/迷魂芳/",
       "/songs/情難忘/",
       "/songs/媽媽歌星/",
-      "/songs/上媠에花/",
       "/songs/失落에夢/",
       "/songs/春夏秋冬/",
       "/songs/飄浪에人/",
       "/songs/聲聲叫됴릐/",
       "/songs/愛릐無條件/",
       "/songs/雨水꽈問릐/",
-      "/songs/愛徦無命毋知驚/"
+      "/songs/愛徦無命毋知驚/",
+      "/songs/上媠에花/",
+      "/songs/靠站/"
     ]
   },
   {
@@ -193,9 +193,9 @@
     "tint": "#e8e7bd",
     "tintEnd": "#d2e9d1",
     "routes": [
-      "/songs/天烏烏/",
       "/songs/望春風/",
-      "/songs/燒肉粽/"
+      "/songs/燒肉粽/",
+      "/songs/天烏烏/"
     ]
   },
   {

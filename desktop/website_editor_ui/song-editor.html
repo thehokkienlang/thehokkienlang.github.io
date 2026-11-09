@@ -21,7 +21,7 @@
   <main class="song-editor-shell">
     <aside class="song-browser">
       <div class="song-browser-heading"><strong>Songs</strong><button id="newSong" type="button">New</button></div>
-      <input id="songFilter" type="search" placeholder="Find songs" autocomplete="off">
+      <span class="song-filter-wrap"><input id="songFilter" type="search" placeholder="Find songs" autocomplete="off" spellcheck="false" aria-controls="songFilterCandidates" aria-autocomplete="list"><span id="songFilterCandidates" class="hanri-candidate-menu" role="listbox" aria-label="TLI song-search candidates" hidden></span></span>
       <div id="songList" class="song-list"></div>
     </aside>
     <section class="song-form-panel">
@@ -35,7 +35,7 @@
           <label>Category<select id="songCategory" required></select></label>
           <label class="route-field">Published route<input id="songRoute" readonly></label>
         </div>
-        <div class="lyrics-heading"><div><h2>Lyrics</h2><span id="lineCount"></span></div><div class="lyrics-actions"><button id="addLine" type="button">Add line</button><button id="addBreak" type="button">Verse break</button></div></div>
+        <div class="lyrics-heading"><div><h2>Lyrics</h2><span id="lineCount"></span></div><div class="lyrics-actions"><button id="addLine" type="button">Add line</button></div></div>
         <div id="lyricRows" class="lyric-rows"></div>
       </form>
       <div class="song-actions"><button id="previewSong" type="button">Refresh preview</button><button id="saveSong" type="button" class="primary">Save locally</button><button id="publishSong" type="button">Publish to GitHub</button><span id="songState"></span></div>

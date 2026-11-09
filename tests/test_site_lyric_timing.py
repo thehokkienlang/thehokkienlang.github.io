@@ -2,6 +2,7 @@
 import copy
 import json
 import math
+import re
 import sys
 import tempfile
 import subprocess
@@ -10,7 +11,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from lyric_timing import blank_timing, decorate_lyrics, song_lines, timing_path, validate_timing
+from lyric_timing import blank_timing, decorate_lyrics, reconcile_timing, song_lines, timing_path, validate_timing
 from website_editor_service import WebsiteEditorError, WebsiteEditorService
 from node_runtime import node_environment
 
@@ -59,6 +60,28 @@ class LyricTimingTests(unittest.TestCase):
         changed = copy.deepcopy(record)
         changed['body'] = changed['body'].replace('지ˆ', '지ˉ')
         with self.assertRaisesRegex(ValueError, 'line changed'): validate_timing(changed, data)
+
+    def test_reconciliation_preserves_existing_times_when_lyrics_change(self):
+        record = song()
+        data = blank_timing(record)
+        data['cues'][0].update(start=1.25, end=2.75)
+        data['cues'][1].update(start=3.0, end=4.5)
+        changed = copy.deepcopy(record)
+        changed['body'] = changed['body'].replace('지ˆ', '지ˉ', 1)
+
+        recovered = reconcile_timing(changed, data)
+
+        self.assertEqual([(cue['start'], cue['end']) for cue in recovered['cues']], [(1.25, 2.75), (3.0, 4.5)])
+        self.assertEqual(recovered['cues'][0]['fingerprint'], song_lines(changed)[1][0]['fingerprint'])
+
+    def test_hand_sized_lyric_lines_are_not_dropped(self):
+        for name in ('song-727', 'song-727-fong-fei-fei'):
+            record = json.loads((ROOT / 'content/songs' / f'{name}.json').read_text(encoding='utf-8'))
+            lomari_lines = len(re.findall(r'class="lyric-lomari|font-family:\s*Calibri', record['body'], re.I))
+            self.assertGreaterEqual(lomari_lines, 8, name)
+            self.assertEqual(len(song_lines(record)[1]), lomari_lines, name)
+            from song_editor_import import legacy_lyrics
+            self.assertEqual(len([item for item in legacy_lyrics(record['body']) if item['kind'] == 'line']), lomari_lines, name)
 
     def test_ranges_missing_values_and_review_gate(self):
         record = song()
@@ -127,6 +150,7 @@ class LyricTimingTests(unittest.TestCase):
             reloaded = service.lyric_timing(opened['file'])
             self.assertTrue(reloaded['warning'])
             self.assertEqual(reloaded['timing']['status'], 'draft')
+            self.assertEqual(reloaded['timing']['cues'], reconcile_timing(record, opened['timing'])['cues'])
             service.save_lyric_timing(reloaded['file'], reloaded['sourceRevision'], reloaded['revision'], reloaded['timing'])
 
     def test_timing_three_way_merge_and_explicit_conflict(self):

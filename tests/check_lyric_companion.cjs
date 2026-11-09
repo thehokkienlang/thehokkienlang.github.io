@@ -236,6 +236,7 @@ async function editorClickChecks() {
       createTextImeController(options) { imeOptions = options; return {setEnabled() {}, preferences: {ready: Promise.resolve()},
         setEntries(entries, index) { assert.equal(entries, index.entries); loadedEntries = entries; }}; }
     }}, structuredClone, confirm: () => true,
+    setTimeout: () => 1, clearTimeout() {},
     DOMParser: class {parseFromString(html) { return {querySelector: () => ({...element(), outerHTML: html})}; }},
     fetch: async (url, options) => ({ok: true, json: async () => url.endsWith('save-lyric-timing') ?
       (savedTiming = JSON.parse(options.body).timing, {ok: true, timing: savedTiming, message: 'Saved'}) :

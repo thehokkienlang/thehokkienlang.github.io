@@ -2,10 +2,13 @@
 .song-browser { min-width:0; padding:16px; border-right:1px solid var(--line); background:#f8fafa; }
 .song-browser-heading,.lyrics-heading,.song-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; }
 .song-browser-heading { margin-bottom:12px; }
+.song-filter-wrap { position:relative; display:block; }
+.song-filter-wrap>.hanri-candidate-menu { max-width:min(420px,calc(100vw - 40px)); }
 .song-list { margin-top:12px; }
 .song-list button { display:block; width:100%; min-height:0; padding:10px 8px; border:0; border-bottom:1px solid #e6ecee; border-radius:0; text-align:left; background:transparent; }
 .song-list button.active { color:var(--teal); background:#eaf6f3; font-weight:700; }
 .song-list small { display:block; margin-top:3px; overflow:hidden; color:var(--muted); font-size:11px; text-overflow:ellipsis; }
+.song-list .song-record-kind { margin-top:5px; color:#879698; font-size:10px; font-weight:700; text-transform:uppercase; }
 .song-list-empty { padding:18px 8px; color:var(--muted); font-size:13px; line-height:1.5; }
 .song-form-panel { min-width:0; padding:22px; border-right:1px solid var(--line); }
 .song-fields { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
@@ -19,11 +22,25 @@
 .lyrics-actions { display:flex; gap:8px; }
 .lyric-rows { display:grid; gap:6px; }
 .lyric-row { position:relative; display:grid; grid-template-columns:34px minmax(0,1fr) auto auto; gap:8px; align-items:center; padding:8px; border-bottom:1px solid var(--line); }
+.lyric-row.selected { background:#eaf3ff; box-shadow:inset 3px 0 #2474d2; }
+.lyric-row.dragging { opacity:.55; }
+.lyric-row.drop-before::before,.lyric-row.drop-after::after { content:""; position:absolute; z-index:4; left:8px; right:8px; height:3px; border-radius:2px; background:#2474d2; pointer-events:none; }
+.lyric-row.drop-before::before { top:-2px; }
+.lyric-row.drop-after::after { bottom:-2px; }
 .lyric-row-number { color:var(--muted); font-size:12px; text-align:center; }
-.lyric-input-wrap { position:relative; min-width:0; }
-.lyric-input-wrap input { font-size:17px; }
+.lyric-input-wrap { position:relative; display:grid; gap:4px; min-width:0; }
+.lyric-input-wrap input { box-sizing:border-box; width:100%; }
+.lyric-ruby-input { min-height:30px; color:#52636b; background:#f7fafa; font-size:13px; }
+.lyric-text-wrap { position:relative; display:block; min-width:0; }
+.lyric-input-wrap .lyric-input { position:relative; z-index:1; min-height:42px; font-size:17px; }
+.lyric-annotation-overlay { position:absolute; top:0; left:0; z-index:2; overflow:hidden; pointer-events:none; user-select:none; -webkit-user-select:none; }
+.lyric-annotation-overlay .tone-overlay-anchor { position:absolute; width:0; height:0; }
+.lyric-annotation-overlay .tone-overlay-mark { position:absolute; left:0; width:max-content; transform:translateX(-50%); color:#1f2937; font-family:"TLI Western Punctuation",Calibri,"Tangliengim Hangul","Noto Sans KR",sans-serif; font-weight:700; line-height:1; white-space:nowrap; }
+.lyric-annotation-overlay .tone-overlay-mark { top:calc(-0.72em - 1px); font-size:1em; }
 .line-tools { display:flex; gap:4px; }
 .line-tools button { width:32px; min-height:32px; padding:0; }
+.line-tools .line-drag-handle { cursor:grab; touch-action:none; }
+.line-tools .line-drag-handle:active { cursor:grabbing; }
 .grey-toggle { display:inline-flex; align-items:center; gap:7px; color:var(--muted); font-size:12px; white-space:nowrap; }
 .grey-toggle input { appearance:none; position:relative; width:36px; height:22px; padding:0; border:1px solid #aebfbd; border-radius:999px; background:#c7d3d1; cursor:pointer; }
 .grey-toggle input::before { content:""; position:absolute; top:2px; left:2px; width:16px; height:16px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s ease; }

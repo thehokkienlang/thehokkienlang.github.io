@@ -10,6 +10,7 @@
   const file = new URLSearchParams(location.search).get('file');
   const token = document.querySelector('meta[name="editor-token"]').content;
   let snapshot, timing, selected = 0, dirty = false, connection, loading = false;
+  let autosaveTimer = null, savePromise = null, editGeneration = 0, saveState = '';
   let playbackGeneration = 0;
   let previewIndex = null;
   let scrubbing = false;
@@ -145,9 +146,24 @@
   });
   function progress() {
     $('undoTiming').disabled = !undoHistory.length;
-    $('completion').textContent = timing.cues.filter(c => Number.isFinite(c.start) && Number.isFinite(c.end)).length + ' / ' + timing.cues.length + ' timed' + (dirty ? ' · Unsaved' : '');
+    $('completion').textContent = timing.cues.filter(c => Number.isFinite(c.start) && Number.isFinite(c.end)).length + ' / ' + timing.cues.length + ' timed' + (dirty ? ' · Unsaved' : '') + (saveState ? ' · ' + saveState : '');
   }
-  const edit = () => { dirty = savedState === null || !sameTiming(timing, savedState); progress(); };
+  function scheduleAutosave() {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+    if (!snapshot || loading || !dirty) return;
+    autosaveTimer = setTimeout(() => {
+      autosaveTimer = null;
+      saveTimings({autosave: true}).catch(() => {});
+    }, 5000);
+  }
+  const edit = () => {
+    editGeneration += 1;
+    dirty = savedState === null || !sameTiming(timing, savedState);
+    saveState = '';
+    progress();
+    scheduleAutosave();
+  };
   function clock(time) {
     if (!Number.isFinite(time)) return '';
     const milliseconds = Math.round(time * 1000);
@@ -296,6 +312,8 @@
     repairFollowing(selected);
     fillEmptyEnds();
     remember(before);
+    // Adjusting the preceding cue must not leave its sentence in the preview.
+    select(index);
     tell('Marked start at ' + clock(time) + '.');
   }
   function seekSelected(key = 'start') {
@@ -327,7 +345,8 @@
     $('togglePlayback').setAttribute('aria-label', state === 1 ? 'Pause video' : 'Play video');
     if (!scrubbing) $('clock').textContent = clock(time);
     $('markStart').disabled = $('seekStart').disabled = $('seekEnd').disabled = false;
-    const cue = TliLyricPlayer.cueAt(timing.cues, time);
+    // While timing, a line counts as soon as it has a start, even before its end is set.
+    const cue = Number.isFinite(time) ? timing.cues.findLast(item => Number.isFinite(item.start) && item.start <= time) || null : null;
     document.querySelectorAll('.cue-row').forEach((row, i) => row.classList.toggle('playing', state !== 0 && timing.cues[i] === cue));
     if (cue && state !== 0) showPreview(timing.cues.indexOf(cue));
     $('playerState').textContent = ({0:'Ended',1:'Playing',2:'Paused',3:'Buffering'})[state] || 'Ready';
@@ -356,8 +375,10 @@
     loading = true;
     try {
       const result = await request('lyric-timing', {file});
+      clearTimeout(autosaveTimer); autosaveTimer = null;
       snapshot = result; timing = structuredClone(result.timing); dirty = Boolean(result.warning);
       savedState = result.warning ? null : structuredClone(timing);
+      saveState = ''; editGeneration = 0;
       undoHistory.length = 0;
       $('timingTitle').textContent = result.title; $('timingStatus').value = timing.status;
       $('saveTiming').disabled = false;
@@ -413,33 +434,64 @@
   };
   $('reloadTiming').onclick = load;
   $('previewHighlight').onchange = () => { if (snapshot) showPreview(previewIndex ?? selected, true); };
-  $('saveTiming').onclick = async () => {
-    $('saveTiming').disabled = true;
-    try {
-      if (timing.cues.some(c => c.start !== null && !Number.isFinite(c.start) || c.end !== null && !Number.isFinite(c.end))) throw new Error('Enter valid numbers for the sentence times.');
-      const before = structuredClone(timing);
-      fillEmptyEnds(); repairTimeline(); remember(before);
-      const payload = { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing,
-        base:savedState, labels:snapshot.lines.map(line => line.label) };
-      let response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
-        headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
-      let result = await response.json();
-      if (result.conflict) {
-        if (!confirm(result.error + '\n\nThis cannot be undone from this editor. Continue?')) return;
-        payload.overwriteRevision = result.revision;
-        response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
-          headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
-        result = await response.json();
+  async function performSave({autosave = false} = {}) {
+    if (timing.cues.some(c => c.start !== null && !Number.isFinite(c.start) || c.end !== null && !Number.isFinite(c.end))) {
+      throw new Error('Enter valid numbers for the sentence times.');
+    }
+    const before = structuredClone(timing);
+    fillEmptyEnds(); repairTimeline(); remember(before);
+    const savedGeneration = editGeneration;
+    const savedTiming = structuredClone(timing);
+    const payload = { file, sourceRevision:snapshot.sourceRevision, revision:snapshot.revision, timing:savedTiming,
+      base:savedState, labels:snapshot.lines.map(line => line.label) };
+    saveState = autosave ? 'Autosaving...' : 'Saving...'; progress();
+    let response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
+      headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
+    let result = await response.json();
+    if (result.conflict) {
+      if (autosave) throw new Error('Autosave paused because the timing file changed elsewhere. Use Save timings locally to review the conflict.');
+      if (!confirm(result.error + '\n\nThis cannot be undone from this editor. Continue?')) {
+        saveState = ''; progress(); return null;
       }
-      if (!response.ok || !result.ok) throw new Error(result.error || 'Save failed.');
-      snapshot.revision = result.revision; snapshot.sourceRevision = result.sourceRevision || snapshot.sourceRevision;
-      snapshot.lines = result.lines || snapshot.lines;
-      timing = result.timing; savedState = structuredClone(timing); dirty = false;
+      payload.overwriteRevision = result.revision;
+      response = await fetch('/desktop-api/website-editor/save-lyric-timing', { method:'POST', cache:'no-store',
+        headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token}, body:JSON.stringify(payload) });
+      result = await response.json();
+    }
+    if (!response.ok || !result.ok) throw new Error(result.error || 'Save failed.');
+    snapshot.revision = result.revision; snapshot.sourceRevision = result.sourceRevision || snapshot.sourceRevision;
+    snapshot.lines = result.lines || snapshot.lines;
+    savedState = structuredClone(result.timing);
+    dirty = editGeneration !== savedGeneration || !sameTiming(timing, savedState);
+    if (!dirty) {
+      timing = structuredClone(result.timing);
       timing.cues.forEach((cue, index) => { inputs[index].start.value = clock(cue.start); inputs[index].end.value = clock(cue.end); });
-      progress(); tell(result.message);
-    } catch (error) { tell(error.message, true); }
-    finally { $('saveTiming').disabled = false; }
-  };
+    }
+    saveState = dirty ? '' : (autosave ? 'Autosaved' : 'Saved');
+    progress();
+    if (!autosave) tell(result.message);
+    if (dirty) scheduleAutosave();
+    return result;
+  }
+  async function saveTimings(options = {}) {
+    if (savePromise) {
+      try { await savePromise; } catch (_error) { /* A newer edit may still save successfully. */ }
+      if (!dirty) return null;
+    }
+    const operation = performSave(options);
+    savePromise = operation;
+    $('saveTiming').disabled = true;
+    try { return await operation; }
+    catch (error) {
+      saveState = options.autosave ? 'Autosave paused' : '';
+      progress(); tell(error.message, true);
+      throw error;
+    } finally {
+      if (savePromise === operation) savePromise = null;
+      $('saveTiming').disabled = false;
+    }
+  }
+  $('saveTiming').onclick = () => saveTimings().catch(() => {});
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
   window.addEventListener('pagehide', () => connection?.destroy().catch(() => {}));
   loadSongs();

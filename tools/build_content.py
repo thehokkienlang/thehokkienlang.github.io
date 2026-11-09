@@ -73,6 +73,39 @@ def song_script_heading(body):
     )
 
 
+def song_version(record):
+    value = record.get("songVersion")
+    return value if isinstance(value, dict) else {}
+
+
+def song_version_tabs(versions):
+    if len(versions) == 1:
+        return versions[0][1]
+    buttons, panels = [], []
+    for index, (record, body) in enumerate(versions):
+        version = song_version(record)
+        key = re.sub(r"[^a-z0-9_-]+", "-", str(version.get("key") or index + 1).lower()).strip("-")
+        tab_id = f"song-version-tab-{key}"
+        panel_id = f"song-version-panel-{key}"
+        label = str(version.get("label") or f"Version {index + 1}")
+        selected = index == 0
+        buttons.append(
+            f'<button type="button" role="tab" id="{tab_id}" aria-controls="{panel_id}" '
+            f'aria-selected="{str(selected).lower()}" tabindex="{0 if selected else -1}" '
+            f'data-song-version-key="{html.escape(key, quote=True)}" data-site-text="{html.escape(label, quote=True)}">'
+            f'{html.escape(label)}</button>'
+        )
+        panels.append(
+            f'<section class="song-version-panel" role="tabpanel" id="{panel_id}" '
+            f'aria-labelledby="{tab_id}"{"" if selected else " hidden"}>{body}</section>'
+        )
+    return (
+        '<div class="song-version-tabs" data-song-version-tabs>'
+        f'<div class="song-version-tablist" role="tablist" aria-label="Song versions">{"".join(buttons)}</div>'
+        f'{"".join(panels)}</div>'
+    )
+
+
 def site_brand(root, language="en"):
     template = (root / "shared/site-brand.html").read_text(encoding="utf-8")
     return template.replace("__HOME__", PREFIXES[language] + "/").strip()
@@ -545,10 +578,31 @@ def build_content(root: Path, output: Path):
         for item in manifest["records"]
         if base_route(item["route"]) not in unpublished_routes
     ]
+    manifest_files = {item["file"] for item in manifest["records"]}
+    for path in sorted((root / "content/songs").glob("*.json")):
+        relative = path.relative_to(root).as_posix()
+        if relative in manifest_files:
+            continue
+        record = json.loads(path.read_text(encoding="utf-8"))
+        version = song_version(record)
+        if record.get("type") == "songs" and version.get("groupRoute"):
+            records.append(record)
+    versions_by_route = {}
+    for item in records:
+        version = song_version(item)
+        if version.get("groupRoute"):
+            versions_by_route.setdefault(version["groupRoute"], []).append(item)
+    for values in versions_by_route.values():
+        values.sort(key=lambda item: (song_version(item).get("order", 0), item["route"]))
     source_routes = {source_key(item["sourceUrl"]): item["route"] for item in records}
     traditional_egg = next(item for item in records if item['route'] == '/zh-hant' + EGG_ROUTE)
     egg_player = soundcloud_source(traditional_egg['body'])
     records.append(simplified_egg(traditional_egg))
+    # After every record exists, so derived pages such as the simplified Egg are published too.
+    published_records = [
+        item for item in records
+        if not song_version(item) or item["route"] == song_version(item).get("groupRoute")
+    ]
     media = json.loads((root / "migration/wordpress-media.json").read_text(encoding="utf-8"))
 
     class PresentationHTML(ImportedHTML):
@@ -577,7 +631,7 @@ def build_content(root: Path, output: Path):
     paths = set()
     search_documents = {language: [] for language in LANGUAGES}
     search_kinds = {"guides": "guide", "songs": "song", "stories": "story"}
-    for record in records:
+    for record in published_records:
         route = record["route"]
         target = output / route.lstrip("/") / "index.html"
         if not route.startswith("/") or not route.endswith("/") or not target.resolve().is_relative_to(output.resolve()) or route in paths:
@@ -586,15 +640,26 @@ def build_content(root: Path, output: Path):
         target.parent.mkdir(parents=True, exist_ok=True)
         if base_route(route) == EGG_ROUTE:
             heading_html, body = egg_presentation(record, egg_player)
+        elif record["type"] == "songs" and route in versions_by_route:
+            heading_html, _ = song_title(record)
+            rendered_versions = []
+            for version_record in versions_by_route[route]:
+                _, version_body = song_title(version_record)
+                version_body = song_script_heading(version_body)
+                version_body = PresentationHTML(version_record).render(remove_leading_language_switcher(version_body))
+                version_body = decorate_lyrics(root, version_record, version_body)
+                rendered_versions.append((version_record, version_body))
+            body = song_version_tabs(rendered_versions)
         else:
             heading_html, body = song_title(record) if record["type"] == "songs" else (None, record["body"])
-        if record["type"] == "songs":
+        if record["type"] == "songs" and route not in versions_by_route:
             body = song_script_heading(body)
-        body = PresentationHTML(record).render(remove_leading_language_switcher(body))
-        if record['type'] == 'songs':
+        if not (record["type"] == "songs" and route in versions_by_route):
+            body = PresentationHTML(record).render(remove_leading_language_switcher(body))
+        if record['type'] == 'songs' and route not in versions_by_route:
             body = decorate_lyrics(root, record, body)
         if base_route(route) == "/":
-            body = curate_home_body(body, record["language"], [item for item in records if item["type"] == "songs"],
+            body = curate_home_body(body, record["language"], [item for item in published_records if item["type"] == "songs"],
                                     listen_button(root, record["language"], "學生", "학솅1"))
         body = describe_images(body, record["language"])
         target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
@@ -614,7 +679,7 @@ def build_content(root: Path, output: Path):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
     song_categories = json.loads((root / "content/song-categories.json").read_text(encoding="utf-8"))
-    songs_by_route = {item["route"]: item for item in records if item["type"] == "songs"}
+    songs_by_route = {item["route"]: item for item in published_records if item["type"] == "songs"}
     approved_routes = {row["new_url"] for row in song_rows}
     categorized_routes = [route for category in song_categories for route in category["routes"]]
     if len(categorized_routes) != len(set(categorized_routes)):
@@ -688,9 +753,9 @@ def build_content(root: Path, output: Path):
     languages = manifest.get("languages", ["en"])
     for language in languages:
         prefix = PREFIXES[language]
-        guides = [item for item in records if item["type"] == "guides" and item["language"] == language and base_route(item["route"]).startswith("/learn/")]
-        stories = [{**item, "title": text("The Egg", language)} for item in records if item["type"] == "stories" and item["language"] == language]
-        literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in records if item["type"] == "literature"]
+        guides = [item for item in published_records if item["type"] == "guides" and item["language"] == language and base_route(item["route"]).startswith("/learn/")]
+        stories = [{**item, "title": text("The Egg", language)} for item in published_records if item["type"] == "stories" and item["language"] == language]
+        literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in published_records if item["type"] == "literature"]
         sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
         sections[prefix + "/read/"] = (text("Read in Hokkien", language), (f'<h2>{text("Literature", language)}</h2>' + listing(literature) if literature else "") + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
         sections[prefix + "/songs/"] = (text("Songs", language), song_index(language))
@@ -747,5 +812,5 @@ def build_content(root: Path, output: Path):
         f'<script>location.replace({json.dumps(new_song_route, ensure_ascii=True)} + location.search + location.hash)</script>'
         f'<a href="{destination}">Continue to the song</a>', encoding='utf-8')
     paths.add(old_song_route)
-    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{**{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")}, **({'derivedFrom': item['derivedFrom']} if 'derivedFrom' in item else {})} for item in records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    (output / "content-manifest.json").write_text(json.dumps({"language": "en", "languages": languages, "routes": sorted(paths), "pages": [{**{key: item[key] for key in ("title", "route", "language", "type", "sourceId", "sourceUrl", "orthography")}, **({'derivedFrom': item['derivedFrom']} if 'derivedFrom' in item else {})} for item in published_records], "deferred": manifest["deferred"]}, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     return sorted(paths)

@@ -547,6 +547,48 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
+  function renderRubyOverlayMarks(text, rubySpans = [], control = null) {
+    const fragment = document.createDocumentFragment();
+    const source = String(text || "");
+    const candidates = Array.from(rubySpans || []).sort(
+      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
+    );
+    const spans = [];
+    let cursor = 0;
+
+    for (const span of candidates) {
+      const start = Number(span?.start);
+      const end = Number(span?.end);
+      const hanri = String(span?.hanri || "");
+      const reading = normalizeApostrophes(String(span?.reading || ""));
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
+        continue;
+      }
+      if (!reading || source.slice(start, end) !== hanri) continue;
+      spans.push({ start, end, hanri, reading });
+      cursor = end;
+    }
+
+    const positions = toneOverlayPositions(control, source, spans);
+    for (const span of spans) {
+      const position = positions.get(span.start);
+      if (control && !position) continue;
+      const anchor = document.createElement("span");
+      anchor.className = "ruby-overlay-anchor";
+      anchor.setAttribute("aria-hidden", "true");
+      if (position) {
+        anchor.style.left = `${position.left}px`;
+        anchor.style.top = `${position.top}px`;
+      }
+      const annotation = document.createElement("span");
+      annotation.className = "ruby-overlay-mark";
+      annotation.textContent = span.reading;
+      anchor.append(annotation);
+      fragment.append(anchor);
+    }
+    return fragment;
+  }
+
   function toneOverlaySpansFromReading(reading, text, start) {
     const source = normalizeApostrophes(String(reading || ""));
     let readingIndex = 0;
@@ -1619,12 +1661,13 @@ const TangliengimImeCore = (() => {
       while (index < cursor) {
         const unit = readingUnitAt(text, index);
         if (!unit) break;
-        if (unit.end > cursor) break;
-        if (unit.canCarryTone) previous = { ...unit, start: index };
+        const toneEnd = readingUnitToneEnd(text, unit);
+        if (toneEnd > cursor) break;
+        if (unit.canCarryTone) previous = { ...unit, start: index, toneEnd };
         else previous = null;
-        index = unit.end;
+        index = toneEnd;
       }
-      return previous?.end === cursor ? previous : null;
+      return previous?.toneEnd === cursor ? previous : null;
     }
 
     applyHiddenTone(char) {
@@ -1636,8 +1679,15 @@ const TangliengimImeCore = (() => {
       }
       if (this.toneInputStyle === "symbols") {
         this.composer.commit();
-        if (this.previousHangulUnit(this.composer.text(), this.composer.displayCursorPos())) this.composer.addTone(digit);
-        else this.composer.insertLiteral(digit);
+        const text = this.composer.text();
+        const unit = this.previousHangulUnit(text, this.composer.displayCursorPos());
+        if (unit) {
+          if (unit.toneEnd > unit.end) {
+            this.composer.output = `${text.slice(0, unit.end)}${text.slice(unit.toneEnd)}`;
+            this.composer.cursorPos = unit.end;
+          }
+          this.composer.addTone(digit);
+        } else this.composer.insertLiteral(digit);
         return true;
       }
       this.composer.commit();
@@ -2496,6 +2546,7 @@ const TangliengimImeCore = (() => {
     readingUnitAt,
     readingUnitToneEnd,
     renderInlineUpperToneReading,
+    renderRubyOverlayMarks,
     renderToneOverlayMarks,
     renderToneMarkedReading,
     searchableEntry,

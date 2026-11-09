@@ -183,6 +183,49 @@
     }
   }));
 
+  // A video in a tab you leave must stop, or its sound keeps playing out of sight.
+  const stopVideos = panel => panel.querySelectorAll("iframe").forEach(frame => {
+    const source = frame.src;
+    if (source.includes("enablejsapi=1")) {
+      frame.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: "" }), new URL(source).origin);
+    } else {
+      frame.src = source;
+    }
+  });
+  document.querySelectorAll("[data-song-version-tabs]").forEach(tabs => {
+    const buttons = [...tabs.querySelectorAll('[role="tab"]')];
+    const panels = [...tabs.querySelectorAll('[role="tabpanel"]')];
+    const activate = (button, updateHash = true) => {
+      buttons.forEach(item => {
+        const selected = item === button;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      });
+      panels.forEach(panel => {
+        const shown = panel.id === button.getAttribute("aria-controls");
+        if (panel.hidden === !shown) return;
+        panel.hidden = !shown;
+        if (shown) panel.dispatchEvent(new Event("song-version-shown"));
+        else stopVideos(panel);
+      });
+      if (updateHash) history.replaceState(null, "", `#version-${button.dataset.songVersionKey}`);
+    };
+    buttons.forEach((button, index) => {
+      button.addEventListener("click", () => activate(button));
+      button.addEventListener("keydown", event => {
+        if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+        event.preventDefault();
+        const next = event.key === "Home" ? 0 : event.key === "End" ? buttons.length - 1
+          : (index + (event.key === "ArrowRight" ? 1 : -1) + buttons.length) % buttons.length;
+        buttons[next].focus();
+        activate(buttons[next]);
+      });
+    });
+    const requested = location.hash.match(/^#version-(.+)$/)?.[1];
+    const initial = buttons.find(button => button.dataset.songVersionKey === requested);
+    if (initial) activate(initial, false);
+  });
+
   // Songs page filter (audit A9). Matching ignores case, Lomari diacritics, TLI tone
   // marks, spaces and hyphens; Hangul is compared syllable by syllable, never as Korean.
   const filter = document.querySelector("[data-song-filter]");
