@@ -41,8 +41,6 @@ SONG_FILTER_TEXT = {
     "zh-Hans": {"placeholder": "以汉字、谚文或罗马字筛选歌曲", "categories": "歌曲分类", "all": "全部",
                 "empty": "没有符合的歌曲。", "count": "{n} 首歌曲"},
 }
-WORDPRESS_ARCHIVE = {"en": "https://hokkienlang.wordpress.com/", "zh-Hant": "https://hokkienlang.wordpress.com/zh-tw/",
-                     "zh-Hans": "https://hokkienlang.wordpress.com/zh-cn/"}
 # Tools that open only for invited visitors behind a password (audit A4).
 INVITE_ONLY = frozenset({"/dictionary/", "/translate/"})
 
@@ -543,11 +541,6 @@ def search_page(language):
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
-    # One link to the archived WordPress site, on the About page only (audit A9); other
-    # pages no longer end with a link to their WordPress original.
-    source = (f'<p class="source-link"><a data-site-text="Original WordPress site" '
-              f'href="{WORDPRESS_ARCHIVE[language]}">{text("Original WordPress site", language)}</a></p>'
-              if base_route(route) == "/about/" else "")
     home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於閩南語的聲音。", "zh-Hans": "记录着属于闽南语的声音。"}
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
@@ -568,7 +561,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
     is_search = base_route(route) == "/search/"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SOURCE": source, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
     # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
     # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
     launch = values["LAUNCH"]
@@ -627,8 +620,13 @@ def build_content(root: Path, output: Path):
             super().__init__(record["sourceUrl"], source_routes, media, root, False)
             self.language = record["language"]
             self.tli_introduced = self.language != "en" or "Tangliengim" in record["title"] or base_route(record["route"]) == "/"
+            # The About page explains the name itself and introduces TLI by hand.
+            self.keeps_full_name = base_route(record["route"]) == "/about/"
 
         def rewrite(self, value, media=False):
+            # Generated index pages are not imported records, so the importer would send them to WordPress.
+            if not media and value and value.startswith("/") and base_route(value) in ("/songs/", "/read/"):
+                return value
             result = super().rewrite(value, media)
             if not media and self.language != "en" and result and result.startswith(("/songs/", "/dictionary/", "/ime/", "/read/literature/")) and "?" not in result:
                 path, marker, fragment = result.partition("#")
@@ -637,7 +635,7 @@ def build_content(root: Path, output: Path):
 
         def handle_data(self, data):
             data = re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data)
-            if self.language == "en" and "Tangliengim" in data:
+            if self.language == "en" and "Tangliengim" in data and not self.keeps_full_name:
                 if self.tli_introduced:
                     data = data.replace("Tangliengim", "TLI")
                 else:

@@ -183,16 +183,13 @@ class SiteLanguageTests(unittest.TestCase):
                 with self.subTest(scripts=relative):
                     self.assertEqual(scripts(relative), {"web-ime-core.js": ime, "web-hangul-ime.js": ime,
                                                          "web-lyric-sync.js": lyric})
-            # Audit A9: only the About pages link to the archived WordPress site.
-            archive = {"": "https://hokkienlang.wordpress.com/", "zh-hant/": "https://hokkienlang.wordpress.com/zh-tw/",
-                       "zh-hans/": "https://hokkienlang.wordpress.com/zh-cn/"}
+            # No published page links to the archived WordPress site.
             for page in output.rglob("index.html"):
                 html_text = page.read_text(encoding="utf-8")
                 links = re.findall(r'href="(https?://[^"]*wordpress\.com[^"]*)"', html_text)
                 relative = page.relative_to(output).parent.as_posix() + "/"
-                about = {f"{prefix}about/": url for prefix, url in archive.items()}
                 with self.subTest(page=relative):
-                    self.assertEqual(links, [about[relative]] if relative in about else [])
+                    self.assertEqual(links, [])
             manifest = json.loads((output / "content-manifest.json").read_text(encoding="utf-8"))
             self.assertEqual(manifest["languages"], list(LANGUAGES))
             self.assertEqual(len([page for page in manifest["pages"] if page["language"] == "zh-Hant"]), 7)
