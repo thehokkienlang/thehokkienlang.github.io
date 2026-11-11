@@ -2,3 +2,4 @@
 # Install with: python -m pip install -r requirements-dev.txt
 fonttools[woff]>=4.40
 brotli>=1.1
+numpy>=2.1
