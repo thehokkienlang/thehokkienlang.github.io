@@ -3,3 +3,6 @@
 fonttools[woff]>=4.40
 brotli>=1.1
 numpy>=2.1
+# Portable ffmpeg for the Opus audio copies when none is installed (as on CI runners);
+# 0.8 is the first release whose Linux build is confirmed to include libopus.
+imageio-ffmpeg>=0.8

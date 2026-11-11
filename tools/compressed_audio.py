@@ -35,7 +35,15 @@ MAX_ALIGNMENT_LAG_FRAMES = 2
 
 
 def ffmpeg() -> str | None:
-    return shutil.which("ffmpeg")
+    executable = shutil.which("ffmpeg")
+    if executable:
+        return executable
+    try:
+        import imageio_ffmpeg
+    except ImportError:
+        return None
+    bundled = Path(imageio_ffmpeg.get_ffmpeg_exe())
+    return str(bundled) if bundled.is_file() else None
 
 
 def _encode_one(executable: str, wav: Path, target: Path) -> None:

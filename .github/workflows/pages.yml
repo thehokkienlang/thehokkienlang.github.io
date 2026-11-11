@@ -44,8 +44,19 @@ jobs:
           node-version: "24"
       - name: Install portable Python build dependencies
         run: python -m pip install -r requirements-dev.txt
-      - name: Confirm the runner's bundled ffmpeg
-        run: ffmpeg -version
+      - name: Confirm the portable ffmpeg can encode Opus
+        run: |
+          python - <<'PY'
+          import subprocess, sys
+          sys.path.insert(0, "tools")
+          import compressed_audio
+          executable = compressed_audio.ffmpeg()
+          assert executable, "No ffmpeg found; requirements-dev.txt installs imageio-ffmpeg."
+          encoders = subprocess.run([executable, "-hide_banner", "-encoders"],
+                                    capture_output=True, text=True, check=True).stdout
+          assert " libopus " in encoders, f"{executable} has no libopus encoder."
+          print(executable)
+          PY
       - name: Build both interfaces from the canonical TSV
         run: python tools/build_site.py
       - name: Validate multilingual migration scope and preserved readings
