@@ -75,13 +75,26 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.retry.outputs.page_url }}
     steps:
       - uses: actions/configure-pages@v5
+      # A normal publish takes about 20 seconds. Since November 2026 GitHub's
+      # Pages service has sometimes left a deployment queued or syncing until
+      # deploy-pages gives up at its fixed 10-minute maximum (a larger timeout
+      # is ignored). The same artifact then publishes normally once GitHub
+      # recovers, so wait and try once more instead of failing straight away.
       - name: Publish dictionary and IME together
         id: deployment
+        continue-on-error: true
         uses: actions/deploy-pages@v4
         with:
-          # The ~190 MiB site (mostly audio) can take GitHub Pages longer than
-          # the default 10 minutes to publish (the a6185e0 deploy timed out).
-          timeout: 1800000
+          timeout: 600000
+      - name: Wait for a stalled publish to clear
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 600
+      - name: Publish again after a stall
+        id: retry
+        if: steps.deployment.outcome == 'failure'
+        uses: actions/deploy-pages@v4
+        with:
+          timeout: 600000
