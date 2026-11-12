@@ -522,6 +522,10 @@ if (isInstalledApp) {
 }
 
 // Offline use for the installed pad (apps/ime/sw.js). Needs https or localhost; harmless elsewhere.
+// The app page also offers the Android system keyboard (android/), published as a GitHub release.
+const androidKeyboard = document.querySelector("#androidKeyboard");
+if (androidKeyboard && isAppPage) androidKeyboard.hidden = false;
+
 // The web page offers the app; the app page offers to install itself.
 const appInstall = document.querySelector("#appInstall");
 if (appInstall && !isInstalledApp) {

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">TLI Keyboard</string>
+    <string name="keyboard_name">TLI (Tangliengim)</string>
+    <string name="setup_intro">Type Hokkien in Tangliengim (TLI) in any app. The keyboard works offline and has no internet access.</string>
+    <string name="setup_enable">1. Turn on TLI Keyboard</string>
+    <string name="setup_choose">2. Switch to TLI Keyboard</string>
+    <string name="setup_try">Try it here</string>
+</resources>

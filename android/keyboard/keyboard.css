@@ -1,0 +1,207 @@
+/* Layout of the Android keyboard page. Candidate fonts and colours come from web-ime-menu.css. */
+:root {
+  --board: #e4eaec;
+  --key: #ffffff;
+  --key-control: #c9d3d7;
+  --ink: #102033;
+  --accent: #08756b;
+  --gap: 5px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  overflow: hidden;
+  background: var(--board);
+  color: var(--ink);
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* One strip: what is being typed, then its candidates. */
+.strip {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: stretch;
+  min-width: 0;
+  background: #f7f9fa;
+  border-bottom: 1px solid #c5cfd4;
+}
+
+#buffer {
+  flex: 0 0 auto;
+  width: 0;
+  max-width: 38%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: 0;
+  resize: none;
+  overflow: hidden;
+  background: transparent;
+  color: var(--accent);
+  font: inherit;
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 46px;
+  white-space: nowrap;
+  pointer-events: none;
+  field-sizing: content;
+}
+
+body.composing #buffer {
+  width: auto;
+  min-width: 28px;
+  padding: 0 10px;
+  border-right: 1px solid #c5cfd4;
+}
+
+#candidates.hanri-candidate-menu,
+#candidates.hanri-candidate-menu[hidden] {
+  position: static;
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: row;
+  gap: 0;
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  scrollbar-width: none;
+}
+
+#candidates::-webkit-scrollbar {
+  display: none;
+}
+
+#candidates.hanri-candidate-menu .ime-candidate {
+  flex: 0 0 auto;
+  width: auto;
+  min-height: 46px;
+  padding: 0 14px;
+  border-right: 1px solid #dde4e7;
+  border-radius: 0;
+  background: transparent;
+  font-size: 17px;
+}
+
+#candidates.hanri-candidate-menu .ime-candidate.selected {
+  background: transparent;
+  color: var(--ink);
+}
+
+#candidates.hanri-candidate-menu .ime-candidate:active {
+  background: #d5e6e3;
+}
+
+#candidates.hanri-candidate-menu .ime-candidate.selected .candidate-reading {
+  color: #667386;
+}
+
+#candidates .candidate-number {
+  display: none;
+}
+
+#keys {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--gap);
+  min-height: 0;
+  padding: 6px 4px 8px;
+}
+
+.row {
+  display: flex;
+  flex: 1 1 0;
+  gap: var(--gap);
+  justify-content: center;
+  min-height: 0;
+}
+
+.key {
+  position: relative;
+  display: flex;
+  flex: 1 1 0;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-width: 14%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 6px;
+  background: var(--key);
+  box-shadow: 0 1px 0 #aeb9be;
+  color: var(--ink);
+  font: inherit;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.key.pressed {
+  background: #cfe3df;
+}
+
+.key-output {
+  line-height: 1;
+}
+
+.key-input {
+  position: absolute;
+  top: 3px;
+  right: 5px;
+  color: #7d8a94;
+  font-family: "TLI Western Punctuation", "Segoe UI", Roboto, sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.key.tone {
+  background: #edf5f3;
+  color: var(--accent);
+}
+
+.key.control {
+  flex: 1.5 1 0;
+  max-width: none;
+  background: var(--key-control);
+  font-family: "Segoe UI", Roboto, sans-serif;
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.key.key-shift.active {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+.key.key-space {
+  flex: 5 1 0;
+  background: var(--key);
+}
+
+.key.key-enter {
+  background: var(--accent);
+  color: #ffffff;
+}

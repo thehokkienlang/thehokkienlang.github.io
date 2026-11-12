@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="nan-Hang">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <title>TLI keyboard</title>
+    <link rel="stylesheet" href="/shared/web-ime-menu.css">
+    <link rel="stylesheet" href="keyboard.css">
+  </head>
+  <body>
+    <div class="strip">
+      <textarea id="buffer" rows="1" readonly tabindex="-1" autocomplete="off" spellcheck="false" lang="nan-Hang"></textarea>
+      <div id="candidates" class="hanri-candidate-menu" role="listbox" aria-label="Candidates" hidden></div>
+    </div>
+    <div id="keys"></div>
+    <script src="/shared/web-hangul-ime.js"></script>
+    <script src="/shared/web-ime-core.js"></script>
+    <script src="keyboard.js"></script>
+  </body>
+</html>
