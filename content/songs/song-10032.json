@@ -7,15 +7,240 @@
   "route": "/songs/菝仔/",
   "sourceUrl": "https://hokkienlang.wordpress.com/2026/07/12/%e8%8a%ad%e6%a8%82-%eb%b0%9b%ec%95%84-%e8%ab%ba%e6%96%87%e6%ad%8c%e8%a9%9e/",
   "sourceId": 10032,
-  "sourceModified": "2026-10-21T14:56:31+08:00",
-  "sourceSha256": "c2e5d197a1e9ddacc2bf25c3cfc63a7436c80d1394f2b107f5a7faeaf983a3f3",
+  "sourceModified": "2026-11-12T19:18:10+08:00",
+  "sourceSha256": "4b0b84b9da745b6078c537f0c3330d3a6604a78e6349f2f9e7ccb807eb58302c",
   "orthography": {
     "target": "3.2",
-    "review": "mixed-script-audited",
-    "scope": "section-4 mixed-script spellings",
-    "v32Changes": "applied",
-    "audit": "docs/history/harmonisation-3.2-audit.json",
-    "v33Audit": "docs/history/harmonisation-3.3-audit.json"
+    "review": "structured-song-editor"
   },
-  "body": "\n<h2 class=\"wp-block-heading\"><span>받<ruby>아<rt>ˎ</rt></ruby></span></h2>\n\n\n\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/rML9tw5qAaQ?version=3&amp;rel=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;fs=1&amp;hl=en&amp;autohide=2&amp;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>\n\n\n\n<h3 class=\"wp-block-heading\">漢諺混寫 Hanri-Hangul mixed script</h3>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby>問<rt>믕-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby>是<rt>시-</rt></ruby><ruby>啥物<rt>샬ˆ밓ˆ</rt></ruby> <ruby>態度<rt>태ˋ더ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mng-goà si-siâ̰-mîh thài-tōr\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby>應<rt>인ˋ-</rt></ruby><ruby>講<rt>겅ˆ-</rt></ruby><ruby>攏<rt>렁ˆ-</rt></ruby><ruby>是<rt>시-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby>毋<rt>음-</rt></ruby><ruby>著<rt>둏ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà ìn-kông-lông-si-goà m-tiôh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby>問<rt>믕-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby>明仔載<rt>삔아ˆ재</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>創<rt>청ˋ-</rt></ruby><ruby>啥<rt>살ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mng-goà bin-â-jai bêh-chòng-sà̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby>穿<rt>촁-</rt></ruby><ruby>媠<rt>쉬ˆ-</rt></ruby><ruby>媠<rt>쉬ˋ</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>去<rt>킈ˋ-</rt></ruby><ruby>𨑨<rt>칟ˆ-</rt></ruby><ruby>迌<rt>토ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà chieng-sûi-sùi bêh-khì-chît-thó\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>睏<rt>쿤ˋ-</rt></ruby><ruby>到<rt>ᄀᅷˋ-</rt></ruby><ruby>中晝<rt>뎡ˉᄃᅷ</rt></ruby> <ruby>是<rt>시-</rt></ruby><ruby>自<rt>주-</rt></ruby><ruby>然<rt>뗸ˊ</rt></ruby> <ruby>毋<rt>음-</rt></ruby><ruby>免<rt>뼨ˆ-</rt></ruby><ruby>理由<rt>리ˆ유ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khùn-kàu-tiōng-tau si-ju-rién m-biên-lî-yú\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby>嘛<rt>마-</rt></ruby><ruby>無<rt>뽀-</rt></ruby><ruby>心情<rt>심ˉ졩ˊ</rt></ruby> <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>佮<rt>갛ˆ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby> <ruby>解說<rt>개ˆ쉫</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà ma-bo-sīm-jiéng bêh-kâh-lì kâi-sueh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>冤家<rt>완ˉ게ˆ</rt></ruby> <ruby>꽈<rt>ˎ</rt></ruby> <ruby>穿<rt>촁-</rt></ruby><ruby>鞋<rt>외ˊ</rt></ruby> <ruby>準備<rt>준ˆ비-</rt></ruby><ruby>來<rt>래-</rt></ruby><ruby>走<rt>ᄌᅷˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bêh-oān-kê goà chieng-oé jûn-pi-lai-jàu\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>食<rt>쟣-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>飽飽<rt>바ˆ바ˋ</rt></ruby> <ruby>裝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>槌槌<rt>튀튀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jiah-kâh-pâ-pà jn̄g-kâh-thui-thúi\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>食<rt>쟣-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>子<rt>즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-jiah-pat-â-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>唱<rt>츌ˋ-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>歌<rt>과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-chiṵ̀-pat-â-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>開<rt>퀴ˆ</rt></ruby>’됴 <ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>票<rt>표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-â-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>出門<rt>춛ˆ믕ˊ</rt></ruby> <ruby>曝日<rt>팍띧ˆ</rt></ruby> <ruby>著痧<rt>둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>灶跤<rt>ᄌᅷˋ카ˆ</rt></ruby> <ruby>飼<rt>치-</rt></ruby><ruby>鳥鼠<rt>ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chi-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>予<rt>허-</rt></ruby><ruby>人<rt>랑ˊ</rt></ruby> <ruby>蓋<rt>갛ˆ-</rt></ruby><ruby>布袋<rt>버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hor-láng kâh-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>昨暗<rt>자ˉ암</rt></ruby>’에 <ruby>代誌<rt>대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ꞈ</rt></ruby><ruby>頭腦<rt>ᄐᅷᄂᅷˋ</rt></ruby> <ruby>攏<rt>렁ˆ-</rt></ruby><ruby>空空<rt>캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goâ-thau-nàu lông-khāng-khâng\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby>問<rt>믕-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby><ruby>有<rt>우-</rt></ruby><ruby>咧<rt>렣ˆ-</rt></ruby><ruby>認真<rt>띤진ˉ-</rt></ruby><ruby>拍拚<rt>팧ˆ뱔</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mng-goà kâm-u-lêh-rin-jīn-phâh-pia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby>問<rt>믕-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby> <ruby>少年<rt>ᄉᆤˋ롄ˊ</rt></ruby>’에 <ruby>看<rt>콸ˋ-</rt></ruby><ruby>啥<rt>살ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà mng-lì siàu-lién’e khoà̰-sà̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby>問<rt>믕-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby style=\"position: relative;white-space: nowrap\">噉<rt style=\"font-size: 57%;position: absolute;top: -1.2em;left: 0.25em\">감ˆ-</rt></ruby><ruby>就<rt>됴-</rt></ruby><ruby>애<rt>ˎ</rt></ruby><ruby>逐日<rt>닥띧ˆ</rt></ruby> <ruby>拍<rt>팧ˆ-</rt></ruby><ruby>電動<rt>뎬덩ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mng-goà kâm-tio-ài-tak-rît phâh-tien-tōng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>곻<rt>ꞈ</rt></ruby><ruby>予<rt>허-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby>三點鐘<rt>살ˉ댬ˆ졩ˆ</rt></ruby> <ruby>就<rt>됴-</rt></ruby><ruby>好<rt>호ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    kôh-hor-goà sā̰-tiâm-jiêng tio-hò\n  </span>\n</p>\n\n<p>\n  <span class=\"lyric-line\">\n   <ruby>릐<rt>ˎ</rt></ruby>’에 <ruby>意見<rt>이ˋ곈</rt></ruby> <ruby>꽈<rt>ˎ</rt></ruby> <ruby>有<rt>우-</rt></ruby><ruby>聽<rt>턀ˆ</rt></ruby>’둏\n  </span>\n  <span class=\"lyric-lomari\">\n    lì’e ì-kien goà u-thiâ̰’tioh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>欲<rt>뼇ˆ-</rt></ruby><ruby>改變<rt>개ˆ볜</rt></ruby> <ruby>可能<rt>코ˆ롕-</rt></ruby><ruby>後禮拜<rt>ᄋᅷ레ˆ배</rt></ruby> <ruby>再<rt>재ˋ-</rt></ruby><ruby>곻<rt>ꞈ</rt></ruby><ruby>講<rt>겅ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    bêh-kâi-pien khô-lieng-au-lê-pai jài-kôh-kòng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>早頓<rt>자ˆ등</rt></ruby>’에 <ruby>卵<rt>능ˉ</rt></ruby> <ruby>破<rt>퐈ˋ-</rt></ruby><ruby>卵仁<rt>능띤ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jâ-tng’e nn̄g phoà-nng-rín\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby>慐神<rt>껑신ˊ</rt></ruby> <ruby>慐神<rt>껑신ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà gong-sín gong-sín\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>食<rt>쟣-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>飽飽<rt>바ˆ바ˋ</rt></ruby> <ruby>裝<rt>증ˉ-</rt></ruby><ruby>徦<rt>갛ˆ-</rt></ruby><ruby>槌槌<rt>튀튀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jiah-kâh-pâ-pà jn̄g-kâh-thui-thúi\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>食<rt>쟣-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>子<rt>즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-jiah-pat-â-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>唱<rt>츌ˋ-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>歌<rt>과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-chiṵ̀-pat-â-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>開<rt>퀴ˆ</rt></ruby>’됴 <ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>票<rt>표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-â-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>出門<rt>춛ˆ믕ˊ</rt></ruby> <ruby>曝日<rt>팍띧ˆ</rt></ruby> <ruby>著痧<rt>둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>灶跤<rt>ᄌᅷˋ카ˆ</rt></ruby> <ruby>飼<rt>치-</rt></ruby><ruby>鳥鼠<rt>ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chi-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>予<rt>허-</rt></ruby><ruby>人<rt>랑ˊ</rt></ruby> <ruby>蓋<rt>갛ˆ-</rt></ruby><ruby>布袋<rt>버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hor-láng kâh-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>昨暗<rt>자ˉ암</rt></ruby>’에 <ruby>代誌<rt>대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ꞈ</rt></ruby><ruby>頭腦<rt>ᄐᅷᄂᅷˋ</rt></ruby> <ruby>攏<rt>렁ˆ-</rt></ruby><ruby>空空<rt>캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goâ-thau-nàu lông-khāng-khâng\n  </span>\n</p>\n<br>\n\n\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>食<rt>쟣-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>子<rt>즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-jiah-pat-â-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>來<rt>래-</rt></ruby><ruby>唱<rt>츌ˋ-</rt></ruby><ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>歌<rt>과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lai-chiṵ̀-pat-â-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>開<rt>퀴ˆ</rt></ruby>’됴 <ruby>菝仔<rt>받아ˆ-</rt></ruby><ruby>票<rt>표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-â-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>出門<rt>춛ˆ믕ˊ</rt></ruby> <ruby>曝日<rt>팍띧ˆ</rt></ruby> <ruby>著痧<rt>둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>灶跤<rt>ᄌᅷˋ카ˆ</rt></ruby> <ruby>飼<rt>치-</rt></ruby><ruby>鳥鼠<rt>ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chi-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>予<rt>허-</rt></ruby><ruby>人<rt>랑ˊ</rt></ruby> <ruby>蓋<rt>갛ˆ-</rt></ruby><ruby>布袋<rt>버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hor-láng kâh-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>昨暗<rt>자ˉ암</rt></ruby>’에 <ruby>代誌<rt>대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ꞈ</rt></ruby><ruby>頭腦<rt>ᄐᅷᄂᅷˋ</rt></ruby> <ruby>攏<rt>렁ˆ-</rt></ruby><ruby>空空<rt>캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goâ-thau-nàu lông-khāng-khâng\n  </span>\n</p>\n<br>\n"
+  "body": "<h2 class=\"wp-block-heading\"><span style=\"font-family:Sans-serif, Noto Sans TC\"><ruby class=\"tli-reading-ruby\" title=\"pat\">菝<rt class=\"tli-rt\">받-</rt></ruby><ruby class=\"tli-reading-ruby\" title=\"à\">仔<rt class=\"tli-rt\">아ˋ</rt></ruby></span></h2>\n\n\n<figure class=\"wp-block-embed is-type-video is-provider-youtube wp-block-embed-youtube wp-embed-aspect-16-9 wp-has-aspect-ratio\"><div class=\"wp-block-embed__wrapper\">\n<span class=\"embed-youtube\" style=\"text-align:center; display: block;\"><iframe loading=\"lazy\" class=\"youtube-player\" width=\"640\" height=\"360\" src=\"https://www.youtube.com/embed/rML9tw5qAaQ?version=3&amp;rel=1&amp;showsearch=0&amp;showinfo=1&amp;iv_load_policy=1&amp;fs=1&amp;hl=en&amp;autohide=2&amp;wmode=transparent\" allowfullscreen=\"true\" style=\"border:0;\" sandbox=\"allow-scripts allow-same-origin allow-popups allow-presentation allow-popups-to-escape-sandbox\"></iframe></span>\n</div></figure>\n\n\n<h3 class=\"wp-block-heading\">漢諺混寫 Hanri-Hangul mixed script</h3>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">問<rt class=\"tli-rt\">믕ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">是<rt class=\"tli-rt\">시ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">啥物<rt class=\"tli-rt\">샬ˆ밓ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">態度<rt class=\"tli-rt\">태ˋ더ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mǹg-goà sì-siâ̰-mîh thài-tōr\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">應<rt class=\"tli-rt\">인ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">講<rt class=\"tli-rt\">겅ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">攏<rt class=\"tli-rt\">렁ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">是<rt class=\"tli-rt\">시ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">毋<rt class=\"tli-rt\">음ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">著<rt class=\"tli-rt\">둏ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà în-kōng-lōng-sì-goà m̀-tiôh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">問<rt class=\"tli-rt\">믕ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">明仔載<rt class=\"tli-rt\">삔아ˆ재</rt></ruby> <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇-</rt></ruby><ruby class=\"tli-reading-ruby\">創<rt class=\"tli-rt\">청ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">啥<rt class=\"tli-rt\">살ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mǹg-goà bin-â-jai beh-chông-sà̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">穿<rt class=\"tli-rt\">촁ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠<rt class=\"tli-rt\">쉬ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">媠<rt class=\"tli-rt\">쉬ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇-</rt></ruby><ruby class=\"tli-reading-ruby\">去<rt class=\"tli-rt\">킈ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">𨑨<rt class=\"tli-rt\">칟-</rt></ruby><ruby class=\"tli-reading-ruby\">迌<rt class=\"tli-rt\">토ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà chièng-sūi-sùi beh-khî-chit-thó\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">睏<rt class=\"tli-rt\">쿤ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">到<rt class=\"tli-rt\">ᄀᅷˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">中晝<rt class=\"tli-rt\">뎡ˉᄃᅷ</rt></ruby> <ruby class=\"tli-reading-ruby\">是<rt class=\"tli-rt\">시ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">自<rt class=\"tli-rt\">주ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">然<rt class=\"tli-rt\">뗸ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">毋<rt class=\"tli-rt\">음ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">免<rt class=\"tli-rt\">뼨ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">理由<rt class=\"tli-rt\">리ˆ유ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûn-kâu-tiōng-tau sì-jù-rién m̀-biēn-lî-yú\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">嘛<rt class=\"tli-rt\">마ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">無<rt class=\"tli-rt\">뽀ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">心情<rt class=\"tli-rt\">심ˉ졩ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">佮<rt class=\"tli-rt\">갛-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">解說<rt class=\"tli-rt\">개ˆ쉫</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà mà-bò-sīm-jiéng kah-lì kâi-sueh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇-</rt></ruby><ruby class=\"tli-reading-ruby\">冤家<rt class=\"tli-rt\">완ˉ게ˆ</rt></ruby> <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">穿<rt class=\"tli-rt\">촁ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">鞋<rt class=\"tli-rt\">외ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">準備<rt class=\"tli-rt\">준ˆ비ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">走<rt class=\"tli-rt\">ᄌᅷˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    beh-oān-kê goà chièng-oé jûn-pì-lài-jàu\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">食<rt class=\"tli-rt\">쟣ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">飽飽<rt class=\"tli-rt\">바ˆ바ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">裝<rt class=\"tli-rt\">증-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">槌槌<rt class=\"tli-rt\">튀튀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jiâh-kah-pâ-pà jng-kah-thui-thúi\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">食<rt class=\"tli-rt\">쟣ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">子<rt class=\"tli-rt\">즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-jiâh-pat-ā-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">唱<rt class=\"tli-rt\">츌ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">歌<rt class=\"tli-rt\">과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-chiṵ̂-pat-ā-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">開<rt class=\"tli-rt\">퀴ˆ</rt></ruby>’됴 <ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">票<rt class=\"tli-rt\">표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-ā-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">出門<rt class=\"tli-rt\">춛ˆ믕ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">曝日<rt class=\"tli-rt\">팍띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">著痧<rt class=\"tli-rt\">둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">灶跤<rt class=\"tli-rt\">ᄌᅷˋ카ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">飼<rt class=\"tli-rt\">치ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">鳥鼠<rt class=\"tli-rt\">ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chì-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">予<rt class=\"tli-rt\">허ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">蓋<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">布袋<rt class=\"tli-rt\">버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hòr-láng kah-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">昨暗<rt class=\"tli-rt\">자ˉ암</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">代誌<rt class=\"tli-rt\">대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˍ</rt></ruby><ruby class=\"tli-reading-ruby\">頭腦<rt class=\"tli-rt\">ᄐᅷᄂᅷˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">攏<rt class=\"tli-rt\">렁ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">空空<rt class=\"tli-rt\">캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goā-thau-nàu lōng-khāng-khâng\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">問<rt class=\"tli-rt\">믕ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">噉<rt class=\"tli-rt\">감ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">有<rt class=\"tli-rt\">우ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">咧<rt class=\"tli-rt\">렣-</rt></ruby><ruby class=\"tli-reading-ruby\">認真<rt class=\"tli-rt\">띤진-</rt></ruby><ruby class=\"tli-reading-ruby\">拍拚<rt class=\"tli-rt\">팧ˆ뱔</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mǹg-goà kām-ù-leh-rin-jin-phâh-pia̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">問<rt class=\"tli-rt\">믕ˋ-</rt></ruby><ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">少年<rt class=\"tli-rt\">ᄉᆤˋ롄ˊ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">看<rt class=\"tli-rt\">콸ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">啥<rt class=\"tli-rt\">살ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà mǹg-lì siàu-lién’e khoâ̰-sà̰\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">問<rt class=\"tli-rt\">믕ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">噉<rt class=\"tli-rt\">감ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">就<rt class=\"tli-rt\">됴ˋ-</rt></ruby><ruby>애<rt>ꞈ</rt></ruby><ruby class=\"tli-reading-ruby\">逐日<rt class=\"tli-rt\">닥띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">拍<rt class=\"tli-rt\">팧-</rt></ruby><ruby class=\"tli-reading-ruby\">電動<rt class=\"tli-rt\">뎬덩ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lì mǹg-goà kām-tiò-âi-tak-rît phah-tien-tōng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    곻<ruby class=\"tli-reading-ruby\">予<rt class=\"tli-rt\">허ˋ-</rt></ruby><ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">三點鐘<rt class=\"tli-rt\">살ˉ댬ˆ졩ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">就<rt class=\"tli-rt\">됴ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">好<rt class=\"tli-rt\">호ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    koh-hòr-goà sā̰-tiâm-jiêng tiò-hò\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>릐<rt>ˎ</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">意見<rt class=\"tli-rt\">이ˋ곈</rt></ruby> <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">有<rt class=\"tli-rt\">우ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">聽<rt class=\"tli-rt\">턀ˆ</rt></ruby>’둏\n  </span>\n  <span class=\"lyric-lomari\">\n    lì’e ì-kien goà ù-thiâ̰’tioh\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">欲<rt class=\"tli-rt\">뼇-</rt></ruby><ruby class=\"tli-reading-ruby\">改變<rt class=\"tli-rt\">개ˆ볜</rt></ruby> <ruby class=\"tli-reading-ruby\">可能<rt class=\"tli-rt\">코ˆ롕ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">後禮拜<rt class=\"tli-rt\">ᄋᅷ레ˆ배</rt></ruby> <ruby class=\"tli-reading-ruby\">再<rt class=\"tli-rt\">재ˆ-</rt></ruby>곻<ruby class=\"tli-reading-ruby\">講<rt class=\"tli-rt\">겅ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    beh-kâi-pien khô-lièng-au-lê-pai jâi-koh-kòng\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">早頓<rt class=\"tli-rt\">자ˆ등</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">卵<rt class=\"tli-rt\">능ˉ</rt></ruby> <ruby class=\"tli-reading-ruby\">破<rt class=\"tli-rt\">퐈ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">卵仁<rt class=\"tli-rt\">능띤ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jâ-tng’e nn̄g phoâ-nng-rín\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˎ</rt></ruby> <ruby class=\"tli-reading-ruby\">慐神<rt class=\"tli-rt\">껑신ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">慐神<rt class=\"tli-rt\">껑신ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goà gong-sín gong-sín\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">食<rt class=\"tli-rt\">쟣ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">飽飽<rt class=\"tli-rt\">바ˆ바ˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">裝<rt class=\"tli-rt\">증-</rt></ruby><ruby class=\"tli-reading-ruby\">徦<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">槌槌<rt class=\"tli-rt\">튀튀ˊ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jiâh-kah-pâ-pà jng-kah-thui-thúi\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">食<rt class=\"tli-rt\">쟣ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">子<rt class=\"tli-rt\">즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-jiâh-pat-ā-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">唱<rt class=\"tli-rt\">츌ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">歌<rt class=\"tli-rt\">과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-chiṵ̂-pat-ā-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">開<rt class=\"tli-rt\">퀴ˆ</rt></ruby>’됴 <ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">票<rt class=\"tli-rt\">표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-ā-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">出門<rt class=\"tli-rt\">춛ˆ믕ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">曝日<rt class=\"tli-rt\">팍띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">著痧<rt class=\"tli-rt\">둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">灶跤<rt class=\"tli-rt\">ᄌᅷˋ카ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">飼<rt class=\"tli-rt\">치ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">鳥鼠<rt class=\"tli-rt\">ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chì-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">予<rt class=\"tli-rt\">허ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">蓋<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">布袋<rt class=\"tli-rt\">버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hòr-láng kah-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">昨暗<rt class=\"tli-rt\">자ˉ암</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">代誌<rt class=\"tli-rt\">대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˍ</rt></ruby><ruby class=\"tli-reading-ruby\">頭腦<rt class=\"tli-rt\">ᄐᅷᄂᅷˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">攏<rt class=\"tli-rt\">렁ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">空空<rt class=\"tli-rt\">캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goā-thau-nàu lōng-khāng-khâng\n  </span>\n</p>\n\n\n<br>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">食<rt class=\"tli-rt\">쟣ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">子<rt class=\"tli-rt\">즤ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-jiâh-pat-ā-jì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">來<rt class=\"tli-rt\">래ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">唱<rt class=\"tli-rt\">츌ˆ-</rt></ruby><ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">歌<rt class=\"tli-rt\">과ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    lài-chiṵ̂-pat-ā-koâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">開<rt class=\"tli-rt\">퀴ˆ</rt></ruby>’됴 <ruby class=\"tli-reading-ruby\">菝仔<rt class=\"tli-rt\">받아ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">票<rt class=\"tli-rt\">표</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    khûi’tio pat-ā-phio\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">出門<rt class=\"tli-rt\">춛ˆ믕ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">曝日<rt class=\"tli-rt\">팍띧ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">著痧<rt class=\"tli-rt\">둏솨ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    chût-mńg phak-rît tioh-soâ\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">灶跤<rt class=\"tli-rt\">ᄌᅷˋ카ˆ</rt></ruby> <ruby class=\"tli-reading-ruby\">飼<rt class=\"tli-rt\">치ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">鳥鼠<rt class=\"tli-rt\">ᄂᆤˆ츼ˋ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jàu-khâ chì-niâu-chì\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">予<rt class=\"tli-rt\">허ˋ-</rt></ruby><ruby class=\"tli-reading-ruby\">人<rt class=\"tli-rt\">랑ˊ</rt></ruby> <ruby class=\"tli-reading-ruby\">蓋<rt class=\"tli-rt\">갛-</rt></ruby><ruby class=\"tli-reading-ruby\">布袋<rt class=\"tli-rt\">버ˋ데ˉ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    hòr-láng kah-pòr-tē\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby class=\"tli-reading-ruby\">昨暗<rt class=\"tli-rt\">자ˉ암</rt></ruby>’에 <ruby class=\"tli-reading-ruby\">代誌<rt class=\"tli-rt\">대지</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    jā-am’e tai-ji\n  </span>\n</p>\n\n\n<p>\n  <span class=\"lyric-line\">\n    <ruby>꽈<rt>ˍ</rt></ruby><ruby class=\"tli-reading-ruby\">頭腦<rt class=\"tli-rt\">ᄐᅷᄂᅷˋ</rt></ruby> <ruby class=\"tli-reading-ruby\">攏<rt class=\"tli-rt\">렁ˉ-</rt></ruby><ruby class=\"tli-reading-ruby\">空空<rt class=\"tli-rt\">캉ˉ캉ˆ</rt></ruby>\n  </span>\n  <span class=\"lyric-lomari\">\n    goā-thau-nàu lōng-khāng-khâng\n  </span>\n</p>\n",
+  "songEditor": {
+    "version": 1,
+    "title": "菝仔",
+    "titleSource": "[菝받][仔아ˋ]",
+    "videoUrl": "https://www.youtube.com/watch?v=rML9tw5qAaQ",
+    "category": "playful",
+    "lyrics": [
+      {
+        "kind": "line",
+        "text": "릐2 [問믕-]꽈2 [是시-][啥物샬ˆ밓ˆ] [態度태ˋ더ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈2 [應인ˋ-][講겅ˆ-][攏렁ˆ-][是시-]꽈2 [毋음-][著둏ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "릐2 [問믕-]꽈2 [明仔載삔아ˆ재] [欲뼇ˆ-][創청ˋ-][啥살ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈2 [穿촁-][媠쉬ˆ-][媠쉬ˋ] [欲뼇ˆ-][去킈ˋ-][𨑨칟ˆ-][迌토ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[睏쿤ˋ-][到ᄀᅷˋ-][中晝뎡ˉᄃᅷ] [是시-][自주-][然뗸ˊ] [毋음-][免뼨ˆ-][理由리ˆ유ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈2 [嘛마-][無뽀-][心情심ˉ졩ˊ] [佮갛ˆ-]릐2 [解說개ˆ쉫]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[欲뼇ˆ-][冤家완ˉ게ˆ] 꽈2 [穿촁-][鞋외ˊ] [準備준ˆ비-][來래-][走ᄌᅷˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[食쟣-][徦갛ˆ-][飽飽바ˆ바ˋ] [裝증ˉ-][徦갛ˆ-][槌槌튀튀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][食쟣-][菝仔받아ˆ-][子즤ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][唱츌ˋ-][菝仔받아ˆ-][歌과ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[開퀴ˆ]’됴 [菝仔받아ˆ-][票표]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[出門춛ˆ믕ˊ] [曝日팍띧ˆ] [著痧둏솨ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[灶跤ᄌᅷˋ카ˆ] [飼치-][鳥鼠ᄂᆤˆ츼ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[予허-][人랑ˊ] [蓋갛ˆ-][布袋버ˋ데ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[昨暗자ˉ암]’에 [代誌대지]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈1[頭腦ᄐᅷᄂᅷˋ] [攏렁ˆ-][空空캉ˉ캉ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "릐2 [問믕-]꽈2 [噉감ˆ-][有우-][咧렣ˆ-][認真띤진ˉ-][拍拚팧ˆ뱔]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈2 [問믕-]릐2 [少年ᄉᆤˋ롄ˊ]’에 [看콸ˋ-][啥살ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "릐2 [問믕-]꽈2 [噉감ˆ-][就됴-]애2[逐日닥띧ˆ] [拍팧ˆ-][電動뎬덩ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "곻1[予허-]꽈2 [三點鐘살ˉ댬ˆ졩ˆ] [就됴-][好호ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "릐2’에 [意見이ˋ곈] 꽈2 [有우-][聽턀ˆ]’둏",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[欲뼇ˆ-][改變개ˆ볜] [可能코ˆ롕-][後禮拜ᄋᅷ레ˆ배] [再재ˋ-]곻1[講겅ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[早頓자ˆ등]’에 [卵능ˉ] [破퐈ˋ-][卵仁능띤ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈2 [慐神껑신ˊ] [慐神껑신ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[食쟣-][徦갛ˆ-][飽飽바ˆ바ˋ] [裝증ˉ-][徦갛ˆ-][槌槌튀튀ˊ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][食쟣-][菝仔받아ˆ-][子즤ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][唱츌ˋ-][菝仔받아ˆ-][歌과ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[開퀴ˆ]’됴 [菝仔받아ˆ-][票표]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[出門춛ˆ믕ˊ] [曝日팍띧ˆ] [著痧둏솨ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[灶跤ᄌᅷˋ카ˆ] [飼치-][鳥鼠ᄂᆤˆ츼ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[予허-][人랑ˊ] [蓋갛ˆ-][布袋버ˋ데ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[昨暗자ˉ암]’에 [代誌대지]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈1[頭腦ᄐᅷᄂᅷˋ] [攏렁ˆ-][空空캉ˉ캉ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "break"
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][食쟣-][菝仔받아ˆ-][子즤ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[來래-][唱츌ˋ-][菝仔받아ˆ-][歌과ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[開퀴ˆ]’됴 [菝仔받아ˆ-][票표]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[出門춛ˆ믕ˊ] [曝日팍띧ˆ] [著痧둏솨ˆ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[灶跤ᄌᅷˋ카ˆ] [飼치-][鳥鼠ᄂᆤˆ츼ˋ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[予허-][人랑ˊ] [蓋갛ˆ-][布袋버ˋ데ˉ]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "[昨暗자ˉ암]’에 [代誌대지]",
+        "grey": false
+      },
+      {
+        "kind": "line",
+        "text": "꽈1[頭腦ᄐᅷᄂᅷˋ] [攏렁ˆ-][空空캉ˉ캉ˆ]",
+        "grey": false
+      }
+    ]
+  }
 }

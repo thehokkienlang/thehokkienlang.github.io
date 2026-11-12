@@ -84,11 +84,29 @@
     },
     onUpdate: filterSongs, enterBehavior: 'none',
   });
+  async function waitForPendingDictionaryJob() {
+    const statusResponse = await fetch('/desktop-api/status', {cache:'no-store'});
+    const status = await statusResponse.json();
+    let identity = status.dictionaryJob;
+    while (identity) {
+      const response = await fetch('/desktop-api/editor/job', {
+        method:'POST', cache:'no-store',
+        headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token},
+        body:JSON.stringify({id:identity}),
+      });
+      const job = await response.json();
+      if (!response.ok || !job.ok || job.status === 'failed') throw new Error(job.message || 'Dictionary refresh failed.');
+      if (job.status === 'done') return;
+      $('songImeStatus').textContent = job.message || 'Refreshing dictionary...';
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+  }
   async function loadSearchCandidates({announce = false} = {}) {
     const button = $('refreshTimingDictionary');
     button.disabled = true;
     $('songImeStatus').textContent = 'Loading TLI candidates...';
     try {
+      if (announce) await waitForPendingDictionaryJob();
       const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache: 'no-store'});
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();

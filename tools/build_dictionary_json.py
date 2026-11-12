@@ -335,10 +335,28 @@ def build_dictionary(
     audio_root: Path = DEFAULT_AUDIO_ROOT,
     category_path: Path = DEFAULT_CATEGORY_PATH,
     registry_path: Path | None = None,
+    reuse_from: Path | None = None,
 ) -> dict[str, Any]:
-    validate_audio_filename_case(audio_root)
+    if not (reuse_from and reuse_from.is_file()):
+        validate_audio_filename_case(audio_root)
     tone_marker = load_tone_marker_module()
     ime = load_engine_module()
+    reused_audio: dict[tuple[str, str, str], dict[str, Any]] = {}
+    reused_runtime: dict[str, Any] = {}
+    if reuse_from and reuse_from.is_file():
+        try:
+            previous = json.loads(reuse_from.read_text(encoding="utf-8"))
+            reused_audio = {
+                (str(entry.get("id") or ""), str(entry.get("reading") or ""), str(entry.get("hanri") or "")): entry["audio"]
+                for entry in previous.get("entries", [])
+                if entry.get("audio") is not None and not entry.get("autoSandhi")
+            }
+            runtime_path = sidecar_path(reuse_from, "runtime")
+            if runtime_path.is_file():
+                reused_runtime = json.loads(runtime_path.read_text(encoding="utf-8")).get("runtime", {})
+        except (OSError, ValueError, TypeError, json.JSONDecodeError):
+            reused_audio = {}
+            reused_runtime = {}
     source_bytes = tsv_path.read_bytes()
     registry_path = registry_path or tsv_path.with_name("dictionary_entry_id_registry.tsv")
     category_labels, category_memberships = load_categories(category_path, read_records(tsv_path))
@@ -423,10 +441,13 @@ def build_dictionary(
 
             lomari = reading_to_lomari(tone_marker, effective_reading)
             reading_base = tone_marker.strip_reading_tones(effective_reading)
-            audio = with_singapore_audio_when_needed(
-                ime, audio_root, effective_reading,
-                hanri=hanri if kind == "plain_hanri" else "",
-            )
+            audio_key = (entry_id, effective_reading, hanri)
+            audio = reused_audio.get(audio_key)
+            if audio is None:
+                audio = with_singapore_audio_when_needed(
+                    ime, audio_root, effective_reading,
+                    hanri=hanri if kind == "plain_hanri" else "",
+                )
             entry = {
                 "id": entry_id,
                 "row": row_number,
@@ -560,7 +581,10 @@ def build_dictionary(
     # Raw Hangul input is not limited to readings already present in the TSV.
     # Include every keyboard syllable with a recording so Web and Local audio
     # stay available for standalone input such as 엏3 -> orh3.wav.
-    runtime_units.update(recorded_keyboard_units(ime, audio_root))
+    if reused_runtime:
+        runtime_units.update((reused_runtime.get("unitRoman") or {}).keys())
+    else:
+        runtime_units.update(recorded_keyboard_units(ime, audio_root))
 
     priority_path = tsv_path.with_name('dictionary_priority.tsv')
     annotate_entries(entries, priority_path, read_records(tsv_path))
@@ -606,15 +630,15 @@ def build_dictionary(
         if entry["hanri"]:
             append_index(indexes["byFirstHanriChar"], entry["hanri"][0], entry_id)
 
-    runtime_unit_roman = {
-        unit: reading_to_lomari(tone_marker, unit)
-        for unit in sorted(runtime_units)
-    }
-    runtime_raw_hangul_audio = {
-        f"{unit}{tone}": audio_for_unit_tone(ime, audio_root, unit, tone)
-        for unit in sorted(runtime_units)
-        for tone in "12345"
-    }
+    runtime_unit_roman = dict(reused_runtime.get("unitRoman") or {})
+    for unit in sorted(runtime_units):
+        runtime_unit_roman.setdefault(unit, reading_to_lomari(tone_marker, unit))
+    runtime_raw_hangul_audio = dict(reused_runtime.get("rawHangulAudio") or {})
+    for unit in sorted(runtime_units):
+        for tone in "12345":
+            key = f"{unit}{tone}"
+            if key not in runtime_raw_hangul_audio:
+                runtime_raw_hangul_audio[key] = audio_for_unit_tone(ime, audio_root, unit, tone)
     for unit in sorted(runtime_units):
         canonical_unit = ime.canonicalize_audio_unit(unit)
         if canonical_unit == unit or canonical_unit not in runtime_units:
@@ -622,14 +646,13 @@ def build_dictionary(
         for tone in "12345":
             runtime_raw_hangul_audio[f"{unit}{tone}"] = runtime_raw_hangul_audio[f"{canonical_unit}{tone}"]
     jamo_pronunciations = dict(getattr(ime, "JAMO_PRONUNCIATION_READINGS", {}))
-    runtime_jamo_lomari = {
-        unit: reading_to_lomari(tone_marker, pronunciation)
-        for unit, pronunciation in sorted(jamo_pronunciations.items())
-    }
-    runtime_jamo_audio = {
-        unit: with_singapore_audio_when_needed(ime, audio_root, unit)
-        for unit in sorted(jamo_pronunciations)
-    }
+    runtime_jamo_lomari = dict(reused_runtime.get("jamoLomari") or {})
+    for unit, pronunciation in sorted(jamo_pronunciations.items()):
+        runtime_jamo_lomari.setdefault(unit, reading_to_lomari(tone_marker, pronunciation))
+    runtime_jamo_audio = dict(reused_runtime.get("jamoAudio") or {})
+    for unit in sorted(jamo_pronunciations):
+        if unit not in runtime_jamo_audio:
+            runtime_jamo_audio[unit] = with_singapore_audio_when_needed(ime, audio_root, unit)
 
     return {
         "schemaVersion": SCHEMA_VERSION,
@@ -675,10 +698,12 @@ def main() -> int:
     parser.add_argument("--registry", type=Path)
     parser.add_argument("--output", type=Path, default=DEFAULT_OUTPUT_PATH)
     parser.add_argument("--audio-root", type=Path, default=DEFAULT_AUDIO_ROOT)
+    parser.add_argument("--reuse-from", type=Path,
+                        help="reuse unchanged audio/runtime metadata from an existing generated dictionary")
     parser.add_argument("--check", action="store_true", help="validate only; do not write output")
     args = parser.parse_args()
 
-    data = build_dictionary(args.input, args.audio_root, args.categories, args.registry)
+    data = build_dictionary(args.input, args.audio_root, args.categories, args.registry, args.reuse_from)
 
     if args.check:
         print(f"ok: {len(data['entries'])} entries, {data['counts'].get('active_entries', 0)} active")

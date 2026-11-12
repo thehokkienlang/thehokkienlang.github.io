@@ -531,10 +531,28 @@
     $('songCategory').replaceChildren(...state.snapshot.categories.map(category => new Option(category.label, category.id)));
     renderSongList();
   }
+  async function waitForPendingDictionaryJob() {
+    const statusResponse = await fetch('/desktop-api/status', {cache:'no-store'});
+    const status = await statusResponse.json();
+    let identity = status.dictionaryJob;
+    while (identity) {
+      const response = await fetch('/desktop-api/editor/job', {
+        method:'POST', cache:'no-store',
+        headers:{'Content-Type':'application/json', 'X-Tangliengim-Editor':token},
+        body:JSON.stringify({id:identity}),
+      });
+      const job = await response.json();
+      if (!response.ok || !job.ok || job.status === 'failed') throw new Error(job.message || 'Dictionary refresh failed.');
+      if (job.status === 'done') return;
+      notice(job.message || 'Refreshing dictionary...');
+      await new Promise(resolve => setTimeout(resolve, 250));
+    }
+  }
   async function loadDictionary({announce = false} = {}) {
     const button = $('refreshSongDictionary');
     button.disabled = true;
     try {
+      if (announce) await waitForPendingDictionaryJob();
       const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache:'no-store'});
       if (!response.ok) throw new Error('Dictionary could not load.');
       const dictionary = await response.json();

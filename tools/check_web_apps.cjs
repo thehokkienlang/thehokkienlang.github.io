@@ -37,6 +37,7 @@ async function loadApp(route, script) {
   const requests = [];
   const context = vm.createContext({
     console, setTimeout, clearTimeout,
+    navigator: { userAgent: 'Headless test browser' },
     document: {
       addEventListener() {},
       querySelector(selector) {

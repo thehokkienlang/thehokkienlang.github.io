@@ -91,7 +91,8 @@ class DictionaryEditorController:
             env['HOKKIEN_HANRI_DICT_PATH'] = str(source / MAIN)
             result = subprocess.run([interpreter, "-X", "utf8", "tools/build_dictionary_json.py",
                                      "--input", str(source / MAIN), "--categories", str(source / CATEGORIES),
-                                     "--registry", str(source / REGISTRY), "--output", str(output)],
+                                     "--registry", str(source / REGISTRY), "--output", str(output),
+                                     "--reuse-from", str(self.service.repo / "public" / "data" / "hokkien-hanri-dict.json")],
                                     cwd=self.service.repo, env=env,
                                     stdin=subprocess.DEVNULL, capture_output=True, encoding="utf-8", errors="replace", timeout=60,
                                     creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))

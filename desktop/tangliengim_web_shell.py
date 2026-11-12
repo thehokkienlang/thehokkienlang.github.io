@@ -494,7 +494,9 @@ class DesktopRequestHandler(BaseHTTPRequestHandler):
             return
         if path == "/desktop-api/status":
             self._send_json({"ok": True, "tsvPending": self.server.tsv_sync_pending(),
-                             "dictionaryGeneration": self.server.editor.generation, "instance": self.server.instance})
+                             "dictionaryGeneration": self.server.editor.generation,
+                             "dictionaryJob": self.server.editor.active_job,
+                             "instance": self.server.instance})
             return
 
         target = _safe_repo_file(self.server.repo_root, self.path)

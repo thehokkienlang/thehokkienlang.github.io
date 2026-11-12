@@ -559,6 +559,12 @@
       "sourceId": 11534,
       "route": "/songs/反背/",
       "file": "content/songs/song-11534.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/夢中’에情話/",
+      "sourceId": 11535,
+      "route": "/songs/夢中’에情話/",
+      "file": "content/songs/song-11535.json"
     }
   ],
   "deferred": {
