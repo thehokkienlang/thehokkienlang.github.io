@@ -571,6 +571,12 @@
       "sourceId": 11536,
       "route": "/songs/心花開/",
       "file": "content/songs/song-11536.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/這款自作多情/",
+      "sourceId": 11537,
+      "route": "/songs/這款自作多情/",
+      "file": "content/songs/song-11537.json"
     }
   ],
   "deferred": {
