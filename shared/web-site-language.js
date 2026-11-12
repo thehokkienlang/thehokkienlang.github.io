@@ -10,8 +10,6 @@
     "Fong Fei-fei version": ["鳳飛飛版", "凤飞飞版"],
     "Dictionary": ["詞典", "词典"], "IME Pad": ["輸入法", "输入法"],
     "Download the Android keyboard (test build)": ["下載 Android 鍵盤（測試版）", "下载 Android 键盘（测试版）"],
-    "Install as an app": ["安裝為應用程式", "安装为应用"], "Install": ["安裝", "安装"],
-    "To install, choose “Add to Home screen” in your browser’s menu.": ["如要安裝，請在瀏覽器選單中選擇「加到主畫面」。", "如要安装，请在浏览器菜单中选择“添加到主屏幕”。"],
     "Open IME": ["開啟輸入法", "打开输入法"], "Songs": ["歌曲", "歌曲"],
     "Hanri-Hangul mixed script": ["漢諺混寫", "汉谚混写"],
     "Skip to content": ["跳至內容", "跳至内容"], "Search": ["搜尋", "搜索"],

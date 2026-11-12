@@ -121,6 +121,28 @@ body.composing #buffer {
   display: none;
 }
 
+/* Tone marks sit above their Hangul, as in the website's IME; the strip leaves room for them. */
+#candidates.hanri-candidate-menu .ime-candidate {
+  padding-top: 13px;
+}
+
+#candidates .hangul-tone {
+  position: relative;
+  display: inline-block;
+  line-height: 1.15;
+}
+
+#candidates .hangul-tone .tone-mark {
+  position: absolute;
+  top: -1.02em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
+  font-size: 1em;
+  font-weight: 700;
+  line-height: 1;
+}
+
 #keys {
   display: flex;
   flex: 1 1 auto;

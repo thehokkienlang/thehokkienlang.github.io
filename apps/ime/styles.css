@@ -154,32 +154,19 @@ h1 {
   visibility: hidden;
 }
 
-.app-install {
+.android-keyboard {
   margin: 14px auto 0;
-  color: var(--muted, #617079);
   font-size: 14px;
   text-align: center;
 }
 
-.app-install a {
+.android-keyboard a {
   color: var(--accent);
   font-weight: 700;
 }
 
-.app-install button {
-  min-height: 36px;
-  padding: 6px 18px;
-  border: 1px solid var(--accent);
-  border-radius: 999px;
-  background: var(--accent);
-  color: #fff;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
-}
-
-.mobile-web-ime:not(.installed-app) .keyboard-guide-button,
-.mobile-web-ime:not(.installed-app) .keyboard-guide {
+.mobile-web-ime .keyboard-guide-button,
+.mobile-web-ime .keyboard-guide {
   display: none !important;
 }
 

@@ -128,52 +128,6 @@ def version_data_urls(script_path: Path) -> None:
     script_path.write_text(text, encoding="utf-8")
 
 
-def write_installable_pad(pad: Path) -> None:
-    """Publish the IME pad again at /ime/app/, the address the installed app uses.
-
-    A separate address keeps /ime/ an ordinary web page: phones only open links
-    inside an installed app's own scope in that app.
-    """
-    page = (pad / "index.html").read_text(encoding="utf-8")
-    page = re.sub(r'\b(src|href)="(?![/#]|[a-z]+:)([^"]+)"', rf'\1="/{pad.name}/\2"', page)
-    icon = '<link rel="icon" type="image/png" href="/ime/favicon.png">'
-    if page.count(icon) != 1:
-        raise RuntimeError("The IME page needs exactly one favicon link.")
-    page = page.replace(icon, icon + '\n    <link rel="manifest" href="/ime/app/manifest.webmanifest">'
-                        '\n    <meta name="robots" content="noindex">')
-    (pad / "app" / "index.html").write_text(page, encoding="utf-8")
-
-
-def write_offline_precache(app: Path) -> None:
-    """List the installed IME pad's versioned files in its service worker.
-
-    Run after the versioning passes, so every URL carries its content hash and
-    the worker's cache name changes whenever any of those files does.
-    """
-    worker = app / "sw.js"
-    pad = app.parent
-    text = worker.read_text(encoding="utf-8")
-    if text.count("const PRECACHE = [];") != 1 or text.count('const VERSION = "dev";') != 1:
-        raise RuntimeError(f"{worker} must contain one empty PRECACHE list and one dev VERSION")
-    page = (app / "index.html").read_text(encoding="utf-8")
-    route = f"/{pad.name}/{app.name}/"
-    urls = [route]
-    for match in re.finditer(r'(?:src|href)="([^"#]+)"', page):
-        url = urljoin(route, match[1])
-        if urlsplit(url).netloc or not re.search(r"\.(?:js|css|png|webp|woff2|webmanifest)$", urlsplit(url).path):
-            continue
-        if not (OUTPUT / urlsplit(url).path.lstrip("/")).is_file():
-            raise FileNotFoundError(f"Offline file missing from the build: {url}")
-        urls.append(url)
-    script = (pad / "ime.js").read_text(encoding="utf-8")
-    versions = json.loads(re.search(r"const DATA_VERSIONS = Object\.freeze\((\{.*?\})\);", script)[1])
-    urls += [f"{url}?v={version}" for url, version in sorted(versions.items())]
-    urls = list(dict.fromkeys(urls))
-    version = hashlib.sha256("\n".join(urls).encode()).hexdigest()[:12]
-    text = text.replace("const PRECACHE = [];", f"const PRECACHE = {json.dumps(urls, ensure_ascii=False)};")
-    worker.write_text(text.replace('const VERSION = "dev";', f'const VERSION = "{version}";'), encoding="utf-8")
-
-
 def enable_compressed_audio(player_path: Path, extension: str) -> None:
     """Tell the built audio player that every WAV has a compressed copy beside it."""
     text = player_path.read_text(encoding="utf-8")
@@ -221,7 +175,6 @@ def main() -> int:
         shutil.copytree(ROOT / "apps" / app, OUTPUT / app)
         index = OUTPUT / app / "index.html"
         index.write_text(app_meta(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), app), encoding="utf-8")
-    write_installable_pad(OUTPUT / "ime")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     # Opus copies beside the WAV masters; the player uses them only when every
@@ -245,7 +198,6 @@ def main() -> int:
         version_css_imports(css_path, visited_css)
     for html_path in OUTPUT.rglob("*.html"):
         version_assets(html_path)
-    write_offline_precache(OUTPUT / "ime" / "app")
     data = json.loads(DEFAULT_OUTPUT_PATH.read_text(encoding="utf-8"))
     manifest = {
         "routes": sorted(set(["/dictionary/", "/ime/", *content_routes])),

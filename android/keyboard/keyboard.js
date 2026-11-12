@@ -38,6 +38,11 @@
   let shifted = false;
   let lastSent = "";
 
+  // In candidates a tone sits above its Hangul in the lower form (ꞈ ˎ ˏ ˍ), as on the website.
+  // A tone key shows its mark alone, with no Hangul to sit above, so it uses the upper form (ˆ ˋ ˊ ˉ).
+  const UPPER_TONES = TangliengimEngine.UPPER_HANGUL_TONE_MARKS;
+  const upperTone = mark => UPPER_TONES[mark] || mark;
+
   const controller = core.createTextImeController({
     control: buffer,
     candidateContainer: candidates,
@@ -121,7 +126,7 @@
     } else if (layer === "tli") {
       const output = document.createElement("span");
       output.className = "key-output";
-      output.textContent = hangul.keyboardGuideOutput(inputFor(key)) || key;
+      output.textContent = upperTone(hangul.keyboardGuideOutput(inputFor(key)) || key);
       const input = document.createElement("span");
       input.className = "key-input";
       input.textContent = inputFor(key);
