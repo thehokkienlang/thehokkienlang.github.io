@@ -1810,13 +1810,7 @@ def load_hanri_reading_index() -> dict[str, list[dict]]:
     _HANGUL_OVERRIDE_KEYS = sorted(_HANGUL_OVERRIDE_INDEX, key=lambda key:(-len(key),key))
     return _HANRI_READING_INDEX
 
-def apply_hangul_overrides_from_tsv(text: str, *, sandhi_before_hanri: bool = True) -> str:
-    """Replace Hangul written as dictionary overrides with their readings.
-
-    Song rendering resolves every non-final syllable afterwards
-    (auto_sandhi_song_source), so it passes sandhi_before_hanri=False; resolving
-    here too would apply sandhi twice (매 → 매2 → 매1).
-    """
+def apply_hangul_overrides_from_tsv(text: str) -> str:
     load_hanri_reading_index()
     overrides = _HANGUL_OVERRIDE_INDEX or {}
     keys = _HANGUL_OVERRIDE_KEYS or []
@@ -1874,7 +1868,7 @@ def apply_hangul_overrides_from_tsv(text: str, *, sandhi_before_hanri: bool = Tr
                     if after < len(text) and text[after] in tone_symbols:
                         continue
                     reading = overrides[key]
-                    if sandhi_before_hanri and is_followed_by_hanri(text, after - 1):
+                    if is_followed_by_hanri(text, after - 1):
                         reading = citation_to_sandhi_reading(reading) or reading
                     out.append(reading)
                     i = after
@@ -3014,7 +3008,12 @@ def sandhi_raw_hangul_before_explicit_hyphen(text: str) -> str:
 
 
 def auto_sandhi_song_source(text: str) -> str:
-    """Resolve non-final typed lyric readings while preserving the authored source shape."""
+    """Resolve non-final typed lyric readings while preserving the authored source shape.
+
+    Only citation tones are resolved: Hanri readings and Hangul typed with an
+    explicit tone. Unmarked typed Hangul is already the spoken (tone 3) form and
+    is never re-sandhied (see build_audio_reading_index in tangliengim_engine).
+    """
     source = normalize_apostrophes(str(text or ''))
 
     def followed_by_readable(index: int) -> bool:
@@ -3042,7 +3041,8 @@ def auto_sandhi_song_source(text: str) -> str:
         unit = hangul_reading_unit_at(source, index)
         if unit is not None:
             reading, end = unit
-            if followed_by_readable(end):
+            # Tones are digits by now (normalize_tone_symbols_to_digits ran first).
+            if re.search(r"[1-5]$", reading) and followed_by_readable(end):
                 reading = citation_to_sandhi_reading(reading) or reading
             out.append(reading)
             index = end
@@ -3288,7 +3288,11 @@ def convert_hangul_to_html(input_text: str, style: str = "plain", *, song_grey: 
     if not s:
         raise ValueError("Input is empty.")
 
-    s = apply_hangul_overrides_from_tsv(s, sandhi_before_hanri=style != "song")
+    if style == "song":
+        # Before dictionary Hangul is filled in, so a row such as 매 (which applies its
+        # own sandhi before Hanri) is not given sandhi a second time.
+        s = auto_sandhi_song_source(s)
+    s = apply_hangul_overrides_from_tsv(s)
     s, changed = autocorrect_checked_tone_on_entering_final(s)
 
     if not (text_has_hangul_or_jamo(s) or field_contains_cjk(s)):
@@ -3297,7 +3301,6 @@ def convert_hangul_to_html(input_text: str, style: str = "plain", *, song_grey: 
     s = normalize_apostrophes(s)
     s = sandhi_raw_hangul_before_explicit_hyphen(s)
     if style == "song":
-        s = auto_sandhi_song_source(s)
         html, lomari = make_multiline_song_html(s, grey=song_grey)
         return {
             "input": s,

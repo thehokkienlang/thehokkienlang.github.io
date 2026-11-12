@@ -1181,8 +1181,12 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 明王	〃	뼹엉4	〃	〃	Wisdom King		lexical	U+660E_U+738B_00
 明知	〃	뼹재1	〃	〃	know clearly		lexical	U+660E_U+77E5_00
 無	无	뽀4	沒有	没有	to not have; there is not		lexical	U+7121_01
+無關	无关	뽀관1	無關	无关	unrelated		lexical	U+7121_U+95DC_00
 無奈	无奈	뽀내5	無可奈何	无可奈何	helpless; have no alternative		lexical	U+7121_U+5948_00
 無代無誌	无代无志	뽀대뽀지	無緣無故	无缘无故	without cause; for no reason		lexical	U+7121_U+4EE3_U+7121_U+8A8C_00
+無聊	无聊	뽀ᄅᆤ4	無聊	无聊	boring; uninteresting		lexical	U+7121_U+804A_00
+無聲	无声	뽀샬1	沒聲音	没声音	voiceless; soundless		lexical	U+7121_U+8072_00
+無心	无心	뽀심1	無心	无心	no-mind; without thought		lexical	U+7121_U+5FC3_00
 無影	无影	뽀얄2	不是真的	不是真的	not real; not legitimate		lexical	U+7121_U+5F71_00
 無要緊	無要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+7121_U+8981_U+7DCA_00
 無插	无插	뽀찹	不理睬	不理睬	don't care		lexical	U+7121_U+63D2_00
@@ -1191,6 +1195,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 買	买	뾔2	〃	买	buy		lexical	U+8CB7_00
 賣	卖	뾔5	〃	卖	sell		lexical	U+8CE3_00
 𣍐	𫧃	뾔5	不會	不会	won't; will not		lexical	U+23350_00
+𣍐記	𫧃记	뾔기	忘記	忘记	forget		lexical	U+23350_U+8A18_00
 𣍐打限	𫧃打限	뾔다1한	受不了	受不了	unbearable; unable to endure any longer		lexical	U+23350_U+6253_U+9650_00
 𣍐當	𫧃当	뾔당	不能; 不會	不能; 不会	cannot; will not be able to		lexical	U+23350_U+7576_00
 買賣	买卖	뾔1뾔5	〃	买卖	business; trade		lexical	U+8CB7_U+8CE3_00

@@ -104,8 +104,27 @@ class WebsiteEditorTests(unittest.TestCase):
                       tone_marker.convert_hangul_to_html("매[相揣쇼5췌5]", "song")["html"])
         # An explicitly toned syllable is a citation tone and still gets sandhi once.
         self.assertEqual(lomari("매2[相揣쇼5췌5]")[-1], "mâi-siō-chuē")
-        # Outside songs the dictionary row keeps its own sandhi before Hanri.
+        # The dictionary row keeps its own sandhi before Hanri.
         self.assertEqual(tone_marker.apply_hangul_overrides_from_tsv("매相"), "매2相")
+
+    def test_song_renderer_leaves_unmarked_typed_hangul_alone(self):
+        # Unmarked typed Hangul is already the spoken tone 3 and is never re-sandhied.
+        sys.path.insert(0, str(ROOT / "desktop"))
+        import hokkien_tone_marker_gui as tone_marker
+        import unicodedata
+
+        def lomari(source):
+            return unicodedata.normalize("NFC", tone_marker.convert_hangul_to_html(source, "song")["lomari"]).strip()
+
+        self.assertEqual(tone_marker.auto_sandhi_song_source("나호2"), "나호2")
+        self.assertEqual(lomari("나호2"), "na-hò")
+        self.assertEqual(lomari("나相揣"), "na-siō-chuē")
+        self.assertEqual(lomari("이5얗헿더5"), "i-yah-heh-tōr")
+        # A syllable after an apostrophe stays neutral.
+        self.assertEqual(lomari("가1’가2가4"), "kâ’ka-ka")
+        # Typed tones and Hanri readings still take sandhi.
+        self.assertEqual(lomari("릐2호2"), "lî-hò")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[一句짇구][話웨5]"), "[一句짇구2][話웨5]")
 
     def test_song_renderer_applies_sandhi_within_words_but_not_across_spaces(self):
         sys.path.insert(0, str(ROOT / "desktop"))
