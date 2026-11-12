@@ -4,5 +4,5 @@
     <subtype
         android:imeSubtypeLocale="nan"
         android:imeSubtypeMode="keyboard"
-        android:label="@string/keyboard_name" />
+        android:label="@string/keyboard_language" />
 </input-method>

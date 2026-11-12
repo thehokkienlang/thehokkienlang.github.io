@@ -19,7 +19,7 @@
         <service
             android:name=".TliKeyboardService"
             android:exported="true"
-            android:label="@string/keyboard_name"
+            android:label="@string/ime_name"
             android:permission="android.permission.BIND_INPUT_METHOD">
             <intent-filter>
                 <action android:name="android.view.InputMethod" />

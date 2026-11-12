@@ -20,6 +20,7 @@ import android.webkit.WebResourceResponse;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+import android.widget.FrameLayout;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -39,6 +40,7 @@ public class TliKeyboardService extends InputMethodService {
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private WebView keyboard;
+    private FrameLayout frame;
     private boolean pageReady;
     private boolean composing;
 
@@ -62,17 +64,23 @@ public class TliKeyboardService extends InputMethodService {
             keyboard.addJavascriptInterface(new Bridge(), "TliHost");
             keyboard.loadUrl(PAGE);
         }
-        ViewGroup parent = (ViewGroup) keyboard.getParent();
-        if (parent != null) parent.removeView(keyboard);
+        // Android gives the input view a wrap-content height, which collapses a WebView whose page
+        // fills its viewport. The fixed height therefore lives on the WebView inside this frame.
+        if (frame == null) {
+            frame = new FrameLayout(this);
+            frame.addView(keyboard);
+        }
+        ViewGroup parent = (ViewGroup) frame.getParent();
+        if (parent != null) parent.removeView(frame);
         applyHeight();
-        return keyboard;
+        return frame;
     }
 
     private void applyHeight() {
         boolean landscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
         float density = getResources().getDisplayMetrics().density;
         int height = Math.round((landscape ? HEIGHT_LANDSCAPE_DP : HEIGHT_PORTRAIT_DP) * density);
-        keyboard.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
+        keyboard.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, height));
     }
 
     @Override
@@ -112,6 +120,7 @@ public class TliKeyboardService extends InputMethodService {
         if (keyboard != null) {
             keyboard.destroy();
             keyboard = null;
+            frame = null;
         }
         super.onDestroy();
     }
