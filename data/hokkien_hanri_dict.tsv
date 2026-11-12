@@ -931,6 +931,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 毛	〃	믕4	〃	〃	hair; fur		lexical	U+6BDB_00
 門	门	믕4	〃	门	door; gate		lexical	U+9580_00
 問	问	믕5	〃	问	ask		lexical	U+554F_00
+門口	门口	믕ᄏᅷ2	門口	门口	doorway; entrance		lexical	U+9580_U+53E3_00
 暝	〃	미4	〃	〃	night		lexical	U+669D_01
 麵	面	미5	〃	面	noodles		lexical	U+9EB5_00
 麵囝	面囝	미걀2	細麵	细面	small noodles		lexical	U+9EB5_U+56DD_00
@@ -1033,6 +1034,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 坡底	〃	보5되2	市中心	〃	downtown		lexical	U+5761_U+5E95_00
 玻璃	〃	보5레4	〃	〃	glass		lexical	U+73BB_U+7483_00
 玻璃杯	〃	보5레붸1	〃	〃	glass cup		lexical	U+73BB_U+7483_U+676F_00
+寶貝	宝贝	보1붸	寶貝	宝贝	valuable object; babe		lexical	U+5BF6_U+8C9D_00
 保庇	〃	보1비	保佑	〃	protect; keep; shelter		lexical	U+4FDD_U+5E87_00
 寶惜	宝惜	보1숗	珍惜	〃	treasure; cherish		lexical	U+5BF6_U+60DC_00
 保證	保证	보1졩	〃	保证	guarantee; assure		lexical	U+4FDD_U+8B49_00
@@ -1070,6 +1072,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 不孝	〃	붇1ᄒᅷ	〃	〃	unfilial		lexical	U+4E0D_U+5B5D_00
 杯	〃	붸1	〃	〃	cup		lexical	U+676F_00
 飛	飞	붸1	〃	飞	fly		lexical	U+98DB_00
+貝	贝	붸	貝	贝	shellfish; currency		lexical	U+8C9D_00
 陪	〃	붸4	〃	〃	accompany		lexical	U+966A_00
 佩劍	佩剑	붸걈	〃	佩剑	wear; admire; sword		lexical	U+4F69_U+528D_00
 飛機	飞机	붸5기1	〃	飞机	airplane		lexical	U+98DB_U+6A5F_00
