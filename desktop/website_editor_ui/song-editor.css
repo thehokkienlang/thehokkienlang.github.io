@@ -7,6 +7,7 @@
 .song-list { position:absolute; z-index:40; top:calc(100% - 6px); left:111px; width:min(620px,calc(100vw - 135px)); max-height:min(430px,60vh); overflow:auto; border:1px solid var(--line); box-shadow:0 12px 28px #17252b2e; background:#fff; }
 .song-list button { display:block; width:100%; min-height:0; padding:10px 8px; border:0; border-bottom:1px solid #e6ecee; border-radius:0; text-align:left; background:transparent; }
 .song-list button.active { color:var(--teal); background:#eaf6f3; font-weight:700; }
+.song-list button.tab-target { box-shadow:inset 3px 0 0 var(--teal); }
 .song-list small { display:block; margin-top:3px; overflow:hidden; color:var(--muted); font-size:11px; text-overflow:ellipsis; }
 .song-list .song-record-kind { margin-top:5px; color:#879698; font-size:10px; font-weight:700; text-transform:uppercase; }
 .song-list-empty { padding:18px 8px; color:var(--muted); font-size:13px; line-height:1.5; }

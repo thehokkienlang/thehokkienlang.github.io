@@ -520,6 +520,8 @@
       button.onclick = () => { setSongListOpen(false); openSong(song.file); };
       return button;
     }));
+    // Tab in the search box opens this top match.
+    $('songList').firstElementChild?.classList.add('tab-target');
     setSongListOpen(document.activeElement === $('songFilter'));
   }
   function setSongListOpen(open) {
@@ -656,6 +658,18 @@
   $('refreshSongDictionary').onclick = () => loadDictionary({announce: true}).catch(() => {});
   $('songFilter').addEventListener('input', renderSongList);
   $('songFilter').addEventListener('focus', renderSongList);
+  // Tab opens the top matching song, unless the IME is using Tab to cycle its candidates.
+  $('songFilter').addEventListener('keydown', event => {
+    if (event.key !== 'Tab' || event.shiftKey || event.defaultPrevented || event.isComposing) return;
+    if (state.searchController?.activeCandidates?.length) return;
+    const target = $('songList').hidden ? null : $('songList').querySelector('button.tab-target');
+    if (!target) return;
+    event.preventDefault();
+    target.click();
+    // Like an ordinary Tab, move on: to the song's title, which also closes the list.
+    $('songTitle').focus();
+    setSongListOpen(false);
+  });
   document.addEventListener('pointerdown', event => {
     if (!event.target.closest('.song-browser')) setSongListOpen(false);
   });

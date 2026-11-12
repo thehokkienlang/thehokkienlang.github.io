@@ -89,6 +89,24 @@ class WebsiteEditorTests(unittest.TestCase):
         for _match, kind, _source, derived in found:
             self.assertTrue(lomari_sync.follows(kind, lomari_sync._plain(_match.group(4)), derived))
 
+    def test_song_renderer_applies_sandhi_once_to_dictionary_hangul(self):
+        # Hangul with its own dictionary row (매, 가) used to get sandhi twice before Hanri
+        # in songs: once when the row was applied and again by the song pass.
+        sys.path.insert(0, str(ROOT / "desktop"))
+        import hokkien_tone_marker_gui as tone_marker
+
+        def lomari(source):
+            import unicodedata
+            return unicodedata.normalize("NFC", tone_marker.convert_hangul_to_html(source, "song")["lomari"]).split()
+
+        self.assertEqual(lomari("[從今以後졍김5이1ᄋᅷ5] 매[相揣쇼5췌5]")[-1], "mài-siō-chuē")
+        self.assertIn("<ruby>매<rt>ˎ</rt></ruby>",
+                      tone_marker.convert_hangul_to_html("매[相揣쇼5췌5]", "song")["html"])
+        # An explicitly toned syllable is a citation tone and still gets sandhi once.
+        self.assertEqual(lomari("매2[相揣쇼5췌5]")[-1], "mâi-siō-chuē")
+        # Outside songs the dictionary row keeps its own sandhi before Hanri.
+        self.assertEqual(tone_marker.apply_hangul_overrides_from_tsv("매相"), "매2相")
+
     def test_song_renderer_applies_sandhi_within_words_but_not_across_spaces(self):
         sys.path.insert(0, str(ROOT / "desktop"))
         import hokkien_tone_marker_gui as tone_marker
