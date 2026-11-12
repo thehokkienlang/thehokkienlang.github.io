@@ -553,6 +553,12 @@
       "sourceId": 10869,
       "route": "/zh-hans/learn/romanisation/",
       "file": "content/zh-hans/guides/romanisation.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/反背/",
+      "sourceId": 11534,
+      "route": "/songs/反背/",
+      "file": "content/songs/song-11534.json"
     }
   ],
   "deferred": {

@@ -24,7 +24,7 @@
     if (undoHistory.length > 100) undoHistory.shift();
     $('undoTiming').disabled = false;
   }
-  let songs = [], visibleSongs = [], activeSongIndex = -1, hangulEnabled = true;
+  let songs = [], visibleSongs = [], activeSongIndex = -1, hangulEnabled = true, dictionaryGeneration = null;
   const searchKey = value => String(value || '').normalize('NFKD').toLocaleLowerCase()
     .replace(/[\u0300-\u036fˆˋˊˉˇꞈˎˏˍ`’'\s-]/gu, '');
   function setSongResultsOpen(open) {
@@ -84,18 +84,34 @@
     },
     onUpdate: filterSongs, enterBehavior: 'none',
   });
-  async function loadSearchCandidates() {
+  async function loadSearchCandidates({announce = false} = {}) {
+    const button = $('refreshTimingDictionary');
+    button.disabled = true;
+    $('songImeStatus').textContent = 'Loading TLI candidates...';
     try {
-      const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache: 'no-cache'});
+      const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache: 'no-store'});
       if (!response.ok) throw new Error('HTTP ' + response.status);
       const data = await response.json();
       if (!Array.isArray(data.entries)) throw new Error('Missing dictionary entries.');
       await searchIme.preferences.ready;
       searchIme.setEntries(data.entries, window.TangliengimImeCore.createDictionaryIndex(data.entries));
-      $('songImeStatus').textContent = '';
+      $('songImeStatus').textContent = announce ? 'Dictionary refreshed.' : '';
     } catch (error) {
       $('songImeStatus').textContent = 'TLI candidates could not load. Refresh to retry. ' + error.message;
+    } finally {
+      button.disabled = false;
     }
+  }
+  async function refreshDictionaryIfChanged() {
+    try {
+      const response = await fetch('/desktop-api/status', {cache: 'no-store'});
+      const status = await response.json();
+      if (dictionaryGeneration === null) dictionaryGeneration = status.dictionaryGeneration;
+      else if (dictionaryGeneration !== status.dictionaryGeneration) {
+        dictionaryGeneration = status.dictionaryGeneration;
+        await loadSearchCandidates();
+      }
+    } catch (_error) { /* Manual refresh remains available. */ }
   }
   $('songSearch').addEventListener('input', filterSongs);
   $('songSearch').addEventListener('focus', filterSongs);
@@ -104,6 +120,7 @@
     $('songHangulToggle').setAttribute('aria-pressed', String(hangulEnabled));
     searchIme.setEnabled(); $('songSearch').focus();
   };
+  $('refreshTimingDictionary').onclick = () => loadSearchCandidates({announce: true});
   const tell = (message, error = false) => { $('timingNotice').textContent = message; $('timingNotice').classList.toggle('error', error); };
   async function request(action, payload) {
     const response = await fetch('/desktop-api/website-editor/' + action, { method:'POST', cache:'no-store',
@@ -493,8 +510,10 @@
   }
   $('saveTiming').onclick = () => saveTimings().catch(() => {});
   window.addEventListener('beforeunload', event => { if (dirty) { event.preventDefault(); event.returnValue = ''; } });
+  window.addEventListener('focus', refreshDictionaryIfChanged);
   window.addEventListener('pagehide', () => connection?.destroy().catch(() => {}));
   loadSongs();
   loadSearchCandidates();
+  refreshDictionaryIfChanged();
   load();
 })();

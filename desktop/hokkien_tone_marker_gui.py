@@ -3007,6 +3007,46 @@ def sandhi_raw_hangul_before_explicit_hyphen(text: str) -> str:
     return ''.join(out)
 
 
+def auto_sandhi_song_source(text: str) -> str:
+    """Resolve non-final typed lyric readings while preserving the authored source shape."""
+    source = normalize_apostrophes(str(text or ''))
+
+    def followed_by_readable(index: int) -> bool:
+        if index >= len(source) or source[index].isspace():
+            return False
+        if source[index] in ",.!?:;，。！？：；、’'“”()「」『』…‧~":
+            return False
+        return True
+
+    out: list[str] = []
+    index = 0
+    while index < len(source):
+        if source[index] == '[':
+            close = source.find(']', index + 1)
+            if close >= 0:
+                parsed = split_hanri_hangul_bracket(source[index + 1:close])
+                if parsed:
+                    hanri, reading = parsed
+                    if followed_by_readable(close + 1):
+                        reading = citation_to_sandhi_reading(reading) or reading
+                    out.append(f'[{hanri}{reading}]')
+                    index = close + 1
+                    continue
+
+        unit = hangul_reading_unit_at(source, index)
+        if unit is not None:
+            reading, end = unit
+            if followed_by_readable(end):
+                reading = citation_to_sandhi_reading(reading) or reading
+            out.append(reading)
+            index = end
+            continue
+
+        out.append(source[index])
+        index += 1
+    return ''.join(out)
+
+
 def convert_to_lomari_ruby_below(input_sentence: str) -> str:
     """Produce a span-only fragment with Lomari ruby placed below text."""
     source = normalize_compat_jamo(normalize_yyae(str(input_sentence or '')))
@@ -3251,6 +3291,7 @@ def convert_hangul_to_html(input_text: str, style: str = "plain", *, song_grey: 
     s = normalize_apostrophes(s)
     s = sandhi_raw_hangul_before_explicit_hyphen(s)
     if style == "song":
+        s = auto_sandhi_song_source(s)
         html, lomari = make_multiline_song_html(s, grey=song_grey)
         return {
             "input": s,

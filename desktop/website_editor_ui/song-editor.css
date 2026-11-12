@@ -1,10 +1,10 @@
-.song-editor-shell { display:grid; grid-template-columns:230px minmax(460px,1fr) minmax(380px,.9fr); min-height:calc(100vh - 74px); background:#fff; }
-.song-browser { min-width:0; padding:16px; border-right:1px solid var(--line); background:#f8fafa; }
+.song-editor-shell { display:grid; grid-template-columns:minmax(520px,1.1fr) minmax(400px,.9fr); min-height:calc(100vh - 133px); background:#fff; }
+.song-browser { position:relative; z-index:26; display:flex; min-height:59px; align-items:center; gap:12px; padding:10px 24px; border-bottom:1px solid var(--line); background:#f8fafa; }
 .song-browser-heading,.lyrics-heading,.song-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.song-browser-heading { margin-bottom:12px; }
-.song-filter-wrap { position:relative; display:block; }
+.song-browser-heading { flex:none; }
+.song-filter-wrap { position:relative; display:block; width:min(620px,calc(100vw - 190px)); }
 .song-filter-wrap>.hanri-candidate-menu { max-width:min(420px,calc(100vw - 40px)); }
-.song-list { margin-top:12px; }
+.song-list { position:absolute; z-index:40; top:calc(100% - 6px); left:111px; width:min(620px,calc(100vw - 135px)); max-height:min(430px,60vh); overflow:auto; border:1px solid var(--line); box-shadow:0 12px 28px #17252b2e; background:#fff; }
 .song-list button { display:block; width:100%; min-height:0; padding:10px 8px; border:0; border-bottom:1px solid #e6ecee; border-radius:0; text-align:left; background:transparent; }
 .song-list button.active { color:var(--teal); background:#eaf6f3; font-weight:700; }
 .song-list small { display:block; margin-top:3px; overflow:hidden; color:var(--muted); font-size:11px; text-overflow:ellipsis; }
@@ -56,5 +56,5 @@
 .publish-progress pre { max-height:240px; margin:0; padding:12px; overflow:auto; color:#dfe9e8; background:#17252b; font:12px/1.5 Consolas,monospace; white-space:pre-wrap; }
 .song-preview-panel { min-width:0; background:#f5f8f8; }
 #songPreview { position:sticky; top:122px; width:100%; height:calc(100vh - 123px); border:0; background:#fff; }
-@media(max-width:1180px) { .song-editor-shell { grid-template-columns:210px 1fr; } .song-preview-panel { grid-column:1/-1; border-top:1px solid var(--line); } #songPreview { position:static; height:650px; } }
-@media(max-width:760px) { .song-editor-shell { grid-template-columns:1fr; } .song-browser,.song-form-panel { border-right:0; border-bottom:1px solid var(--line); } .song-fields { grid-template-columns:1fr; } .route-field { grid-column:auto; } .lyric-row { grid-template-columns:28px minmax(0,1fr); } .grey-toggle,.line-tools { grid-column:2; } .song-actions { align-items:stretch; flex-wrap:wrap; } .song-actions #songState { width:100%; margin-left:0; } }
+@media(max-width:1180px) { .song-editor-shell { grid-template-columns:1fr; } .song-preview-panel { border-top:1px solid var(--line); } #songPreview { position:static; height:650px; } }
+@media(max-width:760px) { .song-browser { align-items:stretch; flex-wrap:wrap; padding:10px 14px; } .song-browser-heading { width:100%; } .song-filter-wrap { width:100%; } .song-list { right:14px; left:14px; width:auto; } .song-form-panel { border-right:0; border-bottom:1px solid var(--line); } .song-fields { grid-template-columns:1fr; } .route-field { grid-column:auto; } .lyric-row { grid-template-columns:28px minmax(0,1fr); } .grey-toggle,.line-tools { grid-column:2; } .song-actions { align-items:stretch; flex-wrap:wrap; } .song-actions #songState { width:100%; margin-left:0; } }

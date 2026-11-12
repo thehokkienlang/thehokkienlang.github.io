@@ -5,7 +5,8 @@
   const state = {
     snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null, searchController: null,
     file: '', revision: '', route: '', dirty: false, previewTimer: null, renderGeneration: 0,
-    publishPaths: [], job: null, legacyTitle: null, renderingRows: false,
+    publishPaths: [], job: null, legacyTitle: null, renderingRows: false, dictionaryGeneration: null,
+    lineClipboard: null,
   };
 
   async function request(action, payload = {}) {
@@ -96,7 +97,14 @@
     }
     return source + text.slice(cursor);
   }
-  function lyricRubyPresentation(controller) {
+  function hasFollowingLyricUnit(text, index) {
+    if (index >= text.length) return false;
+    return !/[\s,.!?:;，。！？：；、’'“”()「」『』…‧~]/u.test(text[index]);
+  }
+  function resolvedRubyReading(reading) {
+    return window.TangliengimImeCore.citationReadingToTaipeiSandhi(reading);
+  }
+  function lyricRubyPresentation(controller, {resolveSandhi = true} = {}) {
     const text = controller.control.value;
     const spans = controller.getRememberedHanriReadings(text)
       .sort((left, right) => left.start - right.start || left.end - right.end);
@@ -106,7 +114,9 @@
       if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== span.hanri) continue;
       value += text.slice(cursor, span.start);
       const start = value.length;
-      value += span.reading;
+      value += resolveSandhi && hasFollowingLyricUnit(text, span.end)
+        ? resolvedRubyReading(span.reading)
+        : span.reading;
       segments.push({start, end: value.length, span});
       cursor = span.end;
     }
@@ -115,7 +125,9 @@
   function syncLyricRubyInput(controller, selection = null) {
     const rubyInput = controller.control.closest('.lyric-input-wrap')?.querySelector('.lyric-ruby-input');
     if (!rubyInput) return;
-    const presentation = lyricRubyPresentation(controller);
+    const presentation = lyricRubyPresentation(controller, {
+      resolveSandhi: document.activeElement !== rubyInput,
+    });
     rubyInput.value = presentation.value;
     rubyInput.rubyPresentation = presentation;
     if (selection && document.activeElement === rubyInput) {
@@ -181,24 +193,52 @@
     const overlay = controller.control.closest('.lyric-text-wrap')?.querySelector('.lyric-annotation-overlay');
     if (!overlay) return;
     const text = controller.control.value;
+    const tonesByStart = new Map(
+      controller.getHangulToneReadingsForDisplay(text).map(span => [span.start, span])
+    );
+    for (const span of controller.lyricToneRenderer?.resolvedHangulToneSpans(text) || []) {
+      tonesByStart.set(span.start, span);
+    }
     overlay.replaceChildren(
       window.TangliengimImeCore.renderToneOverlayMarks(
-        text, controller.getHangulToneReadingsForDisplay(text), controller.control
+        text, [...tonesByStart.values()], controller.control
       )
     );
     syncLyricOverlayViewport(controller);
   }
-  function attachIme(control, menu, onUpdate = markDirty) {
+  function attachIme(control, menu, onUpdate = markDirty, options = {}) {
     const popup = window.TangliengimImeCore.createCandidatePopupPositioner({
       control, container: menu, boundary: control.parentElement,
     });
     const controller = window.TangliengimImeCore.createTextImeController({
       control, candidateContainer: menu, entries: state.dictionary,
       dictionaryIndex: state.dictionaryIndex, onUpdate, onCandidatesChanged: popup.schedule,
-      enterBehavior: 'none',
+      enterBehavior: 'none', toneInputStyle: options.toneInputStyle || 'hidden',
     });
     state.controllers.push(controller);
     return controller;
+  }
+  function createLyricToneRenderer(controller) {
+    const rememberedHangulAt = (text, index) => {
+      const match = controller.findRememberedHangulEntryAt(text, index);
+      if (!match) return null;
+      return {...match, preserveTones: Boolean(match.entry?.autoSandhi)};
+    };
+    return window.TangliengimPhoneticOutput.createRenderer({
+      imeCore: window.TangliengimImeCore,
+      findHanriEntry: (text, index) => {
+        if (controller.findRememberedHangulEntryAt(text, index)) return null;
+        return controller.findRememberedHanriEntry(text, index) || state.dictionaryIndex?.findHanriEntry(
+          text,
+          index,
+          Math.min(controller.nextRememberedHanriStart(text, index), controller.nextRememberedHangulStart(text, index))
+        );
+      },
+      findHangulOverride: reading => state.dictionaryIndex?.findHangulOverride(reading),
+      findHangulOverrideAt: (text, index) => rememberedHangulAt(text, index) ||
+        state.dictionaryIndex?.findHangulOverrideAt(text, index, controller.nextRememberedHangulStart(text, index)),
+      findRememberedHangulEntryAt: (text, index) => controller.findRememberedHangulEntryAt(text, index),
+    });
   }
   function attachRubyIme(control, onUpdate) {
     const controller = window.TangliengimImeCore.createTextImeController({
@@ -287,14 +327,33 @@
     if (!$('lyricRows').querySelector('.lyric-row')) addLineRow({kind: 'line', text: '', grey: false});
     renumberRows(); markDirty();
   }
-  function duplicateRow(row) {
-    const copy = addLineRow({
+  function updateLinePasteButtons() {
+    $('lyricRows').querySelectorAll('.line-paste-button').forEach(button => {
+      button.disabled = !state.lineClipboard;
+    });
+  }
+  function copyRow(row) {
+    state.lineClipboard = {
       kind: 'line',
       text: lyricControllerSource(row.querySelector('.lyric-input').imeController),
       grey: row.querySelector('.grey-input').checked,
-    }, row.nextElementSibling);
+    };
+    updateLinePasteButtons();
+    notice('Line copied. Use Paste on the line you want to replace.');
+    const systemClipboardWrite = navigator.clipboard?.writeText?.(state.lineClipboard.text);
+    systemClipboardWrite?.catch(() => {});
+  }
+  function pasteRow(row) {
+    if (!state.lineClipboard) return;
+    const input = row.querySelector('.lyric-input');
+    const controller = input.imeController;
+    setLyricControllerSource(controller, state.lineClipboard.text);
+    row.querySelector('.grey-input').checked = state.lineClipboard.grey;
+    renderLyricAnnotations(controller);
+    syncLyricRubyInput(controller);
+    selectLineRow(row);
     markDirty();
-    copy.querySelector('.lyric-input').focus();
+    input.focus();
   }
   function addLineRow(item = {kind: 'line', text: '', grey: false}, before = null) {
     const row = document.createElement('div'); row.className = 'lyric-row'; row.dataset.kind = 'line';
@@ -331,11 +390,15 @@
       }
     });
     dragHandle.addEventListener('dragend', clearDragState);
+    const pasteButton = newButton('⇲', 'Paste copied line over this line', () => pasteRow(row));
+    pasteButton.className = 'line-paste-button';
+    pasteButton.disabled = !state.lineClipboard;
     tools.append(
       dragHandle,
       newButton('↑', 'Move line up', () => moveRow(row, -1)),
       newButton('↓', 'Move line down', () => moveRow(row, 1)),
-      newButton('⧉', 'Duplicate line below', () => duplicateRow(row)),
+      newButton('⧉', 'Copy line', () => copyRow(row)),
+      pasteButton,
       newButton('↵', 'Insert verse break above', () => addBreakRow(row)),
       newButton('×', 'Remove line', () => removeRow(row)),
     );
@@ -347,9 +410,12 @@
       syncLyricRubyInput(controller);
       markDirty();
     });
+    controller.lyricToneRenderer = createLyricToneRenderer(controller);
     input.imeController = controller;
     const rubyController = attachRubyIme(rubyInput, () => applyLyricRubyEdit(controller, rubyInput));
     rubyInput.imeController = rubyController;
+    rubyInput.addEventListener('focus', () => syncLyricRubyInput(controller));
+    rubyInput.addEventListener('blur', () => syncLyricRubyInput(controller));
     setLyricControllerSource(controller, item.text || '');
     renderLyricAnnotations(controller);
     syncLyricRubyInput(controller);
@@ -440,7 +506,9 @@
     if (!songs.length) {
       const empty = document.createElement('div'); empty.className = 'song-list-empty';
       empty.textContent = state.snapshot.songs.length ? 'No matching songs.' : 'Songs created here will appear in this list.';
-      $('songList').replaceChildren(empty); return;
+      $('songList').replaceChildren(empty);
+      setSongListOpen(document.activeElement === $('songFilter'));
+      return;
     }
     $('songList').replaceChildren(...songs.map(song => {
       const button = document.createElement('button'); button.type = 'button'; button.classList.toggle('active', song.file === state.file);
@@ -449,14 +517,51 @@
       const mode = document.createElement('small'); mode.className = 'song-record-kind';
       mode.textContent = song.editable ? 'Editable song' : 'Existing song';
       button.append(title, route, mode);
-      button.onclick = () => openSong(song.file);
+      button.onclick = () => { setSongListOpen(false); openSong(song.file); };
       return button;
     }));
+    setSongListOpen(document.activeElement === $('songFilter'));
+  }
+  function setSongListOpen(open) {
+    $('songList').hidden = !open;
+    $('songFilter').setAttribute('aria-expanded', String(open));
   }
   async function refreshSnapshot() {
     state.snapshot = await request('song-editor-snapshot');
     $('songCategory').replaceChildren(...state.snapshot.categories.map(category => new Option(category.label, category.id)));
     renderSongList();
+  }
+  async function loadDictionary({announce = false} = {}) {
+    const button = $('refreshSongDictionary');
+    button.disabled = true;
+    try {
+      const response = await fetch('/public/data/hokkien-hanri-dict.json', {cache:'no-store'});
+      if (!response.ok) throw new Error('Dictionary could not load.');
+      const dictionary = await response.json();
+      state.dictionary = dictionary.entries || [];
+      state.dictionaryIndex = window.TangliengimImeCore.createDictionaryIndex(state.dictionary);
+      state.controllers.forEach(controller => controller.setEntries(state.dictionary, state.dictionaryIndex));
+      state.controllers.forEach(controller => {
+        if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);
+      });
+      if (announce) notice('Dictionary refreshed for song search, title, and lyrics.');
+    } catch (error) {
+      notice(error.message, true);
+      throw error;
+    } finally {
+      button.disabled = false;
+    }
+  }
+  async function refreshDictionaryIfChanged() {
+    try {
+      const response = await fetch('/desktop-api/status', {cache:'no-store'});
+      const status = await response.json();
+      if (state.dictionaryGeneration === null) state.dictionaryGeneration = status.dictionaryGeneration;
+      else if (state.dictionaryGeneration !== status.dictionaryGeneration) {
+        state.dictionaryGeneration = status.dictionaryGeneration;
+        await loadDictionary();
+      }
+    } catch (_error) { /* Manual refresh remains available. */ }
   }
   async function saveSong({quiet = false} = {}) {
     const preview = await renderPreview({loud: !quiet});
@@ -522,14 +627,20 @@
       state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList);
       state.titleController = attachIme($('songTitleSource'), $('titleCandidates'), () => {
         state.legacyTitle = null; markDirty();
-      });
+      }, {toneInputStyle: 'symbols'});
       await Promise.all([state.searchController.preferences.ready, state.titleController.preferences.ready]);
       newSong(); renderSongList();
+      refreshDictionaryIfChanged();
     } catch (error) { notice(error.message, true); }
   }
 
   $('newSong').onclick = newSong;
+  $('refreshSongDictionary').onclick = () => loadDictionary({announce: true}).catch(() => {});
   $('songFilter').addEventListener('input', renderSongList);
+  $('songFilter').addEventListener('focus', renderSongList);
+  document.addEventListener('pointerdown', event => {
+    if (!event.target.closest('.song-browser')) setSongListOpen(false);
+  });
   $('addLine').onclick = () => { addLineRow(); markDirty(); $('lyricRows').lastElementChild.querySelector('input').focus(); };
   $('previewSong').onclick = () => renderPreview({loud:true});
   $('saveSong').onclick = () => saveSong().catch(error => notice(error.message, true));
@@ -539,6 +650,7 @@
   window.addEventListener('resize', () => state.controllers.forEach(controller => {
     if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);
   }));
+  window.addEventListener('focus', refreshDictionaryIfChanged);
   window.addEventListener('beforeunload', event => { if (state.dirty || state.job) { event.preventDefault(); event.returnValue = ''; } });
   init();
 })();

@@ -62,4 +62,13 @@ const referenceRanked = core.createCandidatePreferences({ activeIds })
 assert.equal(JSON.stringify(ranked.map(item => item.entry.id)),
   JSON.stringify(referenceRanked.map(item => item.entry.id)), 'Headless ranking differs');
 
+assert.equal(engine.citationReadingToTaipeiSandhi('졍4'), '졍',
+  'Open Tone 4 must surface as unmarked Tone 3 before a following unit');
+assert.equal(engine.citationReadingToTaipeiSandhi('졍ˊ'), '졍',
+  'Visible Tone 4 symbols must use the same surface-sandhi conversion');
+assert.equal(engine.citationReadingToTaipeiSandhi('짇구'), '짇구2',
+  'An omitted final tone must resolve from implicit Tone 3 to surface Tone 2');
+assert.equal(core.citationReadingToTaipeiSandhi('졍4'), '졍',
+  'Browser and headless contextual-reading conversion must match');
+
 console.log(`OK: the TLI engine runs with no browser; ${headless.candidatesByReading.size} reading keys match the browser core.`);

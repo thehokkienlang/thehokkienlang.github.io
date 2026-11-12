@@ -10,20 +10,21 @@
   <link rel="stylesheet" href="song-editor.css">
   <script src="/shared/web-hangul-ime.js" defer></script>
   <script src="/shared/web-ime-core.js" defer></script>
+  <script src="/shared/web-phonetic-output.js" defer></script>
   <script src="song-editor.js" defer></script>
 </head>
 <body>
   <header class="cms-header">
     <div class="identity"><span class="identity-mark" aria-hidden="true">東<br><b>롕</b></span><div><span>THEHOKKIENLANG</span><h1>Song Editor</h1></div></div>
-    <div class="header-status"><a class="editor-hub-link" href="/editors/">← Editors</a><a class="editor-hub-link" href="/website-editor/">Website Editor</a><span class="local-badge">Local only</span></div>
+    <div class="header-status"><a class="editor-hub-link" href="/editors/">← Editors</a><a class="editor-hub-link" href="/website-editor/">Website Editor</a><span class="local-badge">Local only</span><button id="refreshSongDictionary" type="button">Refresh dictionary</button></div>
   </header>
   <div id="songNotice" class="notice" role="status" aria-live="polite" hidden></div>
+  <section class="song-browser" aria-label="Song search">
+    <div class="song-browser-heading"><strong>Songs</strong><button id="newSong" type="button">New</button></div>
+    <span class="song-filter-wrap"><input id="songFilter" type="search" placeholder="Find songs" autocomplete="off" spellcheck="false" aria-controls="songFilterCandidates songList" aria-autocomplete="list" aria-expanded="false"><span id="songFilterCandidates" class="hanri-candidate-menu" role="listbox" aria-label="TLI song-search candidates" hidden></span></span>
+    <div id="songList" class="song-list" role="listbox" aria-label="Matching songs" hidden></div>
+  </section>
   <main class="song-editor-shell">
-    <aside class="song-browser">
-      <div class="song-browser-heading"><strong>Songs</strong><button id="newSong" type="button">New</button></div>
-      <span class="song-filter-wrap"><input id="songFilter" type="search" placeholder="Find songs" autocomplete="off" spellcheck="false" aria-controls="songFilterCandidates" aria-autocomplete="list"><span id="songFilterCandidates" class="hanri-candidate-menu" role="listbox" aria-label="TLI song-search candidates" hidden></span></span>
-      <div id="songList" class="song-list"></div>
-    </aside>
     <section class="song-form-panel">
       <form id="songForm">
         <div class="song-fields">
@@ -35,10 +36,10 @@
           <label>Category<select id="songCategory" required></select></label>
           <label class="route-field">Published route<input id="songRoute" readonly></label>
         </div>
-        <div class="lyrics-heading"><div><h2>Lyrics</h2><span id="lineCount"></span></div><div class="lyrics-actions"><button id="addLine" type="button">Add line</button></div></div>
+        <div class="lyrics-heading"><div><h2>Lyrics</h2><span id="lineCount"></span></div></div>
         <div id="lyricRows" class="lyric-rows"></div>
       </form>
-      <div class="song-actions"><button id="previewSong" type="button">Refresh preview</button><button id="saveSong" type="button" class="primary">Save locally</button><button id="publishSong" type="button">Publish to GitHub</button><span id="songState"></span></div>
+      <div class="song-actions"><button id="addLine" type="button">Add line</button><button id="previewSong" type="button">Refresh preview</button><button id="saveSong" type="button" class="primary">Save locally</button><button id="publishSong" type="button">Publish to GitHub</button><span id="songState"></span></div>
       <section id="publishProgress" class="publish-progress" hidden><strong id="publishStatus"></strong><pre id="publishLog"></pre></section>
     </section>
     <section class="song-preview-panel" aria-label="Song preview">

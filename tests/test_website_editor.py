@@ -89,6 +89,18 @@ class WebsiteEditorTests(unittest.TestCase):
         for _match, kind, _source, derived in found:
             self.assertTrue(lomari_sync.follows(kind, lomari_sync._plain(_match.group(4)), derived))
 
+    def test_song_renderer_applies_sandhi_within_words_but_not_across_spaces(self):
+        sys.path.insert(0, str(ROOT / "desktop"))
+        import hokkien_tone_marker_gui as tone_marker
+
+        self.assertEqual(tone_marker.auto_sandhi_song_source("릐2호2"), "릐1호2")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[字지2][字지2]"), "[字지1][字지2]")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[一句짇구][話웨5]"), "[一句짇구2][話웨5]")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("릐2 호2"), "릐2 호2")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("릐2, 호2"), "릐2, 호2")
+        rendered = tone_marker.convert_hangul_to_html("릐2호2", "song")
+        self.assertEqual(rendered["input"], "릐1호2")
+
     def test_song_snapshot_includes_existing_songs_and_title_readings(self):
         with tempfile.TemporaryDirectory() as folder:
             service, _ = self.fixture(folder)

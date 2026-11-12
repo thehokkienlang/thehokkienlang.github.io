@@ -251,6 +251,26 @@ const TangliengimEngine = (() => {
     return table[value] || value;
   }
 
+  function citationReadingToTaipeiSandhi(reading) {
+    const source = normalizeApostrophes(String(reading || ""));
+    let finalUnit = null;
+    for (let index = 0; index < source.length;) {
+      const unit = readingUnitAt(source, index);
+      if (!unit) break;
+      if (unit.canCarryTone) finalUnit = unit;
+      index = Math.max(unit.end, index + 1) + (isToneMark(source[unit.end]) ? 1 : 0);
+    }
+    if (!finalUnit) return source;
+    const toneMark = source[finalUnit.end];
+    const explicitTone = inputToneDigit(toneMark);
+    const citationTone = explicitTone || "3";
+    const surfaceTone = citationToTaipeiSandhiTone(finalUnit.text, citationTone);
+    const replacement = surfaceTone === "3" ? "" : (!explicitTone || /^[1-5]$/u.test(toneMark)
+      ? surfaceTone
+      : UPPER_HANGUL_TONE_MARKS[surfaceTone] || surfaceTone);
+    return source.slice(0, finalUnit.end) + replacement + source.slice(finalUnit.end + (explicitTone ? 1 : 0));
+  }
+
   function isCheckedFinalUnit(unit) {
     return CHECKED_FINAL_JAMO.has(hangulFinalJamo(unit));
   }
@@ -1011,7 +1031,8 @@ const TangliengimEngine = (() => {
     CHECKED_TAIPEI_SANDHI, LATIN_WIDTH_APOSTROPHES, AMERICAN_TO_BRITISH_ENGLISH, normalizeApostrophes,
     normalizeText, normalizeEnglishSearch, normalizeNasalAlias, normalizeLomariSearchAliases, queryVariants,
     searchableEntry, stripLegacyInlineToneMarks, isToneMark, inputToneDigit, isPrecomposedHangul,
-    isInitialJamo, isVowelJamo, isFinalJamo, hangulFinalJamo, citationToTaipeiSandhiTone, isCheckedFinalUnit,
+    isInitialJamo, isVowelJamo, isFinalJamo, hangulFinalJamo, citationToTaipeiSandhiTone,
+    citationReadingToTaipeiSandhi, isCheckedFinalUnit,
     singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
     readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalValue, compareCanonicalEntries,
     rankingLookupKey, sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT,
@@ -1030,7 +1051,8 @@ const TangliengimImeCore = (() => {
     HANGUL_TONE_MARKS, UPPER_HANGUL_TONE_MARKS, COMMITTED_INPUT_TYPES, CHECKED_FINAL_JAMO,
     OPEN_TAIPEI_SANDHI, CHECKED_TAIPEI_SANDHI, LATIN_WIDTH_APOSTROPHES, normalizeApostrophes, normalizeText,
     normalizeEnglishSearch, normalizeLomariSearchAliases, queryVariants, searchableEntry,
-    stripLegacyInlineToneMarks, isToneMark, inputToneDigit, citationToTaipeiSandhiTone, isCheckedFinalUnit,
+    stripLegacyInlineToneMarks, isToneMark, inputToneDigit, citationToTaipeiSandhiTone,
+    citationReadingToTaipeiSandhi, isCheckedFinalUnit,
     singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
     readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalEntries, rankingLookupKey,
     sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT, PREFERENCE_STORAGE_KEY,
@@ -2578,6 +2600,7 @@ const TangliengimImeCore = (() => {
     rankEntries,
     rankingLookupKey,
     citationToTaipeiSandhiTone,
+    citationReadingToTaipeiSandhi,
     createCandidatePopupPositioner,
     createDictionaryIndex,
     createSimplifiedNormalizationIndex,
