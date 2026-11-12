@@ -9,7 +9,6 @@
       content="TheHokkienLang browser-based TLI IME pad for typing Tangliengim Hangul and Hanri."
     >
     <link rel="icon" type="image/png" href="favicon.png">
-    <link rel="manifest" href="manifest.webmanifest">
     <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <meta name="theme-color" content="#08756b">
     <link rel="preload" href="/assets/fonts/tli-menu-hanri-v1.woff2" as="font" type="font/woff2" crossorigin>
@@ -107,6 +106,12 @@
         </section>
       </section>
     </main>
+
+    <p id="appInstall" class="app-install" hidden>
+      <a id="appInstallLink" href="/ime/app/" data-site-text="Install as an app" hidden>Install as an app</a>
+      <button id="appInstallButton" type="button" data-site-text="Install" hidden>Install</button>
+      <span id="appInstallHint" data-site-text="To install, choose “Add to Home screen” in your browser’s menu." hidden>To install, choose “Add to Home screen” in your browser’s menu.</span>
+    </p>
 
     <div id="toast" class="toast" role="status" aria-live="polite"></div>
 

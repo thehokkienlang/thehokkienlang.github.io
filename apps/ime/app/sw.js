@@ -1,4 +1,5 @@
-// Offline support for the installed IME pad. Scope: /ime/ only.
+// Offline support for the installed IME pad. Scope: /ime/app/ only; the web page at /ime/
+// stays an ordinary page with no worker.
 // tools/build_site.py fills PRECACHE with the pad's versioned files; an unbuilt checkout
 // has an empty list and simply caches what the page loads.
 const PRECACHE = [];
@@ -38,7 +39,7 @@ self.addEventListener("fetch", event => {
     // Always prefer the newest page; fall back to the saved one with no connection.
     event.respondWith(
       fetch(request).then(response => store(request, response))
-        .catch(() => caches.match(request, { ignoreSearch: true }).then(hit => hit || caches.match("/ime/")))
+        .catch(() => caches.match(request, { ignoreSearch: true }).then(hit => hit || caches.match("/ime/app/")))
     );
     return;
   }

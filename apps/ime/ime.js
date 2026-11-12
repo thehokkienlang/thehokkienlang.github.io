@@ -40,6 +40,18 @@ const isMobileWebIme = Boolean(
   (browserNavigator.platform === "MacIntel" && browserNavigator.maxTouchPoints > 1)
 );
 if (isMobileWebIme) document.documentElement.classList.add("mobile-web-ime");
+// Installed from the home screen (apps/ime/manifest.webmanifest); iOS reports it on navigator.
+const isInstalledApp = Boolean(
+  (typeof matchMedia === "function" && matchMedia("(display-mode: standalone)").matches) ||
+  browserNavigator.standalone === true
+);
+if (isInstalledApp) document.documentElement.classList.add("installed-app");
+// The installable copy of this page has its own address, so /ime/ always opens in the browser.
+const APP_PATH = "/ime/app/";
+const isAppPage = typeof location === "object" && String(location.pathname || "").startsWith(APP_PATH);
+// In a mobile browser the phone's own keyboard does the typing. The installed app also
+// offers the guide, which then works as an on-screen TLI keyboard.
+const keyboardGuideAvailable = !isMobileWebIme || isInstalledApp;
 
 const imeCore = window.TangliengimImeCore;
 const phoneticCore = window.TangliengimPhoneticOutput;
@@ -426,12 +438,14 @@ taipeiButton.addEventListener("click", () => setSandhiMode("taipei"));
 singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
 
 keyboardGuideButton.addEventListener("click", () => {
-  if (isMobileWebIme) return;
+  if (!keyboardGuideAvailable) return;
   const opening = keyboardGuide.hidden;
   keyboardGuide.hidden = !opening;
   pad?.classList.toggle("keyboard-guide-open", opening);
   keyboardGuideButton.setAttribute("aria-expanded", String(opening));
   keyboardGuideButton.querySelector(".guide-chevron").textContent = opening ? "▲" : "▼";
+  // On a phone the open guide is the keyboard, so keep the phone's own keyboard down.
+  if (isMobileWebIme) imeText.inputMode = opening ? "none" : "text";
   if (opening) imeText.focus();
 });
 
@@ -489,11 +503,66 @@ updateImePresentation();
 
 loadDictionary();
 
+// Inside the installed app, links that leave the pad open in the browser instead of trapping
+// the reader in the app window.
+if (isInstalledApp) {
+  document.addEventListener("click", (event) => {
+    const link = event.target.closest?.("a[href]");
+    if (!link) return;
+    const url = new URL(link.href, location.href);
+    if (url.origin === location.origin && url.pathname.startsWith(APP_PATH)) return;
+    if (url.origin === location.origin && url.pathname === "/ime/") {
+      // The language switcher and the IME menu entry point at the web page; stay in the app.
+      link.href = APP_PATH + url.search + url.hash;
+      return;
+    }
+    link.target = "_blank";
+    link.rel = "noopener";
+  }, true);
+}
+
 // Offline use for the installed pad (apps/ime/sw.js). Needs https or localhost; harmless elsewhere.
-if (typeof navigator === "object" && "serviceWorker" in navigator && location.pathname.startsWith("/ime/")) {
+// The web page offers the app; the app page offers to install itself.
+const appInstall = document.querySelector("#appInstall");
+if (appInstall && !isInstalledApp) {
+  const installButton = document.querySelector("#appInstallButton");
+  const installHint = document.querySelector("#appInstallHint");
+  appInstall.hidden = false;
+  if (!isAppPage) {
+    document.querySelector("#appInstallLink").hidden = false;
+  } else {
+    installHint.hidden = false;
+    let installPrompt = null;
+    window.addEventListener("beforeinstallprompt", (event) => {
+      event.preventDefault();
+      installPrompt = event;
+      installButton.hidden = false;
+      installHint.hidden = true;
+    });
+    installButton.addEventListener("click", async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt();
+      await installPrompt.userChoice.catch(() => {});
+      installPrompt = null;
+      installButton.hidden = true;
+    });
+    window.addEventListener("appinstalled", () => { appInstall.hidden = true; });
+  }
+}
+
+const canUseWorker = typeof navigator === "object" && "serviceWorker" in navigator;
+// An earlier release registered a worker for all of /ime/; remove it so the web page is plain again.
+if (canUseWorker && !isAppPage) {
+  navigator.serviceWorker.getRegistration("/ime/").then(async (registration) => {
+    if (!registration || !new URL(registration.scope).pathname.endsWith("/ime/")) return;
+    await registration.unregister();
+    for (const name of await caches.keys()) if (name.startsWith("tli-ime-")) await caches.delete(name);
+  }).catch(() => {});
+}
+if (canUseWorker && isAppPage) {
   window.addEventListener("load", async () => {
     try {
-      await navigator.serviceWorker.register("/ime/sw.js", { scope: "/ime/" });
+      await navigator.serviceWorker.register(APP_PATH + "sw.js", { scope: APP_PATH });
       const registration = await navigator.serviceWorker.ready;
       // Hand over what loaded before the worker took control, such as fonts.
       const loaded = performance.getEntriesByType("resource").map(entry => entry.name)
