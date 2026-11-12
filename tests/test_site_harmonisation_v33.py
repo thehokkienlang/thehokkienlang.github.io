@@ -37,7 +37,10 @@ class V33Tests(unittest.TestCase):
             with self.subTest(file=file):
                 current = json.loads((ROOT / file).read_text(encoding="utf-8"))
                 self.assertEqual(current["route"], entry["route"])
-                self.assertEqual(restore(current["body"], entry) != current["body"], bool(entry["edits"]))
+                # A song re-authored in the Song Editor has replaced the patched page, so only the
+                # untouched pages can still be reversed; every page must keep the v3.3 spellings.
+                if current.get("orthography", {}).get("review") != "structured-song-editor":
+                    self.assertEqual(restore(current["body"], entry) != current["body"], bool(entry["edits"]))
                 self.assertFalse(propose(current))
                 self.assertFalse(now_edits(current["body"]))
 

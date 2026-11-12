@@ -649,7 +649,7 @@ class WebsiteEditorService:
             target_category = next(row for row in categories if row.get("id") == clean["category"])
             target_category.setdefault("routes", []).append(route)
         if is_new:
-            urls.append({"old_url": source_url, "new_url": route})
+            urls.append({"old_url": source_url, "new_url": route, "display_title": clean["title"]})
             manifest.setdefault("records", []).append({
                 "sourceUrl": source_url, "sourceId": source_id, "route": route,
                 "file": path.relative_to(self.repo).as_posix(),

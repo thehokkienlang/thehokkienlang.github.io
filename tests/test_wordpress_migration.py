@@ -199,10 +199,13 @@ class MigrationTests(unittest.TestCase):
                 continue
             with self.subTest(route=row["new_url"]):
                 content = json.loads((ROOT / records[row["new_url"]]["file"]).read_text(encoding="utf-8"))
-                source = json.loads((ROOT / "migration/wordpress-source" / f'{content["sourceId"]}.json').read_text(encoding="utf-8"))
                 self.assertEqual(content["title"], row["display_title"])
                 self.assertEqual(content["route"], row["new_url"])
-                self.assertEqual(content["originalTitle"], source["title"])
+                # Songs created in the Song Editor never existed on WordPress, so have no archived source.
+                source_path = ROOT / "migration/wordpress-source" / f'{content["sourceId"]}.json'
+                if source_path.is_file():
+                    source = json.loads(source_path.read_text(encoding="utf-8"))
+                    self.assertEqual(content["originalTitle"], source["title"])
 
 
 

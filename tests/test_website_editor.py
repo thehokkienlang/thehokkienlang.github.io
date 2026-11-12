@@ -241,7 +241,10 @@ class WebsiteEditorTests(unittest.TestCase):
             self.assertEqual(record["route"], "/songs/릐호/")
             self.assertEqual(record["songEditor"]["lyrics"][0]["text"], "릐호")
             self.assertIn(record["route"], json.loads((repo / "content/song-categories.json").read_text())[0]["routes"])
-            self.assertEqual(json.loads((repo / "migration/song-urls.json").read_text())[0]["new_url"], record["route"])
+            url_row = json.loads((repo / "migration/song-urls.json").read_text())[0]
+            self.assertEqual(url_row["new_url"], record["route"])
+            # The site build checks each song's catalogue label against this title.
+            self.assertEqual(url_row["display_title"], record["title"])
             self.assertEqual(json.loads((repo / "migration/wordpress-map.json").read_text())["records"][0]["file"], saved["file"])
             listed = service.song_editor_snapshot()["songs"][0]
             self.assertIn("릐호", listed["searchText"])
