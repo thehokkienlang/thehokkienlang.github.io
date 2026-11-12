@@ -35,7 +35,7 @@ public class TliKeyboardService extends InputMethodService {
     // A local-only origin: every request is answered from the APK's assets, never the network.
     private static final String HOST = "appassets.androidplatform.net";
     private static final String PAGE = "https://" + HOST + "/keyboard/index.html";
-    private static final int HEIGHT_PORTRAIT_DP = 306;
+    private static final int HEIGHT_PORTRAIT_DP = 318;
     private static final int HEIGHT_LANDSCAPE_DP = 214;
 
     private final Handler main = new Handler(Looper.getMainLooper());

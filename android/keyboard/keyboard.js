@@ -43,12 +43,67 @@
   const UPPER_TONES = TangliengimEngine.UPPER_HANGUL_TONE_MARKS;
   const upperTone = mark => UPPER_TONES[mark] || mark;
 
+  // Some Hanri are missing from most fonts, so the receiving app would show an empty box. Those
+  // characters are written in Hangul instead: anything beyond the Basic Multilingual Plane
+  // (CJK Extension B and later), and anything this phone's own fonts cannot draw.
+  const HAN = /\p{Script=Han}/u;
+  const fontSupport = new Map();
+  const probe = document.createElement("canvas").getContext?.("2d", { willReadFrequently: true });
+  function drawn(char) {
+    probe.clearRect(0, 0, 32, 32);
+    probe.fillText(char, 2, 2);
+    return probe.getImageData(0, 0, 32, 32).data.join("");
+  }
+  let missingGlyph = null;
+  if (probe) {
+    probe.canvas.width = probe.canvas.height = 32;
+    probe.font = "24px sans-serif"; // the system fonts only, not the keyboard's own web fonts
+    probe.textBaseline = "top";
+    missingGlyph = drawn("\u{10FFFD}");
+  }
+  function widelySupported(char) {
+    if (!HAN.test(char)) return true;
+    if (char.codePointAt(0) > 0xFFFF) return false;
+    if (!probe) return true;
+    if (!fontSupport.has(char)) fontSupport.set(char, drawn(char) !== missingGlyph);
+    return fontSupport.get(char);
+  }
+  // 到𦤾 becomes 到달: each unsupported character is replaced by its own syllable.
+  function writtenForm(entry) {
+    const chars = [...entry.hanri];
+    if (chars.every(widelySupported)) return entry.hanri;
+    const base = entry.readingBase || hangul.normalizeReadingBase(entry.reading || "");
+    const units = [];
+    for (let index = 0; index < base.length;) {
+      const unit = core.readingUnitAt(base, index);
+      if (!unit) break;
+      units.push(unit.text);
+      index = unit.end;
+    }
+    if (units.length !== chars.length) return base || entry.hanri;
+    return chars.map((char, index) => (widelySupported(char) ? char : units[index])).join("");
+  }
+  function defaultRareHanriToHangul() {
+    [...candidates.querySelectorAll(".ime-candidate")].forEach((button, index) => {
+      const candidate = controller.activeCandidates[index];
+      if (!candidate || ["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) return;
+      const written = writtenForm(candidate.entry);
+      if (written === candidate.entry.hanri) return;
+      button.dataset.start = candidate.start;
+      button.dataset.hanri = candidate.entry.hanri;
+      button.dataset.written = written;
+      button.querySelector(".candidate-hanri").textContent = written;
+      // Entirely Hangul now: the plain Hangul candidate already offers it.
+      if (![...written].some(char => HAN.test(char))) button.hidden = true;
+    });
+  }
+
   const controller = core.createTextImeController({
     control: buffer,
     candidateContainer: candidates,
     enabled: () => true,
     onUpdate: sync,
-    onCandidatesChanged: () => { candidates.scrollLeft = 0; },
+    onCandidatesChanged: () => { defaultRareHanriToHangul(); candidates.scrollLeft = 0; },
     enterBehavior: "none",
     candidateLimit: 24,
   });
@@ -62,9 +117,13 @@
   }
 
   // Hand the buffer to the app as finished text.
-  function commitBuffer() {
-    const text = buffer.value;
+  function commitBuffer(replacement = null) {
+    let text = buffer.value;
     if (!text) return false;
+    if (replacement && text.startsWith(replacement.hanri, replacement.start)) {
+      text = text.slice(0, replacement.start) + replacement.written +
+        text.slice(replacement.start + replacement.hanri.length);
+    }
     host.commit(text);
     lastSent = "";
     controller.clear();
@@ -139,9 +198,9 @@
   }
 
   function render() {
-    keys.replaceChildren(...LAYERS[layer].map(row => {
+    keys.replaceChildren(...LAYERS[layer].map((row, index) => {
       const element = document.createElement("div");
-      element.className = "row";
+      element.className = `row row-${layer}-${index}`;
       element.append(...row.map(makeKey));
       return element;
     }));
@@ -173,7 +232,12 @@
 
   // The IME applies the tapped candidate to the buffer first; then the buffer is finished.
   candidates.addEventListener("click", event => {
-    if (event.target.closest(".ime-candidate")) queueMicrotask(commitBuffer);
+    const button = event.target.closest(".ime-candidate");
+    if (!button) return;
+    const replacement = button.dataset.written
+      ? { start: Number(button.dataset.start), hanri: button.dataset.hanri, written: button.dataset.written }
+      : null;
+    queueMicrotask(() => commitBuffer(replacement));
   });
 
   render();

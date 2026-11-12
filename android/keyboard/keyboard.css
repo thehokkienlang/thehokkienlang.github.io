@@ -143,13 +143,22 @@ body.composing #buffer {
   line-height: 1;
 }
 
+#candidates.hanri-candidate-menu .ime-candidate[hidden] {
+  display: none;
+}
+
+/* Key grid in Gboard's proportions: ten equal columns, a half-key inset on the second letter
+   row, wide Shift and Backspace, and a shorter top row. */
 #keys {
+  --gap: 6px;
+  --side: 4px;
+  --unit: calc((100vw - 2 * var(--side) - 9 * var(--gap)) / 10);
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--gap);
+  gap: 9px;
   min-height: 0;
-  padding: 6px 4px 8px;
+  padding: 8px var(--side) 10px;
 }
 
 .row {
@@ -160,14 +169,17 @@ body.composing #buffer {
   min-height: 0;
 }
 
+.row.row-tli-0 {
+  flex: 0.82 1 0;
+}
+
 .key {
   position: relative;
   display: flex;
-  flex: 1 1 0;
+  flex: 0 0 var(--unit);
   align-items: center;
   justify-content: center;
   min-width: 0;
-  max-width: 14%;
   margin: 0;
   padding: 0;
   border: 0;
@@ -176,8 +188,8 @@ body.composing #buffer {
   box-shadow: 0 1px 0 #aeb9be;
   color: var(--ink);
   font: inherit;
-  font-size: 21px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 500;
 }
 
 .key.pressed {
@@ -191,26 +203,36 @@ body.composing #buffer {
 .key-input {
   position: absolute;
   top: 3px;
-  right: 5px;
+  right: 4px;
   color: #7d8a94;
   font-family: "TLI Western Punctuation", "Segoe UI", Roboto, sans-serif;
-  font-size: 10px;
-  font-weight: 600;
+  font-size: 9.5px;
+  font-weight: 500;
   line-height: 1;
+}
+
+/* Five keys share the ten columns of the top row. */
+.row-tli-0 .key {
+  flex-basis: calc(2 * var(--unit) + var(--gap));
 }
 
 .key.tone {
   background: #edf5f3;
   color: var(--accent);
+  font-weight: 700;
 }
 
 .key.control {
-  flex: 1.5 1 0;
-  max-width: none;
   background: var(--key-control);
   font-family: "Segoe UI", Roboto, sans-serif;
   font-size: 17px;
-  font-weight: 600;
+  font-weight: 500;
+}
+
+/* Shift and Backspace take what the letters leave: one and a half columns each. */
+.key.key-shift,
+.key.key-backspace {
+  flex: 1 1 0;
 }
 
 .key.key-shift.active {
@@ -218,8 +240,14 @@ body.composing #buffer {
   color: #ffffff;
 }
 
+.key.key-symbols,
+.key.key-letters,
+.key.key-enter {
+  flex-basis: calc(1.5 * var(--unit) + 0.5 * var(--gap));
+}
+
 .key.key-space {
-  flex: 5 1 0;
+  flex: 1 1 0;
   background: var(--key);
 }
 
