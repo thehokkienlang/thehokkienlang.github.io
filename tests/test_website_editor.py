@@ -133,6 +133,10 @@ class WebsiteEditorTests(unittest.TestCase):
         self.assertEqual(tone_marker.auto_sandhi_song_source("릐2호2"), "릐1호2")
         self.assertEqual(tone_marker.auto_sandhi_song_source("[字지2][字지2]"), "[字지1][字지2]")
         self.assertEqual(tone_marker.auto_sandhi_song_source("[一句짇구][話웨5]"), "[一句짇구2][話웨5]")
+        # Citation tones imported into song source must sandhi once, not treat an
+        # already-sandhied unmarked tone 3 as a fresh citation tone.
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[無뽀ˊ-][伴퐐ˉ]"), "[無뽀3-][伴퐐ˉ]")
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[在재ˉ-][心內심ˉ래ˉ]"), "[在재3-][心內심ˉ래ˉ]")
         self.assertEqual(tone_marker.auto_sandhi_song_source("릐2 호2"), "릐2 호2")
         self.assertEqual(tone_marker.auto_sandhi_song_source("릐2, 호2"), "릐2, 호2")
         rendered = tone_marker.convert_hangul_to_html("릐2호2", "song")
