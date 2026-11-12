@@ -403,6 +403,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 若是	若是	나시5	若是	若是	if		lexical	U+82E5_U+662F_00
 嚨喉	咙喉	나ᄋᅷ4	喉嚨	喉咙	throat		lexical	U+56A8_U+5589_00
 若準	若准	나준2	如果; 假如	〃	if; suppose		lexical	U+82E5_U+6E96_00
+逽像	逽像	나1츌5	宛若; 好像	宛若; 好像	as if; like		lexical	U+903D_U+50CF_00
 奈	〃	내5	〃	〃	how; endure		lexical	U+5948_00
 荔鏡記	荔镜记	내곙2기	〃	荔镜记	record; remember		lexical	U+8354_U+93E1_U+8A18_00
 奈何	〃	내호4	〃	〃	what to do; how		lexical	U+5948_U+4F55_00
@@ -797,6 +798,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 念	〃	럄5	〃	〃	read aloud; miss; think of		lexical	U+5FF5_00
 念經	念经	럄곙1	〃	念经	chant scripture		lexical	U+5FF5_U+7D93_00
 連鞭	连鞭	럄미1	馬上; 立即	马上; 立即	immediately; at once		lexical	U+9023_U+97AD_00
+黏黐黐	黏黐黐	럄티5티1	黏糊糊	黏糊糊	sticky; to be very close to each other in a relationship		lexical	U+9ECF_U+9ED0_U+9ED0_00
 粒	〃	럅1	〃	〃	grain; particle		lexical	U+7C92_00
 攝	摄	럅	〃	摄	take in; photograph		lexical	U+651D_00
 掠	〃	럏1	〃	〃	catch; seize		lexical	U+63A0_00
@@ -1191,6 +1193,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 無要緊	無要紧	뽀ᄋᆤ2긴2	不要緊	不要紧	not important; not urgent		lexical	U+7121_U+8981_U+7DCA_00
 無插	无插	뽀찹	不理睬	不理睬	don't care		lexical	U+7121_U+63D2_00
 無彩工	无彩工	뽀채1강1	沒意思	没意思	pointless; meaningless		lexical	U+7121_U+5F69_U+5DE5_00
+無法度	无法度	뽀홛1더5	沒辦法	没办法	it can't be helped; there's no way		lexical	U+7121_U+6CD5_U+5EA6_00
 滿	满	뽠2	〃	满	full		lexical	U+6EFF_01
 買	买	뾔2	〃	买	buy		lexical	U+8CB7_00
 賣	卖	뾔5	〃	卖	sell		lexical	U+8CE3_00
@@ -1204,6 +1207,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 賣票	卖票	뾔표	〃	卖票	sell tickets		lexical	U+8CE3_U+7968_00
 秒	〃	뾰2	〃	〃	second		lexical	U+79D2_00
 母	〃	뿌2	〃	〃	mother		lexical	U+6BCD_00
+舞	舞	뿌2	舞	舞	dance; to mess with; to fiddle with		lexical	U+821E_00
 無	无	뿌4	〃	无	not have; no		lexical	U+7121_00
 無間地獄	无间地狱	뿌간5데꼑1	〃	无间地狱	Avīci		lexical	U+7121_U+9593_U+5730_U+7344_00
 母囝	〃	뿌1걀2	母親和孩子	母亲和孩子	mother and child		lexical	U+6BCD_U+56DD_00
@@ -1369,6 +1373,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 昔日	〃	셱1띧1	〃	〃	former days		lexical	U+6614_U+65E5_00
 熟似	〃	셱새5	認識	认识	know; be acquainted with		lexical	U+719F_U+4F3C_00
 碩士	硕士	셱수5	〃	硕士	large; master's degree; scholar; specialist		lexical	U+78A9_U+58EB_00
+適合	适合	셱1합1	適合	适合	compatible; fit		lexical	U+9069_U+5408_00
 蟮	〃	셴5	僅用於複詞的字（如蟮蟲），不單獨成詞	仅用于复词的字（如蟮虫），不单独成词	bound character (used in 蟮蟲); not a standalone word		lexical	U+87EE_00
 𤺪	〃	셴5	疲倦; 厭倦	疲倦; 厌倦	tired; weary; bored; fed up		lexical	U+24EAA_00
 仙女	〃	셴5릐2	〃	〃	immortal; fairy; woman; female		lexical	U+4ED9_U+5973_00
@@ -2209,6 +2214,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 晟養	晟养	챨영2	養大	养大	raise; bring up		lexical	U+665F_U+990A_00
 籤	签	챰1	〃	签	lot; divination slip		lexical	U+7C64_00
 籤詩	签诗	챰5시1	〃	签诗	divination poem		lexical	U+7C64_U+8A69_00
+沯	沯	챵4	沖	冲	to flush; to flow rapidly downward; to splash		lexical	U+6CAF_00
 撨	〃	ᄎᆤ4	調整; 安排	调整; 安排	adjust; arrange		lexical	U+64A8_00
 悄悄	〃	ᄎᆤ5ᄎᆤ1	〃	〃	quietly		lexical	U+6084_U+6084_00
 初	〃	처1	〃	〃	beginning; first		lexical	U+521D_00

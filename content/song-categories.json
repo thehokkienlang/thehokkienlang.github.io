@@ -90,7 +90,8 @@
     "routes": [
       "/songs/姊妹仔/",
       "/songs/跤踏車/",
-      "/songs/恬恬에夢/"
+      "/songs/恬恬에夢/",
+      "/songs/心花開/"
     ]
   },
   {
@@ -195,9 +196,9 @@
     "tint": "#e8e7bd",
     "tintEnd": "#d2e9d1",
     "routes": [
-      "/songs/望春風/",
       "/songs/燒肉粽/",
-      "/songs/天烏烏/"
+      "/songs/天烏烏/",
+      "/songs/望春風/"
     ]
   },
   {

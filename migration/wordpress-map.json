@@ -565,6 +565,12 @@
       "sourceId": 11535,
       "route": "/songs/夢中’에情話/",
       "file": "content/songs/song-11535.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/心花開/",
+      "sourceId": 11536,
+      "route": "/songs/心花開/",
+      "file": "content/songs/song-11536.json"
     }
   ],
   "deferred": {

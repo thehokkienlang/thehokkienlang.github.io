@@ -673,7 +673,16 @@
   document.addEventListener('pointerdown', event => {
     if (!event.target.closest('.song-browser')) setSongListOpen(false);
   });
-  $('addLine').onclick = () => { addLineRow(); markDirty(); $('lyricRows').lastElementChild.querySelector('input').focus(); };
+  $('addLine').onclick = () => {
+    const selected = $('lyricRows').querySelector('.lyric-row.selected');
+    const row = addLineRow(
+      {kind: 'line', text: '', grey: false},
+      selected?.nextElementSibling || null,
+    );
+    selectLineRow(row);
+    markDirty();
+    row.querySelector('.lyric-input').focus();
+  };
   $('previewSong').onclick = () => renderPreview({loud:true});
   $('saveSong').onclick = () => saveSong().catch(error => notice(error.message, true));
   $('publishSong').onclick = publishSong;
