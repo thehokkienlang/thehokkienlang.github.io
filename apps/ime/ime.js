@@ -499,3 +499,8 @@ if (typeof navigator === "object" && "serviceWorker" in navigator) {
     for (const name of await caches.keys()) if (name.startsWith("tli-ime-")) await caches.delete(name);
   }).catch(() => {});
 }
+
+// The Android keyboard download is only useful on Android, so other devices never see it.
+if (/Android/i.test(navigator.userAgent)) {
+  document.querySelector(".android-keyboard")?.removeAttribute("hidden");
+}
