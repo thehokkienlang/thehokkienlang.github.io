@@ -130,6 +130,7 @@ def main() -> int:
     run("Stable-ID structural references", "node", "tools/check_entry_references.cjs")
     if args.source_only:
         run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
+    run('Browser-free engine (mobile keyboard source)', 'node', 'tests/check_engine_headless.cjs')
     run('Static priority and reading defaults', 'node', 'tools/check_static_ranking.cjs')
     run('Static Desktop ranking and row independence',sys.executable,'-X','utf8','tools/check_static_desktop.py')
     run('Adaptive Web candidate learning', 'node', 'tools/check_adaptive_ranking.cjs')

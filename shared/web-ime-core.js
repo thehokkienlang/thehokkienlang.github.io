@@ -1,4 +1,8 @@
-const TangliengimImeCore = (() => {
+// TLI engine: dictionary lookup, candidate ranking, tone sandhi and learned preferences.
+// This section uses no browser APIs, so the same code can run inside a mobile keyboard or any
+// other JavaScript host (tests/check_engine_headless.cjs runs it with no DOM). It needs only
+// TangliengimHangulIme from web-hangul-ime.js. Keep document/window code in the section below.
+const TangliengimEngine = (() => {
   const HANGUL_TONE_MARKS = {
     1: "ꞈ",
     "ˆ": "ꞈ",
@@ -33,6 +37,7 @@ const TangliengimImeCore = (() => {
   };
 
   const HANGUL_TONE_CHARS = new Set([...Object.keys(HANGUL_TONE_MARKS), "3"]);
+
   const INPUT_TONE_DIGITS = Object.freeze({
     1: "1", "ˆ": "1", "ꞈ": "1",
     2: "2", "ˋ": "2", "`": "2", "ˎ": "2",
@@ -40,7 +45,9 @@ const TangliengimImeCore = (() => {
     4: "4", "ˊ": "4", "ˏ": "4",
     5: "5", "ˉ": "5", "ˍ": "5",
   });
+
   const LEGACY_INLINE_TONE_MARKS = /[ˆˋ`ˊˉꞈˎˏˍ]/gu;
+
   const COMMITTED_INPUT_TYPES = new Set([
     "insertFromPaste",
     "insertFromDrop",
@@ -48,13 +55,18 @@ const TangliengimImeCore = (() => {
     "historyUndo",
     "historyRedo",
   ]);
+
   // Tone sandhi (Taipei): the browser copy of shared/tli-sandhi.json, which the
   // Python engines read. tests/test_dictionary_orthography_spec.py keeps them equal;
   // other browser scripts use TAIPEI_SANDHI below instead of their own copy.
   const CHECKED_FINAL_JAMO = new Set(["ᆨ", "ᆮ", "ᆸ", "ᇂ", "ᆶ"]);
+
   const OPEN_TAIPEI_SANDHI = Object.freeze({ 1: "5", 2: "1", 3: "2", 4: "3", 5: "3" });
+
   const CHECKED_TAIPEI_SANDHI = Object.freeze({ 1: "3", 3: "1" });
+
   const LATIN_WIDTH_APOSTROPHES = new Set(["’", "‘"]);
+
   const AMERICAN_TO_BRITISH_ENGLISH = Object.freeze({
     airplane: "aeroplane",
     airplanes: "aeroplanes",
@@ -196,21 +208,6 @@ const TangliengimImeCore = (() => {
     return INPUT_TONE_DIGITS[char] || "";
   }
 
-  function displayTextNode(text) {
-    const fragment = document.createDocumentFragment();
-    for (const char of [...normalizeApostrophes(text)]) {
-      if (LATIN_WIDTH_APOSTROPHES.has(char)) {
-        const span = document.createElement("span");
-        span.className = "latin-apostrophe";
-        span.textContent = char;
-        fragment.append(span);
-      } else {
-        fragment.append(document.createTextNode(char));
-      }
-    }
-    return fragment;
-  }
-
   function isPrecomposedHangul(char) {
     if (!char) return false;
     const code = char.codePointAt(0);
@@ -346,249 +343,6 @@ const TangliengimImeCore = (() => {
     return unit.canCarryTone && isToneMark(tone) ? unit.end + 1 : unit.end;
   }
 
-  function tonedHangulNode(unit, tone) {
-    const mark = HANGUL_TONE_MARKS[tone];
-    if (!mark) {
-      return document.createTextNode(unit);
-    }
-
-    const ruby = document.createElement("span");
-    ruby.className = "hangul-tone";
-    ruby.setAttribute("aria-label", `${unit}${tone}`);
-    ruby.append(document.createTextNode(unit));
-
-    const rt = document.createElement("span");
-    rt.className = "tone-mark";
-    rt.textContent = mark;
-    ruby.append(rt);
-    return ruby;
-  }
-
-  function renderToneMarkedReading(reading) {
-    const fragment = document.createDocumentFragment();
-    const text = normalizeApostrophes(reading);
-    let index = 0;
-
-    while (index < text.length) {
-      const unit = readingUnitAt(text, index);
-      if (!unit) break;
-
-      const tone = text[unit.end];
-      if (unit.canCarryTone && isToneMark(tone)) {
-        fragment.append(tonedHangulNode(unit.text, tone));
-        index = unit.end + 1;
-      } else {
-        fragment.append(displayTextNode(unit.text));
-        index = unit.end;
-      }
-    }
-
-    return fragment;
-  }
-
-  function toneOverlayPositions(control, source, spans) {
-    const positions = new Map();
-    if (!spans.length || !control || !document.body || typeof getComputedStyle !== "function") return positions;
-
-    const style = getComputedStyle(control);
-    const mirror = document.createElement("div");
-    const properties = [
-      "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
-      "textAlign", "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
-      "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth", "direction", "wordBreak",
-      "tabSize", "writingMode",
-    ];
-    mirror.setAttribute("aria-hidden", "true");
-    mirror.tabIndex = -1;
-    mirror.style.position = "fixed";
-    mirror.style.left = "0";
-    mirror.style.top = "0";
-    mirror.style.visibility = "hidden";
-    mirror.style.opacity = "0";
-    mirror.style.pointerEvents = "none";
-    mirror.style.userSelect = "none";
-    mirror.style.webkitUserSelect = "none";
-    mirror.style.caretColor = "transparent";
-    mirror.style.whiteSpace = "pre-wrap";
-    mirror.style.overflowWrap = "break-word";
-    mirror.style.width = `${control.clientWidth}px`;
-    for (const property of properties) mirror.style[property] = style[property];
-
-    const textNode = document.createTextNode(source);
-    mirror.append(textNode);
-    document.body.append(mirror);
-    const mirrorRect = mirror.getBoundingClientRect();
-    for (const span of spans) {
-      const range = document.createRange();
-      range.setStart(textNode, span.start);
-      range.setEnd(textNode, span.end);
-      const rect = range.getBoundingClientRect();
-      if (!rect.width && !rect.height) continue;
-      positions.set(span.start, {
-        left: rect.left - mirrorRect.left + rect.width / 2,
-        top: rect.top - mirrorRect.top,
-      });
-    }
-    mirror.remove();
-
-    // The textarea's own caret hit-test accounts for spacing its DOM mirror cannot reproduce exactly.
-    if (typeof document.caretPositionFromPoint !== "function") return positions;
-    const controlRect = control.getBoundingClientRect();
-    const lineHeight = Number.parseFloat(style.lineHeight);
-    if (!lineHeight || !controlRect.width || !controlRect.height) return positions;
-
-    const left = controlRect.left + Number.parseFloat(style.borderLeftWidth) + Number.parseFloat(style.paddingLeft);
-    const right = controlRect.left + control.clientWidth - Number.parseFloat(style.paddingRight);
-    const firstLine = controlRect.top + Number.parseFloat(style.borderTopWidth) +
-      Number.parseFloat(style.paddingTop) + lineHeight / 2 - control.scrollTop;
-    const minimumY = Math.max(controlRect.top + 1, 0);
-    const maximumY = Math.min(controlRect.bottom - 1, window.innerHeight - 1);
-    if (right <= left || maximumY < minimumY) return positions;
-
-    const caretOffset = (x, y) => {
-      const caret = document.caretPositionFromPoint(x, y);
-      return caret?.offsetNode === control ? caret.offset : null;
-    };
-    const lines = [];
-    const firstVisibleLine = Math.max(0, Math.ceil((minimumY - firstLine) / lineHeight));
-    for (let line = firstVisibleLine; firstLine + line * lineHeight <= maximumY; line += 1) {
-      const y = firstLine + line * lineHeight;
-      const start = caretOffset(left, y);
-      const end = caretOffset(right, y);
-      if (start !== null && end !== null && end >= start) lines.push({ start, end, y });
-    }
-
-    for (const span of spans) {
-      const line = lines.find(({ start, end }) => start <= span.start && span.end <= end);
-      if (!line) continue;
-      const measured = positions.get(span.start);
-      if (!measured) continue;
-      const estimate = controlRect.left + measured.left - control.scrollLeft;
-      let lower = Math.max(left, Math.min(right, estimate - 1));
-      let upper = Math.max(lower, Math.min(right, estimate + 1));
-      let lowerOffset = caretOffset(lower, line.y);
-      let upperOffset = caretOffset(upper, line.y);
-      let distance = 2;
-      while (lowerOffset !== null && lowerOffset >= span.end && lower > left) {
-        upper = lower;
-        upperOffset = lowerOffset;
-        lower = Math.max(left, lower - distance);
-        lowerOffset = caretOffset(lower, line.y);
-        distance *= 2;
-      }
-      distance = 2;
-      while (upperOffset !== null && upperOffset < span.end && upper < right) {
-        lower = upper;
-        lowerOffset = upperOffset;
-        upper = Math.min(right, upper + distance);
-        upperOffset = caretOffset(upper, line.y);
-        distance *= 2;
-      }
-      if (lowerOffset === null || upperOffset === null || lowerOffset >= span.end || upperOffset < span.end) continue;
-      while (upper - lower > 0.25) {
-        const middle = (lower + upper) / 2;
-        const offset = caretOffset(middle, line.y);
-        if (offset === null) break;
-        if (offset >= span.end) upper = middle;
-        else lower = middle;
-      }
-      positions.set(span.start, {
-        left: (lower + upper) / 2 - controlRect.left + control.scrollLeft,
-        top: line.y - controlRect.top - lineHeight / 2 + control.scrollTop,
-      });
-    }
-    return positions;
-  }
-
-  function renderToneOverlayMarks(text, toneSpans = [], control = null) {
-    const fragment = document.createDocumentFragment();
-    const source = String(text || "");
-    const candidates = Array.from(toneSpans || []).sort(
-      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
-    );
-    const spans = [];
-    let cursor = 0;
-
-    for (const span of candidates) {
-      const start = Number(span?.start);
-      const end = Number(span?.end);
-      const hangul = String(span?.hangul || "");
-      const reading = normalizeApostrophes(String(span?.reading || ""));
-      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
-        continue;
-      }
-      if (source.slice(start, end) !== hangul || TangliengimHangulIme.normalizeReadingBase(reading) !== hangul) {
-        continue;
-      }
-      const unit = readingUnitAt(reading, 0);
-      const mark = unit?.canCarryTone ? HANGUL_TONE_MARKS[reading[unit.end]] : "";
-      if (!mark) continue;
-      spans.push({ start, end, hangul, mark });
-      cursor = end;
-    }
-
-    const positions = toneOverlayPositions(control, source, spans);
-    for (const span of spans) {
-      const position = positions.get(span.start);
-      if (control && !position) continue;
-      const anchor = document.createElement("span");
-      anchor.className = "tone-overlay-anchor";
-      anchor.setAttribute("aria-hidden", "true");
-      if (position) {
-        anchor.style.left = `${position.left}px`;
-        anchor.style.top = `${position.top}px`;
-      }
-      const annotation = document.createElement("span");
-      annotation.className = "tone-overlay-mark";
-      annotation.textContent = span.mark;
-      anchor.append(annotation);
-      fragment.append(anchor);
-    }
-    return fragment;
-  }
-
-  function renderRubyOverlayMarks(text, rubySpans = [], control = null) {
-    const fragment = document.createDocumentFragment();
-    const source = String(text || "");
-    const candidates = Array.from(rubySpans || []).sort(
-      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
-    );
-    const spans = [];
-    let cursor = 0;
-
-    for (const span of candidates) {
-      const start = Number(span?.start);
-      const end = Number(span?.end);
-      const hanri = String(span?.hanri || "");
-      const reading = normalizeApostrophes(String(span?.reading || ""));
-      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
-        continue;
-      }
-      if (!reading || source.slice(start, end) !== hanri) continue;
-      spans.push({ start, end, hanri, reading });
-      cursor = end;
-    }
-
-    const positions = toneOverlayPositions(control, source, spans);
-    for (const span of spans) {
-      const position = positions.get(span.start);
-      if (control && !position) continue;
-      const anchor = document.createElement("span");
-      anchor.className = "ruby-overlay-anchor";
-      anchor.setAttribute("aria-hidden", "true");
-      if (position) {
-        anchor.style.left = `${position.left}px`;
-        anchor.style.top = `${position.top}px`;
-      }
-      const annotation = document.createElement("span");
-      annotation.className = "ruby-overlay-mark";
-      annotation.textContent = span.reading;
-      anchor.append(annotation);
-      fragment.append(anchor);
-    }
-    return fragment;
-  }
-
   function toneOverlaySpansFromReading(reading, text, start) {
     const source = normalizeApostrophes(String(reading || ""));
     let readingIndex = 0;
@@ -617,41 +371,6 @@ const TangliengimImeCore = (() => {
     }
 
     return { spans, end: textIndex };
-  }
-
-  function renderInlineUpperToneReading(reading) {
-    const fragment = document.createDocumentFragment();
-    const text = normalizeApostrophes(reading);
-    let index = 0;
-
-    while (index < text.length) {
-      const unit = readingUnitAt(text, index);
-      if (!unit) break;
-
-      const tone = text[unit.end];
-      if (unit.canCarryTone) {
-        const unitNode = document.createElement("span");
-        unitNode.className = "hangul-reading-unit";
-        unitNode.textContent = unit.text;
-        fragment.append(unitNode);
-      } else {
-        fragment.append(displayTextNode(unit.text));
-      }
-      if (unit.canCarryTone && isToneMark(tone)) {
-        const mark = UPPER_HANGUL_TONE_MARKS[tone] || "";
-        if (mark) {
-          const toneNode = document.createElement("span");
-          toneNode.className = "inline-upper-tone";
-          toneNode.textContent = mark;
-          fragment.append(toneNode);
-        }
-        index = unit.end + 1;
-      } else {
-        index = unit.end;
-      }
-    }
-
-    return fragment;
   }
 
   function compareCanonicalValue(left, right) {
@@ -726,6 +445,7 @@ const TangliengimImeCore = (() => {
   }
 
   const MAX_SELECTION_COUNT = 255;
+
   const PREFERENCE_STORAGE_KEY = "tangliengim.candidatePreferences.v1";
 
   function adaptiveLookupKey(value) {
@@ -764,8 +484,9 @@ const TangliengimImeCore = (() => {
     const unread = Symbol("unread");
     let observedRaw = unread;
     let storage;
-    try { storage = window.localStorage; } catch {}
-    backend ||= window.TangliengimCandidatePreferenceBackend || null;
+    const host = typeof window === "object" && window ? window : null;
+    try { storage = host?.localStorage; } catch {}
+    backend ||= host?.TangliengimCandidatePreferenceBackend || null;
 
     function accept(payload) {
       loadedPayload = payload;
@@ -907,8 +628,8 @@ const TangliengimImeCore = (() => {
       api.ready = api.reload();
     } else {
       refresh();
-      if (typeof window.addEventListener === "function") {
-        window.addEventListener("storage", event => {
+      if (typeof host?.addEventListener === "function") {
+        host.addEventListener("storage", event => {
           if (event.key === PREFERENCE_STORAGE_KEY || event.key === null) refresh();
         });
       }
@@ -1282,6 +1003,334 @@ const TangliengimImeCore = (() => {
     if (!leading || !/^\p{P}$/u.test(leading) || start <= 0) return start;
     const preceding = Array.from(normalizeApostrophes(text.slice(0, start))).at(-1) || "";
     return preceding === leading ? start - preceding.length : start;
+  }
+
+  return {
+    HANGUL_TONE_MARKS, UPPER_HANGUL_TONE_MARKS, HANGUL_TONE_CHARS, INPUT_TONE_DIGITS,
+    LEGACY_INLINE_TONE_MARKS, COMMITTED_INPUT_TYPES, CHECKED_FINAL_JAMO, OPEN_TAIPEI_SANDHI,
+    CHECKED_TAIPEI_SANDHI, LATIN_WIDTH_APOSTROPHES, AMERICAN_TO_BRITISH_ENGLISH, normalizeApostrophes,
+    normalizeText, normalizeEnglishSearch, normalizeNasalAlias, normalizeLomariSearchAliases, queryVariants,
+    searchableEntry, stripLegacyInlineToneMarks, isToneMark, inputToneDigit, isPrecomposedHangul,
+    isInitialJamo, isVowelJamo, isFinalJamo, hangulFinalJamo, citationToTaipeiSandhiTone, isCheckedFinalUnit,
+    singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
+    readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalValue, compareCanonicalEntries,
+    rankingLookupKey, sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT,
+    PREFERENCE_STORAGE_KEY, adaptiveLookupKey, adaptiveScore, sanitizeCandidatePreferences,
+    createCandidatePreferences, buildReadingCandidateMap, tonesByBasePosition,
+    typedTonesAreCompatibleWithEntry, filterCandidateEntries, createSimplifiedNormalizationIndex,
+    createSimplifiedNormalizationSession, createDictionaryIndex, isImeCandidateChar,
+    candidateReplacementStart,
+  };
+})();
+// END TLI ENGINE (browser-free)
+
+// Browser layer: rendering, caret geometry, the candidate popup and the text-control IME.
+const TangliengimImeCore = (() => {
+  const {
+    HANGUL_TONE_MARKS, UPPER_HANGUL_TONE_MARKS, COMMITTED_INPUT_TYPES, CHECKED_FINAL_JAMO,
+    OPEN_TAIPEI_SANDHI, CHECKED_TAIPEI_SANDHI, LATIN_WIDTH_APOSTROPHES, normalizeApostrophes, normalizeText,
+    normalizeEnglishSearch, normalizeLomariSearchAliases, queryVariants, searchableEntry,
+    stripLegacyInlineToneMarks, isToneMark, inputToneDigit, citationToTaipeiSandhiTone, isCheckedFinalUnit,
+    singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
+    readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalEntries, rankingLookupKey,
+    sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT, PREFERENCE_STORAGE_KEY,
+    adaptiveLookupKey, adaptiveScore, sanitizeCandidatePreferences, createCandidatePreferences,
+    buildReadingCandidateMap, tonesByBasePosition, typedTonesAreCompatibleWithEntry, filterCandidateEntries,
+    createSimplifiedNormalizationIndex, createSimplifiedNormalizationSession, createDictionaryIndex,
+    isImeCandidateChar, candidateReplacementStart,
+  } = TangliengimEngine;
+
+  function displayTextNode(text) {
+    const fragment = document.createDocumentFragment();
+    for (const char of [...normalizeApostrophes(text)]) {
+      if (LATIN_WIDTH_APOSTROPHES.has(char)) {
+        const span = document.createElement("span");
+        span.className = "latin-apostrophe";
+        span.textContent = char;
+        fragment.append(span);
+      } else {
+        fragment.append(document.createTextNode(char));
+      }
+    }
+    return fragment;
+  }
+
+  function tonedHangulNode(unit, tone) {
+    const mark = HANGUL_TONE_MARKS[tone];
+    if (!mark) {
+      return document.createTextNode(unit);
+    }
+
+    const ruby = document.createElement("span");
+    ruby.className = "hangul-tone";
+    ruby.setAttribute("aria-label", `${unit}${tone}`);
+    ruby.append(document.createTextNode(unit));
+
+    const rt = document.createElement("span");
+    rt.className = "tone-mark";
+    rt.textContent = mark;
+    ruby.append(rt);
+    return ruby;
+  }
+
+  function renderToneMarkedReading(reading) {
+    const fragment = document.createDocumentFragment();
+    const text = normalizeApostrophes(reading);
+    let index = 0;
+
+    while (index < text.length) {
+      const unit = readingUnitAt(text, index);
+      if (!unit) break;
+
+      const tone = text[unit.end];
+      if (unit.canCarryTone && isToneMark(tone)) {
+        fragment.append(tonedHangulNode(unit.text, tone));
+        index = unit.end + 1;
+      } else {
+        fragment.append(displayTextNode(unit.text));
+        index = unit.end;
+      }
+    }
+
+    return fragment;
+  }
+
+  function toneOverlayPositions(control, source, spans) {
+    const positions = new Map();
+    if (!spans.length || !control || !document.body || typeof getComputedStyle !== "function") return positions;
+
+    const style = getComputedStyle(control);
+    const mirror = document.createElement("div");
+    const properties = [
+      "boxSizing", "fontFamily", "fontSize", "fontWeight", "fontStyle", "letterSpacing", "lineHeight",
+      "textAlign", "textTransform", "textIndent", "paddingTop", "paddingRight", "paddingBottom", "paddingLeft",
+      "borderTopWidth", "borderRightWidth", "borderBottomWidth", "borderLeftWidth", "direction", "wordBreak",
+      "tabSize", "writingMode",
+    ];
+    mirror.setAttribute("aria-hidden", "true");
+    mirror.tabIndex = -1;
+    mirror.style.position = "fixed";
+    mirror.style.left = "0";
+    mirror.style.top = "0";
+    mirror.style.visibility = "hidden";
+    mirror.style.opacity = "0";
+    mirror.style.pointerEvents = "none";
+    mirror.style.userSelect = "none";
+    mirror.style.webkitUserSelect = "none";
+    mirror.style.caretColor = "transparent";
+    mirror.style.whiteSpace = "pre-wrap";
+    mirror.style.overflowWrap = "break-word";
+    mirror.style.width = `${control.clientWidth}px`;
+    for (const property of properties) mirror.style[property] = style[property];
+
+    const textNode = document.createTextNode(source);
+    mirror.append(textNode);
+    document.body.append(mirror);
+    const mirrorRect = mirror.getBoundingClientRect();
+    for (const span of spans) {
+      const range = document.createRange();
+      range.setStart(textNode, span.start);
+      range.setEnd(textNode, span.end);
+      const rect = range.getBoundingClientRect();
+      if (!rect.width && !rect.height) continue;
+      positions.set(span.start, {
+        left: rect.left - mirrorRect.left + rect.width / 2,
+        top: rect.top - mirrorRect.top,
+      });
+    }
+    mirror.remove();
+
+    // The textarea's own caret hit-test accounts for spacing its DOM mirror cannot reproduce exactly.
+    if (typeof document.caretPositionFromPoint !== "function") return positions;
+    const controlRect = control.getBoundingClientRect();
+    const lineHeight = Number.parseFloat(style.lineHeight);
+    if (!lineHeight || !controlRect.width || !controlRect.height) return positions;
+
+    const left = controlRect.left + Number.parseFloat(style.borderLeftWidth) + Number.parseFloat(style.paddingLeft);
+    const right = controlRect.left + control.clientWidth - Number.parseFloat(style.paddingRight);
+    const firstLine = controlRect.top + Number.parseFloat(style.borderTopWidth) +
+      Number.parseFloat(style.paddingTop) + lineHeight / 2 - control.scrollTop;
+    const minimumY = Math.max(controlRect.top + 1, 0);
+    const maximumY = Math.min(controlRect.bottom - 1, window.innerHeight - 1);
+    if (right <= left || maximumY < minimumY) return positions;
+
+    const caretOffset = (x, y) => {
+      const caret = document.caretPositionFromPoint(x, y);
+      return caret?.offsetNode === control ? caret.offset : null;
+    };
+    const lines = [];
+    const firstVisibleLine = Math.max(0, Math.ceil((minimumY - firstLine) / lineHeight));
+    for (let line = firstVisibleLine; firstLine + line * lineHeight <= maximumY; line += 1) {
+      const y = firstLine + line * lineHeight;
+      const start = caretOffset(left, y);
+      const end = caretOffset(right, y);
+      if (start !== null && end !== null && end >= start) lines.push({ start, end, y });
+    }
+
+    for (const span of spans) {
+      const line = lines.find(({ start, end }) => start <= span.start && span.end <= end);
+      if (!line) continue;
+      const measured = positions.get(span.start);
+      if (!measured) continue;
+      const estimate = controlRect.left + measured.left - control.scrollLeft;
+      let lower = Math.max(left, Math.min(right, estimate - 1));
+      let upper = Math.max(lower, Math.min(right, estimate + 1));
+      let lowerOffset = caretOffset(lower, line.y);
+      let upperOffset = caretOffset(upper, line.y);
+      let distance = 2;
+      while (lowerOffset !== null && lowerOffset >= span.end && lower > left) {
+        upper = lower;
+        upperOffset = lowerOffset;
+        lower = Math.max(left, lower - distance);
+        lowerOffset = caretOffset(lower, line.y);
+        distance *= 2;
+      }
+      distance = 2;
+      while (upperOffset !== null && upperOffset < span.end && upper < right) {
+        lower = upper;
+        lowerOffset = upperOffset;
+        upper = Math.min(right, upper + distance);
+        upperOffset = caretOffset(upper, line.y);
+        distance *= 2;
+      }
+      if (lowerOffset === null || upperOffset === null || lowerOffset >= span.end || upperOffset < span.end) continue;
+      while (upper - lower > 0.25) {
+        const middle = (lower + upper) / 2;
+        const offset = caretOffset(middle, line.y);
+        if (offset === null) break;
+        if (offset >= span.end) upper = middle;
+        else lower = middle;
+      }
+      positions.set(span.start, {
+        left: (lower + upper) / 2 - controlRect.left + control.scrollLeft,
+        top: line.y - controlRect.top - lineHeight / 2 + control.scrollTop,
+      });
+    }
+    return positions;
+  }
+
+  function renderToneOverlayMarks(text, toneSpans = [], control = null) {
+    const fragment = document.createDocumentFragment();
+    const source = String(text || "");
+    const candidates = Array.from(toneSpans || []).sort(
+      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
+    );
+    const spans = [];
+    let cursor = 0;
+
+    for (const span of candidates) {
+      const start = Number(span?.start);
+      const end = Number(span?.end);
+      const hangul = String(span?.hangul || "");
+      const reading = normalizeApostrophes(String(span?.reading || ""));
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
+        continue;
+      }
+      if (source.slice(start, end) !== hangul || TangliengimHangulIme.normalizeReadingBase(reading) !== hangul) {
+        continue;
+      }
+      const unit = readingUnitAt(reading, 0);
+      const mark = unit?.canCarryTone ? HANGUL_TONE_MARKS[reading[unit.end]] : "";
+      if (!mark) continue;
+      spans.push({ start, end, hangul, mark });
+      cursor = end;
+    }
+
+    const positions = toneOverlayPositions(control, source, spans);
+    for (const span of spans) {
+      const position = positions.get(span.start);
+      if (control && !position) continue;
+      const anchor = document.createElement("span");
+      anchor.className = "tone-overlay-anchor";
+      anchor.setAttribute("aria-hidden", "true");
+      if (position) {
+        anchor.style.left = `${position.left}px`;
+        anchor.style.top = `${position.top}px`;
+      }
+      const annotation = document.createElement("span");
+      annotation.className = "tone-overlay-mark";
+      annotation.textContent = span.mark;
+      anchor.append(annotation);
+      fragment.append(anchor);
+    }
+    return fragment;
+  }
+
+  function renderRubyOverlayMarks(text, rubySpans = [], control = null) {
+    const fragment = document.createDocumentFragment();
+    const source = String(text || "");
+    const candidates = Array.from(rubySpans || []).sort(
+      (left, right) => Number(left.start) - Number(right.start) || Number(left.end) - Number(right.end)
+    );
+    const spans = [];
+    let cursor = 0;
+
+    for (const span of candidates) {
+      const start = Number(span?.start);
+      const end = Number(span?.end);
+      const hanri = String(span?.hanri || "");
+      const reading = normalizeApostrophes(String(span?.reading || ""));
+      if (!Number.isInteger(start) || !Number.isInteger(end) || start < cursor || end <= start || end > source.length) {
+        continue;
+      }
+      if (!reading || source.slice(start, end) !== hanri) continue;
+      spans.push({ start, end, hanri, reading });
+      cursor = end;
+    }
+
+    const positions = toneOverlayPositions(control, source, spans);
+    for (const span of spans) {
+      const position = positions.get(span.start);
+      if (control && !position) continue;
+      const anchor = document.createElement("span");
+      anchor.className = "ruby-overlay-anchor";
+      anchor.setAttribute("aria-hidden", "true");
+      if (position) {
+        anchor.style.left = `${position.left}px`;
+        anchor.style.top = `${position.top}px`;
+      }
+      const annotation = document.createElement("span");
+      annotation.className = "ruby-overlay-mark";
+      annotation.textContent = span.reading;
+      anchor.append(annotation);
+      fragment.append(anchor);
+    }
+    return fragment;
+  }
+
+  function renderInlineUpperToneReading(reading) {
+    const fragment = document.createDocumentFragment();
+    const text = normalizeApostrophes(reading);
+    let index = 0;
+
+    while (index < text.length) {
+      const unit = readingUnitAt(text, index);
+      if (!unit) break;
+
+      const tone = text[unit.end];
+      if (unit.canCarryTone) {
+        const unitNode = document.createElement("span");
+        unitNode.className = "hangul-reading-unit";
+        unitNode.textContent = unit.text;
+        fragment.append(unitNode);
+      } else {
+        fragment.append(displayTextNode(unit.text));
+      }
+      if (unit.canCarryTone && isToneMark(tone)) {
+        const mark = UPPER_HANGUL_TONE_MARKS[tone] || "";
+        if (mark) {
+          const toneNode = document.createElement("span");
+          toneNode.className = "inline-upper-tone";
+          toneNode.textContent = mark;
+          fragment.append(toneNode);
+        }
+        index = unit.end + 1;
+      } else {
+        index = unit.end;
+      }
+    }
+
+    return fragment;
   }
 
   function textControlCaretPosition(control) {

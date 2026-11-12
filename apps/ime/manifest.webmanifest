@@ -1,0 +1,14 @@
+{
+  "name": "TLI IME · TheHokkienLang",
+  "short_name": "TLI IME",
+  "description": "Type Hokkien in Tangliengim (TLI) Hangul and Hanri, with Lomari and audio.",
+  "start_url": "/ime/",
+  "scope": "/ime/",
+  "display": "standalone",
+  "background_color": "#f5f8f7",
+  "theme_color": "#08756b",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "favicon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

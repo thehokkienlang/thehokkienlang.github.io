@@ -839,4 +839,5 @@ const TangliengimHangulIme = (() => {
   };
 })();
 
-window.TangliengimHangulIme = TangliengimHangulIme;
+// No window outside a browser (a mobile keyboard embeds this file as is).
+if (typeof window === "object" && window) window.TangliengimHangulIme = TangliengimHangulIme;

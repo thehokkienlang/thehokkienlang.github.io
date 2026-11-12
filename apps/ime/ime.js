@@ -488,3 +488,17 @@ if (typeof URLSearchParams === "function" && window.location?.search) {
 updateImePresentation();
 
 loadDictionary();
+
+// Offline use for the installed pad (apps/ime/sw.js). Needs https or localhost; harmless elsewhere.
+if (typeof navigator === "object" && "serviceWorker" in navigator && location.pathname.startsWith("/ime/")) {
+  window.addEventListener("load", async () => {
+    try {
+      await navigator.serviceWorker.register("/ime/sw.js", { scope: "/ime/" });
+      const registration = await navigator.serviceWorker.ready;
+      // Hand over what loaded before the worker took control, such as fonts.
+      const loaded = performance.getEntriesByType("resource").map(entry => entry.name)
+        .filter(url => url.startsWith(location.origin) && !/\.(wav|opus)(\?|$)/.test(url));
+      registration.active?.postMessage({ cache: loaded });
+    } catch {}
+  });
+}
