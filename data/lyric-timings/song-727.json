@@ -6,49 +6,49 @@
   "cues": [
     {
       "id": "line-001",
-      "fingerprint": "5fafd6b6e25506d46924473075ba434b39ffdcc6bd465ad9eef71a8f0e22b80b",
+      "fingerprint": "3206c57736834316d636717c4f729052be187651a27b1ea7251665110cd242a5",
       "start": 35.5,
       "end": 47.32
     },
     {
       "id": "line-002",
-      "fingerprint": "6946ebe459e0f00c43b56fefc94c15b6b4d5ad581d8a3b898a1c8de9d17cb199",
+      "fingerprint": "53e03045b68748fa0bac93dcc611f414bc7d5f9abbdd8ea2473fdc3c37558cfd",
       "start": 47.42,
       "end": 59.099
     },
     {
       "id": "line-003",
-      "fingerprint": "36c9346b2cd76b6e909e6cba61978c3d642628fc63be090f1ea044c4c8edb551",
+      "fingerprint": "e47b467e514cfcfc9564eff0a1f76acbd5bbef9143091ce15c89eafb150dab76",
       "start": 59.199,
       "end": 70.49
     },
     {
       "id": "line-004",
-      "fingerprint": "59ce478fba7ae53644ba279303a3bbaa9e2813397cad156de5028d8dec8910f0",
+      "fingerprint": "5b155723731b9abdcee83ce17b79706f0d3a4e54d58b634e83b5fd1130e693fd",
       "start": 70.59,
       "end": 128.28
     },
     {
       "id": "line-005",
-      "fingerprint": "420d162188480ac7c14a93bf92d7c31d7c92abaec74b8e830475a3b4ed8fa96d",
+      "fingerprint": "acdd47b38972658cfc5f16c17bc18020f560c1f14bee4cf0c28b3d93e01fbfd2",
       "start": 128.38,
       "end": 139.96
     },
     {
       "id": "line-006",
-      "fingerprint": "e8c3d30481941dfef081f27fed9c17cc431a2684e36767c38d6d39aeff2dabd4",
+      "fingerprint": "a09fae9aa1a41c366f80c0d97af71e8834e29c6fd0138893772dcfeb76c4e453",
       "start": 140.06,
       "end": 151.47
     },
     {
       "id": "line-007",
-      "fingerprint": "b08f056db78ab119460b87d502f1daa2b0742468c2afcaea341c6e1b8bb06f31",
+      "fingerprint": "4bfa1208c3919e31d983c89dfcce138e9042248d1bb2950e2dedd7599d943d7f",
       "start": 151.57,
       "end": 162.929
     },
     {
       "id": "line-008",
-      "fingerprint": "9744e98443a20650dc117921e96cd0f79d9acb38654f3cdeee1c96174dfb3fce",
+      "fingerprint": "a9a8abb8fbad7ddc54611d8caa16c2eac1e8ac7df14516b43f3590528444193d",
       "start": 163.029,
       "end": 174.622
     }
