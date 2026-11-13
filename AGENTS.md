@@ -1,5 +1,9 @@
 # Tangliengim Repository Agent Instructions
 
+## Push Descriptions
+
+When describing a push, preserve song titles exactly as written in the repository. Never replace them with Pinyin or literal English translations.
+
 ## Dictionary Update SOP
 
 Follow this procedure whenever a task changes `data/hokkien_hanri_dict.tsv` or any related dictionary identity, ranking, category, redirect, or registry file. Do not commit or push a partial dictionary update.
