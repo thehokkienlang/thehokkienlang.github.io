@@ -187,7 +187,7 @@ class LyricTimingTests(unittest.TestCase):
             self.assertTrue(service.save_lyric_timing(fresh['file'], result['sourceRevision'], result['revision'], result['timing'], result['timing'], labels)['ok'])
 
     def test_published_sidecars_match_authored_lyrics(self):
-        for identity, count in (('song-11533', 24), ('song-8502', 24), ('song-192', 32), ('song-5643', 56), ('song-231', 40), ('song-9996', 22), ('song-10032', 41)):
+        for identity, count in (('song-11533', 24), ('song-8502', 24), ('song-192', 32), ('song-5643', 56), ('song-231', 40), ('song-9996', 22), ('song-10032', 41), ('song-5524', 43)):
             with self.subTest(song=identity):
                 source = json.loads((ROOT/f'content/songs/{identity}.json').read_text(encoding='utf-8'))
                 data = json.loads(timing_path(ROOT, source).read_text(encoding='utf-8'))

@@ -36,7 +36,7 @@
 .lyric-input-wrap .lyric-input { position:relative; z-index:1; min-height:42px; font-size:17px; }
 .lyric-annotation-overlay { position:absolute; top:0; left:0; z-index:2; overflow:hidden; pointer-events:none; user-select:none; -webkit-user-select:none; }
 .lyric-annotation-overlay .tone-overlay-anchor { position:absolute; width:0; height:0; }
-.lyric-annotation-overlay .tone-overlay-mark { position:absolute; left:0; width:max-content; transform:translateX(-50%); color:#1f2937; font-family:"TLI Western Punctuation",Calibri,"Tangliengim Hangul","Noto Sans KR",sans-serif; font-weight:700; line-height:1; white-space:nowrap; }
+.lyric-annotation-overlay .tone-overlay-mark { position:absolute; left:1px; width:max-content; transform:translateX(-50%); color:#1f2937; font-family:"TLI Western Punctuation",Calibri,"Tangliengim Hangul","Noto Sans KR",sans-serif; font-weight:700; line-height:1; white-space:nowrap; }
 .lyric-annotation-overlay .tone-overlay-mark { top:calc(-0.72em - 1px); font-size:1em; }
 .line-tools { display:flex; gap:4px; }
 .line-tools button { width:32px; min-height:32px; padding:0; }

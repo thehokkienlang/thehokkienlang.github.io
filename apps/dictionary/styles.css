@@ -457,7 +457,7 @@ h1 {
 .hangul-tone .tone-mark {
   position: absolute;
   top: calc(-0.84em - 4px);
-  left: calc(50% - 1px);
+  left: 50%;
   transform: translateX(-50%);
   color: #1f2937;
   font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;

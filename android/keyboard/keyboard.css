@@ -135,7 +135,7 @@ body.composing #buffer {
 #candidates .hangul-tone .tone-mark {
   position: absolute;
   top: -1.02em;
-  left: 50%;
+  left: calc(50% + 1px);
   transform: translateX(-50%);
   font-family: "TLI Western Punctuation", Calibri, Arial, sans-serif;
   font-size: 1em;

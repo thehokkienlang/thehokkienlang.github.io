@@ -102,10 +102,10 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 /* A standalone tone mark over the top-left of its own Hangul syllable
    (semantic <ruby>syllable<rt>mark</rt></ruby>; site.js makes it .tli-tone-ruby). */
 .imported-content .tli-tone-ruby { position: relative; display: inline-block; isolation: isolate; }
-.imported-content .tli-tone-ruby > .tli-rt { position: absolute; top: -1.15em; left: 0.2em; z-index: 0; font-size: 120%; }
+.imported-content .tli-tone-ruby > .tli-rt { position: absolute; top: -1.15em; left: calc(0.2em + 1px); z-index: 0; font-size: 120%; }
 /* Italic Hangul slants right, so its mark sits lower and further right to stay
    over the slanted syllable instead of floating to its left. */
-.imported-content :is(i, em) .tli-tone-ruby > .tli-rt { top: -1em; left: 0.5em; }
+.imported-content :is(i, em) .tli-tone-ruby > .tli-rt { top: -1em; left: calc(0.5em + 1px); }
 .imported-content [style*="font-family:Sans-serif" i], .imported-content [style*="font-family: sans-serif" i] { font-family: "TLI Western Punctuation", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, sans-serif !important; }
 /* Semantic classes that replaced the WordPress inline styles (audit B4, tools/migrate_semantic_markup.py). */
 .imported-content .lyric-line { display: block; font-size: 1em; }
