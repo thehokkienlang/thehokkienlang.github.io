@@ -626,7 +626,10 @@ class WebsiteEditorService:
                 title_html = converter.convert_hangul_to_html(clean["titleSource"], "title")["html"]
                 visible_title = converter.visible_source_for_lomari_next_line(clean["titleSource"])
                 comparable = lambda value: re.sub(r"[\s’']+", "", unicodedata.normalize("NFC", value))
-                if comparable(visible_title) != comparable(clean["title"]):
+                # A title in Latin letters (Maybe Maybe, Aphrodite) is spelled in Hangul for
+                # its TLI title, so the two can only be compared when the title is in TLI.
+                written_in_tli = re.search(r"[㐀-鿿\U00020000-\U0003134f가-힣]", clean["title"])
+                if written_in_tli and comparable(visible_title) != comparable(clean["title"]):
                     raise WebsiteEditorError("The visible TLI title must match the song title.")
             blocks = []
             for item in clean["lyrics"]:

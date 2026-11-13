@@ -107,6 +107,12 @@ class WebsiteEditorTests(unittest.TestCase):
         # The dictionary row keeps its own sandhi before Hanri.
         self.assertEqual(tone_marker.apply_hangul_overrides_from_tsv("매相"), "매2相")
 
+    def test_latin_song_titles_are_not_compared_with_their_hangul_tli_title(self):
+        service = WebsiteEditorService(ROOT)
+        draft = service.song_editor_song("content/songs/song-10294.json")["draft"]  # Maybe Maybe
+        draft.pop("legacyTitle", None)
+        self.assertIn("메", service.render_song_draft(draft, existing_route="/songs/메삐메삐/")["titleHtml"])
+
     def test_older_hyphenated_readings_are_not_sandhied_again(self):
         # [問믕-] in older songs is already in its sandhi form; resolving it again gave 믕2.
         sys.path.insert(0, str(ROOT / "desktop"))
