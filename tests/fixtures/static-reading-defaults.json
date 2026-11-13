@@ -4232,9 +4232,9 @@
     },
     {
       "key": "夏秋冬",
-      "id": null,
-      "hanri": null,
-      "reading": null
+      "id": "U+590F_00",
+      "hanri": "夏",
+      "reading": "하5"
     },
     {
       "key": "外",
@@ -10748,15 +10748,15 @@
     },
     {
       "key": "爍",
-      "id": null,
-      "hanri": null,
-      "reading": null
+      "id": "U+720D_00",
+      "hanri": "爍",
+      "reading": "싷"
     },
     {
       "key": "爍爍",
-      "id": null,
-      "hanri": null,
-      "reading": null
+      "id": "U+720D_00",
+      "hanri": "爍",
+      "reading": "싷"
     },
     {
       "key": "爛",
@@ -16052,9 +16052,9 @@
     },
     {
       "key": "途",
-      "id": null,
-      "hanri": null,
-      "reading": null
+      "id": "U+9014_00",
+      "hanri": "途",
+      "reading": "더4"
     },
     {
       "key": "這",
