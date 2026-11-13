@@ -21,9 +21,11 @@ from lyric_timing import decorate_lyrics
 from image_descriptions import describe_images
 from page_meta import description as page_description, meta_tags
 
+# Header, in order: a (label, destinations) pair is a dropdown; an (href, label) pair is a link.
 NAV_GROUPS = (
     ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation"))),
-    ("Explore", (("/songs/", "Songs"), ("/read/", "Literature"))),
+    ("/songs/", "Songs"),
+    ("/read/", "Read"),
     ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
 )
 NAV = (("/about/", "About"), ("/search/", "Search"))
@@ -145,6 +147,9 @@ def navigation_links(route, language=None, variants=True):
     items = []
     current_route = base_route(route)
     for label, destinations in NAV_GROUPS:
+        if isinstance(destinations, str):  # a top-level link: (href, label)
+            items.append(link(label, destinations))
+            continue
         active = " is-current" if any(
             current_route == path or current_route.startswith(path) for path, _title in destinations
         ) else ""
@@ -542,6 +547,11 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     language = language_for_route(route)
     navigation = navigation_links(route)
     home_headings = {"en": "A written voice for Hokkien.", "zh-Hant": "記錄著屬於閩南語的聲音。", "zh-Hans": "记录着属于闽南语的声音。"}
+    home_heading_markup = {
+        "en": html.escape(home_headings["en"]),
+        "zh-Hant": '<span class="home-heading-segment">記錄著屬於</span><wbr><span class="home-heading-segment">閩南語的聲音。</span>',
+        "zh-Hans": '<span class="home-heading-segment">记录着属于</span><wbr><span class="home-heading-segment">闽南语的声音。</span>',
+    }
     home_introductions = {
         "en": "Tangliengim (TLI) brings pronunciation, tone, and meaning into one readable system.",
         "zh-Hant": "將發音、聲調和語意融為一體的東寧音（TLI）：一看就懂、一讀就通。",
@@ -561,7 +571,9 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     template = (root / "apps/content-site/page.html").read_text(encoding="utf-8")
     section = base_route(route).strip("/").split("/")[0] or "home"
     is_search = base_route(route) == "/search/"
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_html if heading_html is not None else html.escape(heading), "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
+    heading_markup = (heading_html if heading_html is not None else
+                      home_heading_markup[language] if base_route(route) == "/" else html.escape(heading))
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_markup, "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
     # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
     # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
     launch = values["LAUNCH"]

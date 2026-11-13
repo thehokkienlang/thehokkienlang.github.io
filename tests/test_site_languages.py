@@ -128,8 +128,11 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('class="site-search-link" href="/zh-hant/search/"', nav)
         self.assertIn('aria-label="搜尋"', nav)
         self.assertIn('>學習</summary>', nav)
-        self.assertIn('>探索</summary>', nav)
-        self.assertIn('>工具</summary>', nav)
+        # Songs and Read are links of their own between Learn and Tools; there is no Explore menu.
+        self.assertNotIn('>探索</summary>', nav)
+        self.assertLess(nav.index('>學習</summary>'), nav.index('href="/zh-hant/songs/">歌曲</a>'))
+        self.assertLess(nav.index('href="/zh-hant/songs/">歌曲</a>'), nav.index('href="/zh-hant/read/">閱讀</a>'))
+        self.assertLess(nav.index('href="/zh-hant/read/">閱讀</a>'), nav.index('>工具</summary>'))
         self.assertNotIn('>主頁</a>', nav)
         self.assertIn('>閩南語輸入法</a>', nav)
         self.assertIn('>翻譯器 <span class="invite-only-note">僅限受邀</span></a>', nav)
@@ -138,7 +141,8 @@ class SiteLanguageTests(unittest.TestCase):
         egg = navigation_links("/zh-hant/read/stories/the-egg/", variants=False)
         self.assertIn('data-language-choice="zh-Hans"', egg)
         self.assertIn('href="/zh-hans/read/stories/the-egg/"', egg)
-        self.assertIn('>文学</a>', navigation_links("/zh-hans/", variants=False))
+        self.assertIn('href="/zh-hans/read/">阅读</a>', navigation_links("/zh-hans/", variants=False))
+        self.assertIn('href="/zh-hant/read/" aria-current="page">閱讀</a>', egg)
 
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -147,6 +151,11 @@ class SiteLanguageTests(unittest.TestCase):
             for language, folder in (("zh-Hant", "zh-hant"), ("zh-Hans", "zh-hans")):
                 home = (output / folder / "index.html").read_text(encoding="utf-8")
                 self.assertIn(f'<html lang="{language}">', home)
+                expected_heading = {
+                    "zh-Hant": '<span class="home-heading-segment">記錄著屬於</span><wbr><span class="home-heading-segment">閩南語的聲音。</span>',
+                    "zh-Hans": '<span class="home-heading-segment">记录着属于</span><wbr><span class="home-heading-segment">闽南语的声音。</span>',
+                }[language]
+                self.assertIn(expected_heading, home)
                 article = home.split('<article class="imported-content">', 1)[1].split("</article>", 1)[0]
                 self.assertNotIn('href="https://hokkienlang.wordpress.com/zh-', article)
                 self.assertIn('class="home-showcase"', article)
