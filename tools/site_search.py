@@ -58,6 +58,40 @@ def visible_text(markup: str) -> str:
     return SPACE.sub(" ", "".join(parser.parts)).strip()
 
 
+class LyricText(HTMLParser):
+    """Extract authored lyric and Lomari lines without indexing page chrome or notes."""
+
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts = []
+        self.depth = 0
+
+    def handle_starttag(self, tag, attrs):
+        if self.depth:
+            self.depth += 1
+            return
+        if tag == "span":
+            classes = set(dict(attrs).get("class", "").split())
+            if classes & {"lyric-line", "lyric-lomari"}:
+                self.parts.append(" ")
+                self.depth = 1
+
+    def handle_endtag(self, tag):
+        if self.depth:
+            self.depth -= 1
+
+    def handle_data(self, data):
+        if self.depth:
+            self.parts.append(data)
+
+
+def lyric_text(markup: str) -> str:
+    parser = LyricText()
+    parser.feed(markup)
+    parser.close()
+    return SPACE.sub(" ", "".join(parser.parts)).strip()
+
+
 def document(identity: str, title: str, url: str, kind: str, heading: str, body: str) -> dict:
     title_reading = visible_text(heading) if heading else ""
     content = visible_text(body)

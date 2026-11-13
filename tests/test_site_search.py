@@ -12,7 +12,7 @@ sys.path.insert(0, str(ROOT / "tools"))
 
 from build_content import build_content
 from site_languages import LANGUAGES
-from site_search import visible_text, hanri_fold_map
+from site_search import visible_text, hanri_fold_map, lyric_text
 
 
 class SiteSearchTests(unittest.TestCase):
@@ -38,6 +38,11 @@ class SiteSearchTests(unittest.TestCase):
     def test_visible_text_keeps_readings_but_ignores_executable_content(self):
         source = '<h2>學生<ruby>字<rt>지ˆ</rt></ruby></h2><script>secret()</script><p>讀冊</p>'
         self.assertEqual(visible_text(source), "學生字지ˆ 讀冊")
+
+    def test_lyric_text_keeps_main_readings_and_lomari_only(self):
+        source = ('<h3>Notes</h3><p><span class="lyric-line"><ruby>寒天<rt>괄틸ˆ</rt></ruby></span>'
+                  '<span class="lyric-lomari">koa̰-thḭ̂</span></p><p>Commentary</p>')
+        self.assertEqual(lyric_text(source), "寒天괄틸ˆ koa̰-thḭ̂")
 
     def test_build_writes_localized_pages_and_content_only_index(self):
         manifest = json.loads((ROOT / "migration/wordpress-map.json").read_text(encoding="utf-8"))

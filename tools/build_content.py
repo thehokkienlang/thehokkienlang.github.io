@@ -14,7 +14,7 @@ from song_title_readings import song_lomari, song_sort_reading, song_title
 from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
-from site_search import document as search_document, hanri_fold_map
+from site_search import document as search_document, hanri_fold_map, lyric_text
 from simplified_lookup import simplified_headword
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
@@ -708,13 +708,18 @@ def build_content(root: Path, output: Path):
     for route, imported in songs_by_route.items():
         label, _ = song_title(imported)
         sort_reading = song_sort_reading(imported)
+        lyric_search = " ".join(
+            lyric_text(record.get("body", ""))
+            for record in versions_by_route.get(route, [imported])
+        )
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
-            # What the Songs filter matches (audit A9): Hanri, Hangul reading and Lomari.
+            # What the Songs filter matches (audit A9): title and full authored lyrics.
             "search": " ".join(part for part in (
-                re.sub(r"<[^>]+>", " ", label), imported.get("title", ""), sort_reading, song_lomari(imported),
+                re.sub(r"<[^>]+>", " ", label), imported.get("title", ""), sort_reading,
+                song_lomari(imported), lyric_search,
             ) if part),
         }
 

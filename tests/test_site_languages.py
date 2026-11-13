@@ -166,6 +166,12 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
                     self.assertEqual(songs.count('<li data-song-search="'),
                                      sum(len(category["routes"]) for category in categories))
+            # Lyric-only phrases are included in the catalogue filter index.
+            songs = (output / "songs/index.html").read_text(encoding="utf-8")
+            self.assertRegex(
+                songs,
+                r'data-song-search="[^"]*寒天[^"]*"[^>]*><a[^>]+href="/songs/生份에릐/"',
+            )
             # Only pages with real translated versions declare hreflang alternates.
             alternate = '<link rel="alternate" hreflang='
             song_page = (output / "songs/浪子回頭/index.html").read_text(encoding="utf-8")
