@@ -3,7 +3,27 @@
 @import url("/shared/web-ruby.css");
 @import url("/shared/web-ime-menu.css");
 /* Keep the playback accent outside the lyric text without moving the line. */
-.lyric-sync-controls { display:flex; align-items:center; gap:16px; flex-wrap:wrap; margin:16px 0; font-size:16px; }
+.lyric-sync-controls {
+  position:sticky;
+  z-index:12;
+  top:max(8px, env(safe-area-inset-top));
+  display:inline-flex;
+  width:auto;
+  max-width:100%;
+  align-items:center;
+  gap:16px;
+  flex-wrap:wrap;
+  margin:16px 0;
+  padding:7px 10px;
+  border:1px solid var(--line);
+  border-color:color-mix(in srgb, var(--line) 82%, transparent);
+  border-radius:999px;
+  background:var(--site-background, #f6f8fb);
+  background:color-mix(in srgb, var(--site-background, #f6f8fb) 94%, transparent);
+  box-shadow:0 4px 14px #17252b14;
+  font-size:16px;
+  backdrop-filter:blur(8px);
+}
 .lyric-sync-controls[hidden] { display:none; }
 .lyric-sync-controls label { display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
 .lyric-sync-controls input { appearance:none; position:relative; flex:0 0 40px; width:40px; height:24px; margin:0; border:1px solid #aebfbd; border-radius:999px; background:#c7d3d1; cursor:pointer; transition:background-color .15s ease; }
@@ -12,7 +32,8 @@
 .lyric-sync-controls input:checked::before { transform:translateX(16px); }
 .lyric-sync-controls input:focus-visible { outline:2px solid #2563eb; outline-offset:3px; }
 @media (prefers-reduced-motion:reduce) { .lyric-sync-controls input, .lyric-sync-controls input::before { transition:none; } }
-.lyric-sync-controls [data-lyric-status] { color:#617079; }
+[data-lyric-status] { display:block; margin:4px 0 16px; color:#617079; font-size:14px; }
+[data-lyric-status]:empty { display:none; }
 .imported-content p[data-lyric-id] { position:relative; transition:background-color .15s ease; scroll-margin-block:100px; }
 .imported-content [data-lyric-seek] { cursor:pointer; }
 .imported-content [data-lyric-seek] .lyric-seek-base { cursor:text; }

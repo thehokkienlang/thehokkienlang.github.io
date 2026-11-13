@@ -23,6 +23,7 @@
   const status = controls.querySelector('[data-lyric-status]');
   const follow = controls.querySelector('input');
   (scope.querySelector('.song-tone-guide') || scope.querySelector('.song-script-heading') || iframe.closest('figure') || iframe).insertAdjacentElement('afterend', controls);
+  controls.insertAdjacentElement?.('afterend', status);
   follow.checked = matchMedia('(max-width: 700px)').matches;
   controls.hidden = false;
   let active = null;
