@@ -577,6 +577,18 @@
       "sourceId": 11537,
       "route": "/songs/這款自作多情/",
       "file": "content/songs/song-11537.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/總有一工/",
+      "sourceId": 11538,
+      "route": "/songs/總有一工/",
+      "file": "content/songs/song-11538.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/食飽’쀄/",
+      "sourceId": 11539,
+      "route": "/songs/食飽’쀄/",
+      "file": "content/songs/song-11539.json"
     }
   ],
   "deferred": {
