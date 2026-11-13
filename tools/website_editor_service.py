@@ -21,6 +21,7 @@ from dictionary_references import CATEGORY_COLUMNS, load_categories
 from lyric_timing import blank_timing, reconcile_timing, song_lines, timing_path, validate_timing
 from song_editor_import import fragment_source, legacy_lyrics, legacy_suffix, title_segments
 from song_title_readings import song_sort_reading, song_title
+from simplified_lookup import simplified_headword
 
 REDIRECT_COLUMNS = ("kind", "source", "source_reading", "target_entry_id", "reason", "sources", "date")
 GENERATED_PREFIXES = ("_site/", "public/data/")
@@ -357,6 +358,10 @@ class WebsiteEditorService:
         imported = not isinstance(draft, dict) or draft.get("version") != 1
         if imported:
             draft, _suffix = self._import_legacy_song(record)
+        else:
+            draft = dict(draft)
+        draft["mandarinTitle"] = self._song_mandarin_title(record)
+        draft["mandarinSimplifiedTitle"] = self._song_mandarin_simplified_title(record)
         return {
             "ok": True,
             "file": path.relative_to(self.repo).as_posix(),
@@ -395,6 +400,8 @@ class WebsiteEditorService:
         draft = {
             "version": 1,
             "title": str(record.get("title") or "").strip(),
+            "mandarinTitle": self._song_mandarin_title(record),
+            "mandarinSimplifiedTitle": self._song_mandarin_simplified_title(record),
             "titleSource": title_source,
             "videoUrl": f"https://www.youtube.com/watch?v={video.group(1)}",
             "category": category,
@@ -403,6 +410,23 @@ class WebsiteEditorService:
         if legacy_title:
             draft["legacyTitle"] = legacy_title
         return draft, legacy_suffix(body)
+
+    @staticmethod
+    def _song_mandarin_title(record):
+        value = str(record.get("originalTitle") or record.get("title") or "").strip()
+        return re.sub(r"\s+諺文(?:/中文)?歌詞\s*$", "", value).strip()
+
+    @classmethod
+    def _song_mandarin_simplified_title(cls, record):
+        stored = str(record.get("mandarinTitleSimplified") or "").strip()
+        if stored:
+            return stored
+        traditional = cls._song_mandarin_title(record)
+        return simplified_headword(traditional) or traditional
+
+    def simplify_song_title(self, title):
+        traditional = self._plain(title, "Mandarin title", required=True)
+        return {"ok": True, "title": simplified_headword(traditional) or traditional}
 
     @staticmethod
     def _youtube_id(value):
@@ -432,6 +456,13 @@ class WebsiteEditorService:
         title = self._plain(draft.get("title"), "Song title", required=True)
         if len(title) > 160 or any(char in title for char in "/\\?#"):
             raise WebsiteEditorError("Song title is too long or contains a route separator.")
+        mandarin_title = self._plain(draft.get("mandarinTitle"), "Mandarin title", required=True)
+        if len(mandarin_title) > 160:
+            raise WebsiteEditorError("Mandarin title is too long.")
+        mandarin_simplified_title = self._plain(
+            draft.get("mandarinSimplifiedTitle"), "Simplified Mandarin title", required=True)
+        if len(mandarin_simplified_title) > 160:
+            raise WebsiteEditorError("Simplified Mandarin title is too long.")
         title_source = self._plain(draft.get("titleSource"), "TLI title", required=True)
         if len(title_source) > 500:
             raise WebsiteEditorError("TLI title is too long.")
@@ -468,6 +499,8 @@ class WebsiteEditorService:
         clean = {
             "version": 1,
             "title": title,
+            "mandarinTitle": mandarin_title,
+            "mandarinSimplifiedTitle": mandarin_simplified_title,
             "titleSource": title_source,
             "videoUrl": f"https://www.youtube.com/watch?v={video_id}",
             "category": category,
@@ -625,10 +658,13 @@ class WebsiteEditorService:
             record = dict(existing)
             source_id = record["sourceId"]
             source_url = record["sourceUrl"]
+        existing_original_title = str((existing or {}).get("originalTitle") or "")
+        original_suffix_match = re.search(r"(\s+諺文(?:/中文)?歌詞\s*)$", existing_original_title)
+        original_suffix = original_suffix_match.group(1) if original_suffix_match else " 諺文歌詞"
         record.update({
             "title": clean["title"],
-            # Keeps the WordPress title of an imported song, so saving never rewrites its origin.
-            "originalTitle": (existing or {}).get("originalTitle") or clean["title"] + " 諺文歌詞",
+            "originalTitle": clean["mandarinTitle"] + original_suffix,
+            "mandarinTitleSimplified": clean["mandarinSimplifiedTitle"],
             "route": route,
             "sourceModified": datetime.now().astimezone().isoformat(timespec="seconds"),
             "orthography": {"target": "3.2", "review": "structured-song-editor"},

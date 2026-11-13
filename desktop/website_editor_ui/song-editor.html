@@ -29,6 +29,10 @@
       <form id="songForm">
         <div class="song-fields">
           <label>Song title<input id="songTitle" required autocomplete="off"></label>
+          <label>Mandarin title<input id="songMandarinTitle" required autocomplete="off"></label>
+          <label>Mandarin title (Simplified)
+            <span class="generated-title-field"><input id="songMandarinSimplifiedTitle" required autocomplete="off"><button id="regenerateMandarinSimplified" type="button">Regenerate</button></span>
+          </label>
           <label class="tli-field">TLI title
             <span class="tli-input-wrap"><input id="songTitleSource" required autocomplete="off" spellcheck="false" aria-controls="titleCandidates" aria-autocomplete="list"><span id="titleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
           </label>

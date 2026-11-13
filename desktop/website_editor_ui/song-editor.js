@@ -6,7 +6,7 @@
     snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null, searchController: null,
     file: '', revision: '', route: '', dirty: false, previewTimer: null, renderGeneration: 0,
     publishPaths: [], job: null, legacyTitle: null, renderingRows: false, dictionaryGeneration: null,
-    lineClipboard: null,
+    lineClipboard: null, simplifiedTitleTimer: null, simplifiedTitleGeneration: 0,
   };
 
   async function request(action, payload = {}) {
@@ -26,6 +26,23 @@
   function markDirty() {
     if (state.renderingRows) return;
     state.dirty = true; $('songState').textContent = 'Unsaved';
+  }
+  function scheduleSimplifiedMandarinTitle() {
+    clearTimeout(state.simplifiedTitleTimer);
+    const generation = ++state.simplifiedTitleGeneration;
+    const title = $('songMandarinTitle').value.trim();
+    if (!title) {
+      $('songMandarinSimplifiedTitle').value = '';
+      return;
+    }
+    state.simplifiedTitleTimer = setTimeout(async () => {
+      try {
+        const result = await request('simplify-song-title', {title});
+        if (generation !== state.simplifiedTitleGeneration) return;
+        $('songMandarinSimplifiedTitle').value = result.title;
+        markDirty();
+      } catch (error) { notice(error.message, true); }
+    }, 250);
   }
   function setControllerText(controller, value) {
     controller.composer.setText(value, value.length);
@@ -268,6 +285,8 @@
     return {
       version: 1,
       title: $('songTitle').value,
+      mandarinTitle: $('songMandarinTitle').value,
+      mandarinSimplifiedTitle: $('songMandarinSimplifiedTitle').value,
       titleSource: $('songTitleSource').value,
       videoUrl: $('songVideo').value,
       category: $('songCategory').value,
@@ -475,6 +494,8 @@
     state.file = file; state.revision = revision; state.route = route; state.publishPaths = [];
     state.legacyTitle = draft.legacyTitle || null;
     $('songTitle').value = draft.title || '';
+    $('songMandarinTitle').value = draft.mandarinTitle || '';
+    $('songMandarinSimplifiedTitle').value = draft.mandarinSimplifiedTitle || '';
     setControllerText(state.titleController, draft.titleSource || '');
     $('songVideo').value = draft.videoUrl || '';
     $('songCategory').value = draft.category || state.snapshot.categories[0]?.id || '';
@@ -485,7 +506,7 @@
   }
   function newSong() {
     if (state.dirty && !confirm('Discard this unsaved song draft?')) return;
-    setDraft({title: '', titleSource: '', videoUrl: '', category: state.snapshot.categories[0]?.id || '', lyrics: [{kind:'line', text:'', grey:false}]});
+    setDraft({title: '', mandarinTitle: '', mandarinSimplifiedTitle: '', titleSource: '', videoUrl: '', category: state.snapshot.categories[0]?.id || '', lyrics: [{kind:'line', text:'', grey:false}]});
     $('songTitle').focus();
   }
   async function openSong(file) {
@@ -601,11 +622,11 @@
     const listed = state.snapshot.songs.find(song => song.file === result.file);
     if (listed) Object.assign(listed, {
       title: result.draft.title, route: result.route, revision: result.revision, editable: true,
-      searchText: `${result.draft.title} ${result.route} ${result.draft.titleSource}`,
+      searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.route} ${result.draft.titleSource}`,
     });
     else state.snapshot.songs.unshift({
       file: result.file, title: result.draft.title, route: result.route, revision: result.revision,
-      editable: true, searchText: `${result.draft.title} ${result.route} ${result.draft.titleSource}`,
+      editable: true, searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.route} ${result.draft.titleSource}`,
     });
     $('songState').textContent = 'Saved locally';
     $('openSong').hidden = false; $('openSong').href = '/preview-site' + result.route;
@@ -687,6 +708,18 @@
   $('saveSong').onclick = () => saveSong().catch(error => notice(error.message, true));
   $('publishSong').onclick = publishSong;
   $('songTitle').oninput = () => { state.legacyTitle = null; markDirty(); };
+  $('songMandarinTitle').oninput = () => { markDirty(); scheduleSimplifiedMandarinTitle(); };
+  $('songMandarinSimplifiedTitle').oninput = markDirty;
+  $('regenerateMandarinSimplified').onclick = async () => {
+    try {
+      clearTimeout(state.simplifiedTitleTimer);
+      const generation = ++state.simplifiedTitleGeneration;
+      const result = await request('simplify-song-title', {title: $('songMandarinTitle').value});
+      if (generation !== state.simplifiedTitleGeneration) return;
+      $('songMandarinSimplifiedTitle').value = result.title;
+      markDirty();
+    } catch (error) { notice(error.message, true); }
+  };
   $('songVideo').oninput = markDirty; $('songCategory').onchange = markDirty;
   window.addEventListener('resize', () => state.controllers.forEach(controller => {
     if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);

@@ -5,9 +5,9 @@
   "sourceId": 11537,
   "sourceUrl": "https://thehokkienlang.github.io/songs/這款自作多情/",
   "title": "這款 自作多情",
-  "originalTitle": "這款 自作多情 諺文歌詞",
+  "originalTitle": "這款自作多情 諺文歌詞",
   "route": "/songs/這款自作多情/",
-  "sourceModified": "2026-11-13T00:11:26+08:00",
+  "sourceModified": "2026-11-13T18:06:32+08:00",
   "orthography": {
     "target": "3.2",
     "review": "structured-song-editor"
@@ -16,6 +16,8 @@
   "songEditor": {
     "version": 1,
     "title": "這款 自作多情",
+    "mandarinTitle": "這款自作多情",
+    "mandarinSimplifiedTitle": "这款自作多情",
     "titleSource": "[這짇ˆ][款콴ˋ] [自주][作적ˆ][多도ˉ][情졩ˊ]",
     "videoUrl": "https://www.youtube.com/watch?v=80HJufD9vps",
     "category": "rock",
@@ -386,5 +388,6 @@
       }
     ]
   },
-  "sourceSha256": "3442e71912b182aac40e7d6bdb47d4ef71de45b46612915f042b9d284b50c623"
+  "sourceSha256": "3442e71912b182aac40e7d6bdb47d4ef71de45b46612915f042b9d284b50c623",
+  "mandarinTitleSimplified": "这款自作多情"
 }

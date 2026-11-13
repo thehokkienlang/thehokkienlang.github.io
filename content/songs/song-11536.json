@@ -5,9 +5,9 @@
   "sourceId": 11536,
   "sourceUrl": "https://thehokkienlang.github.io/songs/心花開/",
   "title": "心花 開",
-  "originalTitle": "心花 開 諺文歌詞",
+  "originalTitle": "心花開 諺文歌詞",
   "route": "/songs/心花開/",
-  "sourceModified": "2026-11-12T22:57:49+08:00",
+  "sourceModified": "2026-11-13T18:06:24+08:00",
   "orthography": {
     "target": "3.2",
     "review": "structured-song-editor"
@@ -16,6 +16,8 @@
   "songEditor": {
     "version": 1,
     "title": "心花 開",
+    "mandarinTitle": "心花開",
+    "mandarinSimplifiedTitle": "心花开",
     "titleSource": "[心심ˉ][花훼ˆ] [開퀴ˆ]",
     "videoUrl": "https://www.youtube.com/watch?v=wXJWZJOmhdI",
     "category": "feel-good",
@@ -275,5 +277,6 @@
       }
     ]
   },
-  "sourceSha256": "f8848a2692bf0ae9560ce96c5d8ef4d674aba88afdc29e53ff065f7b680102e5"
+  "sourceSha256": "f8848a2692bf0ae9560ce96c5d8ef4d674aba88afdc29e53ff065f7b680102e5",
+  "mandarinTitleSimplified": "心花开"
 }

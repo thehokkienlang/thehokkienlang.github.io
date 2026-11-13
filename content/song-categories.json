@@ -88,9 +88,9 @@
     "tint": "#d8f1d1",
     "tintEnd": "#f5edb8",
     "routes": [
-      "/songs/姊妹仔/",
       "/songs/跤踏車/",
       "/songs/恬恬에夢/",
+      "/songs/姊妹仔/",
       "/songs/心花開/"
     ]
   },

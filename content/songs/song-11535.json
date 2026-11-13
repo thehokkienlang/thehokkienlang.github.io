@@ -5,9 +5,9 @@
   "sourceId": 11535,
   "sourceUrl": "https://thehokkienlang.github.io/songs/夢中’에情話/",
   "title": "夢中’에 情話",
-  "originalTitle": "夢中’에 情話 諺文歌詞",
+  "originalTitle": "夢中的情話 諺文歌詞",
   "route": "/songs/夢中’에情話/",
-  "sourceModified": "2026-11-12T19:10:17+08:00",
+  "sourceModified": "2026-11-13T18:06:13+08:00",
   "orthography": {
     "target": "3.2",
     "review": "structured-song-editor"
@@ -16,6 +16,8 @@
   "songEditor": {
     "version": 1,
     "title": "夢中’에 情話",
+    "mandarinTitle": "夢中的情話",
+    "mandarinSimplifiedTitle": "梦中的情话",
     "titleSource": "[夢빵][中뎡ˆ]’에 [情졩][話웨ˉ]",
     "videoUrl": "https://www.youtube.com/watch?v=XSL0D_QLQsM",
     "category": "golden",
@@ -356,5 +358,6 @@
       }
     ]
   },
-  "sourceSha256": "86c0d31df18dac0d3e88dce50d553cb16d5860844009fb1a4d92c3e7854eb575"
+  "sourceSha256": "86c0d31df18dac0d3e88dce50d553cb16d5860844009fb1a4d92c3e7854eb575",
+  "mandarinTitleSimplified": "梦中的情话"
 }

@@ -80,7 +80,7 @@ class WebsiteEditorTests(unittest.TestCase):
         import lomari_sync
         service = WebsiteEditorService(ROOT)
         result = service.render_song_draft({
-            "title": "릐호", "titleSource": "릐호", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+            "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
             "category": "modern", "lyrics": [{"kind": "line", "text": "꽈ˎ 슐-래-슐-킈 죠ˋ걀", "grey": False},
                                              {"kind": "line", "text": "릐호", "grey": True}],
         })
@@ -199,18 +199,24 @@ class WebsiteEditorTests(unittest.TestCase):
             snapshot = service.song_editor_snapshot()
             opened = service.song_editor_song("content/songs/song-1.json")
             self.assertTrue(opened["imported"])
+            self.assertEqual(opened["draft"]["mandarinTitle"], "薰")
+            self.assertEqual(opened["draft"]["mandarinSimplifiedTitle"], "薰")
             self.assertEqual(opened["draft"]["titleSource"], "[薰훈ˆ]")
             self.assertEqual(opened["draft"]["lyrics"], [
                 {"kind": "line", "text": "[薰훈ˆ] [點댬ˋ]", "grey": False},
                 {"kind": "break"},
                 {"kind": "line", "text": "[想슐-]릐ˎ", "grey": True},
             ])
+            opened["draft"]["mandarinTitle"] = "薰香"
+            opened["draft"]["mandarinSimplifiedTitle"] = "熏香"
             opened["draft"]["lyrics"][0]["text"] = "[薰훈ˆ]"
             saved = service.save_song(
                 opened["file"], opened["revision"], snapshot["categoryRevision"],
                 snapshot["urlRevision"], snapshot["manifestRevision"], opened["draft"],
             )
             record = json.loads(song.read_text(encoding="utf-8"))
+            self.assertEqual(record["originalTitle"], "薰香 諺文歌詞")
+            self.assertEqual(record["mandarinTitleSimplified"], "熏香")
             self.assertEqual(record["songEditor"]["lyrics"][0]["text"], "[薰훈ˆ]")
             self.assertIn("Keep this note.", record["body"])
             self.assertTrue(saved["draft"]["lyrics"][0]["text"] == "[薰훈ˆ]")
@@ -244,7 +250,7 @@ class WebsiteEditorTests(unittest.TestCase):
     def test_song_renderer_generates_grey_parentheses_ruby_and_lomari(self):
         service = WebsiteEditorService(ROOT)
         result = service.render_song_draft({
-            "title": "릐호", "titleSource": "릐호",
+            "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호",
             "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
             "lyrics": [{"kind": "line", "text": "릐호", "grey": True}],
         })
@@ -275,7 +281,7 @@ class WebsiteEditorTests(unittest.TestCase):
             snapshot = service.song_editor_snapshot()
             saved = service.save_song("", "", snapshot["categoryRevision"], snapshot["urlRevision"],
                                       snapshot["manifestRevision"], {
-                "title": "릐호", "titleSource": "릐호", "videoUrl": "HNYkSBkQ33Y", "category": "modern",
+                "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호", "videoUrl": "HNYkSBkQ33Y", "category": "modern",
                 "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
             })
             record = json.loads((repo / saved["file"]).read_text(encoding="utf-8"))

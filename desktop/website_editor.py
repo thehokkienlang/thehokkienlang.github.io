@@ -100,6 +100,8 @@ class WebsiteEditorController:
             return self.service.song_editor_snapshot()
         if action == "song-editor-song":
             return self.service.song_editor_song(payload.get("file"))
+        if action == "simplify-song-title":
+            return self.service.simplify_song_title(payload.get("title"))
         if action == "render-song":
             return self.service.render_song_draft(payload.get("draft"), existing_route=payload.get("route") or "")
         if action == "save-song":
