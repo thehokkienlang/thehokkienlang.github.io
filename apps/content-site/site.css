@@ -193,8 +193,41 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
   text-align:left;
 }
 .content-songs > h1 { padding-bottom: 24px; border-bottom: 4px solid var(--ink); }
+/* The title and its rule sit on the same centred column as the video and lyrics
+   (full width only where the lyrics are side by side, as in 月下煮茶). */
+.content-songs > h1 { box-sizing: border-box; width: min(92%, 48rem); margin-inline: auto; }
+.content-songs:has(.song-language-compare) > h1 { width: auto; max-width: none; margin-inline: 0; }
+.content-songs .song-version-tabs > .song-version-tablist { box-sizing: border-box; width: min(92%, 48rem); margin-inline: auto; }
+/* Side by side (月下煮茶): Follow lyrics sits on the Teochew / Hokkien translation heading row, as it
+   does on the lyric heading bar of other songs (44px tall, centred on the heading text). */
+@media (min-width: 701px) {
+  .content-songs .imported-content:has(.song-language-compare) > .lyric-sync-controls { margin-top: 28px; margin-bottom: -39px; }
+}
 .content-songs > h1::after { content: ""; display: block; width: 92px; margin-top: 24px; border-bottom: 4px solid var(--site-voice, #b33b46); transform: translateY(28px); }
 .content-songs .imported-content .song-script-heading { margin-top: 8px; margin-bottom: 20px; font-size: 24px; line-height: 1.4; }
+/* Song pages: the video, the lyric heading, Follow lyrics and the lyrics share one centred column.
+   The heading becomes a bar above the lyrics with Follow lyrics at its right end; the switch stays a
+   direct child of the article so it can stay pinned while the lyrics scroll. */
+.content-songs .imported-content { --song-column: min(92%, 48rem); }
+/* Side-by-side lyrics (月下煮茶) use the full width, so the heading bar spans it too. */
+.content-songs .imported-content:has(.song-language-compare) { --song-column: 100%; }
+.content-songs :is(.imported-content, .song-version-panel) > figure.wp-block-embed { width: min(var(--song-column), 48rem); max-width: none; margin: 8px auto 36px; }
+.content-songs :is(.imported-content, .song-version-panel) > figure.wp-block-embed iframe { display: block; border-radius: 10px; box-shadow: 0 10px 28px #17252b1f; }
+.content-songs :is(.imported-content, .song-version-panel) > .song-tone-guide { width: var(--song-column); margin-inline: auto; }
+.content-songs :is(.imported-content, .song-version-panel) > .song-script-heading {
+  display: flex; align-items: center; box-sizing: border-box; width: var(--song-column); min-height: 44px;
+  margin: 0 auto; padding: 0 12.5rem 10px 0; border-bottom: 1px solid var(--line);
+  color: var(--muted); font-size: 17px; font-weight: 700; letter-spacing: .01em;
+}
+.content-songs :is(.imported-content, .song-version-panel) > .lyric-sync-controls {
+  display: flex; width: fit-content; margin: 16px calc((100% - var(--song-column)) / 2) 8px auto;
+}
+/* Pulled up onto the heading bar, centred on the heading text (above the bar's padding and rule). */
+.content-songs :is(.imported-content, .song-version-panel) > .song-script-heading + .lyric-sync-controls { margin-top: -49px; margin-bottom: 26px; }
+@media (max-width: 700px) {
+  /* The heading wraps beside the switch rather than leaving it on a row of its own. */
+  .content-songs :is(.imported-content, .song-version-panel) > .song-script-heading { padding-right: 10.5rem; font-size: 15px; line-height: 1.35; }
+}
 .imported-content .song-video-compact { max-width: 640px; }
 .song-tone-guide { margin: 0 0 28px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
 .song-tone-guide summary { padding: 12px 18px; color: var(--accent); cursor: pointer; font-weight: 700; }
@@ -202,7 +235,27 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .imported-content .song-tone-guide blockquote { margin: 4px 18px 16px; }
 .imported-content .song-tone-guide blockquote > p:first-child { margin-top: 0; }
 .imported-content .song-tone-guide > p { margin: 0 18px 18px; color: var(--muted); }
+/* Footnotes under the lyrics: a quiet notes block on the lyrics column, below a thin rule.
+   The imported tables carry inline sizes and padding, hence the !important overrides. */
+.content-songs .table-scroll:has(a[id^="_ftn"]) {
+  box-sizing: border-box; width: var(--song-column); margin: 36px auto 0; padding: 18px 0 0;
+  border-top: 1px solid var(--line); overflow-x: auto;
+}
+.content-songs .table-scroll:has(a[id^="_ftn"]) table { float: none; width: 100%; margin: 0; font-size: 16px !important; line-height: 1.6; }
+.content-songs .table-scroll:has(a[id^="_ftn"]) td { padding: 6px 1.25em 6px 0 !important; vertical-align: baseline !important; color: var(--muted); }
+.content-songs .table-scroll:has(a[id^="_ftn"]) td:first-child { width: 1%; min-width: 0 !important; white-space: nowrap; color: var(--ink); }
+.content-songs .table-scroll:has(a[id^="_ftn"]) a[id^="_ftn"] { margin-right: .35em; color: var(--accent); text-decoration: none; }
+/* About the size of the Lomari under each lyric line, rather than the 24px lyric text. */
+.imported-content .song-tone-guide summary { font-size: 17px; }
+.imported-content .song-tone-guide :is(blockquote, blockquote p) { font-size: 17px; line-height: 1.6; }
+.imported-content .song-tone-guide > p { font-size: 15px; line-height: 1.6; }
 .song-language-compare p:has(.lyric-line) { padding-bottom: 12px; border-bottom: 1px solid var(--line); background-clip: content-box; }
+/* Column headings (Teochew / Hokkien translation) match the lyric heading bar. */
+.imported-content .song-language-compare > .wp-block-column > h4 {
+  display: flex; align-items: center; box-sizing: border-box; min-height: 44px;
+  margin: 0 0 24px; padding: 0 0 10px; border-bottom: 1px solid var(--line);
+  color: var(--muted); font-size: 17px; font-weight: 700; line-height: 1.4; letter-spacing: .01em;
+}
 .imported-content .song-language-compare p[data-lyric-id].lyric-active::before { inset-block-end: 12px; }
 .song-version-tablist.song-language-tabs { display: none; }
 .song-language-tabs button[aria-pressed="true"] { border-color: var(--accent); background: var(--accent); color: #fff; }
