@@ -264,8 +264,11 @@
       : language === "zh-Hans"
         ? { filter: "筛选歌曲", keyboard: "启用谚文键盘", candidates: "汉字候选词" }
         : { filter: "Filter songs", keyboard: "Enable Hangul keyboard", candidates: "Hanri candidates" };
-    const fold = value => String(value || "").normalize("NFKD")
-      .replace(/[̀-ͯ]/gu, "").replace(/[ˆˋˊˉˇˍˎˏˬꞈ`\s\-’'‘]/gu, "").toLowerCase().normalize("NFC");
+    let hanriFold = {};
+    try { hanriFold = JSON.parse(filter.dataset.songHanriFold || "{}"); } catch {}
+    const fold = value => [...String(value || "").normalize("NFKD")
+      .replace(/[̀-ͯ]/gu, "").replace(/[ˆˋˊˉˇˍˎˏˬꞈ`\s\-’'‘]/gu, "").toLowerCase().normalize("NFC")]
+      .map(char => hanriFold[char] || char).join("");
     const input = filter.querySelector(".song-filter-input");
     input.id ||= "songFilterInput";
     const heading = document.createElement("div");

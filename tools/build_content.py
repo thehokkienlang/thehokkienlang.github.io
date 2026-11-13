@@ -768,6 +768,7 @@ def build_content(root: Path, output: Path):
 
     def song_filter(language):
         words = SONG_FILTER_TEXT[language]
+        hanri_search_fold = json.dumps(hanri_fold_map(), ensure_ascii=False, separators=(",", ":"))
         chips = [f'<button type="button" class="song-filter-chip" data-song-filter-category="" aria-pressed="true">{words["all"]}</button>']
         for category in song_categories:
             label = category["labels"].get(language, category["labels"]["en"])
@@ -775,7 +776,9 @@ def build_content(root: Path, output: Path):
                 f'<button type="button" class="song-filter-chip" data-song-filter-category="{html.escape(category["id"], quote=True)}" '
                 f'aria-pressed="false" style="--category-accent:{html.escape(category["accent"], quote=True)}">{html.escape(label)}</button>')
         return (
-            f'<div class="song-filter" role="search" data-song-filter data-count-template="{html.escape(words["count"], quote=True)}">'
+            f'<div class="song-filter" role="search" data-song-filter '
+            f'data-song-hanri-fold="{html.escape(hanri_search_fold, quote=True)}" '
+            f'data-count-template="{html.escape(words["count"], quote=True)}">'
             f'<input type="search" class="song-filter-input" placeholder="{words["placeholder"]}" aria-label="{words["placeholder"]}" '
             'autocomplete="off" spellcheck="false">'
             f'<div class="song-filter-chips" role="group" aria-label="{words["categories"]}">{"".join(chips)}</div>'

@@ -163,6 +163,8 @@ class SiteLanguageTests(unittest.TestCase):
                 songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 with self.subTest(songs=folder):
                     self.assertIn('data-song-filter', songs)
+                    self.assertIn('data-song-hanri-fold=', songs)
+                    self.assertIn('&quot;後&quot;:&quot;后&quot;', songs)
                     self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
                     self.assertEqual(songs.count('<li data-song-search="'),
                                      sum(len(category["routes"]) for category in categories))
