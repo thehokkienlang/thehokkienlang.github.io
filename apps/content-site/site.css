@@ -279,10 +279,10 @@ body[data-site-section="home"] .imported-content { max-width: 100%; margin-top: 
 body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child { display: none; }
 .home-kicker { margin: 0 0 12px; color: var(--accent); font-size: 13px; font-weight: 700; text-transform: uppercase; }
 .home-launch { position: relative; margin-top: 68px; }
-.home-specimen { display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
+.home-specimen { --tli-ruby-size: 0.26em; display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
 .home-specimen :is(ruby, .tli-ruby) { width: max-content; margin-top: 14px; font-size: 76px; }
 .home-specimen rt { position: relative; left: 0.18em; color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
-.home-specimen-lomari { margin-top: -6px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
+.home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 15px; }
 .home-specimen .tli-listen { margin-top: 14px; }
 .tli-listen { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; color: #fff; background: var(--accent); cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; }

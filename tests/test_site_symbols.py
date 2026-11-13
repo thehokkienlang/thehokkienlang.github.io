@@ -94,6 +94,13 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn('toneOnly ? "tli-tone-ruby" : "tli-reading-ruby"', script)
         self.assertIn('node.textContent.replace(/-/gu, "")', script)
 
+    def test_homepage_specimen_preserves_small_ruby_and_lomari_clearance(self):
+        css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
+        specimen = css.split(".home-specimen {", 1)[1].split("}", 1)[0]
+        lomari = css.split(".home-specimen-lomari {", 1)[1].split("}", 1)[0]
+        self.assertIn("--tli-ruby-size: 0.26em;", specimen)
+        self.assertIn("margin-top: 8px;", lomari)
+
     def test_homepage_story_subtitle_does_not_shrink_ruby_or_hanri(self):
         css = (ROOT / "apps/content-site/site.css").read_text(encoding="utf-8")
         self.assertIn('.home-literature-work h3 > span:not(.tli-ruby)', css)
