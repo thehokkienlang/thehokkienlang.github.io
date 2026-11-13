@@ -40,12 +40,25 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn("U+A788", css)
         for weight in ("regular", "bold"):
             for family in ("sans", "symbols"):
-                version = 3 if family == "sans" else 2
-                filename = f"tli-noto-{family}-{weight}-v{version}.woff2"
+                filename = f"tli-noto-{family}-{weight}-v3.woff2"
                 self.assertIn(filename, css)
                 self.assertTrue((ROOT / "assets/fonts" / filename).read_bytes().startswith(b"wOF2"))
         self.assertNotIn("font-weight: 100 500", css)
         self.assertNotIn("font-weight: 600 900", css)
+
+    def test_tone_4_mark_is_turned_to_rise(self):
+        # Noto's ˊ is heavy at the top; the site's is turned 180° so it is heavy at the bottom-left
+        # and tapers to the top-right, reading as a rising ↗.
+        from fontTools.ttLib import TTFont
+
+        for weight in ("regular", "bold"):
+            font = TTFont(ROOT / f"assets/fonts/tli-noto-symbols-{weight}-v3.woff2")
+            glyf = font["glyf"]
+            glyph = glyf[font.getBestCmap()[0x02CA]]
+            points = glyph.getCoordinates(glyf)[0]
+            width_at = lambda y: max(x for x, py in points if py == y) - min(x for x, py in points if py == y)
+            with self.subTest(weight=weight):
+                self.assertGreater(width_at(min(y for _x, y in points)), width_at(max(y for _x, y in points)))
 
     def test_tone_renderer_uses_positionable_spans_not_ruby_internals(self):
         core = (ROOT / "shared/web-ime-core.js").read_text(encoding="utf-8")

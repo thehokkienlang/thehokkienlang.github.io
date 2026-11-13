@@ -15,7 +15,7 @@
 }
 @font-face {
   font-family: "TLI Western Punctuation";
-  src: url("/assets/fonts/tli-noto-symbols-regular-v2.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-symbols-regular-v3.woff2") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: block;
@@ -23,7 +23,7 @@
 }
 @font-face {
   font-family: "TLI Western Punctuation";
-  src: url("/assets/fonts/tli-noto-symbols-bold-v2.woff2") format("woff2");
+  src: url("/assets/fonts/tli-noto-symbols-bold-v3.woff2") format("woff2");
   font-style: normal;
   font-weight: 700;
   font-display: block;
