@@ -107,6 +107,27 @@ class WebsiteEditorTests(unittest.TestCase):
         # The dictionary row keeps its own sandhi before Hanri.
         self.assertEqual(tone_marker.apply_hangul_overrides_from_tsv("매相"), "매2相")
 
+    def test_importing_a_page_keeps_its_sung_tones(self):
+        # A page shows the tone actually sung ([起키ˆ-] is khî, [若나] is na). Importing it must
+        # write the citation that sandhis to that tone, not sandhi the sung tone again.
+        import re
+        import unicodedata
+
+        service = WebsiteEditorService(ROOT)
+        path = "content/songs/song-10064.json"  # 姊妹仔
+        record = json.loads((ROOT / path).read_text(encoding="utf-8"))
+        opened = service.song_editor_song(path)
+        self.assertTrue(opened["imported"])
+        first = [item for item in opened["draft"]["lyrics"] if item.get("kind") == "line"][0]["text"]
+        self.assertIn("[起키2]", first)
+
+        def lomari(body):
+            return [unicodedata.normalize("NFC", " ".join(x.split()))
+                    for x in re.findall(r'lyric-lomari">\s*([^<]*)', body)]
+
+        rendered = service.render_song_draft(opened["draft"], existing_route=record["route"])["body"]
+        self.assertEqual(lomari(rendered), lomari(record["body"]))
+
     def test_latin_song_titles_are_not_compared_with_their_hangul_tli_title(self):
         service = WebsiteEditorService(ROOT)
         draft = service.song_editor_song("content/songs/song-10294.json")["draft"]  # Maybe Maybe

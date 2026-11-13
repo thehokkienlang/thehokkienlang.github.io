@@ -349,15 +349,19 @@ class WebsiteEditorService:
             "manifestRevision": digest(manifest_path.read_bytes()),
         }
 
-    def _resolve_hyphenated_readings(self, lyrics):
-        """Give older songs' already-sandhied readings ([問믕-]) their dictionary citation tone.
+    def _resolve_hyphenated_readings(self, lyrics, *, from_page=False):
+        """Give hyphenated readings in a non-final position a citation tone.
 
-        A reading is replaced only when exactly one dictionary reading of that Hanri renders to
-        the same ruby and Lomari in a non-final position; any other stays hyphenated, which the
-        song renderer leaves untouched. Returns the new lyrics and how many readings changed.
+        A published page writes a joined syllable with the tone actually sung and a hyphen
+        ([起키ˆ-] is khî, [有우-] is u). from_page=True (a song imported from its page) finds
+        the citation tone that renders that same tone, preferring the dictionary's reading.
+        Song Editor sources saved before this ([在재ˉ-]) already hold a citation tone; for them a
+        reading is replaced only when exactly one dictionary reading renders the same ruby and
+        Lomari. Anything unresolved stays as written. Returns the new lyrics and the count.
         """
         converter = self._tone_marker()
         index = converter.load_hanri_reading_index()
+        digits = converter.normalize_tone_symbols_to_digits
         probe = "[相쇼5]"
         cache = {}
 
@@ -366,34 +370,94 @@ class WebsiteEditorService:
             if key not in cache:
                 result = converter.convert_hangul_to_html(f"[{hanri}{reading}]{probe}", "song")
                 ruby = re.search(re.escape(hanri) + r"<rt[^>]*>([^<]*)</rt>", result["html"])
-                cache[key] = ruby and (ruby.group(1).rstrip("-"), " ".join(result["lomari"].split()))
+                cache[key] = ruby and (digits(ruby.group(1).rstrip("-")), " ".join(result["lomari"].split()))
             return cache[key]
+
+        def sung_tone_match(hanri, reading):
+            """A citation that renders the page's sung tone; the dictionary's reading first."""
+            wanted = digits(reading.rstrip("-"))
+            rendered = lambda value: (surface(hanri, value) or (None,))[0] == wanted
+            dictionary = sorted({str(entry.get("reading") or "") for entry in index.get(hanri, [])} - {""})
+            matches = [value for value in dictionary if rendered(value)]
+            if matches:
+                # Several dictionary readings can sandhi to the same sung tone (若 나4/나5 both give
+                # na); they render identically here, so the first is as good as any.
+                return matches[0]
+            base = re.sub(r"[1-5]$", "", wanted)
+            # Every match renders this same sung tone here, so any of them is output-identical.
+            return next((value for value in [base + tone for tone in "12345"] + [base] if rendered(value)), None)
 
         def resolve(match):
             parsed = converter.split_hanri_hangul_bracket(match.group(1))
-            if not parsed or not parsed[1].endswith("-"):
+            # On a page every reading is the sung tone; a saved source only hyphenates them.
+            if not parsed or not (from_page or parsed[1].endswith("-")):
                 return match.group(0)
             # Only where a Hokkien syllable follows on the line, the position the probe models.
             # Elsewhere (line end, punctuation, a Zhuyin word) the hyphen also joins the Lomari
             # to what follows, so it is kept.
             rest = match.string[match.end():]
             following = rest[:rest.find("]") + 1] if rest.startswith("[") else rest[:1]
-            if not any("가" <= character <= "힣" for character in following):
+            # Syllables, or TLI's archaic jamo spellings such as ᄐᅷ.
+            if not re.search("[가-힣ᄀ-ᇿꥠ-꥿ힰ-퟿]", following):
                 return match.group(0)
             hanri, reading = parsed
-            target = surface(hanri, reading)
-            readings = {str(entry.get("reading") or "") for entry in index.get(hanri, [])}
-            matches = sorted(value for value in readings if value and surface(hanri, value) == target)
-            if not target or len(matches) != 1:
+            if from_page:
+                found = sung_tone_match(hanri, reading)
+            else:
+                target = surface(hanri, reading)
+                readings = {str(entry.get("reading") or "") for entry in index.get(hanri, [])}
+                matches = sorted(value for value in readings if value and surface(hanri, value) == target)
+                found = matches[0] if target and len(matches) == 1 else None
+            if not found:
+                return match.group(0)
+            if found == reading:
                 return match.group(0)
             counter[0] += 1
-            return f"[{hanri}{matches[0]}]"
+            return f"[{hanri}{found}]"
+
+        stops = ",.!?:;，。！？：；、’'“”()「」『』…‧~"
+
+        def sung_hangul(text):
+            """Typed Hangul on a page also shows the sung tone (릐ꞈ is lî). Where the song pass
+            will apply sandhi (a syllable follows), write the citation tone that sandhis to it."""
+            out, index = [], 0
+            while index < len(text):
+                if text[index] == "[":
+                    close = text.find("]", index + 1)
+                    if close >= 0:
+                        out.append(text[index:close + 1])
+                        index = close + 1
+                        continue
+                unit = converter.hangul_reading_unit_at(text, index)
+                if unit is None:
+                    out.append(text[index])
+                    index += 1
+                    continue
+                reading, end = unit
+                sung = digits(reading)
+                follows = end < len(text) and not text[end].isspace() and text[end] not in stops
+                if follows and re.search(r"[1-5]$", sung):
+                    base = sung[:-1]
+                    citation = next((base + tone for tone in "12345"
+                                     if digits(converter.citation_to_sandhi_reading(base + tone) or base + tone) == sung), None)
+                    if citation and citation != sung:
+                        reading = citation
+                        counter[0] += 1
+                out.append(reading)
+                index = end
+            return "".join(out)
 
         counter = [0]
         resolved = []
         for item in lyrics:
-            if isinstance(item, dict) and item.get("kind") == "line" and "-]" in str(item.get("text", "")):
-                item = {**item, "text": re.sub(r"\[([^\]]+)\]", resolve, item["text"])}
+            if isinstance(item, dict) and item.get("kind") == "line":
+                text = str(item.get("text", ""))
+                if from_page or "-]" in text:
+                    text = re.sub(r"\[([^\]]+)\]", resolve, text)
+                if from_page:
+                    text = sung_hangul(text)
+                if text != item.get("text"):
+                    item = {**item, "text": text}
             resolved.append(item)
         return resolved, counter[0]
 
@@ -410,7 +474,7 @@ class WebsiteEditorService:
             draft = dict(draft)
         draft["mandarinTitle"] = self._song_mandarin_title(record)
         draft["mandarinSimplifiedTitle"] = self._song_mandarin_simplified_title(record)
-        draft["lyrics"], converted = self._resolve_hyphenated_readings(draft.get("lyrics") or [])
+        draft["lyrics"], converted = self._resolve_hyphenated_readings(draft.get("lyrics") or [], from_page=imported)
         return {
             "ok": True,
             "convertedReadings": converted,

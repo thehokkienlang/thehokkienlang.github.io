@@ -124,6 +124,16 @@
     if (/-$/u.test(reading) && !/[1-5ˆˋˊˉꞈˎˏˍ`]-$/u.test(reading)) return reading;
     return window.TangliengimImeCore.citationReadingToTaipeiSandhi(reading);
   }
+  // The ruby row always shows tone marks (ˆ ˋ ˊ ˉ, tone 3 unmarked), never tone digits.
+  // Readings may be stored either way; the renderer reads both the same.
+  const RUBY_TONE_MARKS = {1: 'ˆ', 2: 'ˋ', 3: '', 4: 'ˊ', 5: 'ˉ'};  // as in web-ime-core
+  function toneMarksForDisplay(reading) {
+    const marks = RUBY_TONE_MARKS;
+    return String(reading || '').replace(
+      /([가-힣ᄀ-ᇿꥠ-꥿ힰ-퟿])([1-5])/gu,
+      (_match, unit, tone) => unit + (marks[tone] ?? tone),
+    );
+  }
   function lyricRubyPresentation(controller, {resolveSandhi = true} = {}) {
     const text = controller.control.value;
     const spans = controller.getRememberedHanriReadings(text)
@@ -134,9 +144,9 @@
       if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== span.hanri) continue;
       value += text.slice(cursor, span.start);
       const start = value.length;
-      value += resolveSandhi && hasFollowingLyricUnit(text, span.end)
+      value += toneMarksForDisplay(resolveSandhi && hasFollowingLyricUnit(text, span.end)
         ? resolvedRubyReading(span.reading)
-        : span.reading;
+        : span.reading);
       segments.push({start, end: value.length, span});
       cursor = span.end;
     }
