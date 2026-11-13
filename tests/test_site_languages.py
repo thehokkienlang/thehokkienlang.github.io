@@ -174,6 +174,11 @@ class SiteLanguageTests(unittest.TestCase):
                 songs,
                 r'data-song-lines="[^"]*寒天[^"]*"[^>]*><a[^>]+href="/songs/生份에릐/"',
             )
+            self.assertRegex(
+                songs,
+                r'data-song-mandarin-search="[^"]*腳踏車[^"]*"[^>]*data-song-mandarin-title="腳踏車"[^>]*><a[^>]+href="/songs/跤踏車/"',
+            )
+            self.assertIn('class="song-entry-mandarin-match" hidden', songs)
             self.assertIn('class="song-entry-match" hidden', songs)
             # Only pages with real translated versions declare hreflang alternates.
             alternate = '<link rel="alternate" hreflang='

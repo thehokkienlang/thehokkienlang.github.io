@@ -305,9 +305,12 @@
           main, mainHtml, lomari, text: fold(search),
         }));
         const titleText = fold(row.dataset.songSearch);
+        const mandarinTitle = row.dataset.songMandarinTitle || "";
+        const mandarinText = fold(row.dataset.songMandarinSearch);
         return {
-          row, section, titleText, lines,
-          text: [titleText, ...lines.map(line => line.text)].join(" "),
+          row, section, titleText, mandarinTitle, mandarinText, lines,
+          text: [titleText, mandarinText, ...lines.map(line => line.text)].join(" "),
+          mandarinMatch: row.querySelector(".song-entry-mandarin-match"),
           match: row.querySelector(".song-entry-match"),
           matchMain: row.querySelector(".song-entry-match-main"),
           matchLomari: row.querySelector(".song-entry-match-lomari"),
@@ -320,6 +323,11 @@
       rows.forEach(item => {
         const visible = (!category || item.section.dataset.songCategory === category) && (!query || item.text.includes(query));
         item.row.hidden = !visible;
+        const mandarinMatch = visible && query && item.mandarinText.includes(query) && !item.titleText.includes(query);
+        if (item.mandarinMatch) {
+          item.mandarinMatch.hidden = !mandarinMatch;
+          if (mandarinMatch) item.mandarinMatch.textContent = `(${item.mandarinTitle})`;
+        }
         const lyricMatch = visible && query ? item.lines.find(line => line.text.includes(query)) : null;
         if (item.match) item.match.hidden = !lyricMatch;
         if (lyricMatch) {

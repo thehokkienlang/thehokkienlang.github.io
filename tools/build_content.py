@@ -708,9 +708,17 @@ def build_content(root: Path, output: Path):
     for route, imported in songs_by_route.items():
         label, _ = song_title(imported)
         sort_reading = song_sort_reading(imported)
+        route_records = versions_by_route.get(route, [imported])
+        original_title_values = list(dict.fromkeys(
+            record.get("originalTitle", "").strip()
+            for record in route_records
+            if record.get("originalTitle", "").strip()
+        ))
+        original_titles = " ".join(original_title_values)
+        mandarin_titles = [re.sub(r"\s+諺文(?:/中文)?歌詞\s*$", "", title) for title in original_title_values]
         lines = []
         seen_lines = set()
-        for record in versions_by_route.get(route, [imported]):
+        for record in route_records:
             for line in lyric_lines(record.get("body", "")):
                 identity = (line["main"], line["mainHtml"], line["lomari"], line["search"])
                 if identity not in seen_lines:
@@ -719,6 +727,8 @@ def build_content(root: Path, output: Path):
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
+            "mandarinTitle": " / ".join(mandarin_titles),
+            "mandarinSearch": original_titles,
             "lines": lines,
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
             # Title search stays compact; structured lyric lines are indexed by the browser.
@@ -743,9 +753,13 @@ def build_content(root: Path, output: Path):
                 )
                 links.append(
                     f'<li data-song-search="{html.escape(item["search"], quote=True)}" '
-                    f'data-song-lines="{html.escape(line_data, quote=True)}"><a class="{entry_class}" '
+                    f'data-song-lines="{html.escape(line_data, quote=True)}" '
+                    f'data-song-mandarin-search="{html.escape(item["mandarinSearch"], quote=True)}" '
+                    f'data-song-mandarin-title="{html.escape(item["mandarinTitle"], quote=True)}">'
+                    f'<a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
-                    f'<span class="song-entry-title">{item["label"]}</span>'
+                    f'<span class="song-entry-title">{item["label"]}'
+                    '<small class="song-entry-mandarin-match" hidden></small></span>'
                     f'<span class="song-entry-lomari">{html.escape(item["lomari"])}</span>'
                     '<span class="song-entry-match" hidden>'
                     '<span class="song-entry-match-main"></span>'

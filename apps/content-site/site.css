@@ -253,6 +253,8 @@ html[lang="en"] [data-content-lang="en"], html[lang="zh-Hant"] [data-content-lan
 .song-base-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .song-entry-title { --song-ruby-space: calc(var(--tli-ruby-block-space) + .1em); display: block; min-width: 0; min-height: 58px; padding-top: calc(20px - var(--song-ruby-space) / 2); font-size: 24px; line-height: calc(1.3em + var(--song-ruby-space)); overflow: visible; overflow-wrap: anywhere; }
 .song-entry-title ruby { ruby-position: over; }
+.song-entry-mandarin-match { display: inline-block; margin-left: .55em; color: var(--muted); font-family: "TLI Western Punctuation", "TLI Noto Sans", "Noto Sans TC", sans-serif; font-size: 14px; font-weight: 400; line-height: 1.4; vertical-align: baseline; }
+.song-entry-mandarin-match[hidden] { display: none; }
 .song-entry-lomari { display: block; align-self: start; min-height: 21px; margin-top: 0; color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 15px; line-height: 1.35; }
 .song-entry-match { position: relative; display: grid; gap: 2px; margin-top: 10px; padding: calc(9px + var(--tli-ruby-block-space)) 11px 9px 28px; border-left: 3px solid var(--category-accent); border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--category-tint) 68%, white); }
 .song-entry-match[hidden] { display: none; }
