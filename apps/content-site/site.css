@@ -187,6 +187,11 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .content-stories, .content-literature { max-width: 860px; }
 .content-songs { max-width: 1000px; }
 .content-songs .imported-content, .content-stories .imported-content { max-width: 100%; padding-top: 12px; }
+.content-songs .imported-content p:has(> .lyric-line):not(.song-language-compare *) {
+  width:min(92%, 48rem);
+  margin-inline:auto;
+  text-align:left;
+}
 .content-songs > h1 { padding-bottom: 24px; border-bottom: 4px solid var(--ink); }
 .content-songs > h1::after { content: ""; display: block; width: 92px; margin-top: 24px; border-bottom: 4px solid var(--site-voice, #b33b46); transform: translateY(28px); }
 .content-songs .imported-content .song-script-heading { margin-top: 8px; margin-bottom: 20px; font-size: 24px; line-height: 1.4; }
