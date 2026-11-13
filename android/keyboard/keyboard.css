@@ -1,10 +1,10 @@
 /* Layout of the Android keyboard page. Candidate fonts and colours come from web-ime-menu.css. */
 :root {
-  --board: #e4eaec;
+  --board: #e6ebf2;
   --key: #ffffff;
-  --key-control: #c9d3d7;
+  --key-control: #c5d0e0;
   --ink: #102033;
-  --accent: #08756b;
+  --accent: #1a73e8;
   --gap: 5px;
 }
 
@@ -36,8 +36,8 @@ body {
   flex: 0 0 46px;
   align-items: stretch;
   min-width: 0;
-  background: #f7f9fa;
-  border-bottom: 1px solid #c5cfd4;
+  background: #f6f8fc;
+  border-bottom: 1px solid #c3cedc;
 }
 
 #buffer {
@@ -65,7 +65,7 @@ body.composing #buffer {
   width: auto;
   min-width: 28px;
   padding: 0 10px;
-  border-right: 1px solid #c5cfd4;
+  border-right: 1px solid #c3cedc;
 }
 
 #candidates.hanri-candidate-menu,
@@ -98,7 +98,7 @@ body.composing #buffer {
   width: auto;
   min-height: 46px;
   padding: 0 14px;
-  border-right: 1px solid #dde4e7;
+  border-right: 1px solid #dbe2ec;
   border-radius: 0;
   background: transparent;
   font-size: 17px;
@@ -110,7 +110,7 @@ body.composing #buffer {
 }
 
 #candidates.hanri-candidate-menu .ime-candidate:active {
-  background: #d5e6e3;
+  background: #d2e3fc;
 }
 
 #candidates.hanri-candidate-menu .ime-candidate.selected .candidate-reading {
@@ -185,7 +185,7 @@ body.composing #buffer {
   border: 0;
   border-radius: 6px;
   background: var(--key);
-  box-shadow: 0 1px 0 #aeb9be;
+  box-shadow: 0 1px 0 #aab6c6;
   color: var(--ink);
   font: inherit;
   font-size: 22px;
@@ -193,7 +193,7 @@ body.composing #buffer {
 }
 
 .key.pressed {
-  background: #cfe3df;
+  background: #d2e3fc;
 }
 
 .key-output {
@@ -217,7 +217,7 @@ body.composing #buffer {
 }
 
 .key.tone {
-  background: #edf5f3;
+  background: #e8f0fe;
   color: var(--accent);
   font-weight: 700;
 }
@@ -246,12 +246,93 @@ body.composing #buffer {
   flex-basis: calc(1.5 * var(--unit) + 0.5 * var(--gap));
 }
 
+/* The third symbol row: the page key and Backspace take the space Shift and Backspace do. */
+.key.key-symbols2,
+.row-symbols2-2 .key.key-symbols {
+  flex: 1 1 0;
+}
+
 .key.key-space {
   flex: 1 1 0;
   background: var(--key);
+  color: #7d8a94;
+  font-family: "TLI Western Punctuation", "TLI Menu Hanri", "Noto Sans TC", "Noto Sans CJK TC", sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.key.key-emoji {
+  font-size: 22px;
+}
+
+/* Emoji panel: a scrolling grid above one row of controls. */
+.emoji-grid {
+  display: grid;
+  flex: 1 1 0;
+  grid-template-columns: repeat(8, 1fr);
+  grid-auto-rows: 44px;
+  min-height: 0;
+  overflow-y: auto;
+  touch-action: pan-y;
+  scrollbar-width: none;
+}
+
+.emoji-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.key.emoji {
+  flex: none;
+  background: transparent;
+  box-shadow: none;
+  font-family: "Noto Color Emoji", "Segoe UI Emoji", sans-serif;
+  font-size: 25px;
+  touch-action: pan-y;
+}
+
+.key.emoji:active {
+  background: #d2e3fc;
+}
+
+.row.row-emoji-bottom {
+  flex: 0 0 45px;
+}
+
+.row-emoji-bottom .key.key-backspace {
+  flex: 0 0 calc(1.5 * var(--unit) + 0.5 * var(--gap));
 }
 
 .key.key-enter {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* Press-and-hold alternates, shown above the held key. */
+.key-popup {
+  position: fixed;
+  z-index: 40;
+  display: flex;
+  gap: 2px;
+  padding: 4px;
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.32);
+}
+
+.key-popup-option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 46px;
+  padding: 0 6px;
+  border-radius: 6px;
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.key-popup-option.selected {
   background: var(--accent);
   color: #ffffff;
 }

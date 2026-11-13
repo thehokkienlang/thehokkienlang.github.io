@@ -24,6 +24,18 @@ APP_DESCRIPTIONS = {
 }
 
 
+def android_keyboard_version() -> str:
+    """The published keyboard version shown on the IME page's download link.
+
+    android/published-version.txt is updated when a release is published, so the page
+    never shows an internal test build's number.
+    """
+    version = (ROOT / "android" / "published-version.txt").read_text(encoding="utf-8").strip()
+    if not re.fullmatch(r"[0-9]+(?:[.][0-9]+){1,2}", version):
+        raise RuntimeError(f"android/published-version.txt holds no version number: {version!r}")
+    return version
+
+
 def app_meta(page: str, app: str) -> str:
     """Description and share tags for an app page (audit A8)."""
     title = re.search(r"<title>(.*?) · TheHokkienLang</title>", page).group(1)
@@ -174,7 +186,8 @@ def main() -> int:
     for app in ("dictionary", "ime", "translate"):
         shutil.copytree(ROOT / "apps" / app, OUTPUT / app)
         index = OUTPUT / app / "index.html"
-        index.write_text(app_meta(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT)), app), encoding="utf-8")
+        index.write_text(app_meta(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT))
+                                  .replace("__ANDROID_KEYBOARD_VERSION__", android_keyboard_version()), app), encoding="utf-8")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     # Opus copies beside the WAV masters; the player uses them only when every

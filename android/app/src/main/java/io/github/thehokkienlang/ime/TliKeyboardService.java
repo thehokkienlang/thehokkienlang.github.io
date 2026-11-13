@@ -55,7 +55,7 @@ public class TliKeyboardService extends InputMethodService {
             settings.setAllowFileAccess(false);
             settings.setAllowContentAccess(false);
             settings.setTextZoom(100);
-            keyboard.setBackgroundColor(0xFFE4EAEC);
+            keyboard.setBackgroundColor(0xFFE6EBF2);
             keyboard.setOverScrollMode(View.OVER_SCROLL_NEVER);
             keyboard.setVerticalScrollBarEnabled(false);
             keyboard.setHorizontalScrollBarEnabled(false);

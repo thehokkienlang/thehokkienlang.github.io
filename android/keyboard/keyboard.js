@@ -17,23 +17,34 @@
   const candidates = document.querySelector("#candidates");
   const keys = document.querySelector("#keys");
 
+  // The bottom row and the symbol pages follow Gboard's English layout.
+  const BOTTOM = [",", "Emoji", "Space", ".", "Enter"];
   const LAYERS = {
     tli: [
       ["1", "2", "4", "5", "’"],
       [..."qwertyuiop"],
       [..."asdfghjkl"],
       ["Shift", ..."zxcvbnm", "Backspace"],
-      ["Symbols", "Globe", "Space", "Enter"],
+      ["Symbols", ...BOTTOM],
     ],
     symbols: [
       [..."1234567890"],
-      ["，", "。", "、", "？", "！", "：", "；", "「", "」"],
-      [".", ",", "?", "!", "'", "\"", "-", "(", ")"],
-      ["@", "/", "~", "…", "·", "《", "》", "Backspace"],
-      ["Letters", "Globe", "Space", "Enter"],
+      [..."@#$_&-+()/"],
+      ["Symbols2", ..."*\"':;!?", "Backspace"],
+      ["Letters", ...BOTTOM],
+    ],
+    symbols2: [
+      [..."~`|•√π÷×§∆"],
+      [..."£¢€¥^°={}\\"],
+      ["Symbols", ..."%©®™✓[]", "Backspace"],
+      ["Letters", "<", "Emoji", "Space", ">", "Enter"],
     ],
   };
-  const CONTROL_LABELS = { Shift: "⇧", Backspace: "⌫", Enter: "⏎", Globe: "🌐", Symbols: "?123", Letters: "한", Space: "" };
+  const CONTROL_LABELS = {
+    Shift: "⇧", Backspace: "⌫", Enter: "⏎", Emoji: "☺", Symbols: "?123", Symbols2: "=\\<",
+    Letters: "ㄱㄴㄷ", Space: "閩南語",
+  };
+  const EMOJI = [..."😀😃😄😁😆😅😂🤣😊😇🙂🙃😉😌😍🥰😘😗😙😚😋😛😝😜🤪🤨🧐🤓😎🤩🥳😏😒😞😔😟😕🙁😣😖😫😩🥺😢😭😤😠😡🤬🤯😳🥵🥶😱😨😰😥😓🤗🤔🤭🤫🤥😶😐😑😬🙄😯😦😧😮😲🥱😴🤤😪😵🤐🥴🤢🤮🤧😷🤒🤕🤑🤠😈👿👻💀👽🤖💩😺😸😹😻😼😽🙀😿😾👍👎👌🤌🤏🤞🤟🤘🤙👈👉👆👇👋🤚🖐✋🖖👏🙌👐🤲🙏💪🫶💖💗💓💞💕💘💝💔🧡💛💚💙💜🖤🤍🤎💯💢💥💫💦💨🔥⭐🌟✨🎉🎊🎁🎂🍰🍜🍚🍵🍺🍻🥂☕🌸🌺🌻🌹🍀🌈☀🌙⛅🌧⚡❄🐶🐱🐭🐹🐰🦊🐻🐼🐯🦁🐮🐷🐸🐵🐔🐧🐦🦆🦉🐴🦄🐝🦋🐢🐍🐙🐠🐬🐳"];
   let layer = "tli";
   let shifted = false;
   let lastSent = "";
@@ -151,8 +162,9 @@
     switch (key) {
       case "Shift": setShift(!shifted); return;
       case "Symbols": layer = "symbols"; shifted = false; render(); return;
+      case "Symbols2": layer = "symbols2"; render(); return;
+      case "Emoji": layer = "emoji"; shifted = false; render(); return;
       case "Letters": layer = "tli"; render(); return;
-      case "Globe": commitBuffer(); host.switchKeyboard(); return;
       case "Backspace":
         if (buffer.value) controller.backspace(); else host.deleteBackward();
         return;
@@ -164,7 +176,7 @@
         if (!commitBuffer()) host.enter();
         return;
     }
-    if (layer === "symbols") {
+    if (layer !== "tli" || key === "," || key === ".") {
       commitBuffer();
       host.commit(key);
       return;
@@ -182,7 +194,7 @@
       button.classList.add("control", "key-" + key.toLowerCase());
       button.textContent = CONTROL_LABELS[key];
       if (key === "Shift") button.classList.toggle("active", shifted);
-    } else if (layer === "tli") {
+    } else if (layer === "tli" && key !== "," && key !== ".") {
       const output = document.createElement("span");
       output.className = "key-output";
       output.textContent = upperTone(hangul.keyboardGuideOutput(inputFor(key)) || key);
@@ -198,6 +210,22 @@
   }
 
   function render() {
+    cancelPending();
+    keys.dataset.layer = layer;
+    if (layer === "emoji") {
+      const grid = document.createElement("div");
+      grid.className = "emoji-grid";
+      grid.append(...EMOJI.map(emoji => {
+        const button = makeKey(emoji);
+        button.classList.add("emoji");
+        return button;
+      }));
+      const bottom = document.createElement("div");
+      bottom.className = "row row-emoji-bottom";
+      bottom.append(...["Letters", "Space", "Backspace", "Enter"].map(makeKey));
+      keys.replaceChildren(grid, bottom);
+      return;
+    }
     keys.replaceChildren(...LAYERS[layer].map((row, index) => {
       const element = document.createElement("div");
       element.className = `row row-${layer}-${index}`;
@@ -206,13 +234,97 @@
     }));
   }
 
-  // Act on touch-down, and repeat Backspace while it is held.
+  // Holding a key offers more characters, as on Gboard: a letter offers its shifted form
+  // (ㄱ gives ㄲ) and the period offers other punctuation.
+  const PERIOD_ALTERNATES = [..."?!:;'\"-@"];
+  function alternatesFor(key) {
+    if (layer === "tli" && /^[a-z]$/.test(key) && !shifted) {
+      const upper = key.toUpperCase();
+      const output = hangul.keyboardGuideOutput(upper);
+      if (output && output !== hangul.keyboardGuideOutput(key)) return [{ label: output, input: upper }];
+    }
+    if (key === ".") return PERIOD_ALTERNATES.map(char => ({ label: char, text: char }));
+    return [];
+  }
+
+  // Character keys type on release, so a hold can be told from a tap. Controls act on touch-down.
+  const HOLD_MS = 320;
   let repeatTimer = null;
+  let spaceHeld = false;
+  let pending = null; // { button, key, timer, popup, choice }
+
+  function closePopup() {
+    pending?.popup?.remove();
+    if (pending) pending.popup = null;
+  }
+
+  function openPopup() {
+    const alternates = alternatesFor(pending.key);
+    if (!alternates.length) return;
+    const popup = document.createElement("div");
+    popup.className = "key-popup";
+    popup.append(...alternates.map((alternate, index) => {
+      const option = document.createElement("span");
+      option.className = "key-popup-option";
+      option.textContent = alternate.label;
+      option.dataset.index = index;
+      return option;
+    }));
+    document.body.append(popup);
+    const key = pending.button.getBoundingClientRect();
+    const box = popup.getBoundingClientRect();
+    const left = Math.min(Math.max(4, key.left + key.width / 2 - box.width / 2), innerWidth - box.width - 4);
+    popup.style.left = `${left}px`;
+    popup.style.top = `${Math.max(2, key.top - box.height - 6)}px`;
+    pending.popup = popup;
+    pending.alternates = alternates;
+    choose(0);
+  }
+
+  function choose(index) {
+    pending.choice = index;
+    pending.popup.querySelectorAll(".key-popup-option").forEach((option, position) => {
+      option.classList.toggle("selected", position === index);
+    });
+  }
+
+  function typeAlternate(alternate) {
+    if (alternate.input) {
+      controller.insertText(alternate.input);
+    } else {
+      commitBuffer();
+      host.commit(alternate.text);
+    }
+  }
+
+  // Type the key that is waiting: its chosen alternate after a hold, itself after a tap.
+  function finishPending() {
+    if (!pending) return;
+    const { key, timer, popup, alternates, choice, button } = pending;
+    clearTimeout(timer);
+    popup?.remove();
+    button.classList.remove("pressed");
+    pending = null;
+    if (popup) typeAlternate(alternates[choice]);
+    else press(key);
+  }
+
+  function cancelPending() {
+    if (!pending) return;
+    clearTimeout(pending.timer);
+    pending.popup?.remove();
+    pending.button.classList.remove("pressed");
+    pending = null;
+  }
+
   function stopRepeat() {
     clearTimeout(repeatTimer);
     repeatTimer = null;
-    keys.querySelectorAll(".pressed").forEach(button => button.classList.remove("pressed"));
+    keys.querySelectorAll(".pressed").forEach(button => {
+      if (button !== pending?.button) button.classList.remove("pressed");
+    });
   }
+
   keys.addEventListener("pointerdown", event => {
     const button = event.target.closest(".key");
     if (!button) return;
@@ -220,14 +332,43 @@
     // The web IME closes its candidates on any outside tap; a key press is not one.
     event.stopPropagation();
     const key = button.dataset.key;
+    // The emoji grid scrolls, so its keys act on a tap (click), not on touch-down.
+    if (button.classList.contains("emoji")) return;
+    // A second finger landing means the first key is done (fast two-thumb typing).
+    finishPending();
     button.classList.add("pressed");
-    press(key);
-    if (key === "Backspace") {
-      const repeat = () => { press("Backspace"); repeatTimer = setTimeout(repeat, 60); };
-      repeatTimer = setTimeout(repeat, 400);
+    if (key === "Space") {
+      // As on Gboard: a tap types, holding the space bar switches keyboards.
+      spaceHeld = false;
+      repeatTimer = setTimeout(() => { spaceHeld = true; commitBuffer(); host.switchKeyboard(); }, 500);
+      return;
     }
+    if (key in CONTROL_LABELS) {
+      press(key);
+      if (key === "Backspace") {
+        const repeat = () => { press("Backspace"); repeatTimer = setTimeout(repeat, 60); };
+        repeatTimer = setTimeout(repeat, 400);
+      }
+      return;
+    }
+    pending = { button, key, popup: null, choice: null, timer: setTimeout(openPopup, HOLD_MS) };
   });
+  keys.addEventListener("pointermove", event => {
+    if (!pending?.popup) return;
+    const option = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".key-popup-option");
+    if (option) choose(Number(option.dataset.index));
+  });
+  keys.addEventListener("pointerup", event => {
+    const button = event.target.closest(".key");
+    if (pending && button === pending.button) finishPending();
+    else if (button?.dataset.key === "Space" && button.classList.contains("pressed") && !spaceHeld) press("Space");
+  });
+  keys.addEventListener("pointercancel", cancelPending);
   for (const type of ["pointerup", "pointercancel", "pointerleave"]) keys.addEventListener(type, stopRepeat);
+  keys.addEventListener("click", event => {
+    const button = event.target.closest(".key.emoji");
+    if (button) press(button.dataset.key);
+  });
   document.addEventListener("contextmenu", event => event.preventDefault());
 
   // The IME applies the tapped candidate to the buffer first; then the buffer is finished.
