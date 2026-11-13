@@ -349,6 +349,54 @@ class WebsiteEditorService:
             "manifestRevision": digest(manifest_path.read_bytes()),
         }
 
+    def _resolve_hyphenated_readings(self, lyrics):
+        """Give older songs' already-sandhied readings ([問믕-]) their dictionary citation tone.
+
+        A reading is replaced only when exactly one dictionary reading of that Hanri renders to
+        the same ruby and Lomari in a non-final position; any other stays hyphenated, which the
+        song renderer leaves untouched. Returns the new lyrics and how many readings changed.
+        """
+        converter = self._tone_marker()
+        index = converter.load_hanri_reading_index()
+        probe = "[相쇼5]"
+        cache = {}
+
+        def surface(hanri, reading):
+            key = (hanri, reading)
+            if key not in cache:
+                result = converter.convert_hangul_to_html(f"[{hanri}{reading}]{probe}", "song")
+                ruby = re.search(re.escape(hanri) + r"<rt[^>]*>([^<]*)</rt>", result["html"])
+                cache[key] = ruby and (ruby.group(1).rstrip("-"), " ".join(result["lomari"].split()))
+            return cache[key]
+
+        def resolve(match):
+            parsed = converter.split_hanri_hangul_bracket(match.group(1))
+            if not parsed or not parsed[1].endswith("-"):
+                return match.group(0)
+            # Only where a Hokkien syllable follows on the line, the position the probe models.
+            # Elsewhere (line end, punctuation, a Zhuyin word) the hyphen also joins the Lomari
+            # to what follows, so it is kept.
+            rest = match.string[match.end():]
+            following = rest[:rest.find("]") + 1] if rest.startswith("[") else rest[:1]
+            if not any("가" <= character <= "힣" for character in following):
+                return match.group(0)
+            hanri, reading = parsed
+            target = surface(hanri, reading)
+            readings = {str(entry.get("reading") or "") for entry in index.get(hanri, [])}
+            matches = sorted(value for value in readings if value and surface(hanri, value) == target)
+            if not target or len(matches) != 1:
+                return match.group(0)
+            counter[0] += 1
+            return f"[{hanri}{matches[0]}]"
+
+        counter = [0]
+        resolved = []
+        for item in lyrics:
+            if isinstance(item, dict) and item.get("kind") == "line" and "-]" in str(item.get("text", "")):
+                item = {**item, "text": re.sub(r"\[([^\]]+)\]", resolve, item["text"])}
+            resolved.append(item)
+        return resolved, counter[0]
+
     def song_editor_song(self, relative):
         path = self._inside(self.content / "songs", relative, suffix=".json")
         if not path.is_file():
@@ -362,8 +410,10 @@ class WebsiteEditorService:
             draft = dict(draft)
         draft["mandarinTitle"] = self._song_mandarin_title(record)
         draft["mandarinSimplifiedTitle"] = self._song_mandarin_simplified_title(record)
+        draft["lyrics"], converted = self._resolve_hyphenated_readings(draft.get("lyrics") or [])
         return {
             "ok": True,
+            "convertedReadings": converted,
             "file": path.relative_to(self.repo).as_posix(),
             "revision": digest(raw),
             "route": record.get("route", ""),

@@ -119,6 +119,9 @@
     return !/[\s,.!?:;，。！？：；、’'“”()「」『』…‧~]/u.test(text[index]);
   }
   function resolvedRubyReading(reading) {
+    // An unmarked syllable before a trailing hyphen (older songs: 믕-) is already the sandhied
+    // tone 3. A mark before the hyphen (재ˉ-) is a citation tone and still takes sandhi.
+    if (/-$/u.test(reading) && !/[1-5ˆˋˊˉꞈˎˏˍ`]-$/u.test(reading)) return reading;
     return window.TangliengimImeCore.citationReadingToTaipeiSandhi(reading);
   }
   function lyricRubyPresentation(controller, {resolveSandhi = true} = {}) {
@@ -514,9 +517,12 @@
     try {
       const result = await request('song-editor-song', {file});
       setDraft(result.draft, result);
-      notice(result.imported
+      const converted = result.convertedReadings
+        ? ` ${result.convertedReadings} older hyphenated reading${result.convertedReadings === 1 ? ' was' : 's were'} given ${result.convertedReadings === 1 ? 'its' : 'their'} dictionary tone; save to keep.`
+        : '';
+      notice((result.imported
         ? `Loaded ${result.draft.title}. Existing ruby lyrics were imported and are now editable.`
-        : `Loaded ${result.draft.title}.`);
+        : `Loaded ${result.draft.title}.`) + converted);
     } catch (error) { notice(error.message, true); }
   }
   function renderSongList() {

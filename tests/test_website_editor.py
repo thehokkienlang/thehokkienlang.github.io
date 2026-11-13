@@ -107,6 +107,29 @@ class WebsiteEditorTests(unittest.TestCase):
         # The dictionary row keeps its own sandhi before Hanri.
         self.assertEqual(tone_marker.apply_hangul_overrides_from_tsv("매相"), "매2相")
 
+    def test_older_hyphenated_readings_are_not_sandhied_again(self):
+        # [問믕-] in older songs is already in its sandhi form; resolving it again gave 믕2.
+        sys.path.insert(0, str(ROOT / "desktop"))
+        import hokkien_tone_marker_gui as tone_marker
+        import unicodedata
+
+        self.assertEqual(tone_marker.auto_sandhi_song_source("[問믕-][相쇼5]"), "[問믕-][相쇼5]")
+        rendered = tone_marker.convert_hangul_to_html("[問믕-][相쇼5]", "song")
+        self.assertEqual(unicodedata.normalize("NFC", rendered["lomari"]).split()[0], "mng-siō")
+
+    def test_opening_an_older_song_gives_hyphenated_readings_their_dictionary_tone(self):
+        service = WebsiteEditorService(ROOT)
+        lyrics = [
+            {"kind": "line", "text": "[問믕-][相쇼5]", "grey": False},
+            {"kind": "line", "text": "[相쇼5][問믕-]", "grey": False},  # ends the line: kept
+            {"kind": "line", "text": "[問믕-][小飛俠ㄒㄧㄠㄈㄟㄒㄧㄚˊ]", "grey": False},  # Zhuyin follows: kept
+            {"kind": "break"},
+        ]
+        resolved, count = service._resolve_hyphenated_readings(lyrics)
+        self.assertEqual(count, 1)
+        self.assertEqual([item.get("text") for item in resolved],
+                         ["[問믕5][相쇼5]", "[相쇼5][問믕-]", "[問믕-][小飛俠ㄒㄧㄠㄈㄟㄒㄧㄚˊ]", None])
+
     def test_song_renderer_leaves_unmarked_typed_hangul_alone(self):
         # Unmarked typed Hangul is already the spoken tone 3 and is never re-sandhied.
         sys.path.insert(0, str(ROOT / "desktop"))
@@ -205,8 +228,10 @@ class WebsiteEditorTests(unittest.TestCase):
             self.assertEqual(opened["draft"]["lyrics"], [
                 {"kind": "line", "text": "[薰훈ˆ] [點댬ˋ]", "grey": False},
                 {"kind": "break"},
-                {"kind": "line", "text": "[想슐-]릐ˎ", "grey": True},
+                # The older already-sandhied 슐- takes its dictionary citation tone.
+                {"kind": "line", "text": "[想슐5]릐ˎ", "grey": True},
             ])
+            self.assertEqual(opened["convertedReadings"], 1)
             opened["draft"]["mandarinTitle"] = "薰香"
             opened["draft"]["mandarinSimplifiedTitle"] = "熏香"
             opened["draft"]["lyrics"][0]["text"] = "[薰훈ˆ]"

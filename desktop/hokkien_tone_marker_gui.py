@@ -3032,7 +3032,12 @@ def auto_sandhi_song_source(text: str) -> str:
                 parsed = split_hanri_hangul_bracket(source[index + 1:close])
                 if parsed:
                     hanri, reading = parsed
-                    if followed_by_readable(close + 1):
+                    # An unmarked syllable before a trailing hyphen (older songs: [問믕-]) is
+                    # already the sandhied tone 3; resolving it again would give 믕2. A mark
+                    # before the hyphen ([在재ˉ-]) is a citation tone and still takes sandhi.
+                    already_sandhied = reading.endswith('-') and not re.search(
+                        r'[1-5]-$', normalize_tone_symbols_to_digits(reading))
+                    if followed_by_readable(close + 1) and not already_sandhied:
                         reading = citation_to_sandhi_reading(reading) or reading
                     out.append(f'[{hanri}{reading}]')
                     index = close + 1
