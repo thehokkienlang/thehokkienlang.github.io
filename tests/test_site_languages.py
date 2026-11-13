@@ -170,8 +170,9 @@ class SiteLanguageTests(unittest.TestCase):
             songs = (output / "songs/index.html").read_text(encoding="utf-8")
             self.assertRegex(
                 songs,
-                r'data-song-search="[^"]*寒天[^"]*"[^>]*><a[^>]+href="/songs/生份에릐/"',
+                r'data-song-lines="[^"]*寒天[^"]*"[^>]*><a[^>]+href="/songs/生份에릐/"',
             )
+            self.assertIn('class="song-entry-match" hidden', songs)
             # Only pages with real translated versions declare hreflang alternates.
             alternate = '<link rel="alternate" hreflang='
             song_page = (output / "songs/浪子回頭/index.html").read_text(encoding="utf-8")

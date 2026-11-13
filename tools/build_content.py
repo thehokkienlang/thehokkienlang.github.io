@@ -14,7 +14,7 @@ from song_title_readings import song_lomari, song_sort_reading, song_title
 from tangliengim_collation import reading_sort_key
 from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
-from site_search import document as search_document, hanri_fold_map, lyric_text
+from site_search import document as search_document, hanri_fold_map, lyric_lines
 from simplified_lookup import simplified_headword
 from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
@@ -708,18 +708,23 @@ def build_content(root: Path, output: Path):
     for route, imported in songs_by_route.items():
         label, _ = song_title(imported)
         sort_reading = song_sort_reading(imported)
-        lyric_search = " ".join(
-            lyric_text(record.get("body", ""))
-            for record in versions_by_route.get(route, [imported])
-        )
+        lines = []
+        seen_lines = set()
+        for record in versions_by_route.get(route, [imported]):
+            for line in lyric_lines(record.get("body", "")):
+                identity = (line["main"], line["mainHtml"], line["lomari"], line["search"])
+                if identity not in seen_lines:
+                    seen_lines.add(identity)
+                    lines.append(line)
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
+            "lines": lines,
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
-            # What the Songs filter matches (audit A9): title and full authored lyrics.
+            # Title search stays compact; structured lyric lines are indexed by the browser.
             "search": " ".join(part for part in (
-                re.sub(r"<[^>]+>", " ", label), imported.get("title", ""), sort_reading,
-                song_lomari(imported), lyric_search,
+                re.sub(r"<[^>]+>", " ", label), imported.get("title", ""),
+                sort_reading, song_lomari(imported),
             ) if part),
         }
 
@@ -732,11 +737,19 @@ def build_content(root: Path, output: Path):
                 destination = language_url(route, language) or route
                 item = song_items[route]
                 entry_class = "title-reading song-entry"
+                line_data = json.dumps(
+                    [[line["main"], line["lomari"], line["search"], line["mainHtml"]] for line in item["lines"]],
+                    ensure_ascii=False, separators=(",", ":"),
+                )
                 links.append(
-                    f'<li data-song-search="{html.escape(item["search"], quote=True)}"><a class="{entry_class}" '
+                    f'<li data-song-search="{html.escape(item["search"], quote=True)}" '
+                    f'data-song-lines="{html.escape(line_data, quote=True)}"><a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
                     f'<span class="song-entry-title">{item["label"]}</span>'
                     f'<span class="song-entry-lomari">{html.escape(item["lomari"])}</span>'
+                    '<span class="song-entry-match" hidden>'
+                    '<span class="song-entry-match-main"></span>'
+                    '<span class="song-entry-match-lomari"></span></span>'
                     '</a></li>'
                 )
             labels = category["labels"]

@@ -34,7 +34,7 @@
     });
   }
   // WebKit can place positioned rt boxes below their base; use ordinary boxes for display.
-  [...document.querySelectorAll('.title-reading ruby, .imported-content ruby')].reverse().forEach(ruby => {
+  const normalizeRuby = scope => [...scope.querySelectorAll('ruby')].reverse().forEach(ruby => {
     const annotation = document.createElement("span");
     for (const { name, value } of ruby.attributes) annotation.setAttribute(name, value);
     annotation.classList.add("tli-ruby");
@@ -67,6 +67,7 @@
     annotation.append(base, ...readings);
     ruby.replaceWith(annotation);
   });
+  normalizeRuby(document);
   const updateWrappedTitles = () => {
     document.querySelectorAll("h1.title-reading").forEach(title => {
       title.classList.remove("title-reading-wrapped");
@@ -294,7 +295,21 @@
     const catalogue = document.querySelector(".song-catalogue");
     const sections = [...catalogue.querySelectorAll(".song-category")];
     const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-search]")]
-      .map(row => ({ row, section, text: fold(row.dataset.songSearch) })));
+      .map(row => {
+        let sourceLines = [];
+        try { sourceLines = JSON.parse(row.dataset.songLines || "[]"); } catch {}
+        const lines = sourceLines.map(([main, lomari, search, mainHtml]) => ({
+          main, mainHtml, lomari, text: fold(search),
+        }));
+        const titleText = fold(row.dataset.songSearch);
+        return {
+          row, section, titleText, lines,
+          text: [titleText, ...lines.map(line => line.text)].join(" "),
+          match: row.querySelector(".song-entry-match"),
+          matchMain: row.querySelector(".song-entry-match-main"),
+          matchLomari: row.querySelector(".song-entry-match-lomari"),
+        };
+      }));
     let category = "";
     const apply = () => {
       const query = fold(input.value);
@@ -302,6 +317,17 @@
       rows.forEach(item => {
         const visible = (!category || item.section.dataset.songCategory === category) && (!query || item.text.includes(query));
         item.row.hidden = !visible;
+        const lyricMatch = visible && query ? item.lines.find(line => line.text.includes(query)) : null;
+        if (item.match) item.match.hidden = !lyricMatch;
+        if (lyricMatch) {
+          if (lyricMatch.mainHtml) {
+            item.matchMain.innerHTML = lyricMatch.mainHtml;
+            normalizeRuby(item.matchMain);
+          } else {
+            item.matchMain.textContent = lyricMatch.main;
+          }
+          item.matchLomari.textContent = lyricMatch.lomari;
+        }
         if (visible) shown += 1;
       });
       sections.forEach(section => {
