@@ -9,6 +9,7 @@
     publishPaths: [], job: null, legacyTitle: null, renderingRows: false, dictionaryGeneration: null,
     lineClipboard: null, simplifiedTitleTimer: null, simplifiedTitleGeneration: 0,
     simplifiedAlternativeTimer: null, simplifiedAlternativeGeneration: 0, titlePinyinManual: false,
+    visibleSongs: [], activeSongIndex: -1,
   };
 
   async function request(action, payload = {}) {
@@ -320,7 +321,10 @@
     });
     const controller = window.TangliengimImeCore.createTextImeController({
       control, candidateContainer: menu, entries: state.dictionary,
-      dictionaryIndex: state.dictionaryIndex, onUpdate, onCandidatesChanged: popup.schedule,
+      dictionaryIndex: state.dictionaryIndex, onUpdate, onCandidatesChanged: () => {
+        popup.schedule();
+        options.onCandidatesChanged?.();
+      },
       enterBehavior: 'none', toneInputStyle: options.toneInputStyle || 'hidden',
     });
     state.controllers.push(controller);
@@ -714,34 +718,49 @@
       .replace(/[\u0300-\u036fˆˋˊˉˇꞈˎˏˍ`’'\s\-1-5\[\]()]/gu, '');
     const query = searchKey($('songFilter').value);
     const songs = state.snapshot.songs.filter(song => !query || searchKey(song.searchText || `${song.title} ${song.route}`).includes(query));
+    state.visibleSongs = songs;
+    state.activeSongIndex = -1;
+    if (!query) {
+      $('songList').replaceChildren();
+      setSongListOpen(false);
+      return;
+    }
     if (!songs.length) {
       const empty = document.createElement('div'); empty.className = 'song-list-empty';
       empty.textContent = state.snapshot.songs.length ? 'No matching songs.' : 'Songs created here will appear in this list.';
       $('songList').replaceChildren(empty);
-      setSongListOpen(document.activeElement === $('songFilter'));
+      setSongListOpen($('songFilterCandidates').hidden);
       return;
     }
-    $('songList').replaceChildren(...songs.map(song => {
-      const button = document.createElement('button'); button.type = 'button'; button.classList.toggle('active', song.file === state.file);
+    $('songList').replaceChildren(...songs.map((song, index) => {
+      const button = document.createElement('button'); button.type = 'button';
+      button.classList.toggle('current-song', song.file === state.file);
+      button.setAttribute('role', 'option'); button.setAttribute('aria-selected', 'false');
       const title = document.createElement('span'); title.textContent = song.title;
       const route = document.createElement('small'); route.textContent = song.route;
       const mode = document.createElement('small'); mode.className = 'song-record-kind';
       mode.textContent = song.editable ? 'Editable song' : 'Existing song';
       button.append(title, route, mode);
-      button.onfocus = () => {
-        $('songList').querySelectorAll('button.tab-target').forEach(item => item.classList.remove('tab-target'));
-        button.classList.add('tab-target');
-      };
+      button.onmousedown = event => event.preventDefault();
+      button.onmousemove = () => highlightSong(index);
       button.onclick = () => { setSongListOpen(false); openSong(song.file); };
       return button;
     }));
-    // Tab from the search box enters the result list at this top match.
-    $('songList').firstElementChild?.classList.add('tab-target');
-    setSongListOpen(document.activeElement === $('songFilter'));
+    setSongListOpen($('songFilterCandidates').hidden);
   }
   function setSongListOpen(open) {
     $('songList').hidden = !open;
     $('songFilter').setAttribute('aria-expanded', String(open));
+  }
+  function highlightSong(index) {
+    if (!state.visibleSongs.length) return;
+    state.activeSongIndex = (index + state.visibleSongs.length) % state.visibleSongs.length;
+    [...$('songList').querySelectorAll('button')].forEach((item, itemIndex) => {
+      const active = itemIndex === state.activeSongIndex;
+      item.classList.toggle('active', active);
+      item.setAttribute('aria-selected', String(active));
+    });
+    $('songList').querySelectorAll('button')[state.activeSongIndex]?.scrollIntoView?.({block: 'nearest'});
   }
   async function refreshSnapshot() {
     state.snapshot = await request('song-editor-snapshot');
@@ -859,7 +878,12 @@
       state.snapshot = snapshot; state.dictionary = dictionary.entries;
       state.dictionaryIndex = window.TangliengimImeCore.createDictionaryIndex(state.dictionary);
       $('songCategory').replaceChildren(...snapshot.categories.map(category => new Option(category.label, category.id)));
-      state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList);
+      state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList, {
+        onCandidatesChanged: () => {
+          if (!$('songFilterCandidates').hidden) setSongListOpen(false);
+          else renderSongList();
+        },
+      });
       state.displayTitleController = attachIme($('songTitle'), $('songTitleCandidates'), () => {
         state.legacyTitle = null;
         if ($('songTitleSystem').value === 'tli') {
@@ -884,35 +908,23 @@
   $('refreshSongDictionary').onclick = () => loadDictionary({announce: true}).catch(() => {});
   $('songFilter').addEventListener('input', renderSongList);
   $('songFilter').addEventListener('focus', renderSongList);
-  // Tab enters the matching-song list, unless the IME is using Tab to cycle its candidates.
+  // Match the Lyrics Timing Editor: keep focus in search while moving the active result.
   $('songFilter').addEventListener('keydown', event => {
-    if (event.key !== 'Tab' || event.shiftKey || event.defaultPrevented || event.isComposing) return;
-    if (state.searchController?.activeCandidates?.length) return;
-    const target = $('songList').hidden ? null : $('songList').querySelector('button.tab-target');
-    if (!target) return;
-    event.preventDefault();
-    target.focus();
-  });
-  $('songList').addEventListener('keydown', event => {
-    if (event.key !== 'Tab' || event.defaultPrevented || event.isComposing) return;
-    const current = event.target.closest('button');
-    if (!current) return;
-    const results = [...$('songList').querySelectorAll('button')];
-    const index = results.indexOf(current);
-    const next = results[index + (event.shiftKey ? -1 : 1)];
-    if (next) {
+    if (!$('songFilterCandidates').hidden || $('songList').hidden || event.defaultPrevented || event.isComposing) return;
+    if (event.key === 'Tab') {
       event.preventDefault();
-      next.focus();
-    } else if (event.shiftKey && index === 0) {
+      highlightSong(state.activeSongIndex + (event.shiftKey ? -1 : 1));
+    } else if (event.key === 'ArrowDown') {
+      event.preventDefault(); highlightSong(state.activeSongIndex + 1);
+    } else if (event.key === 'ArrowUp') {
       event.preventDefault();
-      $('songFilter').focus();
-    } else {
-      setSongListOpen(false);
+      highlightSong(state.activeSongIndex < 0 ? state.visibleSongs.length - 1 : state.activeSongIndex - 1);
+    } else if (event.key === 'Enter' && state.activeSongIndex >= 0) {
+      event.preventDefault(); openSong(state.visibleSongs[state.activeSongIndex].file);
+    } else if (event.key === 'Escape') {
+      event.preventDefault(); setSongListOpen(false);
     }
   });
-  document.querySelector('.song-browser').addEventListener('focusout', () => queueMicrotask(() => {
-    if (!document.querySelector('.song-browser').contains(document.activeElement)) setSongListOpen(false);
-  }));
   document.addEventListener('pointerdown', event => {
     if (!event.target.closest('.song-browser')) setSongListOpen(false);
   });
