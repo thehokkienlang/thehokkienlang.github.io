@@ -814,6 +814,12 @@ def build_content(root: Path, output: Path):
         ))
         original_titles = " ".join(original_title_values)
         mandarin_titles = [re.sub(r"\s+諺文(?:/中文)?歌詞\s*$", "", title) for title in original_title_values]
+        mandarin_titles.extend(
+            record.get("mandarinAlternativeTitle", "").strip()
+            for record in route_records
+            if record.get("mandarinAlternativeTitle", "").strip()
+        )
+        mandarin_titles = list(dict.fromkeys(mandarin_titles))
         mandarin_simplified_titles = list(dict.fromkeys(
             record.get("mandarinTitleSimplified", "").strip()
             or simplified_headword(re.sub(r"\s+諺文(?:/中文)?歌詞\s*$", "", record.get("originalTitle", "").strip()))
@@ -821,6 +827,13 @@ def build_content(root: Path, output: Path):
             for record in route_records
             if record.get("originalTitle", "").strip()
         ))
+        mandarin_simplified_titles.extend(
+            record.get("mandarinAlternativeTitleSimplified", "").strip()
+            or simplified_headword(record.get("mandarinAlternativeTitle", "").strip())
+            for record in route_records
+            if record.get("mandarinAlternativeTitle", "").strip()
+        )
+        mandarin_simplified_titles = list(dict.fromkeys(filter(None, mandarin_simplified_titles)))
         lines = []
         seen_lines = set()
         for record in route_records:
@@ -833,7 +846,7 @@ def build_content(root: Path, output: Path):
             "label": label,
             "lomari": song_lomari(imported),
             "mandarinTitle": " / ".join(mandarin_titles),
-            "mandarinSearch": " ".join([original_titles, *mandarin_simplified_titles]),
+            "mandarinSearch": " ".join([original_titles, *mandarin_titles, *mandarin_simplified_titles]),
             "lines": lines,
             "sort": (not bool(sort_reading), reading_sort_key(sort_reading)),
             # Title search stays compact; structured lyric lines are indexed by the browser.

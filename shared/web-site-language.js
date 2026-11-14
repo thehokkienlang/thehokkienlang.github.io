@@ -118,4 +118,24 @@
   };
   window.TliSiteLanguage = {language, text, href, apply};
   apply();
+  if (language !== "en") {
+    let keyboardHint = null;
+    let keyboardHintTimer;
+    document.addEventListener("click", event => {
+      const toggle = event.target.closest?.(".hangul-keyboard-toggle, .search-keyboard-toggle, #hangulKeyboardToggle");
+      if (!toggle) return;
+      clearTimeout(keyboardHintTimer);
+      keyboardHint?.remove();
+      keyboardHint = document.createElement("div");
+      keyboardHint.setAttribute("role", "status");
+      keyboardHint.textContent = simplified ? "使用请关闭中文输入法" : "使用請關閉中文輸入法";
+      keyboardHint.style.cssText = "position:fixed;z-index:1000;width:max-content;max-width:calc(100vw - 16px);padding:7px 10px;border:1px solid #ccd9d7;border-radius:6px;background:#fff;color:#19272a;box-shadow:0 3px 12px #17252b26;font-size:13px;line-height:1.5;pointer-events:none;";
+      document.body.append(keyboardHint);
+      const button = toggle.getBoundingClientRect();
+      const hint = keyboardHint.getBoundingClientRect();
+      keyboardHint.style.left = `${Math.max(8, Math.min(button.left, innerWidth - hint.width - 8))}px`;
+      keyboardHint.style.top = `${Math.max(8, button.bottom + hint.height + 14 <= innerHeight ? button.bottom + 6 : button.top - hint.height - 6)}px`;
+      keyboardHintTimer = setTimeout(() => { keyboardHint?.remove(); keyboardHint = null; }, 3000);
+    });
+  }
 })();

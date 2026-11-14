@@ -18,6 +18,7 @@
     { source: "mandarin_trad", target: "mandarin_simp", manual: false },
   ];
   let simplifiedTimer, simplifiedVersion = 0;
+  let readingIndex = null, readingManual = false, generatingReading = false, headwordComposing = false;
 
   async function request(action, payload = {}) {
     const response = await fetch("/desktop-api/editor/" + action, { method: "POST", cache: "no-store",
@@ -50,6 +51,48 @@
     state.recentIds = [...new Set([...ids].reverse().concat(state.recentIds))];
     try { localStorage.setItem("tangliengim-editor-recent:" + state.source, JSON.stringify(state.recentIds)); }
     catch { /* Entries remain saved if browser storage is unavailable. */ }
+  }
+  function generatedReading(text, index, remembered = []) {
+    let result = "", position = 0;
+    function appendReading(reading, end) {
+      let next = end;
+      while (text[next] === "-") next++;
+      const followed = next < text.length && (index?.findHanriEntry(text, next)
+        || core.readingUnitAt(text, next)?.canCarryTone);
+      result += followed ? core.citationReadingToTaipeiSandhi(reading) : reading;
+    }
+    while (position < text.length) {
+      const selected = remembered.find(span => span.start === position && text.slice(span.start, span.end) === span.hanri);
+      const entry = selected || index?.findHanriEntry(text, position);
+      if (entry) {
+        appendReading(entry.raw?.corrected || entry.raw?.reading || entry.reading, position + entry.hanri.length);
+        position += entry.hanri.length;
+        continue;
+      }
+      const unit = core.readingUnitAt(text, position);
+      if (unit?.canCarryTone) {
+        const end = core.readingUnitToneEnd(text, unit);
+        appendReading(text.slice(position, end), end);
+        position = end;
+        continue;
+      }
+      const char = String.fromCodePoint(text.codePointAt(position));
+      if (!/[\s’'\-]/u.test(char)) return "";
+      result += char;
+      position += char.length;
+    }
+    return window.TangliengimHangulIme.normalizeReadingToneKey(result.trim());
+  }
+  function updateAutomaticReading() {
+    if (readingManual || headwordComposing || state.selectedDefunct || !readingIndex) return;
+    const value = generatedReading($("hanri").value, readingIndex,
+      composers[0].getRememberedHanriReadings($("hanri").value));
+    if ($("reading").value === value) return;
+    generatingReading = true;
+    try {
+      composers[1].composer.setText(value, value.length);
+      composers[1].updateControlFromComposer({ allowCandidateMenu: false });
+    } finally { generatingReading = false; }
   }
   function scheduleSimplifiedFields() {
     clearTimeout(simplifiedTimer);
@@ -88,6 +131,7 @@
     for (const composer of composers) composer.clear();
     state.selectedDefunct = Boolean(entry?.defunct);
     for (const field of fields) $(field).value = entry?.[field] || "";
+    readingManual = Boolean(entry?.reading);
     $("entry_type").value = typeLabels[entry?.entry_type] || "";
     for (const pair of simplifiedPairs) {
       pair.manual = Boolean(entry?.[pair.target] && entry[pair.target] !== "〃");
@@ -438,23 +482,29 @@
   });
   const composers = [
     core.createTextImeController({ control: $("hanri"), candidateContainer: $("headwordCandidates"),
-      enabled: () => $("keyboard").checked && !state.selectedDefunct, onUpdate: () => { setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "symbols" }),
+      enabled: () => $("keyboard").checked && !state.selectedDefunct, onUpdate: () => { updateAutomaticReading(); setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "symbols" }),
     core.createTextImeController({ control: $("reading"), candidateContainer: $("readingCandidates"),
-      enabled: () => $("keyboard").checked && !state.selectedDefunct, onUpdate: () => { setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "digits" }),
+      enabled: () => $("keyboard").checked && !state.selectedDefunct, onUpdate: () => { if (!generatingReading) readingManual = Boolean($("reading").value); setDirty(true); scheduleSimplifiedFields(); }, enterBehavior: "commit", toneInputStyle: "digits" }),
   ];
   async function refreshComposers() {
     const response = await fetch("/public/data/hokkien-hanri-dict.json", { cache: "no-store", signal: AbortSignal.timeout(15000) });
     if (!response.ok) return;
     const data = await response.json();
     const index = core.createDictionaryIndex(data.entries || []);
+    readingIndex = core.createDictionaryIndex((data.entries || []).filter(entry => !entry.autoSandhi && !entry.auto_sandhi));
     composers[0].setEntries(data.entries || [], index);
     composers[1].setEntries([], core.createDictionaryIndex([]));
     searchImeController.setEntries(data.entries || [], index);
+    updateAutomaticReading();
   }
   channel?.addEventListener("message", () => refreshComposers().catch(() => {}));
   $("entryForm").addEventListener("input", event => { if (event.target.id !== "keyboard") setDirty(true); });
   $("entryForm").addEventListener("change", event => { if (event.target.id !== "keyboard") setDirty(true); });
   $("entryForm").addEventListener("submit", event => { event.preventDefault(); save(); });
+  $("hanri").addEventListener("compositionstart", () => { headwordComposing = true; });
+  $("hanri").addEventListener("compositionend", () => { headwordComposing = false; updateAutomaticReading(); });
+  $("hanri").addEventListener("input", event => { if (!event.isComposing) updateAutomaticReading(); });
+  $("reading").addEventListener("input", () => { if (!generatingReading) readingManual = Boolean($("reading").value); });
   for (const name of ["reading", "corrected"]) {
     $(name).addEventListener("input", event => { if (!event.isComposing) scheduleSimplifiedFields(); });
     $(name).addEventListener("compositionend", scheduleSimplifiedFields);
@@ -570,7 +620,7 @@
         canRestart: () => state.saving || state.job ? "Wait for the save or publication to finish before restarting."
           : $("conflictDialog").open ? "Finish resolving the dictionary conflict before restarting." : null,
         capture: () => restartDraft || ({ entry: state.selectedDefunct ? state.defunctEntries.find(entry => entry.entry_id === state.selected) : formEntry(), dirty: state.dirty, selected: state.selected, page: state.page,
-          manual: simplifiedPairs.map(pair => pair.manual), keyboard: $("keyboard").checked,
+          manual: simplifiedPairs.map(pair => pair.manual), readingManual, keyboard: $("keyboard").checked,
           advanced: $("advanced").open, batch: state.batch, batchText: $("batchText").value,
           batchOpen: $("batchDialog").open, search: $("search").value,
           searchHangul: state.searchHangul,
@@ -585,6 +635,7 @@
       if (restartDraft) {
         const draft = restartDraft;
         fill(draft.entry);
+        readingManual = draft.readingManual ?? Boolean(draft.entry?.reading);
         state.selected = draft.selected;
         if (!state.selectedDefunct) $("formTitle").textContent = draft.selected ? "Edit entry" : "New entry";
         setDirty(Boolean(draft.dirty));

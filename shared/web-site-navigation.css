@@ -225,3 +225,14 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
   .site-header, .site-app-header { padding: 16px 20px; gap: 12px; }
   .site-header nav, .site-app-nav { gap: 4px 16px; width: 100%; }
 }
+html:is(:lang(zh-Hant), :lang(zh-Hans)) .hangul-keyboard-toggle .toggle-label::after {
+  content: " ⓘ";
+  display: inline-block;
+  margin-left: 4px;
+  color: #647278;
+  font-family: "Segoe UI Symbol", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: middle;
+}

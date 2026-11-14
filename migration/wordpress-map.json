@@ -601,6 +601,18 @@
       "sourceId": 11541,
       "route": "/songs/魚仔/",
       "file": "content/songs/song-11541.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/你啊你啊/",
+      "sourceId": 11542,
+      "route": "/songs/你啊你啊/",
+      "file": "content/songs/song-11542.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/身騎白馬/",
+      "sourceId": 11543,
+      "route": "/songs/身騎白馬/",
+      "file": "content/songs/song-11543.json"
     }
   ],
   "deferred": {

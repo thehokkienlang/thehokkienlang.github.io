@@ -335,6 +335,8 @@ class WebsiteEditorService:
                 "searchText": " ".join(filter(None, (
                     record.get("title", path.stem), record.get("route", ""),
                     record.get("originalTitle", ""), title_reading,
+                    record.get("mandarinAlternativeTitle", ""),
+                    record.get("mandarinAlternativeTitleSimplified", ""),
                     editor_source.get("titleSource", "") if isinstance(editor_source, dict) else "",
                 ))),
             })
@@ -474,6 +476,20 @@ class WebsiteEditorService:
             draft = dict(draft)
         draft["mandarinTitle"] = self._song_mandarin_title(record)
         draft["mandarinSimplifiedTitle"] = self._song_mandarin_simplified_title(record)
+        draft["mandarinAlternativeTitle"] = self._song_mandarin_alternative_title(record)
+        draft["mandarinAlternativeSimplifiedTitle"] = self._song_mandarin_alternative_simplified_title(record)
+        if not draft.get("titleTliRuby") and draft.get("titleAnnotationSystem", "tli") == "tli":
+            title_ruby = self._tli_title_ruby_from_source(draft.get("titleSource", ""))
+            if not title_ruby:
+                try:
+                    title_html, _ = song_title(record)
+                    recovered_source = fragment_source(title_html)
+                    title_ruby = self._tli_title_ruby_from_source(recovered_source)
+                    if title_ruby:
+                        draft["titleSource"] = recovered_source
+                except (KeyError, TypeError, ValueError):
+                    pass
+            draft["titleTliRuby"] = title_ruby
         draft["lyrics"], converted = self._resolve_hyphenated_readings(draft.get("lyrics") or [], from_page=imported)
         return {
             "ok": True,
@@ -516,6 +532,8 @@ class WebsiteEditorService:
             "title": str(record.get("title") or "").strip(),
             "mandarinTitle": self._song_mandarin_title(record),
             "mandarinSimplifiedTitle": self._song_mandarin_simplified_title(record),
+            "mandarinAlternativeTitle": self._song_mandarin_alternative_title(record),
+            "mandarinAlternativeSimplifiedTitle": self._song_mandarin_alternative_simplified_title(record),
             "titleSource": title_source,
             "videoUrl": f"https://www.youtube.com/watch?v={video.group(1)}",
             "category": category,
@@ -536,6 +554,21 @@ class WebsiteEditorService:
         if stored:
             return stored
         traditional = cls._song_mandarin_title(record)
+        return simplified_headword(traditional) or traditional
+
+    @staticmethod
+    def _song_mandarin_alternative_title(record):
+        editor = record.get("songEditor") if isinstance(record.get("songEditor"), dict) else {}
+        return str(record.get("mandarinAlternativeTitle") or editor.get("mandarinAlternativeTitle") or "").strip()
+
+    @classmethod
+    def _song_mandarin_alternative_simplified_title(cls, record):
+        editor = record.get("songEditor") if isinstance(record.get("songEditor"), dict) else {}
+        stored = str(record.get("mandarinAlternativeTitleSimplified")
+                     or editor.get("mandarinAlternativeSimplifiedTitle") or "").strip()
+        if stored:
+            return stored
+        traditional = cls._song_mandarin_alternative_title(record)
         return simplified_headword(traditional) or traditional
 
     def simplify_song_title(self, title):
@@ -577,9 +610,37 @@ class WebsiteEditorService:
             draft.get("mandarinSimplifiedTitle"), "Simplified Mandarin title", required=True)
         if len(mandarin_simplified_title) > 160:
             raise WebsiteEditorError("Simplified Mandarin title is too long.")
-        title_source = self._plain(draft.get("titleSource"), "TLI title", required=True)
+        alternative_title = self._plain(draft.get("mandarinAlternativeTitle", ""), "Alternative Mandarin title")
+        alternative_simplified_title = self._plain(
+            draft.get("mandarinAlternativeSimplifiedTitle", ""), "Alternative Simplified Mandarin title")
+        if len(alternative_title) > 160 or len(alternative_simplified_title) > 160:
+            raise WebsiteEditorError("An alternative Mandarin title is too long.")
+        if bool(alternative_title) != bool(alternative_simplified_title):
+            raise WebsiteEditorError("Fill both alternative Mandarin title fields, or leave both blank.")
+        title_system = self._plain(draft.get("titleAnnotationSystem", "tli"), "Title annotation")
+        if title_system not in {"tli", "zhuyin"}:
+            raise WebsiteEditorError("Choose TLI or Zhuyin for the title annotation.")
+        title_source = self._plain(
+            draft.get("titleSource") or (title if title_system == "zhuyin" else ""),
+            "TLI title", required=True)
         if len(title_source) > 500:
             raise WebsiteEditorError("TLI title is too long.")
+        title_tli_ruby = self._plain(
+            draft.get("titleTliRuby") or self._tli_title_ruby_from_source(title_source),
+            "TLI title ruby", required=title_system == "tli" and any(self._tone_marker().is_cjk_char(char)
+                                                                      for char in title))
+        if len(title_tli_ruby) > 500:
+            raise WebsiteEditorError("The TLI title ruby is too long.")
+        if title_system == "tli" and title_tli_ruby:
+            title_source = self._tli_title_source(title, title_tli_ruby, title_source)
+        title_zhuyin = self._plain(draft.get("titleZhuyin", ""), "Zhuyin title reading",
+                                   required=title_system == "zhuyin")
+        title_pinyin = self._plain(draft.get("titlePinyin", ""), "Title Pinyin",
+                                  required=title_system == "zhuyin")
+        if len(title_zhuyin) > 500 or len(title_pinyin) > 500:
+            raise WebsiteEditorError("A title reading is too long.")
+        if title_system == "zhuyin":
+            self._zhuyin_title_segments(title, title_zhuyin)
         video_url = self._plain(draft.get("videoUrl"), "YouTube link", required=True)
         video_id = self._youtube_id(video_url)
         if not video_id:
@@ -628,7 +689,13 @@ class WebsiteEditorService:
             "title": title,
             "mandarinTitle": mandarin_title,
             "mandarinSimplifiedTitle": mandarin_simplified_title,
+            "mandarinAlternativeTitle": alternative_title,
+            "mandarinAlternativeSimplifiedTitle": alternative_simplified_title,
+            "titleAnnotationSystem": title_system,
             "titleSource": title_source,
+            "titleTliRuby": title_tli_ruby,
+            "titleZhuyin": title_zhuyin,
+            "titlePinyin": title_pinyin,
             "videoUrl": f"https://www.youtube.com/watch?v={video_id}",
             "category": category,
             "lyrics": lyrics,
@@ -636,6 +703,67 @@ class WebsiteEditorService:
         if legacy_title:
             clean["legacyTitle"] = legacy_title
         return clean, route, video_id
+
+    @staticmethod
+    def _zhuyin_title_segments(title, reading):
+        if any(char.isspace() for char in title):
+            raise WebsiteEditorError("A Zhuyin-annotated title cannot contain spaces.")
+        readings = reading.split()
+        if len(readings) != len(title):
+            raise WebsiteEditorError("Enter one spaced Zhuyin reading for each title character.")
+        if any(not re.search(r"[㄀-ㄯㆠ-ㆿ]", value) for value in readings):
+            raise WebsiteEditorError("Each Zhuyin title reading must contain Bopomofo.")
+        return [{"base": base, "reading": value, "system": "bopomofo"}
+                for base, value in zip(title, readings)]
+
+    def _tli_title_segments(self, title, reading):
+        converter = self._tone_marker()
+        bases = [char for char in title if converter.is_cjk_char(char)]
+        readings = reading.split()
+        if len(readings) != len(bases):
+            raise WebsiteEditorError("Enter one spaced Hangul ruby reading for each Hanri title character.")
+        segments = []
+        for base, value in zip(bases, readings):
+            unit = converter.hangul_reading_unit_at(value, 0)
+            if not unit or unit[1] != len(value):
+                raise WebsiteEditorError("Each TLI title ruby reading must contain exactly one Hangul syllable.")
+            segments.append({"base": base, "reading": value, "system": "hangul"})
+        return segments
+
+    def _tli_title_source(self, title, reading, fallback):
+        segments = iter(self._tli_title_segments(title, reading))
+        converter = self._tone_marker()
+        if not any(converter.is_cjk_char(char) for char in title):
+            return fallback
+        output = []
+        for char in title:
+            if converter.is_cjk_char(char):
+                segment = next(segments)
+                output.append(f'[{char}{segment["reading"]}]')
+            else:
+                output.append(char)
+        return "".join(output)
+
+    def _tli_title_ruby_from_source(self, source):
+        converter = self._tone_marker()
+        readings = []
+        for match in re.finditer(r"\[([^\]]+)\]", str(source or "")):
+            parsed = converter.split_hanri_hangul_bracket(match.group(1))
+            if not parsed:
+                continue
+            hanri, reading = parsed
+            units = []
+            index = 0
+            while index < len(reading):
+                unit = converter.hangul_reading_unit_at(reading, index)
+                if not unit:
+                    return ""
+                units.append(unit[0])
+                index = unit[1]
+            if len(units) != len(hanri):
+                return ""
+            readings.extend(units)
+        return " ".join(readings)
 
     @staticmethod
     def _normalize_legacy_title(value, title, title_source):
@@ -725,7 +853,11 @@ class WebsiteEditorService:
         clean, route, video_id = self._normalize_song_draft(draft, existing_route=existing_route)
         converter = self._tone_marker()
         try:
-            if clean.get("legacyTitle"):
+            if clean["titleAnnotationSystem"] == "zhuyin":
+                title_html = self._render_legacy_title({
+                    "segments": self._zhuyin_title_segments(clean["title"], clean["titleZhuyin"]),
+                })
+            elif clean.get("legacyTitle") and not clean.get("titleTliRuby"):
                 title_html = self._render_legacy_title(clean["legacyTitle"])
             else:
                 title_html = converter.convert_hangul_to_html(clean["titleSource"], "title")["html"]
@@ -834,6 +966,18 @@ class WebsiteEditorService:
             "body": body,
             "songEditor": clean,
         })
+        if clean["mandarinAlternativeTitle"]:
+            record["mandarinAlternativeTitle"] = clean["mandarinAlternativeTitle"]
+            record["mandarinAlternativeTitleSimplified"] = clean["mandarinAlternativeSimplifiedTitle"]
+        else:
+            record.pop("mandarinAlternativeTitle", None)
+            record.pop("mandarinAlternativeTitleSimplified", None)
+        if clean["titleAnnotationSystem"] == "zhuyin":
+            record["titleRuby"] = self._zhuyin_title_segments(clean["title"], clean["titleZhuyin"])
+            record["titleRomanisation"] = clean["titlePinyin"]
+        else:
+            record.pop("titleRuby", None)
+            record.pop("titleRomanisation", None)
         if suffix:
             record["songEditorLegacySuffix"] = suffix
         rewritten, home_changed = self._sync_lomari(path.relative_to(self.repo).as_posix(), record)

@@ -131,6 +131,41 @@ class WebsiteEditorTests(unittest.TestCase):
         self.assertIn("goà ài nǐ", result["body"])
         self.assertNotIn("goà-ai-li", result["body"])
 
+    def test_structured_song_supports_zhuyin_title_and_alternative_mandarin_title(self):
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "敢傻敢衝", "mandarinTitle": "敢傻敢衝", "mandarinSimplifiedTitle": "敢傻敢冲",
+            "mandarinAlternativeTitle": "勇敢向前", "mandarinAlternativeSimplifiedTitle": "勇敢向前",
+            "titleAnnotationSystem": "zhuyin", "titleZhuyin": "ㄍㄢˇ ㄕㄚˇ ㄍㄢˇ ㄔㄨㄥ",
+            "titlePinyin": "gǎn shǎ gǎn chōng", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+            "category": "modern", "lyrics": [{"kind": "line", "text": "我愛你", "pinyin": "wǒ ài nǐ"}],
+        })
+        self.assertIn('class="hanri-title bopomofo-title"', result["titleHtml"])
+        self.assertIn("ㄍㄢˇ", result["titleHtml"])
+        self.assertEqual(result["draft"]["mandarinAlternativeTitle"], "勇敢向前")
+        self.assertEqual(result["draft"]["titlePinyin"], "gǎn shǎ gǎn chōng")
+
+    def test_tli_title_ruby_is_editable_and_one_reading_per_hanri(self):
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "愛情", "mandarinTitle": "愛情", "mandarinSimplifiedTitle": "爱情",
+            "titleSource": "[愛情애2졩4]", "titleTliRuby": "애ˆ 졩ˊ",
+            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+            "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
+        })
+        self.assertEqual(result["draft"]["titleSource"], "[愛애ˆ][情졩ˊ]")
+        self.assertEqual(result["draft"]["titleTliRuby"], "애ˆ 졩ˊ")
+        self.assertRegex(result["titleHtml"], r"<ruby[^>]*>愛<rt[^>]*>애ˆ-</rt></ruby>")
+        self.assertRegex(result["titleHtml"], r"<ruby[^>]*>情<rt[^>]*>졩ˊ</rt></ruby>")
+
+        with self.assertRaisesRegex(WebsiteEditorError, "one spaced Hangul ruby reading"):
+            service.render_song_draft({
+                "title": "愛情", "mandarinTitle": "愛情", "mandarinSimplifiedTitle": "爱情",
+                "titleSource": "[愛情애2졩4]", "titleTliRuby": "애ˆ",
+                "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+                "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
+            })
+
     def test_song_renderer_applies_sandhi_once_to_dictionary_hangul(self):
         # Hangul with its own dictionary row (매, 가) used to get sandhi twice before Hanri
         # in songs: once when the row was applied and again by the song pass.

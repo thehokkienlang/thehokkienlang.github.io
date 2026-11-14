@@ -27,6 +27,7 @@ JAVASCRIPT_FILES = (
     "desktop/dictionary_editor_ui/editor.js",
     "desktop/website_editor_ui/website-editor.js",
     "desktop/website_editor_ui/song-editor.js",
+    "desktop/website_editor_ui/vendor/pinyin-pro.js",
     "desktop/website_editor_ui/lyric-timing.js",
     "desktop/website_editor_ui/lyric-companion.js",
     "desktop/youtube_companion/background.js",
@@ -138,6 +139,7 @@ def main() -> int:
     run('Adaptive Web safeguards', 'node', 'tools/check_adaptive_safeguards.cjs')
     run('Adaptive Local/Desktop safeguards', sys.executable, '-X', 'utf8', 'tools/check_adaptive_safeguards.py')
     run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
+    run("Dictionary editor automatic readings", "node", "tests/check_dictionary_editor_reading.cjs")
     run("Editor browser lifetime", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
         "-s", "tests", "-p", "test_desktop_editor_lifetime.py")
     run("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")

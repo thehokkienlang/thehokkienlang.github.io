@@ -3,10 +3,12 @@
   const $ = id => document.getElementById(id);
   const token = document.querySelector('meta[name="editor-token"]').content;
   const state = {
-    snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null, searchController: null,
+    snapshot: null, dictionary: [], dictionaryIndex: null, controllers: [], titleController: null,
+    displayTitleController: null, searchController: null,
     file: '', revision: '', route: '', dirty: false, previewTimer: null, renderGeneration: 0,
     publishPaths: [], job: null, legacyTitle: null, renderingRows: false, dictionaryGeneration: null,
     lineClipboard: null, simplifiedTitleTimer: null, simplifiedTitleGeneration: 0,
+    simplifiedAlternativeTimer: null, simplifiedAlternativeGeneration: 0, titlePinyinManual: false,
   };
 
   async function request(action, payload = {}) {
@@ -43,6 +45,43 @@
         markDirty();
       } catch (error) { notice(error.message, true); }
     }, 250);
+  }
+  function scheduleSimplifiedMandarinAlternativeTitle() {
+    clearTimeout(state.simplifiedAlternativeTimer);
+    const generation = ++state.simplifiedAlternativeGeneration;
+    const title = $('songMandarinAlternativeTitle').value.trim();
+    if (!title) {
+      $('songMandarinAlternativeSimplifiedTitle').value = '';
+      return;
+    }
+    state.simplifiedAlternativeTimer = setTimeout(async () => {
+      try {
+        const result = await request('simplify-song-title', {title});
+        if (generation !== state.simplifiedAlternativeGeneration) return;
+        $('songMandarinAlternativeSimplifiedTitle').value = result.title;
+        markDirty();
+      } catch (error) { notice(error.message, true); }
+    }, 250);
+  }
+  function mandarinPinyin(value) {
+    if (!window.pinyinPro?.pinyin) return '';
+    return window.pinyinPro.pinyin(String(value || ''), {
+      toneType: 'symbol', type: 'string', separator: ' ', traditional: true, nonZh: 'spaced',
+    }).replace(/\s+([,.;:!?，。！？：；、])/gu, '$1').replace(/\s+/gu, ' ').trim();
+  }
+  function updateTitlePinyin({force = false} = {}) {
+    if (!force && state.titlePinyinManual) return;
+    $('songTitlePinyin').value = mandarinPinyin($('songTitle').value);
+  }
+  function updateTitleSystem({dirty = true} = {}) {
+    const zhuyin = $('songTitleSystem').value === 'zhuyin';
+    document.querySelectorAll('.tli-title-field').forEach(node => { node.hidden = zhuyin; });
+    document.querySelectorAll('.zhuyin-title-field').forEach(node => { node.hidden = !zhuyin; });
+    $('songTitleSource').required = !zhuyin;
+    $('songTitleZhuyin').required = zhuyin;
+    $('songTitlePinyin').required = zhuyin;
+    if (zhuyin) updateTitlePinyin();
+    if (dirty) { state.legacyTitle = null; markDirty(); }
   }
   function setControllerText(controller, value) {
     controller.composer.setText(value, value.length);
@@ -151,6 +190,45 @@
       cursor = span.end;
     }
     return {value: value + text.slice(cursor), segments};
+  }
+  function hangulReadingUnits(reading) {
+    const source = String(reading || '').trim();
+    const units = [];
+    let index = 0;
+    while (index < source.length) {
+      if (/\s/u.test(source[index])) { index += 1; continue; }
+      const unit = window.TangliengimImeCore.readingUnitAt(source, index);
+      if (!unit?.canCarryTone) return [];
+      let end = unit.end;
+      if (window.TangliengimImeCore.isToneMark(source[end])) end += 1;
+      units.push(source.slice(index, end));
+      index = end;
+    }
+    return units;
+  }
+  function titleRubyFromController(controller, {resolveSandhi = true} = {}) {
+    const text = controller.control.value;
+    const readings = [];
+    const spans = controller.getRememberedHanriReadings(text)
+      .sort((left, right) => left.start - right.start || left.end - right.end);
+    for (const span of spans) {
+      const characters = [...span.hanri];
+      const units = hangulReadingUnits(span.reading);
+      if (units.length !== characters.length) return '';
+      let offset = span.start;
+      units.forEach((reading, index) => {
+        offset += characters[index].length;
+        const takesSandhi = index < units.length - 1 || hasFollowingLyricUnit(text, offset);
+        readings.push(toneMarksForDisplay(resolveSandhi && takesSandhi
+          ? resolvedRubyReading(reading)
+          : reading));
+      });
+    }
+    return readings.join(' ');
+  }
+  function syncTitleTliRuby({resolveSandhi = true} = {}) {
+    if (!state.titleController) return;
+    $('songTitleTliRuby').value = titleRubyFromController(state.titleController, {resolveSandhi});
   }
   function syncLyricRubyInput(controller, selection = null) {
     const rubyInput = controller.control.closest('.lyric-input-wrap')?.querySelector('.lyric-ruby-input');
@@ -309,11 +387,16 @@
       title: $('songTitle').value,
       mandarinTitle: $('songMandarinTitle').value,
       mandarinSimplifiedTitle: $('songMandarinSimplifiedTitle').value,
-      titleSource: $('songTitleSource').value,
+      mandarinAlternativeTitle: $('songMandarinAlternativeTitle').value,
+      mandarinAlternativeSimplifiedTitle: $('songMandarinAlternativeSimplifiedTitle').value,
+      titleAnnotationSystem: $('songTitleSystem').value,
+      titleSource: lyricControllerSource(state.titleController),
+      titleTliRuby: $('songTitleTliRuby').value,
+      titleZhuyin: $('songTitleZhuyin').value,
+      titlePinyin: $('songTitlePinyin').value,
       videoUrl: $('songVideo').value,
       category: $('songCategory').value,
       lyrics: lineDrafts(),
-      ...(state.legacyTitle ? {legacyTitle: state.legacyTitle} : {}),
     };
   }
   function newButton(label, title, action) {
@@ -402,6 +485,7 @@
       pinyin: state.lineClipboard.pinyin || '',
       customLomari: state.lineClipboard.lomari || '',
     };
+    row.pinyinAuto = !state.lineClipboard.pinyin;
     updateLineReadingMode(row);
     renderLyricAnnotations(controller);
     syncLyricRubyInput(controller);
@@ -424,11 +508,16 @@
     if (mode === 'custom-lomari' && !row.readingValues.customLomari && input.imeController?.lyricToneRenderer) {
       row.readingValues.customLomari = input.imeController.lyricToneRenderer.render(input.value);
     }
+    if (pinyinMode && !row.readingValues.pinyin) {
+      row.readingValues.pinyin = mandarinPinyin(input.value);
+      row.pinyinAuto = true;
+    }
     readingInput.value = pinyinMode ? row.readingValues.pinyin : row.readingValues.customLomari;
   }
   function addLineRow(item = {kind: 'line', text: '', grey: false}, before = null) {
     const row = document.createElement('div'); row.className = 'lyric-row'; row.dataset.kind = 'line';
     row.readingValues = {pinyin: item.pinyin || '', customLomari: item.lomari || ''};
+    row.pinyinAuto = !item.pinyin;
     row.setAttribute('aria-selected', 'false');
     row.addEventListener('pointerdown', () => selectLineRow(row));
     row.addEventListener('focusin', () => selectLineRow(row));
@@ -443,7 +532,10 @@
     const readingInput = document.createElement('input'); readingInput.className = 'lyric-reading-input'; readingInput.type = 'text';
     readingInput.autocomplete = 'off'; readingInput.spellcheck = false;
     readingInput.oninput = () => {
-      if (readingMode.value === 'pinyin') row.readingValues.pinyin = readingInput.value;
+      if (readingMode.value === 'pinyin') {
+        row.readingValues.pinyin = readingInput.value;
+        row.pinyinAuto = false;
+      }
       else if (readingMode.value === 'custom-lomari') row.readingValues.customLomari = readingInput.value;
       markDirty();
     };
@@ -502,6 +594,10 @@
     controller = attachIme(input, menu, () => {
       renderLyricAnnotations(controller);
       syncLyricRubyInput(controller);
+      if (readingMode.value === 'pinyin' && row.pinyinAuto) {
+        row.readingValues.pinyin = mandarinPinyin(input.value);
+        readingInput.value = row.readingValues.pinyin;
+      }
       markDirty();
     });
     controller.lyricToneRenderer = createLyricToneRenderer(controller);
@@ -569,10 +665,22 @@
   function setDraft(draft, {file = '', revision = '', route = ''} = {}) {
     state.file = file; state.revision = revision; state.route = route; state.publishPaths = [];
     state.legacyTitle = draft.legacyTitle || null;
-    $('songTitle').value = draft.title || '';
+    setControllerText(state.displayTitleController, draft.title || '');
     $('songMandarinTitle').value = draft.mandarinTitle || '';
     $('songMandarinSimplifiedTitle').value = draft.mandarinSimplifiedTitle || '';
-    setControllerText(state.titleController, draft.titleSource || '');
+    $('songMandarinAlternativeTitle').value = draft.mandarinAlternativeTitle || '';
+    $('songMandarinAlternativeSimplifiedTitle').value = draft.mandarinAlternativeSimplifiedTitle || '';
+    setLyricControllerSource(state.titleController, draft.titleSource || draft.title || '');
+    $('songTitleTliRuby').value = draft.titleTliRuby || titleRubyFromController(
+      state.titleController, {resolveSandhi: false}
+    );
+    $('songTitleSystem').value = draft.titleAnnotationSystem ||
+      (draft.legacyTitle?.segments?.some(segment => segment.system === 'bopomofo') ? 'zhuyin' : 'tli');
+    $('songTitleZhuyin').value = draft.titleZhuyin || (draft.legacyTitle?.segments || [])
+      .filter(segment => segment.system === 'bopomofo').map(segment => segment.reading).join(' ');
+    $('songTitlePinyin').value = draft.titlePinyin || '';
+    state.titlePinyinManual = Boolean(draft.titlePinyin);
+    updateTitleSystem({dirty: false});
     $('songVideo').value = draft.videoUrl || '';
     $('songCategory').value = draft.category || state.snapshot.categories[0]?.id || '';
     $('songRoute').value = route || '';
@@ -582,7 +690,10 @@
   }
   function newSong() {
     if (state.dirty && !confirm('Discard this unsaved song draft?')) return;
-    setDraft({title: '', mandarinTitle: '', mandarinSimplifiedTitle: '', titleSource: '', videoUrl: '', category: state.snapshot.categories[0]?.id || '', lyrics: [{kind:'line', text:'', grey:false}]});
+    setDraft({title: '', mandarinTitle: '', mandarinSimplifiedTitle: '', mandarinAlternativeTitle: '',
+      mandarinAlternativeSimplifiedTitle: '', titleAnnotationSystem: 'tli', titleSource: '', titleZhuyin: '',
+      titleTliRuby: '', titlePinyin: '', videoUrl: '', category: state.snapshot.categories[0]?.id || '',
+      lyrics: [{kind:'line', text:'', grey:false}]});
     $('songTitle').focus();
   }
   async function openSong(file) {
@@ -617,10 +728,14 @@
       const mode = document.createElement('small'); mode.className = 'song-record-kind';
       mode.textContent = song.editable ? 'Editable song' : 'Existing song';
       button.append(title, route, mode);
+      button.onfocus = () => {
+        $('songList').querySelectorAll('button.tab-target').forEach(item => item.classList.remove('tab-target'));
+        button.classList.add('tab-target');
+      };
       button.onclick = () => { setSongListOpen(false); openSong(song.file); };
       return button;
     }));
-    // Tab in the search box opens this top match.
+    // Tab from the search box enters the result list at this top match.
     $('songList').firstElementChild?.classList.add('tab-target');
     setSongListOpen(document.activeElement === $('songFilter'));
   }
@@ -701,11 +816,11 @@
     const listed = state.snapshot.songs.find(song => song.file === result.file);
     if (listed) Object.assign(listed, {
       title: result.draft.title, route: result.route, revision: result.revision, editable: true,
-      searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.route} ${result.draft.titleSource}`,
+      searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.draft.mandarinAlternativeTitle || ''} ${result.draft.mandarinAlternativeSimplifiedTitle || ''} ${result.route} ${result.draft.titleSource}`,
     });
     else state.snapshot.songs.unshift({
       file: result.file, title: result.draft.title, route: result.route, revision: result.revision,
-      editable: true, searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.route} ${result.draft.titleSource}`,
+      editable: true, searchText: `${result.draft.title} ${result.draft.mandarinTitle} ${result.draft.mandarinSimplifiedTitle} ${result.draft.mandarinAlternativeTitle || ''} ${result.draft.mandarinAlternativeSimplifiedTitle || ''} ${result.route} ${result.draft.titleSource}`,
     });
     $('songState').textContent = 'Saved locally';
     $('openSong').hidden = false; $('openSong').href = '/preview-site' + result.route;
@@ -745,10 +860,21 @@
       state.dictionaryIndex = window.TangliengimImeCore.createDictionaryIndex(state.dictionary);
       $('songCategory').replaceChildren(...snapshot.categories.map(category => new Option(category.label, category.id)));
       state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList);
-      state.titleController = attachIme($('songTitleSource'), $('titleCandidates'), () => {
-        state.legacyTitle = null; markDirty();
+      state.displayTitleController = attachIme($('songTitle'), $('songTitleCandidates'), () => {
+        state.legacyTitle = null;
+        if ($('songTitleSystem').value === 'tli') {
+          setLyricControllerSource(state.titleController, lyricControllerSource(state.displayTitleController));
+          syncTitleTliRuby();
+        } else {
+          updateTitlePinyin();
+        }
+        markDirty();
       }, {toneInputStyle: 'symbols'});
-      await Promise.all([state.searchController.preferences.ready, state.titleController.preferences.ready]);
+      state.titleController = attachIme($('songTitleSource'), $('titleCandidates'), () => {
+        state.legacyTitle = null; syncTitleTliRuby(); markDirty();
+      }, {toneInputStyle: 'symbols'});
+      await Promise.all([state.searchController.preferences.ready, state.displayTitleController.preferences.ready,
+        state.titleController.preferences.ready]);
       newSong(); renderSongList();
       refreshDictionaryIfChanged();
     } catch (error) { notice(error.message, true); }
@@ -758,18 +884,35 @@
   $('refreshSongDictionary').onclick = () => loadDictionary({announce: true}).catch(() => {});
   $('songFilter').addEventListener('input', renderSongList);
   $('songFilter').addEventListener('focus', renderSongList);
-  // Tab opens the top matching song, unless the IME is using Tab to cycle its candidates.
+  // Tab enters the matching-song list, unless the IME is using Tab to cycle its candidates.
   $('songFilter').addEventListener('keydown', event => {
     if (event.key !== 'Tab' || event.shiftKey || event.defaultPrevented || event.isComposing) return;
     if (state.searchController?.activeCandidates?.length) return;
     const target = $('songList').hidden ? null : $('songList').querySelector('button.tab-target');
     if (!target) return;
     event.preventDefault();
-    target.click();
-    // Like an ordinary Tab, move on: to the song's title, which also closes the list.
-    $('songTitle').focus();
-    setSongListOpen(false);
+    target.focus();
   });
+  $('songList').addEventListener('keydown', event => {
+    if (event.key !== 'Tab' || event.defaultPrevented || event.isComposing) return;
+    const current = event.target.closest('button');
+    if (!current) return;
+    const results = [...$('songList').querySelectorAll('button')];
+    const index = results.indexOf(current);
+    const next = results[index + (event.shiftKey ? -1 : 1)];
+    if (next) {
+      event.preventDefault();
+      next.focus();
+    } else if (event.shiftKey && index === 0) {
+      event.preventDefault();
+      $('songFilter').focus();
+    } else {
+      setSongListOpen(false);
+    }
+  });
+  document.querySelector('.song-browser').addEventListener('focusout', () => queueMicrotask(() => {
+    if (!document.querySelector('.song-browser').contains(document.activeElement)) setSongListOpen(false);
+  }));
   document.addEventListener('pointerdown', event => {
     if (!event.target.closest('.song-browser')) setSongListOpen(false);
   });
@@ -786,9 +929,10 @@
   $('previewSong').onclick = () => renderPreview({loud:true});
   $('saveSong').onclick = () => saveSong().catch(error => notice(error.message, true));
   $('publishSong').onclick = publishSong;
-  $('songTitle').oninput = () => { state.legacyTitle = null; markDirty(); };
   $('songMandarinTitle').oninput = () => { markDirty(); scheduleSimplifiedMandarinTitle(); };
   $('songMandarinSimplifiedTitle').oninput = markDirty;
+  $('songMandarinAlternativeTitle').oninput = () => { markDirty(); scheduleSimplifiedMandarinAlternativeTitle(); };
+  $('songMandarinAlternativeSimplifiedTitle').oninput = markDirty;
   $('regenerateMandarinSimplified').onclick = async () => {
     try {
       clearTimeout(state.simplifiedTitleTimer);
@@ -799,6 +943,31 @@
       markDirty();
     } catch (error) { notice(error.message, true); }
   };
+  $('regenerateMandarinAlternativeSimplified').onclick = async () => {
+    try {
+      clearTimeout(state.simplifiedAlternativeTimer);
+      const generation = ++state.simplifiedAlternativeGeneration;
+      const title = $('songMandarinAlternativeTitle').value.trim();
+      if (!title) {
+        $('songMandarinAlternativeSimplifiedTitle').value = '';
+        markDirty();
+        return;
+      }
+      const result = await request('simplify-song-title', {title});
+      if (generation !== state.simplifiedAlternativeGeneration) return;
+      $('songMandarinAlternativeSimplifiedTitle').value = result.title;
+      markDirty();
+    } catch (error) { notice(error.message, true); }
+  };
+  $('songTitleSystem').onchange = () => updateTitleSystem();
+  $('songTitleTliRuby').oninput = () => { state.legacyTitle = null; markDirty(); };
+  $('regenerateTitleTliRuby').onclick = () => {
+    state.legacyTitle = null;
+    syncTitleTliRuby();
+    markDirty();
+  };
+  $('songTitleZhuyin').oninput = () => { state.legacyTitle = null; markDirty(); };
+  $('songTitlePinyin').oninput = () => { state.titlePinyinManual = true; state.legacyTitle = null; markDirty(); };
   $('songVideo').oninput = markDirty; $('songCategory').onchange = markDirty;
   window.addEventListener('resize', () => state.controllers.forEach(controller => {
     if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);

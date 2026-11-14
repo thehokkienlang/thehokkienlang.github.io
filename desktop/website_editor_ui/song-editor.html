@@ -11,6 +11,7 @@
   <script src="/shared/web-hangul-ime.js" defer></script>
   <script src="/shared/web-ime-core.js" defer></script>
   <script src="/shared/web-phonetic-output.js" defer></script>
+  <script src="/website-editor/vendor/pinyin-pro.js" defer></script>
   <script src="song-editor.js" defer></script>
 </head>
 <body>
@@ -28,14 +29,26 @@
     <section class="song-form-panel">
       <form id="songForm">
         <div class="song-fields">
-          <label>Song title<input id="songTitle" required autocomplete="off"></label>
+          <label class="tli-field">Song title
+            <span class="tli-input-wrap"><input id="songTitle" required autocomplete="off" spellcheck="false" aria-controls="songTitleCandidates" aria-autocomplete="list"><span id="songTitleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
+          </label>
           <label>Mandarin title<input id="songMandarinTitle" required autocomplete="off"></label>
           <label>Mandarin title (Simplified)
             <span class="generated-title-field"><input id="songMandarinSimplifiedTitle" required autocomplete="off"><button id="regenerateMandarinSimplified" type="button">Regenerate</button></span>
           </label>
-          <label class="tli-field">TLI title
+          <label>Alternative Mandarin title<input id="songMandarinAlternativeTitle" autocomplete="off" placeholder="Optional"></label>
+          <label>Alternative Mandarin title (Simplified)
+            <span class="generated-title-field"><input id="songMandarinAlternativeSimplifiedTitle" autocomplete="off" placeholder="Optional"><button id="regenerateMandarinAlternativeSimplified" type="button">Regenerate</button></span>
+          </label>
+          <label>Title annotation<select id="songTitleSystem"><option value="tli">TLI (Hangul ruby)</option><option value="zhuyin">Mandarin (Zhuyin ruby)</option></select></label>
+          <label class="tli-field tli-title-field">TLI title <small>Select the intended reading for each Hanri word</small>
             <span class="tli-input-wrap"><input id="songTitleSource" required autocomplete="off" spellcheck="false" aria-controls="titleCandidates" aria-autocomplete="list"><span id="titleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
           </label>
+          <label class="tli-field tli-title-field">TLI title ruby <small>One Hangul reading per Hanri character; automatic readings use sandhi</small>
+            <span class="generated-title-field"><input id="songTitleTliRuby" autocomplete="off" spellcheck="false" placeholder="애ˆ 졩 충 충"><button id="regenerateTitleTliRuby" type="button">Regenerate</button></span>
+          </label>
+          <label class="zhuyin-title-field" hidden>Zhuyin title reading <small>One spaced reading per title character</small><input id="songTitleZhuyin" autocomplete="off" spellcheck="false" placeholder="ㄍㄢˇ ㄕㄚˇ ㄍㄢˇ ㄔㄨㄥ"></label>
+          <label class="zhuyin-title-field" hidden>Title Pinyin<input id="songTitlePinyin" autocomplete="off" spellcheck="false"></label>
           <label>YouTube link<input id="songVideo" type="url" required autocomplete="off"></label>
           <label>Category<select id="songCategory" required></select></label>
           <label class="route-field">Published route<input id="songRoute" readonly></label>

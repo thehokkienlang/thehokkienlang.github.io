@@ -230,6 +230,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 寡	〃	과2	〃	〃	few; little		lexical	U+5BE1_00
 歌壇	歌坛	과5돨4	〃	歌坛	song		lexical	U+6B4C_U+58C7_00
 歌迷	〃	과5뻬4	〃	〃	fan		lexical	U+6B4C_U+8FF7_00
+歌仔冊	歌仔册	과5아1쳏	歌仔冊	歌仔册	a Hokkien song book; Koā-â-cheh (POJ: Koa-á-chheh)		lexical	U+6B4C_U+4ED4_U+518A_00
+歌仔戲	歌仔戏	과5아1히	歌仔戲	歌仔戏	a Hokkien opera; Koā-â-hi (POJ: Koa-á-hì)		lexical	U+6B4C_U+4ED4_U+6232_00
 掛意	挂意	과2이	〃	挂意	worry; be concerned		lexical	U+639B_U+610F_00
 歌唱	〃	과5츌	〃	〃	song		lexical	U+6B4C_U+5531_00
 關	关	관1	〃	关	close		lexical	U+95DC_00
@@ -292,6 +294,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 規暝	规暝	귀5미4	整夜	〃	the whole night		lexical	U+898F_U+669D_00
 歸屬	归属	귀5셕1	〃	归属	return; belong to		lexical	U+6B78_U+5C6C_00
 歸宿	归宿	귀5셕	〃	归宿	return; belong to; lodging; destiny		lexical	U+6B78_U+5BBF_00
+幾个	几个	귀1에4	幾個	几个	how many; a few		lexical	U+5E7E_U+4E2A_00
 規个	规个	귀5에4	整個	整个	whole; entire		lexical	U+898F_U+4E2A_00
 關	关	귈1	〃	关	close		lexical	U+95DC_01
 求	〃	규4	〃	〃	seek; request		lexical	U+6C42_00
@@ -425,6 +428,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 兩	两	능5	〃	两	two; both		lexical	U+5169_00
 卵	〃	능5	〃	〃	egg		lexical	U+5375_00
 兩角	两角	능각	兩角錢; 0.2元	两角钱; 0.2元	twenty cents; two tenths of a monetary unit		lexical	U+5169_U+89D2_00
+兩工	两工	능강1	兩天	两天	two days		lexical	U+5169_U+5DE5_00
 兩個月	两个月	능고2뀋1	〃	两个月	two months		lexical	U+5169_U+500B_U+6708_00
 卵仁	〃	능띤4	蛋黃	蛋黄	egg		lexical	U+5375_U+4EC1_00
 兩日	两日	능띧1	〃	两日	two days		lexical	U+5169_U+65E5_00
@@ -580,6 +584,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 中	〃	뎡1	〃	〃	middle; in; among		lexical	U+4E2D_00
 中國	中国	뎡5걱	〃	中国	China		lexical	U+4E2D_U+570B_00
 中國人	中国人	뎡5걱1랑4	〃	中国人	Chinese person		lexical	U+4E2D_U+570B_U+4EBA_00
+中原	中原	뎡5꽌4	中原	中原	the Central Plain; China		lexical	U+4E2D_U+539F_00
 中晝	中昼	뎡5ᄃᅷ	中午	〃	middle; in		lexical	U+4E2D_U+665D_00
 中文	〃	뎡5뿐4	〃	〃	Chinese		lexical	U+4E2D_U+6587_00
 中山	〃	뎡5산1	〃	〃	Zhongshan; Sun Yat-sen		lexical	U+4E2D_U+5C71_00
@@ -820,6 +825,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 黏黐黐	黏黐黐	럄티5티1	黏糊糊	黏糊糊	sticky; to be very close to each other in a relationship		lexical	U+9ECF_U+9ED0_U+9ED0_00
 粒	〃	럅1	〃	〃	grain; particle		lexical	U+7C92_00
 攝	摄	럅	〃	摄	take in; photograph		lexical	U+651D_00
+涼	凉	량4	涼	凉	cool; cold		lexical	U+6DBC_00
 掠	〃	럏1	〃	〃	catch; seize		lexical	U+63A0_00
 了	〃	ᄅᆤ2	〃	〃	completed; finished		lexical	U+4E86_00
 聊	〃	ᄅᆤ4	〃	〃	chat; rely on		lexical	U+804A_00
@@ -1039,7 +1045,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 百姓	〃	벻1셀	〃	〃	hundred		lexical	U+767E_U+59D3_00
 白色	〃	벻셱	〃	〃	white; color		lexical	U+767D_U+8272_00
 百姓	〃	벻1실	〃	〃	hundred		lexical	U+767E_U+59D3_01
-白賊	白贼	벻찯1	謊話	谎话	white		lexical	U+767D_U+8CCA_00
+白賊	白贼	벻찯1	謊	谎	a lie; cheat		lexical	U+767D_U+8CCA_00
+白賊話	白贼话	벻찯웨5	謊話	谎话	a lie; cheat		lexical	U+767D_U+8CCA_U+8A71_00
 白糖	〃	벻틍4	〃	〃	white sugar		lexical	U+767D_U+7CD6_00
 白糖粿	〃	벻틍궤2	〃	〃	white sugar rice cake		lexical	U+767D_U+7CD6_U+7CBF_00
 逼	〃	볙	〃	〃	force; press		lexical	U+903C_00
@@ -1286,6 +1293,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 三	〃	살1	〃	〃	three		lexical	U+4E09_00
 衫	〃	살1	衣服	〃	shirt; clothes		lexical	U+886B_00
 啥	〃	살2	什麼	什么	what		lexical	U+5565_00
+三工	三工	살5강1	三天	三天	three days		lexical	U+4E09_U+5DE5_00
 三個月	三个月	살5고2뀋1	〃	三个月	three months		lexical	U+4E09_U+500B_U+6708_00
 相見	相见	살5길	〃	相见	see each other		lexical	U+76F8_U+898B_00
 相見歡	相见欢	살5길2활1	〃	相见欢	happy reunion; joy of meeting		lexical	U+76F8_U+898B_U+6B61_00
@@ -1293,9 +1301,11 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 三點鐘	三点钟	살5댬1졩1	〃	三点钟	three o'clock		lexical	U+4E09_U+9EDE_U+9418_00
 三日	〃	살5띧1	〃	〃	three days		lexical	U+4E09_U+65E5_00
 三百	〃	살5밯	〃	〃	three hundred		lexical	U+4E09_U+767E_00
+三个	三个	살5에4	三個	三个	three		lexical	U+4E09_U+4E2A_00
 三十	〃	살5잡1	〃	〃	thirty		lexical	U+4E09_U+5341_00
 衫褲	衫裤	살5커	衣服	〃	clothes		lexical	U+886B_U+8932_00
 三分	〃	살5훈1	〃	〃	three minutes; three cents		lexical	U+4E09_U+5206_00
+三	三	삼1	三	三	three (literary)		lexical	U+4E09_01
 三不五時	三不五时	삼5붇1꺼시4	〃	三不五时	from time to time		lexical	U+4E09_U+4E0D_U+4E94_U+6642_00
 鬆	松	상1	〃	松	loose; relaxed		lexical	U+9B06_00
 送	〃	상	〃	〃	send; give		lexical	U+9001_00
@@ -1344,6 +1354,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 痟貪	痟贪	ᄉᆤ1탐1	貪心	贪心	crazy		lexical	U+75DF_U+8CAA_00
 酥	〃	서1	〃	〃	crisp; flaky		lexical	U+9165_00
 所	〃	서2	〃	〃	place; that which		lexical	U+6240_00
+素	素	서	素	素	plain		lexical	U+7D20_00
 所有	〃	서1우5	〃	〃	all		lexical	U+6240_U+6709_00
 所以	〃	서1이2	〃	〃	therefore; so		lexical	U+6240_U+4EE5_00
 所在	〃	서1재5	〃	〃	place		lexical	U+6240_U+5728_00
@@ -1724,6 +1735,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 惡鬼	恶鬼	억1귀2	〃	恶鬼	ghost		lexical	U+60E1_U+9B3C_00
 往	〃	엉2	〃	〃	toward; past		lexical	U+5F80_00
 王	〃	엉4	〃	〃	king; Wang		lexical	U+738B_00
+王寶釧	王宝钏	엉보1촨1	王寶釧	王宝钏	a fictional character in Koā-â-cheh (歌仔冊)		lexical	U+738B_U+5BF6_U+91E7_00
 往事	〃	엉1수5	〃	〃	past events		lexical	U+5F80_U+4E8B_00
 往往	〃	엉1엉2	〃	〃	often		lexical	U+5F80_U+5F80_00
 王子	〃	엉주2	〃	〃	prince		lexical	U+738B_U+5B50_00
@@ -1882,6 +1894,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 黃	黄	응4	〃	黄	yellow; Huang		lexical	U+9EC3_00
 向望	〃	응2빵5	希望	〃	hope; look forward to		lexical	U+5411_U+671B_00
 黃色	黄色	응셱	〃	黄色	yellow colour		lexical	U+9EC3_U+8272_00
+衣	衣	이1	衣	衣	clothing		lexical	U+8863_00
 醫	医	이1	〃	医	medicine; doctor		lexical	U+91AB_00
 已	〃	이2	〃	〃	already		lexical	U+5DF2_00
 意	〃	이	〃	〃	meaning; intention		lexical	U+610F_00
@@ -2684,6 +2697,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 鼻	〃	필5	〃	〃	nose		lexical	U+9F3B_00
 鼻屎	〃	필새2	〃	〃	booger		lexical	U+9F3B_U+5C4E_00
 鼻空	〃	필캉1	鼻孔	〃	nostril		lexical	U+9F3B_U+7A7A_00
+下	下	하5	下	下	down; lower		lexical	U+4E0B_02
 夏	夏	하5	夏	夏	summer		lexical	U+590F_00
 下課	下课	하코	〃	下课	after class		lexical	U+4E0B_U+8AB2_00
 學生	学生	학솅1	〃	学生	student		lexical	U+5B78_U+751F_00
