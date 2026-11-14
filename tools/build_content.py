@@ -457,14 +457,14 @@ def home_showcase(language, song_records=()):
         f'<span class="home-feature-meta">{html.escape(labels["tone_meta"])}</span>'
         f'<h2>{html.escape(labels["tone_title"])}</h2><p>{html.escape(labels["tone_copy"])}</p>'
         f'{link("/learn/tone-sandhi/", labels["tone_link"])}</article></div>'
-        '<section class="home-feature home-feature-literature">'
-        '<div class="home-feature-heading">'
-        f'<span class="home-feature-meta">{html.escape(labels["read_meta"])}</span>'
-        f'<h2>{html.escape(labels["read_title"])}</h2><p>{html.escape(labels["read_copy"])}</p></div>{literature}</section>'
         '<section class="home-feature home-feature-songs"><div class="home-feature-heading">'
         f'<span class="home-feature-meta">{html.escape(labels["songs_meta"])}</span>'
         f'<h2>{html.escape(labels["songs_title"])}</h2><p>{html.escape(labels["songs_copy"])}</p>'
-        f'{link("/songs/", labels["songs_link"])}</div>{songs}</section></section>'
+        f'{link("/songs/", labels["songs_link"])}</div>{songs}</section>'
+        '<section class="home-feature home-feature-literature">'
+        '<div class="home-feature-heading">'
+        f'<span class="home-feature-meta">{html.escape(labels["read_meta"])}</span>'
+        f'<h2>{html.escape(labels["read_title"])}</h2><p>{html.escape(labels["read_copy"])}</p></div>{literature}</section></section>'
     )
 
 

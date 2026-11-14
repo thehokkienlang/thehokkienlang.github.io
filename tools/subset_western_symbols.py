@@ -6,8 +6,11 @@ from pathlib import Path
 from subset_content_fallbacks import subset_font
 
 TONE_2, TONE_4 = 0x02CB, 0x02CA  # ˋ, ˊ
-# Version of each output family; the symbols font is v3 since its tone 4 mark is redrawn.
-VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v3"}
+# Version of each output family; the symbols font is v4: tone 4 is redrawn and tone 1 sits 1px left.
+VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v4"}
+TONE_1 = 0x02C6  # ˆ
+# 1px at the usual reading size (about 13px) is 76 of the font's 1000 units.
+TONE_1_SHIFT_LEFT = 76
 
 
 # How much wider (bottom) and narrower (top) the tone 4 stroke is than tone 2's, so its ink
@@ -53,6 +56,17 @@ def tone_4_from_tone_2(font, bottom=TONE_4_WEIGHT["bottom"], top=TONE_4_WEIGHT["
     font["hmtx"][tone_4] = font["hmtx"][tone_2]
 
 
+def shift_tone_1(font, units=TONE_1_SHIFT_LEFT):
+    """Move the tone 1 mark left inside its own advance, so spacing is unchanged."""
+    glyph = font["glyf"][font.getBestCmap()[TONE_1]]
+    coordinates = glyph.coordinates
+    for index in range(len(coordinates)):
+        x, y = coordinates[index]
+        coordinates[index] = (x - units, y)
+    glyph.recalcBounds(font["glyf"])
+    font["hmtx"][font.getBestCmap()[TONE_1]] = (font["hmtx"][font.getBestCmap()[TONE_1]][0], glyph.xMin)
+
+
 def main():
     from fontTools.ttLib import TTFont
 
@@ -85,6 +99,7 @@ def main():
                         record.string = names[record.nameID].encode(record.getEncoding())
                 if filename == "tli-noto-symbols":
                     tone_4_from_tone_2(font)
+                    shift_tone_1(font)
                 font.save(output)
 
 
