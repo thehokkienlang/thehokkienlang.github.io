@@ -541,3 +541,6 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
   .imported-content :is(i, em) .tli-tone-ruby > .tli-rt { top:calc(-1em - 2px); }
   .title-reading .hangul-tone .tone-mark { top:calc(-.84em - 6px) !important; }
 }
+
+/* Lyric readings only: tone 1 marks sit 1px left (TLI Lyric Marks covers just ˆ and ꞈ). */
+.imported-content .lyric-line :is(rt, .tli-rt) { font-family: "TLI Lyric Marks", "TLI Western Punctuation", "TLI Noto Sans", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }

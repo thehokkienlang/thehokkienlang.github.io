@@ -40,7 +40,7 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn("U+A788", css)
         for weight in ("regular", "bold"):
             for family in ("sans", "symbols"):
-                filename = f"tli-noto-{family}-{weight}-v{3 if family == 'sans' else 4}.woff2"
+                filename = f"tli-noto-{family}-{weight}-v{3 if family == 'sans' else 5}.woff2"
                 self.assertIn(filename, css)
                 self.assertTrue((ROOT / "assets/fonts" / filename).read_bytes().startswith(b"wOF2"))
         self.assertNotIn("font-weight: 100 500", css)
@@ -52,7 +52,7 @@ class SiteSymbolsTests(unittest.TestCase):
         from fontTools.ttLib import TTFont
 
         for weight in ("regular", "bold"):
-            font = TTFont(ROOT / f"assets/fonts/tli-noto-symbols-{weight}-v4.woff2")
+            font = TTFont(ROOT / f"assets/fonts/tli-noto-symbols-{weight}-v5.woff2")
             glyf = font["glyf"]
             glyph = glyf[font.getBestCmap()[0x02CA]]
             points = glyph.getCoordinates(glyf)[0]

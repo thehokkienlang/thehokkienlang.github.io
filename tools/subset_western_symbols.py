@@ -6,10 +6,12 @@ from pathlib import Path
 from subset_content_fallbacks import subset_font
 
 TONE_2, TONE_4 = 0x02CB, 0x02CA  # ˋ, ˊ
-# Version of each output family; the symbols font is v4: tone 4 is redrawn and tone 1 sits 1px left.
-VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v4"}
+# Version of each output family; the symbols font is v5: tone 4 is redrawn. Tone 1 keeps its own position there;
+# the 1px-left tone 1 lives in a small font used only for lyric readings (see build_lyric_marks).
+VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v5"}
 TONE_1 = 0x02C6  # ˆ
-# 1px at the usual reading size (about 13px) is 76 of the font's 1000 units.
+# 1px at the usual lyric reading size (about 13px) is 76 of the font's 1000 units. Used only for
+# lyric readings: at title and song-list sizes the same fraction would be too far.
 TONE_1_SHIFT_LEFT = 76
 
 
@@ -99,8 +101,23 @@ def main():
                         record.string = names[record.nameID].encode(record.getEncoding())
                 if filename == "tli-noto-symbols":
                     tone_4_from_tone_2(font)
-                    shift_tone_1(font)
                 font.save(output)
+                if filename == "tli-noto-symbols":
+                    build_lyric_marks(output, args.output_dir / f"tli-lyric-marks-{weight}-v1.woff2", style)
+
+
+def build_lyric_marks(symbols_font, output, style):
+    """A tiny font of the tone 1 marks (ˆ and ꞈ) set 1px left, for lyric readings only."""
+    from fontTools.ttLib import TTFont
+
+    subset_font(symbols_font, {TONE_1, 0xA788}, "TLI Lyric Marks", output)
+    with TTFont(output, recalcTimestamp=False) as font:
+        shift_tone_1(font)
+        if style == "Bold":
+            for record in font["name"].names:
+                if record.nameID in (2, 17):
+                    record.string = "Bold".encode(record.getEncoding())
+        font.save(output)
 
 
 if __name__ == "__main__":
