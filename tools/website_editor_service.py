@@ -602,7 +602,20 @@ class WebsiteEditorService:
             text = self._plain(item.get("text"), "Lyric line", required=True)
             if len(text) > 1200:
                 raise WebsiteEditorError("A lyric line is too long.")
-            lyrics.append({"kind": "line", "text": text, "grey": bool(item.get("grey"))})
+            line = {"kind": "line", "text": text, "grey": bool(item.get("grey"))}
+            if "pinyin" in item and "lomari" in item:
+                raise WebsiteEditorError("Choose either Mandarin Pinyin or custom Lomari for one lyric line.")
+            if "pinyin" in item:
+                pinyin = self._plain(item.get("pinyin", ""), "Mandarin Pinyin", required=True)
+                if len(pinyin) > 1600:
+                    raise WebsiteEditorError("A Mandarin Pinyin line is too long.")
+                line["pinyin"] = pinyin
+            elif "lomari" in item:
+                lomari = self._plain(item.get("lomari", ""), "Custom Lomari", required=True)
+                if len(lomari) > 1600:
+                    raise WebsiteEditorError("A custom Lomari line is too long.")
+                line["lomari"] = lomari
+            lyrics.append(line)
         while lyrics and lyrics[-1].get("kind") == "break":
             lyrics.pop()
         if not any(item.get("kind") == "line" for item in lyrics):
@@ -680,6 +693,34 @@ class WebsiteEditorService:
             '</div></figure>'
         )
 
+    @staticmethod
+    def _render_mandarin_lyric_line(item):
+        return (
+            '<p style="font-family:Sans-serif, Noto Sans">\n'
+            '  <span class="lyric-line">\n'
+            f'    {html_lib.escape(item["text"])}\n'
+            '  </span>\n'
+            '  <span class="lyric-lomari">\n'
+            f'    {html_lib.escape(item["pinyin"])}\n'
+            '  </span>\n'
+            '</p>'
+        )
+
+    @staticmethod
+    def _apply_manual_lomari(markup, lomari):
+        pattern = re.compile(
+            r'(<span class="lyric-lomari)(">\s*)(.*?)(\s*</span>)',
+            re.S,
+        )
+        replacement = lambda match: (
+            match.group(1) + ' lyric-lomari-manual' + match.group(2)
+            + html_lib.escape(lomari) + match.group(4)
+        )
+        updated, count = pattern.subn(replacement, markup, count=1)
+        if count != 1:
+            raise WebsiteEditorError("The custom Lomari line could not be applied.")
+        return updated
+
     def render_song_draft(self, draft, *, existing_route=""):
         clean, route, video_id = self._normalize_song_draft(draft, existing_route=existing_route)
         converter = self._tone_marker()
@@ -699,9 +740,14 @@ class WebsiteEditorService:
             for item in clean["lyrics"]:
                 if item["kind"] == "break":
                     blocks.append("<br>")
+                elif item.get("pinyin"):
+                    blocks.append(self._render_mandarin_lyric_line(item))
                 else:
-                    blocks.append(converter.convert_hangul_to_html(
-                        item["text"], "song", song_grey=item["grey"])["html"])
+                    markup = converter.convert_hangul_to_html(
+                        item["text"], "song", song_grey=item["grey"])["html"]
+                    if item.get("lomari"):
+                        markup = self._apply_manual_lomari(markup, item["lomari"])
+                    blocks.append(markup)
         except WebsiteEditorError:
             raise
         except Exception as error:

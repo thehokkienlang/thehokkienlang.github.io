@@ -89,6 +89,48 @@ class WebsiteEditorTests(unittest.TestCase):
         for _match, kind, _source, derived in found:
             self.assertTrue(lomari_sync.follows(kind, lomari_sync._plain(_match.group(4)), derived))
 
+    def test_structured_song_can_render_plain_mandarin_with_pinyin(self):
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
+            "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+            "category": "modern", "lyrics": [{
+                "kind": "line", "text": "我愛你", "grey": False,
+                "pinyin": "wǒ ài nǐ",
+            }],
+        })
+        self.assertIn('<span class="lyric-line">\n    我愛你\n  </span>', result["body"])
+        self.assertIn("wǒ ài nǐ", result["body"])
+        self.assertNotIn("<i>wǒ ài nǐ</i>", result["body"])
+        lyric = result["body"].split('<p style="font-family:Sans-serif, Noto Sans">', 1)[1]
+        self.assertNotIn("<ruby", lyric)
+        self.assertNotIn("ㄨㄛ", result["body"])
+
+    def test_structured_mandarin_song_line_requires_pinyin(self):
+        service = WebsiteEditorService(ROOT)
+        with self.assertRaisesRegex(WebsiteEditorError, "Mandarin Pinyin is required"):
+            service.render_song_draft({
+                "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
+                "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+                "category": "modern", "lyrics": [{
+                    "kind": "line", "text": "我愛你", "grey": False, "pinyin": "",
+                }],
+            })
+
+    def test_structured_song_can_override_generated_lomari(self):
+        service = WebsiteEditorService(ROOT)
+        result = service.render_song_draft({
+            "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
+            "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+            "category": "modern", "lyrics": [{
+                "kind": "line", "text": "[我꽈2]愛你", "grey": False,
+                "lomari": "goà ài nǐ",
+            }],
+        })
+        self.assertIn('class="lyric-lomari lyric-lomari-manual"', result["body"])
+        self.assertIn("goà ài nǐ", result["body"])
+        self.assertNotIn("goà-ai-li", result["body"])
+
     def test_song_renderer_applies_sandhi_once_to_dictionary_hangul(self):
         # Hangul with its own dictionary row (매, 가) used to get sandhi twice before Hanri
         # in songs: once when the row was applied and again by the song pass.

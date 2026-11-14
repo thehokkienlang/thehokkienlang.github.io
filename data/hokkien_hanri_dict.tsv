@@ -137,6 +137,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 鹹菜	咸菜	걈채	鹹菜	咸菜	salted vegetable; crumpled		lexical	U+9E79_U+83DC_00
 謙虛	谦虚	걈5희1	〃	谦虚	modest; empty; weak		lexical	U+8B19_U+865B_00
 劫	〃	걉	〃	〃	robbery; calamity		lexical	U+52AB_00
+嬌	娇	ᄀᆤ1	嬌	娇	delicate; beautiful woman		lexical	U+5B0C_00
 孤	〃	거1	〃	〃	lone		lexical	U+5B64_00
 故	〃	거	〃	〃	old; reason		lexical	U+6545_00
 顧	顾	거	照顧	照顾	look after; care for		lexical	U+9867_00
@@ -389,6 +390,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 牛車水	牛车水	꾸챠5쥐2	〃	牛车水	Chinatown, Singapore		lexical	U+725B_U+8ECA_U+6C34_00
 銀	银	꾼4	〃	银	silver; money		lexical	U+9280_00
 月	〃	뀋1	〃	〃	moon; month		lexical	U+6708_00
+月光	月光	뀋긍1	月光	月光	moonlight; moonshine		lexical	U+6708_U+5149_00
 月娘	〃	뀋뉴4	月亮	〃	moon		lexical	U+6708_U+5A18_00
 月餅	月饼	뀋뱔2	〃	月饼	mooncake		lexical	U+6708_U+9905_00
 月圓	月圆	뀋일4	〃	月圆	full moon		lexical	U+6708_U+5713_00
@@ -1206,6 +1208,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 無關	无关	뽀관1	無關	无关	unrelated		lexical	U+7121_U+95DC_00
 無奈	无奈	뽀내5	無可奈何	无可奈何	helpless; have no alternative		lexical	U+7121_U+5948_00
 無代無誌	无代无志	뽀대뽀지	無緣無故	无缘无故	without cause; for no reason		lexical	U+7121_U+4EE3_U+7121_U+8A8C_00
+無人	无人	뽀랑4	沒人	没人	nobody; no one		lexical	U+7121_U+4EBA_00
 無聊	无聊	뽀ᄅᆤ4	無聊	无聊	boring; uninteresting		lexical	U+7121_U+804A_00
 無聲	无声	뽀샬1	沒聲音	没声音	voiceless; soundless		lexical	U+7121_U+8072_00
 無心	无心	뽀심1	無心	无心	no-mind; without thought		lexical	U+7121_U+5FC3_00
@@ -1511,6 +1514,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 隨緣	随缘	쉬옌4	〃	随缘	let fate decide; go with fate		lexical	U+96A8_U+7DE3_00
 收	〃	슈1	〃	〃	receive; collect		lexical	U+6536_00
 首	〃	슈2	〃	〃	head; first		lexical	U+9996_00
+泅	泅	슈4	游	游	swim		lexical	U+6CC5_00
 受	〃	슈5	〃	〃	receive; suffer		lexical	U+53D7_00
 受罪	〃	슈줴5	〃	〃	suffer; endure hardship		lexical	U+53D7_U+7F6A_00
 泅水	〃	슈쥐2	〃	〃	swim		lexical	U+6CC5_U+6C34_00
@@ -1798,6 +1802,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 活動	活动	왛당5	〃	活动	activity; move		lexical	U+6D3B_U+52D5_00
 矮	〃	외2	〃	〃	short		lexical	U+77EE_00
 鞋	〃	외4	〃	〃	shoe		lexical	U+978B_00
+搖	摇	요4	搖	摇	to shake		lexical	U+6416_00
 腰懸	腰悬	요5괠4	高個子	高个子	tall		lexical	U+8170_U+61F8_00
 藥	药	욯1	〃	药	medicine		lexical	U+85E5_00
 臆	〃	욯	〃	〃	chest; guess		lexical	U+81C6_00
@@ -1867,9 +1872,12 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 毋敢	毋敢	음갈2	不敢	不敢	dare not		lexical	U+6BCB_U+6562_00
 毋甘	毋甘	음감1	捨不得	舍不得	can't bear; reluctant		lexical	U+6BCB_U+7518_00
 毋管	毋管	음관2	不管	不管	do not care		lexical	U+6BCB_U+7BA1_00
+毋願	毋愿	음꽌5	不願	不愿	do not wish to; unwilling		lexical	U+6BCB_U+9858_00
 毋著	毋着	음둏1	不對	不对	not right; wrong		lexical	U+6BCB_U+8457_00
 毋免	毋免	음뼨2	不用; 不需要	不用; 不需要	no need		lexical	U+6BCB_U+514D_00
 毋是	〃	음시5	不是	〃	is not		lexical	U+6BCB_U+662F_00
+毋知	毋知	음재1	不知	不知	don't know		lexical	U+6BCB_U+77E5_00
+毋知影	毋知影	음재5얄2	不知道	不知道	don't know		lexical	U+6BCB_U+77E5_U+5F71_00
 毋通	毋通	음탕1	不好; 別	不好; 别	shall not		lexical	U+6BCB_U+901A_00
 黃	黄	응4	〃	黄	yellow; Huang		lexical	U+9EC3_00
 向望	〃	응2빵5	希望	〃	hope; look forward to		lexical	U+5411_U+671B_00
@@ -2109,6 +2117,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 船	〃	준4	〃	〃	boat; ship		lexical	U+8239_00
 陣	阵	준5	〃	阵	period; formation		lexical	U+9663_00
 尊嚴	尊严	준5꺔4	〃	尊严	dignity		lexical	U+5C0A_U+56B4_00
+準拄煞	准拄煞	준1두1쇃	算了	算了	never mind; forget about it		lexical	U+6E96_U+62C4_U+715E_00
 準備	准备	준1비5	〃	准备	accurate; standard; prepare		lexical	U+6E96_U+5099_00
 存在	〃	준재5	〃	〃	exist; existence		lexical	U+5B58_U+5728_00
 船隻	船只	준쟣	〃	船只	boat		lexical	U+8239_U+96BB_00
@@ -2888,6 +2897,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 遠	远	흥5	〃	远	far		lexical	U+9060_00
 遠遠	远远	흥흥5	〃	远远	far		lexical	U+9060_U+9060_00
 魚	鱼	희4	〃	鱼	fish		lexical	U+9B5A_00
+魚仔	鱼仔	희아2	魚兒	鱼儿	fish; little fish		lexical	U+9B5A_U+4ED4_00
 喜	〃	히2	〃	〃	joy; like		lexical	U+559C_00
 戲	戏	히	〃	戏	play; drama		lexical	U+6232_00
 戲弄	戏弄	히2랑5	〃	戏弄	tease; play with		lexical	U+6232_U+5F04_00

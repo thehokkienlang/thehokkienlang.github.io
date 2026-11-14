@@ -24,7 +24,7 @@
 .lyrics-heading span { margin-left:9px; color:var(--muted); font-size:12px; }
 .lyrics-actions { display:flex; gap:8px; }
 .lyric-rows { display:grid; gap:6px; }
-.lyric-row { position:relative; display:grid; grid-template-columns:34px minmax(0,1fr) auto auto; gap:8px; align-items:center; padding:8px; border-bottom:1px solid var(--line); }
+.lyric-row { position:relative; display:grid; grid-template-columns:34px minmax(0,1fr) minmax(156px,auto) auto; gap:8px; align-items:center; padding:8px; border-bottom:1px solid var(--line); }
 .lyric-row.selected { background:#eaf3ff; box-shadow:inset 3px 0 #2474d2; }
 .lyric-row.dragging { opacity:.55; }
 .lyric-row.drop-before::before,.lyric-row.drop-after::after { content:""; position:absolute; z-index:4; left:8px; right:8px; height:3px; border-radius:2px; background:#2474d2; pointer-events:none; }
@@ -33,14 +33,17 @@
 .lyric-row-number { color:var(--muted); font-size:12px; text-align:center; }
 .lyric-input-wrap { position:relative; display:grid; gap:4px; min-width:0; }
 .lyric-input-wrap input { box-sizing:border-box; width:100%; }
-.lyric-ruby-input { min-height:30px; color:#52636b; background:#f7fafa; font-size:13px; }
-.lyric-text-wrap { position:relative; display:block; min-width:0; }
+.lyric-ruby-input { order:1; min-height:30px; color:#52636b; background:#f7fafa; font-size:13px; }
+.lyric-reading-input { order:3; min-height:30px; color:#35464e; background:#fff8e9; font-family:"Noto Sans",Arial,sans-serif; font-size:14px; }
+.lyric-text-wrap { position:relative; order:2; display:block; min-width:0; }
 .lyric-input-wrap .lyric-input { position:relative; z-index:1; min-height:42px; font-size:17px; }
 .lyric-annotation-overlay { position:absolute; top:0; left:0; z-index:2; overflow:hidden; pointer-events:none; user-select:none; -webkit-user-select:none; }
 .lyric-annotation-overlay .tone-overlay-anchor { position:absolute; width:0; height:0; }
 .lyric-annotation-overlay .tone-overlay-mark { position:absolute; left:1px; width:max-content; transform:translateX(-50%); color:#1f2937; font-family:"TLI Western Punctuation",Calibri,"Tangliengim Hangul","Noto Sans KR",sans-serif; font-weight:700; line-height:1; white-space:nowrap; }
 .lyric-annotation-overlay .tone-overlay-mark { top:calc(-0.72em - 1px); font-size:1em; }
 .line-tools { display:flex; gap:4px; }
+.line-options { display:grid; gap:7px; align-items:center; }
+.lyric-reading-mode { width:100%; min-width:156px; font-size:12px; }
 .line-tools button { width:32px; min-height:32px; padding:0; }
 .line-tools .line-drag-handle { cursor:grab; touch-action:none; }
 .line-tools .line-drag-handle:active { cursor:grabbing; }
@@ -60,4 +63,4 @@
 .song-preview-panel { min-width:0; background:#f5f8f8; }
 #songPreview { position:sticky; top:122px; width:100%; height:calc(100vh - 123px); border:0; background:#fff; }
 @media(max-width:1180px) { .song-editor-shell { grid-template-columns:1fr; } .song-preview-panel { border-top:1px solid var(--line); } #songPreview { position:static; height:650px; } }
-@media(max-width:760px) { .song-browser { align-items:stretch; flex-wrap:wrap; padding:10px 14px; } .song-browser-heading { width:100%; } .song-filter-wrap { width:100%; } .song-list { right:14px; left:14px; width:auto; } .song-form-panel { border-right:0; border-bottom:1px solid var(--line); } .song-fields { grid-template-columns:1fr; } .route-field { grid-column:auto; } .lyric-row { grid-template-columns:28px minmax(0,1fr); } .grey-toggle,.line-tools { grid-column:2; } .song-actions { align-items:stretch; flex-wrap:wrap; } .song-actions #songState { width:100%; margin-left:0; } }
+@media(max-width:760px) { .song-browser { align-items:stretch; flex-wrap:wrap; padding:10px 14px; } .song-browser-heading { width:100%; } .song-filter-wrap { width:100%; } .song-list { right:14px; left:14px; width:auto; } .song-form-panel { border-right:0; border-bottom:1px solid var(--line); } .song-fields { grid-template-columns:1fr; } .route-field { grid-column:auto; } .lyric-row { grid-template-columns:28px minmax(0,1fr); } .line-options,.line-tools { grid-column:2; } .song-actions { align-items:stretch; flex-wrap:wrap; } .song-actions #songState { width:100%; margin-left:0; } }

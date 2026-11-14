@@ -292,7 +292,16 @@
   function lineDrafts() {
     return [...$('lyricRows').children].map(row => row.dataset.kind === 'break'
       ? {kind: 'break'}
-      : {kind: 'line', text: lyricControllerSource(row.querySelector('.lyric-input').imeController), grey: row.querySelector('.grey-input').checked});
+      : {
+          kind: 'line',
+          text: lyricControllerSource(row.querySelector('.lyric-input').imeController),
+          grey: row.querySelector('.grey-input').checked,
+          ...(row.querySelector('.lyric-reading-mode').value === 'pinyin'
+            ? {pinyin: row.querySelector('.lyric-reading-input').value.trim()}
+            : row.querySelector('.lyric-reading-mode').value === 'custom-lomari'
+              ? {lomari: row.querySelector('.lyric-reading-input').value.trim()}
+              : {}),
+        });
   }
   function currentDraft() {
     return {
@@ -365,10 +374,14 @@
     });
   }
   function copyRow(row) {
+    const readingMode = row.querySelector('.lyric-reading-mode').value;
+    const reading = row.querySelector('.lyric-reading-input').value;
     state.lineClipboard = {
       kind: 'line',
       text: lyricControllerSource(row.querySelector('.lyric-input').imeController),
       grey: row.querySelector('.grey-input').checked,
+      ...(readingMode === 'pinyin' ? {pinyin: reading}
+        : readingMode === 'custom-lomari' ? {lomari: reading} : {}),
     };
     updateLinePasteButtons();
     notice('Line copied. Use Paste on the line you want to replace.');
@@ -381,14 +394,41 @@
     const controller = input.imeController;
     setLyricControllerSource(controller, state.lineClipboard.text);
     row.querySelector('.grey-input').checked = state.lineClipboard.grey;
+    const readingMode = row.querySelector('.lyric-reading-mode');
+    readingMode.value = Object.hasOwn(state.lineClipboard, 'pinyin')
+      ? 'pinyin'
+      : Object.hasOwn(state.lineClipboard, 'lomari') ? 'custom-lomari' : 'auto-lomari';
+    row.readingValues = {
+      pinyin: state.lineClipboard.pinyin || '',
+      customLomari: state.lineClipboard.lomari || '',
+    };
+    updateLineReadingMode(row);
     renderLyricAnnotations(controller);
     syncLyricRubyInput(controller);
     selectLineRow(row);
     markDirty();
     input.focus();
   }
+  function updateLineReadingMode(row) {
+    const mode = row.querySelector('.lyric-reading-mode').value;
+    const pinyinMode = mode === 'pinyin';
+    const manualMode = pinyinMode || mode === 'custom-lomari';
+    row.classList.toggle('pinyin-line', pinyinMode);
+    row.querySelector('.lyric-ruby-input').hidden = pinyinMode;
+    const readingInput = row.querySelector('.lyric-reading-input');
+    readingInput.hidden = !manualMode;
+    readingInput.placeholder = pinyinMode ? 'Pinyin' : 'Custom Lomari / mixed romanisation';
+    readingInput.setAttribute('aria-label', pinyinMode ? 'Mandarin Pinyin' : 'Custom Lomari or mixed romanisation');
+    const input = row.querySelector('.lyric-input');
+    input.setAttribute('aria-label', pinyinMode ? 'Mandarin lyric line' : 'TLI lyric line');
+    if (mode === 'custom-lomari' && !row.readingValues.customLomari && input.imeController?.lyricToneRenderer) {
+      row.readingValues.customLomari = input.imeController.lyricToneRenderer.render(input.value);
+    }
+    readingInput.value = pinyinMode ? row.readingValues.pinyin : row.readingValues.customLomari;
+  }
   function addLineRow(item = {kind: 'line', text: '', grey: false}, before = null) {
     const row = document.createElement('div'); row.className = 'lyric-row'; row.dataset.kind = 'line';
+    row.readingValues = {pinyin: item.pinyin || '', customLomari: item.lomari || ''};
     row.setAttribute('aria-selected', 'false');
     row.addEventListener('pointerdown', () => selectLineRow(row));
     row.addEventListener('focusin', () => selectLineRow(row));
@@ -398,14 +438,34 @@
     const wrap = document.createElement('span'); wrap.className = 'lyric-input-wrap';
     const rubyInput = document.createElement('input'); rubyInput.className = 'lyric-ruby-input'; rubyInput.type = 'text';
     rubyInput.autocomplete = 'off'; rubyInput.spellcheck = false; rubyInput.setAttribute('aria-label', 'Editable ruby readings');
+    rubyInput.placeholder = 'Ruby readings (editable)';
     rubyInput.title = 'Edit the Hangul readings above their matching lyric text';
+    const readingInput = document.createElement('input'); readingInput.className = 'lyric-reading-input'; readingInput.type = 'text';
+    readingInput.autocomplete = 'off'; readingInput.spellcheck = false;
+    readingInput.oninput = () => {
+      if (readingMode.value === 'pinyin') row.readingValues.pinyin = readingInput.value;
+      else if (readingMode.value === 'custom-lomari') row.readingValues.customLomari = readingInput.value;
+      markDirty();
+    };
     const textWrap = document.createElement('span'); textWrap.className = 'lyric-text-wrap';
     const input = document.createElement('input'); input.className = 'lyric-input'; input.type = 'text';
     input.autocomplete = 'off'; input.spellcheck = false; input.setAttribute('aria-label', 'TLI lyric line');
     const menu = document.createElement('span'); menu.className = 'hanri-candidate-menu'; menu.role = 'listbox'; menu.hidden = true;
     const overlay = document.createElement('span'); overlay.className = 'lyric-annotation-overlay'; overlay.setAttribute('aria-hidden', 'true');
     textWrap.append(input, overlay, menu);
-    wrap.append(rubyInput, textWrap);
+    wrap.append(rubyInput, readingInput, textWrap);
+    const readingMode = document.createElement('select');
+    readingMode.className = 'lyric-reading-mode';
+    readingMode.setAttribute('aria-label', 'Lyric reading system');
+    readingMode.append(
+      new Option('TLI (automatic Lomari)', 'auto-lomari'),
+      new Option('TLI (custom Lomari)', 'custom-lomari'),
+      new Option('Mandarin (Pinyin)', 'pinyin'),
+    );
+    readingMode.value = Object.hasOwn(item, 'pinyin')
+      ? 'pinyin'
+      : Object.hasOwn(item, 'lomari') ? 'custom-lomari' : 'auto-lomari';
+    readingMode.onchange = () => { updateLineReadingMode(row); markDirty(); };
     const grey = document.createElement('label'); grey.className = 'grey-toggle';
     const check = document.createElement('input'); check.type = 'checkbox'; check.className = 'grey-input'; check.checked = Boolean(item.grey);
     check.onchange = markDirty; grey.append(check, document.createTextNode('Grey out'));
@@ -434,7 +494,9 @@
       newButton('↵', 'Insert verse break above', () => addBreakRow(row)),
       newButton('×', 'Remove line', () => removeRow(row)),
     );
-    row.append(number, wrap, grey, tools);
+    const options = document.createElement('span'); options.className = 'line-options';
+    options.append(readingMode, grey);
+    row.append(number, wrap, options, tools);
     if (before) $('lyricRows').insertBefore(row, before); else $('lyricRows').append(row);
     let controller;
     controller = attachIme(input, menu, () => {
@@ -452,6 +514,7 @@
     renderLyricAnnotations(controller);
     syncLyricRubyInput(controller);
     input.addEventListener('scroll', () => syncLyricOverlayViewport(controller));
+    updateLineReadingMode(row);
     renumberRows();
     return row;
   }

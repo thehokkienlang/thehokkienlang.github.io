@@ -589,6 +589,18 @@
       "sourceId": 11539,
       "route": "/songs/食飽’쀄/",
       "file": "content/songs/song-11539.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/志明佮春嬌/",
+      "sourceId": 11540,
+      "route": "/songs/志明佮春嬌/",
+      "file": "content/songs/song-11540.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/魚仔/",
+      "sourceId": 11541,
+      "route": "/songs/魚仔/",
+      "file": "content/songs/song-11541.json"
     }
   ],
   "deferred": {
