@@ -71,6 +71,17 @@ class SongTitleTests(unittest.TestCase):
         self.assertIn('運<rt>운ˋ</rt>', title)
         self.assertIn('歌<rt>과ˆ</rt>', title)
 
+    def test_explicit_title_ruby_removes_only_matching_source_heading(self):
+        record = self.record("你啊", '<ruby>你<rt>ㄋㄧˇ</rt></ruby><ruby>啊<rt>ㄚ</rt></ruby>')
+        record["titleRuby"] = [{"base": "你", "reading": "ㄋㄧˇ", "system": "bopomofo"},
+                               {"base": "啊", "reading": "ㄚ", "system": "bopomofo"}]
+        title, body = song_title(record)
+        self.assertEqual(title.count("bopomofo-title"), 2)
+        self.assertEqual(body, '\n\n<iframe src="song"></iframe><p>Lyrics remain here.</p>')
+        self.assertIn("<h2>", record["body"])
+        record["body"] = '<h3>Hanri-Hangul mixed script</h3><p>Lyrics</p>'
+        self.assertEqual(song_title(record)[1], record["body"])
+
     def test_song_index_reading_includes_english_word_pronunciation(self):
         record = self.record("Happy!!! 運將 情歌", "Happy!!! 운ˎ쟝 졩과ꞈ")
         record["titleWordReadings"] = {"Happy": "헤ˉ비ˆ"}

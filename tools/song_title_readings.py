@@ -191,6 +191,15 @@ def song_title(record):
     if annotations := record.get("titleRuby"):
         if "".join(item["base"] for item in annotations) != title:
             raise ValueError(f'Explicit title ruby does not match {record["id"]}')
+        heading = FirstHeading(body)
+        def base_text(node):
+            if isinstance(node, str):
+                return node
+            if node.tag in {"rt", "rp"}:
+                return ""
+            return "".join(base_text(child) for child in node.children)
+        if heading.end is not None and re.sub(r"\s+", "", base_text(heading.root)) == re.sub(r"\s+", "", title):
+            body = body[:heading.start] + body[heading.end:]
         return "".join(ruby(item["base"], [item["reading"]], item.get("system", "hangul"))
                        for item in annotations), body
 
