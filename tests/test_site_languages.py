@@ -121,6 +121,28 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertEqual(language_url("/ime/", "zh-Hans"), "/ime/?lang=zh-Hans")
         self.assertEqual(language_url("/songs/example/", "zh-Hant"), "/songs/example/?lang=zh-Hant")
 
+    def test_learn_path_orders_the_index_and_links_each_guide_onward(self):
+        from build_content import learn_index, learn_next_link
+
+        guides = [{"type": "guides", "language": "en", "route": route, "title": title} for route, title in (
+            ("/learn/romanisation/", "Tangliengim romanisation"), ("/learn/spelling/", "Spelling guidelines"),
+            ("/learn/tone-sandhi/", "Tone sandhi in Hokkien"), ("/learn/introduction/", "Introduction to Tangliengim"))]
+        index = learn_index(guides, "en")
+        positions = [index.index(f'href="{route}"') for route in (
+            "/learn/introduction/", "/learn/tone-sandhi/", "/learn/spelling/", "/learn/romanisation/")]
+        self.assertEqual(positions, sorted(positions))
+        self.assertLess(index.index("Start here"), index.index("Reference"))
+        self.assertIn('<ol class="learn-path">', index)
+        self.assertIn(">Introduction to TLI</a><p>", index)
+        # Lessons lead on to the next lesson and then to the songs; reference pages stay in reference.
+        self.assertIn('href="/learn/tone-sandhi/"', learn_next_link("/learn/introduction/", "en", guides))
+        self.assertIn('href="/songs/"', learn_next_link("/learn/tone-sandhi/", "en", guides))
+        self.assertIn('href="/learn/romanisation/"', learn_next_link("/learn/spelling/", "en", guides))
+        self.assertIn('href="/learn/"', learn_next_link("/learn/romanisation/", "en", guides))
+        self.assertEqual(learn_next_link("/songs/translation-notes/", "en", guides), "")
+        # A guide not yet placed on the path is still listed.
+        self.assertIn('href="/learn/new/"', learn_index(guides + [{**guides[0], "route": "/learn/new/"}], "en"))
+
     def test_menu_translations_and_shared_destinations(self):
         nav = navigation_links("/zh-hant/learn/spelling/", variants=False)
         self.assertIn('href="/zh-hant/learn/spelling/" aria-current="page"', nav)

@@ -23,7 +23,7 @@ from page_meta import description as page_description, meta_tags
 
 # Header, in order: a (label, destinations) pair is a dropdown; an (href, label) pair is a link.
 NAV_GROUPS = (
-    ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/spelling/", "Spelling"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/romanisation/", "Romanisation"))),
+    ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/spelling/", "Spelling"), ("/learn/romanisation/", "Romanisation"))),
     ("/songs/", "Songs"),
     ("/read/", "Read"),
     ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
@@ -126,6 +126,91 @@ def song_version_tabs(versions):
 def site_brand(root, language="en"):
     template = (root / "shared/site-brand.html").read_text(encoding="utf-8")
     return template.replace("__HOME__", PREFIXES[language] + "/").strip()
+
+
+# The Learn path, in reading order. "start" guides are lessons to read in order; "reference"
+# guides are for looking things up. Each has one sentence saying what the reader gets from it.
+LEARN_PATH = (
+    ("/learn/introduction/", "start", {
+        "en": "Meet the letters, the five tones and your first everyday phrases, with audio.",
+        "zh-Hant": "認識字母、五個聲調和第一批日常用語，附發音。",
+        "zh-Hans": "认识字母、五个声调和第一批日常用语，附发音。"}),
+    ("/learn/tone-sandhi/", "start", {
+        "en": "How a syllable’s tone changes inside a phrase, step by step, with examples you can play.",
+        "zh-Hant": "聲調在詞句中如何變化，配合可播放的例子逐步說明。",
+        "zh-Hans": "声调在词句中如何变化，配合可播放的例子逐步说明。"}),
+    ("/learn/spelling/", "reference", {
+        "en": "The conventions behind TLI spellings across regional varieties and for foreign words.",
+        "zh-Hant": "東寧音在各地腔調與外來語上的拼寫慣例。",
+        "zh-Hans": "东宁音在各地腔调与外来语上的拼写惯例。"}),
+    ("/learn/romanisation/", "reference", {
+        "en": "How Lomari, TLI’s Latin spelling, compares with POJ and Tâi-lô.",
+        "zh-Hant": "東寧音羅馬字（Lomari）與白話字、台羅的對照。",
+        "zh-Hans": "东宁音罗马字（Lomari）与白话字、台罗的对照。"}),
+)
+LEARN_TEXT = {
+    "en": {"start": "Start here", "start_note": "New to TLI? Read these two in order.",
+           "reference": "Reference", "reference_note": "Look things up here when you need the detail. Beginners can skip these.",
+           "next": "Next", "song": "Now try reading a song", "all": "All Learn pages"},
+    "zh-Hant": {"start": "從這裡開始", "start_note": "初次接觸東寧音？請依序閱讀這兩篇。",
+                "reference": "參考資料", "reference_note": "需要查詢細節時再看，初學者可以先跳過。",
+                "next": "下一篇", "song": "接著試讀一首歌", "all": "所有學習頁面"},
+    "zh-Hans": {"start": "从这里开始", "start_note": "初次接触东宁音？请依序阅读这两篇。",
+                "reference": "参考资料", "reference_note": "需要查询细节时再看，初学者可以先跳过。",
+                "next": "下一篇", "song": "接着试读一首歌", "all": "所有学习页面"},
+}
+
+
+def learn_title(item):
+    return html.escape(item["title"].replace("Tangliengim", "TLI"))
+
+
+def learn_index(guides, language):
+    """The Learn landing page: a numbered path to read in order, then the reference guides."""
+    words = LEARN_TEXT[language]
+    by_route = {base_route(item["route"]): item for item in guides}
+    groups = []
+    for track in ("start", "reference"):
+        rows = []
+        for path, item_track, summary in LEARN_PATH:
+            if item_track == track and path in by_route:
+                item = by_route[path]
+                rows.append(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{learn_title(item)}</a>'
+                            f'<p>{html.escape(summary[language])}</p></li>')
+        if rows:
+            tag = "ol" if track == "start" else "ul"
+            groups.append(f'<section class="learn-track learn-track-{track}"><h2>{words[track]}</h2>'
+                          f'<p class="learn-track-note">{words[track + "_note"]}</p>'
+                          f'<{tag} class="learn-path">{"".join(rows)}</{tag}></section>')
+    # A guide missing from LEARN_PATH still gets listed, so a new page is never unreachable.
+    known = {path for path, _track, _summary in LEARN_PATH}
+    extra = [item for item in guides if base_route(item["route"]) not in known]
+    if extra:
+        groups.append('<ul class="page-list">' + "".join(
+            f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{learn_title(item)}</a></li>' for item in extra) + "</ul>")
+    return "".join(groups)
+
+
+def learn_next_link(route, language, records):
+    """A link at the foot of a guide to the next page on the Learn path."""
+    words = LEARN_TEXT[language]
+    order = [path for path, _track, _summary in LEARN_PATH]
+    current = base_route(route)
+    if current not in order:
+        return ""
+    by_route = {base_route(item["route"]): item for item in records if item["type"] == "guides" and item["language"] == language}
+    tracks = {path: track for path, track, _summary in LEARN_PATH}
+    following = next((path for path in order[order.index(current) + 1:] if tracks[path] == tracks[current] and path in by_route), None)
+    if following:
+        target, label = by_route[following]["route"], learn_title(by_route[following])
+        lead = words["next"]
+    elif tracks[current] == "start":
+        target, label, lead = language_url("/songs/", language) or "/songs/", words["song"], words["next"]
+    else:
+        target, label, lead = language_url("/learn/", language) or "/learn/", words["all"], ""
+    lead_html = f'<span class="learn-next-lead">{lead}</span>' if lead else ""
+    return (f'<nav class="learn-next" aria-label="{words["next"]}"><a href="{html.escape(target, quote=True)}">'
+            f'{lead_html}<span class="learn-next-title">{label}</span></a></nav>')
 
 
 def navigation_links(route, language=None, variants=True):
@@ -689,7 +774,8 @@ def build_content(root: Path, output: Path):
             body = curate_home_body(body, record["language"], [item for item in published_records if item["type"] == "songs"],
                                     listen_button(root, record["language"], "學生", "학솅1"))
         body = describe_images(body, record["language"])
-        target.write_text(document(root, record["title"], route, body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
+        page_body = body + learn_next_link(route, record["language"], published_records) if record["type"] == "guides" else body
+        target.write_text(document(root, record["title"], route, page_body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")
         indexed_languages = LANGUAGES if record["type"] == "songs" else (record["language"],)
         for indexed_language in indexed_languages:
             destination = language_url(route, indexed_language)
@@ -825,7 +911,7 @@ def build_content(root: Path, output: Path):
         guides = [item for item in published_records if item["type"] == "guides" and item["language"] == language and base_route(item["route"]).startswith("/learn/")]
         stories = [{**item, "title": text("The Egg", language)} for item in published_records if item["type"] == "stories" and item["language"] == language]
         literature = [{**item, "route": language_url(item["route"], language), "title": text("Tale of the Lychee Mirror", language)} for item in published_records if item["type"] == "literature"]
-        sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), listing(guides))
+        sections[prefix + "/learn/"] = (text("Learn Tangliengim", language), learn_index(guides, language))
         sections[prefix + "/read/"] = (text("Read in Hokkien", language), (f'<h2>{text("Literature", language)}</h2>' + listing(literature) if literature else "") + f'<h2>{text("Stories", language)}</h2>' + listing(stories))
         sections[prefix + "/songs/"] = (text("Songs", language), song_index(language))
         sections[prefix + "/search/"] = (text("Search", language), search_page(language))
