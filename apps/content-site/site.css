@@ -183,6 +183,7 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .imported-content h2::before { content: ""; display: block; width: 36px; margin-bottom: 12px; border-top: 3px solid var(--accent); }
 .imported-content th { background: #e8f2ef; }
 .imported-content blockquote { margin-left: 0; padding: 16px 24px; border-color: var(--accent); background: #e8f2ef; }
+.imported-content blockquote > :first-child { margin-top: 0; }
 .imported-content blockquote > :last-child { margin-bottom: 0; }
 .content-stories, .content-literature { max-width: 860px; }
 .content-songs { max-width: 1000px; }
