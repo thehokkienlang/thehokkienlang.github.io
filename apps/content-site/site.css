@@ -307,6 +307,11 @@ html[lang="en"] [data-content-lang="en"], html[lang="zh-Hant"] [data-content-lan
 .page-list li { align-items: center; padding: 0; }
 .page-list li > a { flex: 1; min-width: 0; padding: 20px 8px; color: var(--ink); text-decoration: none; }
 .page-list li > a:hover { color: var(--accent); }
+/* A collapsed reference note inside a guide (the alphabetical order on the Introduction). */
+.imported-content details.letter-order { max-width: 760px; margin: 0 0 28px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
+.imported-content details.letter-order > summary { padding: 12px 0; color: var(--accent); cursor: pointer; font-weight: 700; }
+.imported-content details.letter-order > p { margin: 0 0 14px; }
+.imported-content .guide-audience { max-width: 760px; margin: 0 0 20px; padding: 10px 14px; border-left: 3px solid var(--accent); background: #e8f2ef; color: var(--ink); }
 /* Learn landing page: a numbered path to read in order, then reference guides. */
 .learn-track { max-width: 760px; margin: 0 0 44px; }
 .learn-track h2 { margin: 0 0 4px; font-size: 22px; }

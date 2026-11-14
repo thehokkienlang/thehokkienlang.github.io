@@ -6,7 +6,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "tools"))
-from content_harmonisation import apply_edits, atoms_for
+from content_harmonisation import apply_edits, atoms_for, digest
 from dictionary_editor_service import read_table
 from harmonise_content_v33 import now_edits, propose, restore
 
@@ -37,10 +37,15 @@ class V33Tests(unittest.TestCase):
             with self.subTest(file=file):
                 current = json.loads((ROOT / file).read_text(encoding="utf-8"))
                 self.assertEqual(current["route"], entry["route"])
-                # A song re-authored in the Song Editor has replaced the patched page, so only the
-                # untouched pages can still be reversed; every page must keep the v3.3 spellings.
-                if current.get("orthography", {}).get("review") != "structured-song-editor":
+                # A page still exactly as audited can be reversed. One changed since (re-authored in
+                # the Song Editor, or given newer page markup) cannot, so it is checked for what the
+                # audit protects instead: every Hanri the audit wrote is still there. All pages must
+                # stay free of the old spellings (below).
+                if digest(current["body"]) == entry["afterSha256"]:
                     self.assertEqual(restore(current["body"], entry) != current["body"], bool(entry["edits"]))
+                elif current.get("orthography", {}).get("review") != "structured-song-editor":
+                    for edit in entry["edits"]:
+                        self.assertIn(edit["after"], current["body"])
                 self.assertFalse(propose(current))
                 self.assertFalse(now_edits(current["body"]))
 
