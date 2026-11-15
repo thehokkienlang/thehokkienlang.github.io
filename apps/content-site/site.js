@@ -18,9 +18,10 @@
     }
     picks.replaceChildren(...songs.slice(0, 3).map(song => song.cloneNode(true)));
   }
-  const toneRenderer = window.TangliengimImeCore;
-  if (toneRenderer) {
-    document.querySelectorAll(".title-reading").forEach(title => {
+  const renderTitleTones = scope => {
+    const toneRenderer = window.TangliengimImeCore;
+    if (!toneRenderer) return;
+    scope.querySelectorAll(".title-reading").forEach(title => {
       title.querySelectorAll(".hanri-title:not(.bopomofo-title) > rt").forEach(reading => {
         reading.replaceChildren(toneRenderer.renderInlineUpperToneReading(reading.textContent));
       });
@@ -32,7 +33,8 @@
       while (walker.nextNode()) textNodes.push(walker.currentNode);
       textNodes.forEach(node => node.replaceWith(toneRenderer.renderToneMarkedReading(node.textContent)));
     });
-  }
+  };
+  renderTitleTones(document);
   // WebKit can place positioned rt boxes below their base; use ordinary boxes for display.
   const normalizeRuby = scope => [...scope.querySelectorAll('ruby')].reverse().forEach(ruby => {
     const annotation = document.createElement("span");
@@ -68,6 +70,8 @@
     ruby.replaceWith(annotation);
   });
   normalizeRuby(document);
+  // For markup drawn after load (search results): the same tone marks and ruby as the page's own.
+  window.TliSiteDisplay = { decorate: scope => { renderTitleTones(scope); normalizeRuby(scope); } };
   const updateWrappedTitles = () => {
     document.querySelectorAll("h1.title-reading").forEach(title => {
       title.classList.remove("title-reading-wrapped");
@@ -310,7 +314,7 @@
       empty.hidden = shown > 0;
       summary.textContent = filtering && shown ? filter.dataset.countTemplate.replace("{n}", shown) : "";
     };
-    const box = window.TliSearchBox.mount(filter, { queryParam: "q", onChange: apply });
+    const box = window.TliSearchBox.mount(document.querySelector(".songs-subheader [data-tli-search]"), { queryParam: "q", onChange: apply });
     chips.forEach(chip => chip.addEventListener("click", () => {
       category = chip.dataset.songFilterCategory;
       showCategory();
@@ -323,5 +327,71 @@
     Promise.all([window.TliSongSearch.loadIndex(), window.TliSiteSearchVariants.loadHanriFold()])
       .then(([index, hanriFold]) => { matcher = window.TliSongSearch.createMatcher(index, hanriFold); apply(); })
       .catch(error => console.error("Song search could not load", error));
+  }
+  // A song page's search box (in the Songs sub-header): a dropdown of matching songs, from the same
+  // index and by the same rule as the /songs/ filter.
+  const headerSearch = document.querySelector("#songSearchInput")?.closest("[data-tli-search]");
+  if (headerSearch && window.TliSearchBox && window.TliSongSearch) {
+    const language = document.documentElement.lang || "en";
+    const limit = 8;
+    let matcher = null;
+    let categories = {};
+    const songHref = (song, line) => {
+      const base = song.urls[language] || song.urls.en;
+      return line && line.anchor > 0 ? `${base}#line-${line.anchor}` : base;
+    };
+    window.TliSearchBox.mount(headerSearch, {
+      results: "dropdown",
+      dropdown: {
+        prepare: async () => {
+          const [index, hanriFold] = await Promise.all([window.TliSongSearch.loadIndex(), window.TliSiteSearchVariants.loadHanriFold()]);
+          categories = index.categories;
+          matcher = window.TliSongSearch.createMatcher(index, hanriFold);
+        },
+        search: query => {
+          const all = matcher ? matcher.search(query) : [];
+          return { items: all.slice(0, limit), total: all.length };
+        },
+        render: ({ song, lineMatch }) => {
+          const link = document.createElement("a");
+          link.className = "tli-search-song";
+          link.href = songHref(song, lineMatch);
+          const title = document.createElement("span");
+          title.className = "tli-search-song-title title-reading";
+          title.innerHTML = song.label;
+          const category = document.createElement("small");
+          category.className = "tli-search-song-category";
+          category.textContent = (categories[song.category] || {})[language] || (categories[song.category] || {}).en || "";
+          link.append(title, category);
+          if (lineMatch) {
+            const snippet = document.createElement("span");
+            snippet.className = "tli-search-song-line";
+            const main = document.createElement("span");
+            main.textContent = lineMatch.main;
+            const lomari = document.createElement("small");
+            lomari.textContent = lineMatch.lomari;
+            snippet.append(main, lomari);
+            link.append(snippet);
+          }
+          window.TliSiteDisplay.decorate(link);
+          return link;
+        },
+      },
+    });
+  }
+
+  // #line-N (from a search result): scroll to that lyric line and flash it.
+  const lineTarget = /^#line-(\d+)$/.exec(location.hash);
+  if (lineTarget && document.body.dataset.siteSection === "songs") {
+    const scope = document.querySelector('[role="tabpanel"]') || article;
+    const showLine = () => {
+      const line = scope.querySelectorAll("p:has(> .lyric-line)")[Number(lineTarget[1]) - 1];
+      if (!line) return;
+      line.scrollIntoView({ block: "center" });
+      line.classList.add("is-search-target");
+      setTimeout(() => line.classList.remove("is-search-target"), 2600);
+    };
+    showLine();
+    document.fonts?.ready.then(showLine);
   }
 })();

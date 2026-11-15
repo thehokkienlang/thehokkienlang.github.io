@@ -47,37 +47,68 @@ SONG_FILTER_TEXT = {
 # Every label a public search box shows, in one place: SEARCH_TEXT[box][language]. Python writes
 # these into the markup, so no script keeps its own copy.
 SEARCH_TEXT = {
+    # The Songs sub-header's box: on /songs/ it drives the page's filter, on a song page it opens a
+    # dropdown of matching songs.
     "songs": {
-        "en": {"label": "Filter songs", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
-               "candidates": "Hanri candidates", "placeholder": "Filter songs by Hanri, Hangul or Lomari"},
-        "zh-Hant": {"label": "篩選歌曲", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
-                    "candidates": "漢字候選詞", "placeholder": "以漢字、諺文或羅馬字篩選歌曲"},
-        "zh-Hans": {"label": "筛选歌曲", "keyboard": "启用谚文键盘", "clear": "清除搜索",
-                    "candidates": "汉字候选词", "placeholder": "以汉字、谚文或罗马字筛选歌曲"},
+        "en": {"label": "Search songs", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
+               "candidates": "Hanri candidates", "placeholder": "Search songs…",
+               "more": "See all {n} results", "empty": "No songs found."},
+        "zh-Hant": {"label": "搜尋歌曲", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
+                    "candidates": "漢字候選詞", "placeholder": "搜尋歌曲…",
+                    "more": "查看全部 {n} 筆結果", "empty": "找不到歌曲。"},
+        "zh-Hans": {"label": "搜索歌曲", "keyboard": "启用谚文键盘", "clear": "清除搜索",
+                    "candidates": "汉字候选词", "placeholder": "搜索歌曲…",
+                    "more": "查看全部 {n} 条结果", "empty": "找不到歌曲。"},
     },
 }
 
 
-def search_box_html(box_id, language, variant, labels):
+def search_box_html(box_id, language, variant, labels, results="none", more_href=""):
     """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
 
-    The input is `<box_id>Input` and its candidate menu `<box_id>Candidates`.
+    The input is `<box_id>Input` and its candidate menu `<box_id>Candidates`. `variant` is "full"
+    (a page's main search) or "compact" (the Songs sub-header box: its label is for screen readers
+    only and the keyboard switch sits inside the input). results="dropdown" adds a results list.
     """
     words = {key: html.escape(value, quote=True) for key, value in SEARCH_TEXT[labels][language].items()}
-    return (
-        f'<div class="tli-search tli-search--{variant}" data-tli-search>'
-        '<div class="tli-search-heading">'
-        f'<label for="{box_id}Input">{words["label"]}</label>'
-        '<button class="hangul-keyboard-toggle" type="button" aria-pressed="false">'
-        f'<span class="toggle-label">{words["keyboard"]}</span>'
-        '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button></div>'
-        '<div class="tli-search-input-wrap">'
-        f'<input id="{box_id}Input" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
-        f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}">'
-        f'<button class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
-        f'<div id="{box_id}Candidates" class="hanri-candidate-menu" role="listbox" '
-        f'aria-label="{words["candidates"]}" hidden></div></div></div>'
+    toggle = (
+        '<button class="hangul-keyboard-toggle" type="button" aria-pressed="false"'
+        + (f' aria-label="{words["keyboard"]}" title="{words["keyboard"]}"' if variant == "compact" else "") + '>'
+        f'<span class="toggle-label{" visually-hidden" if variant == "compact" else ""}">{words["keyboard"]}</span>'
+        '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button>'
     )
+    hidden_class = ' class="visually-hidden"' if variant == "compact" else ""
+    label = f'<label for="{box_id}Input"{hidden_class}>{words["label"]}</label>'
+    # A song page is one page shown in three languages, switched when it loads, so the box carries
+    # every language's labels and TliSearchBox applies the page's.
+    all_labels = html.escape(json.dumps(SEARCH_TEXT[labels], ensure_ascii=False, separators=(",", ":")), quote=True)
+    attributes = f' data-labels="{all_labels}"'
+    dropdown = ""
+    if results == "dropdown":
+        attributes += (f' data-more-label="{words["more"]}" data-empty-label="{words["empty"]}" '
+                       f'data-more-href="{html.escape(more_href, quote=True)}"')
+        dropdown = (f'<div id="{box_id}Results" class="tli-search-dropdown" role="listbox" '
+                    f'aria-label="{words["label"]}" hidden></div>')
+    # In the compact variant the label is for screen readers and the switch sits inside the input's
+    # box; elsewhere the label and the switch head the box.
+    heading = "" if variant == "compact" else f'<div class="tli-search-heading">{label}{toggle}</div>'
+    return (
+        f'<div class="tli-search tli-search--{variant}" data-tli-search{attributes}>'
+        + heading +
+        '<div class="tli-search-input-wrap">'
+        + (label if variant == "compact" else "") +
+        f'<input id="{box_id}Input" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
+        f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}"'
+        + (f' role="combobox" aria-expanded="false" aria-controls="{box_id}Results" aria-autocomplete="list"'
+           if results == "dropdown" else "") + '>'
+        f'<button class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
+        + (toggle if variant == "compact" else "") +
+        f'<div id="{box_id}Candidates" class="hanri-candidate-menu" role="listbox" '
+        f'aria-label="{words["candidates"]}" hidden></div></div>'
+        + dropdown + '</div>'
+    )
+
+
 # Tools that open only for invited visitors behind a password (audit A4).
 INVITE_ONLY = frozenset({"/dictionary/", "/translate/"})
 
@@ -663,6 +694,38 @@ def search_page(language):
     )
 
 
+SONGS_LABELS = {"en": "Songs", "zh-Hant": "歌曲", "zh-Hans": "歌曲"}
+
+
+def songs_subheader(root, route, language):
+    """The slim bar under the main header on /songs/ and every song page: a breadcrumb on the left
+    (Songs › Category) and the Songs search box on the right.
+
+    A song page is one page shown in three languages (switched when it loads), so each name is written
+    in all three and the page shows the one for its language.
+    """
+    def named(labels):
+        return "".join(f'<span data-content-lang="{code}">{html.escape(labels.get(code, labels["en"]))}</span>'
+                       for code in LANGUAGES)
+
+    on_index = base_route(route) == "/songs/"
+    songs = named(SONGS_LABELS)
+    if on_index:
+        crumb = f'<span class="songs-breadcrumb-current" aria-current="page">{songs}</span>'
+    else:
+        categories = json.loads((root / "content/song-categories.json").read_text(encoding="utf-8"))
+        category = next((item for item in categories if base_route(route) in item["routes"]), None)
+        crumb = f'<a class="songs-breadcrumb-root" href="/songs/">{songs}</a>'
+        if category:
+            crumb += (f'<span class="songs-breadcrumb-sep" aria-hidden="true">›</span>'
+                      f'<a class="songs-breadcrumb-category" href="/songs/?category={html.escape(category["id"], quote=True)}">'
+                      f'{named(category["labels"])}</a>')
+    box = search_box_html("songFilter" if on_index else "songSearch", language, "compact", "songs",
+                          results="none" if on_index else "dropdown", more_href="/songs/")
+    return (f'<div class="songs-subheader"><div class="songs-breadcrumb" role="navigation" aria-label="Breadcrumb">{crumb}</div>'
+            f'{box}</div>')
+
+
 def document(root, title, route, body, content_type="index", source_url=None, heading_html=None):
     language = language_for_route(route)
     navigation = navigation_links(route)
@@ -699,7 +762,9 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     launch = values["LAUNCH"]
     needs_ime = is_search or bool(HANGUL.search(values["HEADING"])) or any(
         HANGUL.search(match) for match in TITLE_READING.findall(body + launch))
-    values["IMESCRIPTS"] = (IME_SCRIPTS if needs_ime else "") + (SONG_SEARCH_SCRIPTS if base_route(route) == "/songs/" else "")
+    songs_section = content_type == "songs" or base_route(route) == "/songs/"
+    values["IMESCRIPTS"] = (IME_SCRIPTS if needs_ime else "") + (SONG_SEARCH_SCRIPTS if songs_section else "")
+    values["SUBHEADER"] = songs_subheader(root, route, language) if songs_section else ""
     values["LYRICSCRIPTS"] = LYRIC_SCRIPTS if content_type == "songs" else ""
     values["BRAND"] = site_brand(root, language)
     values["META"] = meta_tags(title, route, page_description(
@@ -871,12 +936,14 @@ def build_content(root: Path, output: Path):
         mandarin_simplified_titles = list(dict.fromkeys(filter(None, mandarin_simplified_titles)))
         lines = []
         seen_lines = set()
-        for record in route_records:
-            for line in lyric_lines(record.get("body", "")):
+        for record_index, record in enumerate(route_records):
+            for position, line in enumerate(lyric_lines(record.get("body", "")), start=1):
                 identity = (line["main"], line["mainHtml"], line["lomari"], line["search"])
                 if identity not in seen_lines:
                     seen_lines.add(identity)
-                    lines.append(line)
+                    # The line's number on the song's own page (0 where a version tab, not the page,
+                    # holds it), so a search result can open the song at that line.
+                    lines.append({**line, "anchor": position if record_index == 0 else 0})
         song_items[route] = {
             "label": label,
             "lomari": song_lomari(imported),
@@ -938,7 +1005,6 @@ def build_content(root: Path, output: Path):
         return (
             f'<div class="song-filter" role="search" data-song-filter '
             f'data-count-template="{html.escape(words["count"], quote=True)}">'
-            + search_box_html("songFilter", language, "full", "songs") +
             f'<div class="song-filter-chips" role="group" aria-label="{words["categories"]}">{"".join(chips)}</div>'
             '<p class="song-filter-summary" aria-live="polite"></p>'
             f'<p class="song-filter-empty" hidden>{words["empty"]}</p></div>'
@@ -1007,7 +1073,7 @@ def build_content(root: Path, output: Path):
                 "search": item["search"],
                 "mandarinTitle": item["mandarinTitle"],
                 "mandarinSearch": item["mandarinSearch"],
-                "lines": [[line["main"], line["lomari"], line["search"], line["mainHtml"]] for line in item["lines"]],
+                "lines": [[line["main"], line["lomari"], line["search"], line["mainHtml"], line["anchor"]] for line in item["lines"]],
             }
             for route, item in sorted(song_items.items(), key=lambda pair: (pair[1]["sort"], pair[0]))
         ],

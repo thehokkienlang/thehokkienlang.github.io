@@ -1,7 +1,7 @@
 # Search box unification plan
 
-Status: in progress. Step 1 (shared layer and `/songs/`) is done; see "Order of
-work" for the rest. Nothing in this plan changes readings, tones,
+Status: in progress. Steps 1 (shared layer and `/songs/`) and 2 (Songs sub-header
+and song-page dropdown) are done; see "Order of work" for the rest. Nothing in this plan changes readings, tones,
 Hanri or song text. How tone marks match was decided by Haru; see "Tone
 matching".
 
@@ -41,7 +41,8 @@ It returns `{ input, value(), setValue(q), clear(), focus() }` and calls
 
 Options:
 
-- `variant`: `"full"` (a page's main search) or `"compact"` (a header box).
+- `variant`: `"full"` (a page's main search) or `"compact"` (the Songs
+  sub-header box).
 - `labels`: a key into the shared label table (below).
 - `dictionaryIndex` / `entries`: where the IME gets its Hanri candidates.
 - `queryParam`: reads `?q=` on load and keeps the URL updated with
@@ -72,7 +73,8 @@ The file keeps its name, because tests import it.
 ### 4. CSS: one `.tli-search` block
 
 The block goes in the shared site stylesheet, with `.tli-search--compact` for
-header boxes and `.tli-search-dropdown` for the song-page results list. The
+the sub-header box and `.tli-search-dropdown` for the song-page results list.
+The Songs sub-header bar itself gets its own small `.songs-subheader` block. The
 three separate rule sets are deleted.
 
 Existing element ids (`siteSearchInput`, `searchInput` and so on) stay as they
@@ -110,14 +112,37 @@ everything in `public/data/`, it is generated and never edited by hand.
 - `?q=` stays.
 - Only the box around the input moves onto the shared code.
 
-### C. Song search: one component, two places
+### C. Song search: one component in a Songs sub-header
 
-The songs filter and the new song-page header box are one component,
-`TliSongSearch`. It uses the shared box, the shared matching rules and the song
-search index. What changes between the two places is only where the results go.
+The songs filter and the song-page search are one component, `TliSongSearch`.
+It uses the shared box, the shared matching rules and the song search index.
 
-**On `/songs/` (full box, `results: "none"`): behaves as it does today**
+It lives in a **Songs sub-header**: a slim bar directly under the main site
+header, shown on `/songs/` and on every song page. The two bars show the
+hierarchy:
 
+- **Main header (every page):** searches the whole site through the 🔍 icon
+  (see D). It is unchanged, so full search stays one tap away on song pages.
+- **Songs sub-header (`/songs/` section only):** searches the Songs section.
+
+The sub-header holds:
+
+- **On the left, a breadcrumb:** `Songs › Category`. Each part links back up:
+  `Songs` to `/songs/`, and the category to `/songs/?category=…`. On `/songs/`
+  itself it shows just `Songs`.
+- **On the right, the song search box** (`variant: "compact"`), with the
+  placeholder "Search songs…" / 搜尋歌曲… / 搜索歌曲…, the keyboard switch and
+  the candidate menu.
+
+The box is in the same place on every Songs page. What changes is only where
+its results go.
+
+**On `/songs/` (`results: "none"`): behaves as it does today**
+
+- The search box sits in the sub-header instead of above the catalogue. It
+  drives the live filter of the page below it.
+- The category chips, count summary and results stay on the page, where they
+  are now.
 - Live filtering of the catalogue as you type.
 - Category chips (All plus each category) stay.
 - Lyric-line matches under each song, with the matched line shown in Hangul
@@ -130,10 +155,9 @@ search index. What changes between the two places is only where the results go.
 - New: the Hanri variant table and song data come from the shared files, which
   makes the `/songs/` page about 130 KB lighter.
 
-**On each song page `/songs/<song>/` (compact box in the header, `results: "dropdown"`)**
+**On each song page `/songs/<song>/` (`results: "dropdown"`)**
 
-- A small box with the keyboard switch and the candidate menu.
-- As you type, a dropdown under the box lists matching songs, using the same
+- As you type in the sub-header box, a dropdown under it lists matching songs, using the same
   matching as `/songs/`. Each item shows:
   - the song title (with its Hangul reading where the title has one)
   - the category
@@ -144,15 +168,25 @@ search index. What changes between the two places is only where the results go.
   closes the dropdown.
 - The dropdown shows the first 8 matches. Its last row, "See all N results",
   goes to `/songs/?q=…` in the current language, where the full filter takes
-  over.
+  over. There is no "search the whole site" row: the 🔍 icon in the main header
+  is always visible for that.
 - The song index is fetched the first time the box is focused, not on page
   load, so song pages don't get heavier for visitors who never search.
-- On phones the dropdown spans the screen width below the header, inside the
-  16px gutters.
 
-### D. Header magnifier icon: unchanged
+**On phones**
 
-It still links to `/search/`.
+- The main header stays where it is. The sub-header is not sticky: it scrolls
+  away with the page, so the two bars don't take up the screen together.
+- On narrow screens the breadcrumb shortens to `‹ Songs`, leaving most of the
+  width for the search box.
+- The dropdown spans the screen width below the sub-header, inside the 16px
+  gutters.
+
+### D. Main header 🔍 icon: unchanged
+
+It still links to `/search/` on every page, song pages included. The two
+searches don't compete for the same spot: the main header is the whole-site
+search, and the sub-header beneath it is the Songs search.
 
 ### Not included
 
@@ -171,8 +205,14 @@ Each step is its own commit, with the release gate run after it.
    - Check `/songs/` looks and filters as before in all three languages. The
      one intended difference: queries with a tone mark now match only that
      tone.
-2. **Song-page dropdown.** Add the compact header box to song pages with
-   `results: "dropdown"`. Check it on desktop and phone width.
+2. **Songs sub-header and song-page dropdown.** *(Done.)*
+   - Add the Songs sub-header (breadcrumb and search box) to `/songs/` and
+     every song page, in all three languages.
+   - On `/songs/`, move the existing filter's search box into the sub-header.
+     The chips and results stay on the page.
+   - On song pages, give the box `results: "dropdown"`.
+   - Check desktop and phone width: the sub-header scrolls away, the breadcrumb
+     shortens, and the dropdown fits the screen.
 3. **Site search.** Move `/search/` onto the shared box.
 4. **Dictionary.** Move the dictionary box onto the shared box. This is the
    largest step, because of its mode switch and its own app bundle.

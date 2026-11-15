@@ -353,6 +353,45 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(20px); }
 .tli-search .hanri-candidate-menu { width: 100%; max-width: 100%; }
 .tli-search [hidden] { display: none !important; }
+/* Compact variant: a header box. The label is for screen readers; the keyboard switch sits inside the input. */
+.tli-search--compact { position: relative; display: block; }
+.tli-search--compact .tli-search-input { padding: 8px 96px 8px 14px; border-radius: 999px; font-size: 15px; }
+.tli-search--compact .tli-search-clear { right: 52px; width: 28px; height: 28px; font-size: 20px; }
+.tli-search--compact .hangul-keyboard-toggle { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); min-height: 0; }
+.tli-search--compact .toggle-switch { width: 34px; height: 20px; }
+.tli-search--compact .toggle-knob { top: 2px; left: 2px; width: 16px; height: 16px; }
+.tli-search--compact .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(14px); }
+/* The results list under a box (results: "dropdown"). */
+.tli-search-dropdown { position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; width: min(460px, calc(100vw - 32px)); max-height: min(70vh, 520px); overflow: auto; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px #17252b2e; }
+.tli-search-dropdown > a { display: grid; gap: 3px; padding: 10px 14px; border-bottom: 1px solid var(--line); color: var(--ink); text-decoration: none; }
+.tli-search-dropdown > a:last-child { border-bottom: 0; }
+.tli-search-dropdown > a:hover, .tli-search-dropdown > a.is-active { background: var(--site-accent-soft, #e8f2ef); }
+.tli-search-song-title { padding-top: 6px; font-size: 18px; font-weight: 700; line-height: 1.5; }
+.tli-search-song-category { color: var(--muted); font-size: 12px; }
+.tli-search-song-line { display: grid; gap: 1px; margin-top: 2px; padding-left: 10px; border-left: 2px solid var(--accent); font-size: 15px; line-height: 1.45; }
+.tli-search-song-line small { color: var(--muted); font-size: 12px; }
+.tli-search-dropdown > .tli-search-more { color: var(--accent); font-size: 14px; font-weight: 700; }
+.tli-search-empty { padding: 14px; color: var(--muted); font-size: 14px; }
+/* The Songs sub-header: a slim bar under the main header on /songs/ and every song page, with a
+   breadcrumb on the left and the Songs search box on the right. It scrolls away with the page. */
+.songs-subheader { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 8px max(24px, calc((100% - 1144px) / 2)); border-bottom: 1px solid var(--line); background: #fbfcfc; }
+.songs-breadcrumb { display: flex; align-items: center; gap: 8px; min-width: 0; color: var(--muted); font-size: 14px; }
+.songs-breadcrumb a { color: var(--muted); text-decoration: none; }
+.songs-breadcrumb a:hover, .songs-breadcrumb a:focus-visible { color: var(--accent); text-decoration: underline; }
+.songs-breadcrumb-current { color: var(--ink); font-weight: 700; }
+.songs-breadcrumb-sep { color: #9aa7ab; }
+.songs-subheader > .tli-search--compact { flex: 0 1 320px; }
+@media (max-width: 700px) {
+  .songs-subheader { padding: 8px 16px; gap: 12px; }
+  /* The breadcrumb shortens to ‹ Songs, leaving the width to the search box. */
+  .songs-breadcrumb-sep, .songs-breadcrumb-category { display: none; }
+  .songs-breadcrumb-root::before { content: "‹ "; }
+  .songs-subheader > .tli-search--compact { flex: 1 1 auto; position: static; }
+  /* The dropdown spans the screen below the sub-header, inside the 16px gutters. */
+  .tli-search-dropdown { right: 16px; left: 16px; width: auto; }
+}
+/* A lyric line reached from a search result. */
+.imported-content p.is-search-target { background-color: #fff2bf; box-shadow: 0 -.45em 0 #fff2bf; }
 .song-filter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .song-filter-chip { --category-accent: var(--accent); padding: 6px 14px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink); background: #fff; font: inherit; font-size: 14px; cursor: pointer; }
 .song-filter-chip:hover { border-color: var(--category-accent); color: var(--category-accent); }

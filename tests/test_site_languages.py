@@ -217,6 +217,39 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertEqual(by_route["/songs/跤踏車/"]["urls"]["zh-Hant"], language_url("/songs/跤踏車/", "zh-Hant"))
             self.assertIn(by_route["/songs/跤踏車/"]["category"], index["categories"])
             self.assertEqual(json.loads((output / "public/data/hanri-fold.json").read_text(encoding="utf-8"))["hanriFold"]["後"], "后")
+            # Each lyric match can open its song at that line: the first line of a song is line 1.
+            self.assertEqual(by_route["/songs/生份에릐/"]["lines"][0][4], 1)
+            # The Songs sub-header, under the main header: on every song page a breadcrumb
+            # (Songs > Category) and the search box with its dropdown.
+            song_page = (output / "songs/生份에릐/index.html").read_text(encoding="utf-8")
+            self.assertEqual(song_page.count('class="songs-subheader"'), 1)
+            self.assertLess(song_page.index("</header>"), song_page.index('class="songs-subheader"'))
+            self.assertLess(song_page.index('class="songs-subheader"'), song_page.index("<main"))
+            self.assertEqual(song_page.count('id="songSearchInput"'), 1)
+            self.assertEqual(song_page.count('tli-search--compact'), 1)
+            self.assertIn('id="songSearchResults" class="tli-search-dropdown"', song_page)
+            self.assertIn('data-more-href="/songs/"', song_page)
+            crumb = song_page.split('<div class="songs-breadcrumb"', 1)[1].split("</div>", 1)[0]
+            self.assertIn('class="songs-breadcrumb-root" href="/songs/"', crumb)
+            self.assertIn('href="/songs/?category=', crumb)
+            for name in ("Songs", "歌曲"):
+                self.assertIn(name, crumb)
+            for label in ("Search songs…", "搜尋歌曲…", "搜索歌曲…", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):
+                self.assertIn(label, song_page)
+            for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
+                self.assertIn(f'/shared/{script}.js', song_page)
+            # /songs/ has the same bar with just "Songs", and its box drives the page's filter. The
+            # main header is unchanged: no other page, and no header, carries a song search.
+            for folder in ("", "zh-hant/", "zh-hans/"):
+                index_page = (output / folder / "songs/index.html").read_text(encoding="utf-8")
+                self.assertEqual(index_page.count('class="songs-subheader"'), 1)
+                self.assertIn('class="songs-breadcrumb-current" aria-current="page"', index_page)
+                self.assertNotIn("songs-breadcrumb-root", index_page)
+                self.assertNotIn("songSearchInput", index_page)
+                header = index_page.split("</header>", 1)[0]
+                self.assertNotIn("tli-search", header)
+            for other in ("about/index.html", "learn/spelling/index.html", "search/index.html"):
+                self.assertNotIn("songs-subheader", (output / other).read_text(encoding="utf-8"), other)
             songs = (output / "songs/index.html").read_text(encoding="utf-8")
             self.assertIn('class="song-entry-mandarin-match" hidden', songs)
             self.assertIn('class="song-entry-match" hidden', songs)
