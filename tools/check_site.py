@@ -213,6 +213,21 @@ def main():
                 published = SITE / source.relative_to(ROOT)
                 assert published.is_file(), f"Lost asset: {source}"
                 assert hashlib.sha256(source.read_bytes()).digest() == hashlib.sha256(published.read_bytes()).digest(), f"Changed asset: {source}"
+    # Every public search box comes from search_box_html (tools/build_content.py): none of its parts
+    # may appear in a published page, or in an app's source markup, except inside that markup.
+    typing_tools = {"ime", "translate"}  # typing tools with their own candidate menus, not search boxes
+    for page in SITE.rglob("*.html"):
+        if page.relative_to(SITE).parts[0] in typing_tools:
+            continue
+        text = page.read_text(encoding="utf-8")
+        boxes = text.count("data-tli-search")
+        for part in ("hanri-candidate-menu", "hangul-keyboard-toggle", "tli-search-input\""):
+            assert text.count(part) == boxes, f"{page.relative_to(SITE)}: a search box is not from search_box_html ({part})"
+    for source in (ROOT / "apps").rglob("*.html"):
+        if source.relative_to(ROOT / "apps").parts[0] in typing_tools or source.name == "song-url-form.html":  # the latter is a local migration form, never published
+            continue
+        text = source.read_text(encoding="utf-8")
+        assert "hanri-candidate-menu" not in text and "hangul-keyboard-toggle" not in text, f"{source.relative_to(ROOT)}: hand-written search box; use search_box_html"
     assert not (SITE / "desktop").exists()
     assert not (SITE / "data").exists()
     assert not (SITE / ".git").exists()
