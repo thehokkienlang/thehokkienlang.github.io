@@ -1,7 +1,7 @@
 # Search box unification plan
 
-Status: in progress. Steps 1 (shared layer and `/songs/`) and 2 (Songs sub-header
-and song-page dropdown) are done; see "Order of work" for the rest. Nothing in this plan changes readings, tones,
+Status: in progress. Steps 1 (shared layer and `/songs/`), 2 (Songs sub-header
+and song-page dropdown) and 3 (site search) are done; see "Order of work" for the rest. Nothing in this plan changes readings, tones,
 Hanri or song text. How tone marks match was decided by Haru; see "Tone
 matching".
 
@@ -213,7 +213,7 @@ Each step is its own commit, with the release gate run after it.
    - On song pages, give the box `results: "dropdown"`.
    - Check desktop and phone width: the sub-header scrolls away, the breadcrumb
      shortens, and the dropdown fits the screen.
-3. **Site search.** Move `/search/` onto the shared box.
+3. **Site search.** Move `/search/` onto the shared box. *(Done.)*
 4. **Dictionary.** Move the dictionary box onto the shared box. This is the
    largest step, because of its mode switch and its own app bundle.
 5. **Clean-up and guard.**

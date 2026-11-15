@@ -49,6 +49,15 @@ SONG_FILTER_TEXT = {
 SEARCH_TEXT = {
     # The Songs sub-header's box: on /songs/ it drives the page's filter, on a song page it opens a
     # dropdown of matching songs.
+    # The /search/ page's box.
+    "site": {
+        "en": {"label": "Search the website", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
+               "candidates": "Hanri candidates", "placeholder": "Search pages, songs, and stories..."},
+        "zh-Hant": {"label": "搜尋網站", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
+                    "candidates": "漢字候選詞", "placeholder": "搜尋頁面、歌曲與故事…"},
+        "zh-Hans": {"label": "搜索网站", "keyboard": "启用谚文键盘", "clear": "清除搜索",
+                    "candidates": "汉字候选词", "placeholder": "搜索页面、歌曲与故事…"},
+    },
     "songs": {
         "en": {"label": "Search songs", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
                "candidates": "Hanri candidates", "placeholder": "Search songs…",
@@ -63,7 +72,7 @@ SEARCH_TEXT = {
 }
 
 
-def search_box_html(box_id, language, variant, labels, results="none", more_href=""):
+def search_box_html(box_id, language, variant, labels, results="none", more_href="", toggle_id=""):
     """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
 
     The input is `<box_id>Input` and its candidate menu `<box_id>Candidates`. `variant` is "full"
@@ -72,7 +81,7 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
     """
     words = {key: html.escape(value, quote=True) for key, value in SEARCH_TEXT[labels][language].items()}
     toggle = (
-        '<button class="hangul-keyboard-toggle" type="button" aria-pressed="false"'
+        (f'<button id="{toggle_id}" ' if toggle_id else '<button ') + 'class="hangul-keyboard-toggle" type="button" aria-pressed="false"'
         + (f' aria-label="{words["keyboard"]}" title="{words["keyboard"]}"' if variant == "compact" else "") + '>'
         f'<span class="toggle-label{" visually-hidden" if variant == "compact" else ""}">{words["keyboard"]}</span>'
         '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button>'
@@ -101,7 +110,7 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
         f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}"'
         + (f' role="combobox" aria-expanded="false" aria-controls="{box_id}Results" aria-autocomplete="list"'
            if results == "dropdown" else "") + '>'
-        f'<button class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
+        f'<button id="{box_id}Clear" class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
         + (toggle if variant == "compact" else "") +
         f'<div id="{box_id}Candidates" class="hanri-candidate-menu" role="listbox" '
         f'aria-label="{words["candidates"]}" hidden></div></div>'
@@ -634,33 +643,18 @@ def introduce_tli(text):
 def search_page(language):
     labels = {
         "en": {
-            "label": "Search the website",
-            "keyboard": "Enable Hangul keyboard",
-            "placeholder": "Search pages, songs, and stories...",
-            "clear": "Clear search",
-            "candidates": "Hanri candidates",
             "filters": "Filter search results",
             "results": "Search results",
             "pages": "Search result pages",
             "noscript": "JavaScript is required for website search.",
         },
         "zh-Hant": {
-            "label": "搜尋網站",
-            "keyboard": "啟用諺文鍵盤",
-            "placeholder": "搜尋頁面、歌曲與故事…",
-            "clear": "清除搜尋",
-            "candidates": "漢字候選詞",
             "filters": "篩選搜尋結果",
             "results": "搜尋結果",
             "pages": "搜尋結果頁面",
             "noscript": "網站搜尋需要啟用 JavaScript。",
         },
         "zh-Hans": {
-            "label": "搜索网站",
-            "keyboard": "启用谚文键盘",
-            "placeholder": "搜索页面、歌曲与故事…",
-            "clear": "清除搜索",
-            "candidates": "汉字候选词",
             "filters": "筛选搜索结果",
             "results": "搜索结果",
             "pages": "搜索结果页面",
@@ -670,19 +664,7 @@ def search_page(language):
     return (
         '<section class="site-search">'
         '<form id="siteSearchForm" class="site-search-form" role="search">'
-        '<div class="site-search-heading">'
-        f'<label for="siteSearchInput">{html.escape(labels["label"])}</label>'
-        '<button id="hangulKeyboardToggle" class="hangul-keyboard-toggle" type="button" aria-pressed="false">'
-        f'<span class="toggle-label">{html.escape(labels["keyboard"])}</span>'
-        '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span>'
-        '</button></div>'
-        '<div class="site-search-input-wrap">'
-        f'<input id="siteSearchInput" class="site-search-input" type="text" inputmode="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" spellcheck="false" '
-        f'placeholder="{html.escape(labels["placeholder"], quote=True)}">'
-        f'<button id="siteSearchClear" class="site-search-clear" type="button" '
-        f'aria-label="{html.escape(labels["clear"], quote=True)}" hidden>&times;</button>'
-        f'<div id="siteSearchCandidates" class="hanri-candidate-menu" role="listbox" '
-        f'aria-label="{html.escape(labels["candidates"], quote=True)}" hidden></div></div>'
+        + search_box_html("siteSearch", language, "full", "site", toggle_id="hangulKeyboardToggle") +
         f'<div id="siteSearchFilters" class="site-search-filters" role="group" '
         f'aria-label="{html.escape(labels["filters"], quote=True)}"></div></form>'
         '<p id="siteSearchSummary" class="site-search-summary" aria-live="polite"></p>'
@@ -756,7 +738,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     is_search = base_route(route) == "/search/"
     heading_markup = (heading_html if heading_html is not None else
                       home_heading_markup[language] if base_route(route) == "/" else html.escape(heading))
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_markup, "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_markup, "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/shared/web-search-box.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" else "")}
     # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
     # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
     launch = values["LAUNCH"]
@@ -1046,7 +1028,6 @@ def build_content(root: Path, output: Path):
             ))
     search_index = {
         "schemaVersion": 1,
-        "hanriFold": hanri_fold_map(),
         "languages": {
             language: sorted(documents, key=lambda item: (item["kind"], item["title"], item["url"]))
             for language, documents in search_documents.items()

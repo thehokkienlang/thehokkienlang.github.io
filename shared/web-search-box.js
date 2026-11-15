@@ -23,7 +23,8 @@
   });
 
   async function loadEntries(options) {
-    if (options.entries) return {entries: options.entries, index: options.dictionaryIndex || null};
+    // `entries` may be an array or a promise of one (a page that loads the dictionary itself).
+    if (options.entries) return {entries: await options.entries, index: options.dictionaryIndex || null};
     const response = await fetch(options.dictionaryUrl || '/public/data/hokkien-hanri-dict.json', {cache: 'no-cache'});
     if (!response.ok) throw new Error(`Dictionary request failed: ${response.status}`);
     const data = await response.json();

@@ -29,32 +29,17 @@ const messages = localizedMessages[language] || localizedMessages.en;
 
 const state = { documents: [], hanriFold: {}, kind: "all", page: 1, loaded: false };
 const variants = window.TliSiteSearchVariants;
-const input = document.querySelector("#siteSearchInput");
-const clear = document.querySelector("#siteSearchClear");
-const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
-const imeCandidates = document.querySelector("#siteSearchCandidates");
+// The box (keyboard switch, clear button, candidate menu, IME) is the shared one; this page decides
+// what a change of query does.
+const searchBox = window.TliSearchBox.mount(document.querySelector("#siteSearchForm [data-tli-search]"), {
+  entries: fetchSearchJson(DICTIONARY_URL).then(data => data.entries || []),
+  onChange: () => { state.page = 1; render(); },
+});
+const input = searchBox.input;
 const filters = document.querySelector("#siteSearchFilters");
 const summary = document.querySelector("#siteSearchSummary");
 const results = document.querySelector("#siteSearchResults");
 const pagination = document.querySelector("#siteSearchPagination");
-let hangulKeyboardEnabled = false;
-const searchCandidatePopup = window.TangliengimImeCore.createCandidatePopupPositioner({
-  control: input,
-  container: imeCandidates,
-  placement: "below",
-});
-const searchImeController = window.TangliengimImeCore.createTextImeController({
-  control: input,
-  candidateContainer: imeCandidates,
-  entries: [],
-  enabled: () => hangulKeyboardEnabled,
-  onUpdate: () => {
-    state.page = 1;
-    render();
-  },
-  onCandidatesChanged: searchCandidatePopup.schedule,
-  enterBehavior: "none",
-});
 
 async function fetchSearchJson(url) {
   const version = DATA_VERSIONS[url];
@@ -211,7 +196,6 @@ function setQueryUrl() {
 
 function render() {
   results.replaceChildren();
-  clear.hidden = !input.value;
   if (!state.loaded) return;
   const queryTerms = terms(input.value);
   if (!queryTerms.length) {
@@ -253,31 +237,20 @@ function render() {
   setQueryUrl();
 }
 
-input.addEventListener("input", () => { state.page = 1; render(); });
 document.querySelector("#siteSearchForm").addEventListener("submit", event => { event.preventDefault(); render(); });
-clear.addEventListener("click", () => { state.page = 1; searchImeController.clear(); });
-hangulKeyboardToggle.addEventListener("click", () => {
-  hangulKeyboardEnabled = !hangulKeyboardEnabled;
-  hangulKeyboardToggle.setAttribute("aria-pressed", String(hangulKeyboardEnabled));
-  input.classList.toggle("hangul-ime-active", hangulKeyboardEnabled);
-  searchImeController.setEnabled();
-  input.focus();
-});
 
 async function load() {
   summary.textContent = messages.loading;
   try {
-    const index = await fetchSearchJson(INDEX_URL);
-    state.hanriFold = { ...(index.hanriFold || {}), ...variants.toneMarkFold };
+    const [index, hanriFold] = await Promise.all([fetchSearchJson(INDEX_URL), variants.loadHanriFold()]);
+    state.hanriFold = { ...hanriFold, ...variants.toneMarkFold };
     state.documents = (index.languages[language] || []).map(document => ({
       ...document,
       foldedTitle: variants.fold(normalized(document.titleSearch), state.hanriFold),
       foldedContent: variants.fold(normalized(document.content), state.hanriFold),
     }));
     const params = new URLSearchParams(location.search);
-    input.value = params.get("q") || "";
-    searchImeController.composer.setText(input.value, input.value.length);
-    searchImeController.updateControlFromComposer({ allowCandidateMenu: false });
+    searchBox.setValue(params.get("q") || "");
     const requestedKind = params.get("type") || "all";
     state.kind = ["all", "page", "guide", "song", "story", "tool"].includes(requestedKind) ? requestedKind : "all";
     state.page = Math.max(1, Number.parseInt(params.get("page"), 10) || 1);
@@ -290,18 +263,4 @@ async function load() {
   }
 }
 
-async function loadImeDictionary() {
-  try {
-    const data = await fetchSearchJson(DICTIONARY_URL);
-    const entries = data.entries || [];
-    searchImeController.setEntries(
-      entries,
-      window.TangliengimImeCore.createDictionaryIndex(entries),
-    );
-  } catch (error) {
-    console.error("Search IME dictionary could not load", error);
-  }
-}
-
 load();
-loadImeDictionary();

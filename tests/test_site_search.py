@@ -68,6 +68,10 @@ class SiteSearchTests(unittest.TestCase):
                 self.assertIn('id="siteSearchInput"', source)
                 self.assertIn('id="hangulKeyboardToggle"', source)
                 self.assertIn('id="siteSearchCandidates"', source)
+                self.assertEqual(source.count('data-tli-search'), 1)
+                self.assertIn('id="siteSearchClear" class="tli-search-clear"', source)
+                self.assertIn('/shared/web-search-box.js', source)
+                self.assertNotIn('site-search-input', source)
                 self.assertIn('class="hanri-candidate-menu"', source)
                 self.assertIn('aria-pressed="false"', source)
                 self.assertIn('/shared/web-ime-menu.css', source)
@@ -78,7 +82,9 @@ class SiteSearchTests(unittest.TestCase):
 
             index = json.loads((output / "public/data/site-search-index.json").read_text(encoding="utf-8"))
             self.assertEqual(index["schemaVersion"], 1)
-            self.assertEqual(index['hanriFold']['學'], '学')
+            self.assertNotIn('hanriFold', index)  # the variant table is the shared hanri-fold.json
+            fold = json.loads((output / "public/data/hanri-fold.json").read_text(encoding="utf-8"))
+            self.assertEqual(fold['hanriFold']['學'], '学')
             self.assertEqual(set(index["languages"]), set(LANGUAGES))
             allowed = {"id", "title", "url", "kind", "titleSearch", "content"}
             for language, documents in index["languages"].items():
