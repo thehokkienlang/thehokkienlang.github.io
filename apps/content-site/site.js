@@ -254,81 +254,39 @@
     if (initial) activate(initial, false);
   });
 
-  // Songs page filter (audit A9). Matching ignores case, Lomari diacritics, TLI tone
-  // marks, spaces and hyphens; Hangul is compared syllable by syllable, never as Korean.
+  // Songs page filter (audit A9). The box, the song data and the matching rule are shared with
+  // every other search (shared/web-search-box.js, web-song-search.js, web-site-search-variants.js).
+  // Hangul is compared syllable by syllable, never as Korean.
   const filter = document.querySelector("[data-song-filter]");
-  if (filter) {
-    const language = document.documentElement.lang;
-    const labels = language === "zh-Hant"
-      ? { filter: "篩選歌曲", keyboard: "啟用諺文鍵盤", candidates: "漢字候選詞" }
-      : language === "zh-Hans"
-        ? { filter: "筛选歌曲", keyboard: "启用谚文键盘", candidates: "汉字候选词" }
-        : { filter: "Filter songs", keyboard: "Enable Hangul keyboard", candidates: "Hanri candidates" };
-    let hanriFold = {};
-    try { hanriFold = JSON.parse(filter.dataset.songHanriFold || "{}"); } catch {}
-    const fold = value => [...String(value || "").normalize("NFKD")
-      .replace(/[̀-ͯ]/gu, "").replace(/[ˆˋˊˉˇˍˎˏˬꞈ`\s\-’'‘]/gu, "").toLowerCase().normalize("NFC")]
-      .map(char => hanriFold[char] || char).join("");
-    const input = filter.querySelector(".song-filter-input");
-    input.id ||= "songFilterInput";
-    const heading = document.createElement("div");
-    heading.className = "song-filter-heading";
-    const label = document.createElement("label");
-    label.htmlFor = input.id;
-    label.textContent = labels.filter;
-    const toggle = document.createElement("button");
-    toggle.className = "hangul-keyboard-toggle";
-    toggle.type = "button";
-    toggle.setAttribute("aria-pressed", "false");
-    toggle.innerHTML = `<span class="toggle-label">${labels.keyboard}</span><span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span>`;
-    heading.append(label, toggle);
-    const inputWrap = document.createElement("div");
-    inputWrap.className = "song-filter-input-wrap";
-    const candidates = document.createElement("div");
-    candidates.id = "songFilterCandidates";
-    candidates.className = "hanri-candidate-menu";
-    candidates.setAttribute("role", "listbox");
-    candidates.setAttribute("aria-label", labels.candidates);
-    candidates.hidden = true;
-    input.before(heading, inputWrap);
-    inputWrap.append(input, candidates);
+  if (filter && window.TliSearchBox && window.TliSongSearch) {
     const chips = [...filter.querySelectorAll("[data-song-filter-category]")];
     const summary = filter.querySelector(".song-filter-summary");
     const empty = filter.querySelector(".song-filter-empty");
     const catalogue = document.querySelector(".song-catalogue");
     const sections = [...catalogue.querySelectorAll(".song-category")];
-    const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-search]")]
-      .map(row => {
-        let sourceLines = [];
-        try { sourceLines = JSON.parse(row.dataset.songLines || "[]"); } catch {}
-        const lines = sourceLines.map(([main, lomari, search, mainHtml]) => ({
-          main, mainHtml, lomari, text: fold(search),
-        }));
-        const titleText = fold(row.dataset.songSearch);
-        const mandarinTitle = row.dataset.songMandarinTitle || "";
-        const mandarinText = fold(row.dataset.songMandarinSearch);
-        return {
-          row, section, titleText, mandarinTitle, mandarinText, lines,
-          text: [titleText, mandarinText, ...lines.map(line => line.text)].join(" "),
-          mandarinMatch: row.querySelector(".song-entry-mandarin-match"),
-          match: row.querySelector(".song-entry-match"),
-          matchMain: row.querySelector(".song-entry-match-main"),
-          matchLomari: row.querySelector(".song-entry-match-lomari"),
-        };
-      }));
-    let category = "";
+    const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-route]")].map(row => ({
+      row, section, route: row.dataset.songRoute,
+      mandarinMatch: row.querySelector(".song-entry-mandarin-match"),
+      match: row.querySelector(".song-entry-match"),
+      matchMain: row.querySelector(".song-entry-match-main"),
+      matchLomari: row.querySelector(".song-entry-match-lomari"),
+    })));
+    let matcher = null;
+    let category = new URL(location.href).searchParams.get("category") || "";
+    if (!chips.some(chip => chip.dataset.songFilterCategory === category)) category = "";
+    const showCategory = () => chips.forEach(chip => chip.setAttribute("aria-pressed", String(chip.dataset.songFilterCategory === category)));
     const apply = () => {
-      const query = fold(input.value);
-      let shown = 0;
+      if (!matcher) return;
+      const query = box.value();
+      const results = new Map(matcher.search(query, { category }).map(result => [result.song.route, result]));
       rows.forEach(item => {
-        const visible = (!category || item.section.dataset.songCategory === category) && (!query || item.text.includes(query));
-        item.row.hidden = !visible;
-        const mandarinMatch = visible && query && item.mandarinText.includes(query) && !item.titleText.includes(query);
+        const result = results.get(item.route);
+        item.row.hidden = !result;
         if (item.mandarinMatch) {
-          item.mandarinMatch.hidden = !mandarinMatch;
-          if (mandarinMatch) item.mandarinMatch.textContent = `(${item.mandarinTitle})`;
+          item.mandarinMatch.hidden = !result?.mandarinMatch;
+          if (result?.mandarinMatch) item.mandarinMatch.textContent = `(${result.song.mandarinTitle})`;
         }
-        const lyricMatch = visible && query ? item.lines.find(line => line.text.includes(query)) : null;
+        const lyricMatch = result?.lineMatch;
         if (item.match) item.match.hidden = !lyricMatch;
         if (lyricMatch) {
           if (lyricMatch.mainHtml) {
@@ -339,75 +297,31 @@
           }
           item.matchLomari.textContent = lyricMatch.lomari;
         }
-        if (visible) shown += 1;
       });
       sections.forEach(section => {
-        const count = section.querySelectorAll("li[data-song-search]:not([hidden])").length;
+        const count = section.querySelectorAll("li[data-song-route]:not([hidden])").length;
         section.hidden = count === 0;
         const badge = section.querySelector(".song-category-heading > span");
         if (badge) badge.textContent = String(count).padStart(2, "0");
       });
+      const shown = results.size;
       const filtering = Boolean(query || category);
       catalogue.classList.toggle("is-filtering", filtering);
       empty.hidden = shown > 0;
       summary.textContent = filtering && shown ? filter.dataset.countTemplate.replace("{n}", shown) : "";
     };
-    input.addEventListener("input", apply);
+    const box = window.TliSearchBox.mount(filter, { queryParam: "q", onChange: apply });
     chips.forEach(chip => chip.addEventListener("click", () => {
       category = chip.dataset.songFilterCategory;
-      chips.forEach(other => other.setAttribute("aria-pressed", String(other === chip)));
+      showCategory();
+      const url = new URL(location.href);
+      if (category) url.searchParams.set("category", category); else url.searchParams.delete("category");
+      history.replaceState(history.state, "", url);
       apply();
     }));
-
-    const loadScript = src => new Promise((resolve, reject) => {
-      const existing = [...document.scripts].find(script => new URL(script.src, location.href).pathname === src);
-      if (existing) {
-        if (existing.dataset.loaded === "true" || existing.readyState === "complete") resolve();
-        else {
-          existing.addEventListener("load", resolve, { once: true });
-          existing.addEventListener("error", reject, { once: true });
-        }
-        return;
-      }
-      const script = document.createElement("script");
-      script.src = src;
-      script.addEventListener("load", () => { script.dataset.loaded = "true"; resolve(); }, { once: true });
-      script.addEventListener("error", reject, { once: true });
-      document.head.append(script);
-    });
-    const setupIme = async () => {
-      if (!window.TangliengimHangulIme) await loadScript("/shared/web-hangul-ime.js");
-      if (!window.TangliengimImeCore) await loadScript("/shared/web-ime-core.js");
-      const imeCore = window.TangliengimImeCore;
-      let enabled = false;
-      const popup = imeCore.createCandidatePopupPositioner({
-        control: input,
-        container: candidates,
-        boundary: inputWrap,
-        placement: "below",
-      });
-      const controller = imeCore.createTextImeController({
-        control: input,
-        candidateContainer: candidates,
-        entries: [],
-        enabled: () => enabled,
-        onUpdate: apply,
-        onCandidatesChanged: popup.schedule,
-        enterBehavior: "none",
-      });
-      toggle.addEventListener("click", () => {
-        enabled = !enabled;
-        toggle.setAttribute("aria-pressed", String(enabled));
-        input.classList.toggle("hangul-ime-active", enabled);
-        controller.setEnabled();
-        input.focus();
-      });
-      const response = await fetch("/public/data/hokkien-hanri-dict.json", { cache: "no-cache" });
-      if (!response.ok) throw new Error(`Dictionary request failed: ${response.status}`);
-      const data = await response.json();
-      const entries = data.entries || [];
-      controller.setEntries(entries, imeCore.createDictionaryIndex(entries));
-    };
-    setupIme().catch(error => console.error("Songs TLI IME could not load", error));
+    showCategory();
+    Promise.all([window.TliSongSearch.loadIndex(), window.TliSiteSearchVariants.loadHanriFold()])
+      .then(([index, hanriFold]) => { matcher = window.TliSongSearch.createMatcher(index, hanriFold); apply(); })
+      .catch(error => console.error("Song search could not load", error));
   }
 })();

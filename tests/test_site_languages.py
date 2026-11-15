@@ -194,21 +194,30 @@ class SiteLanguageTests(unittest.TestCase):
                 songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 with self.subTest(songs=folder):
                     self.assertIn('data-song-filter', songs)
-                    self.assertIn('data-song-hanri-fold=', songs)
-                    self.assertIn('&quot;後&quot;:&quot;后&quot;', songs)
+                    # The box is the shared one, and the page carries no search data of its own:
+                    # the Hanri table and the lyrics come from public/data and are cached there.
+                    self.assertEqual(songs.count('data-tli-search'), 1)
+                    self.assertEqual(songs.count('id="songFilterInput"'), 1)
+                    self.assertEqual(songs.count('class="tli-search-clear"'), 1)
+                    self.assertNotIn('data-song-hanri-fold', songs)
+                    self.assertNotIn('data-song-lines', songs)
+                    self.assertLess(len(songs), 120_000)
                     self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
-                    self.assertEqual(songs.count('<li data-song-search="'),
+                    self.assertEqual(songs.count('<li data-song-route="'),
                                      sum(len(category["routes"]) for category in categories))
-            # Lyric-only phrases are included in the catalogue filter index.
+                    for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
+                        self.assertIn(f'/shared/{script}.js', songs)
+            # Lyric-only phrases and Mandarin titles are in the song search index the filter reads.
+            index = json.loads((output / "public/data/song-search-index.json").read_text(encoding="utf-8"))
+            by_route = {song["route"]: song for song in index["songs"]}
+            self.assertEqual(len(by_route), sum(len(category["routes"]) for category in categories))
+            self.assertTrue(any("寒天" in line[2] for line in by_route["/songs/生份에릐/"]["lines"]))
+            self.assertIn("腳踏車", by_route["/songs/跤踏車/"]["mandarinSearch"])
+            self.assertEqual(by_route["/songs/跤踏車/"]["mandarinTitle"], "腳踏車")
+            self.assertEqual(by_route["/songs/跤踏車/"]["urls"]["zh-Hant"], language_url("/songs/跤踏車/", "zh-Hant"))
+            self.assertIn(by_route["/songs/跤踏車/"]["category"], index["categories"])
+            self.assertEqual(json.loads((output / "public/data/hanri-fold.json").read_text(encoding="utf-8"))["hanriFold"]["後"], "后")
             songs = (output / "songs/index.html").read_text(encoding="utf-8")
-            self.assertRegex(
-                songs,
-                r'data-song-lines="[^"]*寒天[^"]*"[^>]*><a[^>]+href="/songs/生份에릐/"',
-            )
-            self.assertRegex(
-                songs,
-                r'data-song-mandarin-search="[^"]*腳踏車[^"]*"[^>]*data-song-mandarin-title="腳踏車"[^>]*><a[^>]+href="/songs/跤踏車/"',
-            )
             self.assertIn('class="song-entry-mandarin-match" hidden', songs)
             self.assertIn('class="song-entry-match" hidden', songs)
             # Only pages with real translated versions declare hreflang alternates.

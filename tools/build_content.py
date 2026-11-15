@@ -31,18 +31,53 @@ NAV_GROUPS = (
 NAV = (("/about/", "About"), ("/search/", "Search"))
 IME_SCRIPTS = ('<script src="/shared/web-hangul-ime.js" defer></script>'
                '<script src="/shared/web-ime-core.js" defer></script>')
+# The shared search box, song matcher and matching rule; they run before site.js, which wires the filter.
+SONG_SEARCH_SCRIPTS = ('<script src="/shared/web-site-search-variants.js" defer></script>'
+                       '<script src="/shared/web-search-box.js" defer></script>'
+                       '<script src="/shared/web-song-search.js" defer></script>')
 LYRIC_SCRIPTS = ('<script src="/shared/web-lyric-player.js" defer></script>'
                  '<script src="/shared/web-lyric-sync.js" defer></script>')
 TITLE_READING = re.compile(r'class="[^"]*\btitle-reading\b[^"]*"[^>]*>(.*?)</(?:h1|h2|a|span)>', re.S)
 HANGUL = re.compile(r"[\u1100-\u11ff\u3130-\u318f\ua960-\ua97f\uac00-\ud7a3\ud7b0-\ud7ff]")
 SONG_FILTER_TEXT = {
-    "en": {"placeholder": "Filter songs by Hanri, Hangul or Lomari", "categories": "Song categories", "all": "All",
-           "empty": "No songs match.", "count": "{n} songs"},
-    "zh-Hant": {"placeholder": "以漢字、諺文或羅馬字篩選歌曲", "categories": "歌曲分類", "all": "全部",
-                "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲"},
-    "zh-Hans": {"placeholder": "以汉字、谚文或罗马字筛选歌曲", "categories": "歌曲分类", "all": "全部",
-                "empty": "没有符合的歌曲。", "count": "{n} 首歌曲"},
+    "en": {"categories": "Song categories", "all": "All", "empty": "No songs match.", "count": "{n} songs"},
+    "zh-Hant": {"categories": "歌曲分類", "all": "全部", "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲"},
+    "zh-Hans": {"categories": "歌曲分类", "all": "全部", "empty": "没有符合的歌曲。", "count": "{n} 首歌曲"},
 }
+# Every label a public search box shows, in one place: SEARCH_TEXT[box][language]. Python writes
+# these into the markup, so no script keeps its own copy.
+SEARCH_TEXT = {
+    "songs": {
+        "en": {"label": "Filter songs", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
+               "candidates": "Hanri candidates", "placeholder": "Filter songs by Hanri, Hangul or Lomari"},
+        "zh-Hant": {"label": "篩選歌曲", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
+                    "candidates": "漢字候選詞", "placeholder": "以漢字、諺文或羅馬字篩選歌曲"},
+        "zh-Hans": {"label": "筛选歌曲", "keyboard": "启用谚文键盘", "clear": "清除搜索",
+                    "candidates": "汉字候选词", "placeholder": "以汉字、谚文或罗马字筛选歌曲"},
+    },
+}
+
+
+def search_box_html(box_id, language, variant, labels):
+    """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
+
+    The input is `<box_id>Input` and its candidate menu `<box_id>Candidates`.
+    """
+    words = {key: html.escape(value, quote=True) for key, value in SEARCH_TEXT[labels][language].items()}
+    return (
+        f'<div class="tli-search tli-search--{variant}" data-tli-search>'
+        '<div class="tli-search-heading">'
+        f'<label for="{box_id}Input">{words["label"]}</label>'
+        '<button class="hangul-keyboard-toggle" type="button" aria-pressed="false">'
+        f'<span class="toggle-label">{words["keyboard"]}</span>'
+        '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button></div>'
+        '<div class="tli-search-input-wrap">'
+        f'<input id="{box_id}Input" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
+        f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}">'
+        f'<button class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
+        f'<div id="{box_id}Candidates" class="hanri-candidate-menu" role="listbox" '
+        f'aria-label="{words["candidates"]}" hidden></div></div></div>'
+    )
 # Tools that open only for invited visitors behind a password (audit A4).
 INVITE_ONLY = frozenset({"/dictionary/", "/translate/"})
 
@@ -664,7 +699,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     launch = values["LAUNCH"]
     needs_ime = is_search or bool(HANGUL.search(values["HEADING"])) or any(
         HANGUL.search(match) for match in TITLE_READING.findall(body + launch))
-    values["IMESCRIPTS"] = IME_SCRIPTS if needs_ime else ""
+    values["IMESCRIPTS"] = (IME_SCRIPTS if needs_ime else "") + (SONG_SEARCH_SCRIPTS if base_route(route) == "/songs/" else "")
     values["LYRICSCRIPTS"] = LYRIC_SCRIPTS if content_type == "songs" else ""
     values["BRAND"] = site_brand(root, language)
     values["META"] = meta_tags(title, route, page_description(
@@ -865,15 +900,9 @@ def build_content(root: Path, output: Path):
                 destination = language_url(route, language) or route
                 item = song_items[route]
                 entry_class = "title-reading song-entry"
-                line_data = json.dumps(
-                    [[line["main"], line["lomari"], line["search"], line["mainHtml"]] for line in item["lines"]],
-                    ensure_ascii=False, separators=(",", ":"),
-                )
+                # Search data lives in public/data/song-search-index.json, joined to this row by route.
                 links.append(
-                    f'<li data-song-search="{html.escape(item["search"], quote=True)}" '
-                    f'data-song-lines="{html.escape(line_data, quote=True)}" '
-                    f'data-song-mandarin-search="{html.escape(item["mandarinSearch"], quote=True)}" '
-                    f'data-song-mandarin-title="{html.escape(item["mandarinTitle"], quote=True)}">'
+                    f'<li data-song-route="{html.escape(route, quote=True)}">'
                     f'<a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
                     f'<span class="song-entry-title">{item["label"]}'
@@ -900,7 +929,6 @@ def build_content(root: Path, output: Path):
 
     def song_filter(language):
         words = SONG_FILTER_TEXT[language]
-        hanri_search_fold = json.dumps(hanri_fold_map(), ensure_ascii=False, separators=(",", ":"))
         chips = [f'<button type="button" class="song-filter-chip" data-song-filter-category="" aria-pressed="true">{words["all"]}</button>']
         for category in song_categories:
             label = category["labels"].get(language, category["labels"]["en"])
@@ -909,10 +937,8 @@ def build_content(root: Path, output: Path):
                 f'aria-pressed="false" style="--category-accent:{html.escape(category["accent"], quote=True)}">{html.escape(label)}</button>')
         return (
             f'<div class="song-filter" role="search" data-song-filter '
-            f'data-song-hanri-fold="{html.escape(hanri_search_fold, quote=True)}" '
             f'data-count-template="{html.escape(words["count"], quote=True)}">'
-            f'<input type="search" class="song-filter-input" placeholder="{words["placeholder"]}" aria-label="{words["placeholder"]}" '
-            'autocomplete="off" spellcheck="false">'
+            + search_box_html("songFilter", language, "full", "songs") +
             f'<div class="song-filter-chips" role="group" aria-label="{words["categories"]}">{"".join(chips)}</div>'
             '<p class="song-filter-summary" aria-live="polite"></p>'
             f'<p class="song-filter-empty" hidden>{words["empty"]}</p></div>'
@@ -963,6 +989,31 @@ def build_content(root: Path, output: Path):
     data_target = output / "public/data/site-search-index.json"
     data_target.parent.mkdir(parents=True, exist_ok=True)
     data_target.write_text(json.dumps(search_index, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
+    # Shared by every search box: the Hanri variant table, and the songs' search data.
+    (output / "public/data/hanri-fold.json").write_text(
+        json.dumps({"schemaVersion": 1, "hanriFold": hanri_fold_map()}, ensure_ascii=False, separators=(",", ":")) + "\n",
+        encoding="utf-8")
+    category_of = {route: category["id"] for category in song_categories for route in category["routes"]}
+    song_search_index = {
+        "schemaVersion": 1,
+        "categories": {category["id"]: category["labels"] for category in song_categories},
+        "songs": [
+            {
+                "route": route,
+                "urls": {language: language_url(route, language) or route for language in languages},
+                "category": category_of[route],
+                "label": item["label"],
+                "lomari": item["lomari"],
+                "search": item["search"],
+                "mandarinTitle": item["mandarinTitle"],
+                "mandarinSearch": item["mandarinSearch"],
+                "lines": [[line["main"], line["lomari"], line["search"], line["mainHtml"]] for line in item["lines"]],
+            }
+            for route, item in sorted(song_items.items(), key=lambda pair: (pair[1]["sort"], pair[0]))
+        ],
+    }
+    (output / "public/data/song-search-index.json").write_text(
+        json.dumps(song_search_index, ensure_ascii=False, separators=(",", ":")) + "\n", encoding="utf-8")
     target = output / "assets/content-site"
     target.mkdir(parents=True, exist_ok=True)
     for name in ("site.css", "site.js"):
