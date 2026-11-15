@@ -23,8 +23,14 @@
   });
 
   async function loadEntries(options) {
-    // `entries` may be an array or a promise of one (a page that loads the dictionary itself).
-    if (options.entries) return {entries: await options.entries, index: options.dictionaryIndex || null};
+    // `entries` may be an array, or a promise of one or of {entries, index} (a page that loads the
+    // dictionary itself and has its own lookup index).
+    if (options.entries) {
+      const loaded = await options.entries;
+      return Array.isArray(loaded)
+        ? {entries: loaded, index: options.dictionaryIndex || null}
+        : {entries: loaded.entries || [], index: loaded.index || null};
+    }
     const response = await fetch(options.dictionaryUrl || '/public/data/hokkien-hanri-dict.json', {cache: 'no-cache'});
     if (!response.ok) throw new Error(`Dictionary request failed: ${response.status}`);
     const data = await response.json();
@@ -34,8 +40,8 @@
   function mount(host, options = {}) {
     const box = host.matches('[data-tli-search]') ? host : host.querySelector('[data-tli-search]');
     if (!box) throw new Error('TliSearchBox.mount needs the markup from search_box_html().');
-    if (options.keyboardMode && options.keyboardMode !== 'switch') {
-      throw new Error(`Keyboard mode "${options.keyboardMode}" is not available yet.`);
+    if (options.keyboardMode && !['switch', 'modes'].includes(options.keyboardMode)) {
+      throw new Error(`Unknown keyboard mode "${options.keyboardMode}".`);
     }
     const input = box.querySelector('.tli-search-input');
     const clearButton = box.querySelector('.tli-search-clear');
@@ -177,9 +183,23 @@
       input.focus();
     });
 
+    // The Hangul keyboard: an on/off switch or, with keyboardMode "modes", a choice named "lomari"
+    // (off) or "hanri-hangul" (on) that the page hears of through onModeChange (the dictionary
+    // ranks its results by it).
+    let enabled = false;
+    const setEnabled = (value) => {
+      enabled = Boolean(value);
+      toggle.setAttribute('aria-pressed', String(enabled));
+      input.classList.toggle('hangul-ime-active', enabled);
+      controller?.setEnabled();
+      if (options.keyboardMode === 'modes') options.onModeChange?.(enabled ? 'hanri-hangul' : 'lomari');
+    };
+    toggle.addEventListener('click', () => { setEnabled(!enabled); input.focus(); });
+
     const api = {
       input,
       box,
+      candidates,
       value: () => input.value,
       setValue(query) {
         input.value = query;
@@ -188,13 +208,18 @@
       },
       clear() { api.setValue(''); },
       focus() { input.focus(); },
-      // Resolves once the keyboard is ready; the box works as a plain search box before then.
+      mode: () => (enabled ? 'hanri-hangul' : 'lomari'),
+      setMode(mode) { setEnabled(mode === 'hanri-hangul'); },
+      renderCandidates() { controller?.renderCandidates?.(); },
+      get controller() { return controller; },
+      // Resolves to the IME controller once the keyboard is ready; the box works as a plain search
+      // box before then.
       ready: null,
     };
 
     if (options.queryParam) {
       const initial = new URL(location.href).searchParams.get(options.queryParam);
-      if (initial) input.value = initial;
+      if (initial) input.value = initial.slice(0, 12000);
     }
     clearButton.hidden = !input.value;
 
@@ -202,7 +227,6 @@
       if (!root.TangliengimHangulIme) await loadScript('/shared/web-hangul-ime.js');
       if (!root.TangliengimImeCore) await loadScript('/shared/web-ime-core.js');
       const imeCore = root.TangliengimImeCore;
-      let enabled = false;
       const popup = imeCore.createCandidatePopupPositioner({
         control: input, container: candidates, boundary: wrap, placement: 'below',
       });
@@ -215,15 +239,12 @@
         onCandidatesChanged: popup.schedule,
         enterBehavior: 'none',
       });
-      toggle.addEventListener('click', () => {
-        enabled = !enabled;
-        toggle.setAttribute('aria-pressed', String(enabled));
-        input.classList.toggle('hangul-ime-active', enabled);
-        controller.setEnabled();
-        input.focus();
-      });
+      if (input.value) controller.syncComposerFromControl?.();
+      if (enabled) controller.setEnabled();
       const {entries, index} = await loadEntries(options);
+      await controller.preferences?.ready;
       controller.setEntries(entries, index || imeCore.createDictionaryIndex(entries));
+      return controller;
     })();
     api.ready.catch(error => console.error('The search keyboard could not load', error));
 

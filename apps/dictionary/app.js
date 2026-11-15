@@ -15,7 +15,6 @@ const RESULTS_PER_PAGE = 10;
 const ImeCore = window.TangliengimImeCore;
 const webAudio = window.TangliengimWebAudio;
 const {
-  createTextImeController,
   createDictionaryIndex,
   displayTextNode,
   headwordUnitAt,
@@ -42,25 +41,37 @@ const state = {
   currentPage: 1,
 };
 
-const searchInput = document.querySelector("#searchInput");
-const clearButton = document.querySelector("#clearButton");
 const summaryBar = document.querySelector("#summaryBar");
 const resultSummary = document.querySelector("#resultSummary");
 const dataStatus = document.querySelector("#dataStatus");
 const results = document.querySelector("#results");
 const template = document.querySelector("#resultTemplate");
 const pagination = document.querySelector("#pagination");
-const hangulKeyboardToggle = document.querySelector("#hangulKeyboardToggle");
-const imeCandidates = document.querySelector("#imeCandidates");
 const categoryFilters = document.querySelector("#categoryFilters");
-let searchImeController = null;
 const audioPlayer = webAudio.createPlayer();
 const normalizeAudioSegments = webAudio.normalizeAudioSegments;
-const searchCandidatePopup = ImeCore.createCandidatePopupPositioner({
-  control: searchInput,
-  container: imeCandidates,
-  placement: "below",
+// The search box (keyboard switch, clear button, candidate menu, IME and ?q=) is the shared one; this
+// page learns of a change of query or of keyboard mode. It hands the box its dictionary once loaded.
+let resolveDictionary;
+const dictionaryLoaded = new Promise(resolve => { resolveDictionary = resolve; });
+const searchBox = window.TliSearchBox.mount(document.querySelector(".search-panel [data-tli-search]"), {
+  keyboardMode: "modes",
+  queryParam: "q",
+  entries: dictionaryLoaded,
+  onChange: () => {
+    state.currentPage = 1;
+    renderResults();
+  },
+  onModeChange: mode => {
+    state.inputMode = mode;
+    state.currentPage = 1;
+    renderResults();
+  },
 });
+const searchInput = searchBox.input;
+const imeCandidates = searchBox.candidates;
+let searchImeController = null;
+searchBox.ready.then(controller => { searchImeController = controller; }, () => {});
 
 function visibleKind(kind) {
   const names = {
@@ -540,8 +551,7 @@ function renderResults() {
 
   const { rawQuery, shown, total, page, totalPages } = searchGroups();
   results.replaceChildren();
-  clearButton.hidden = !searchInput.value;
-  searchImeController?.renderCandidates();
+  searchBox.renderCandidates();
 
   if (!rawQuery && !state.activeCategory) {
     summaryBar.hidden = true;
@@ -594,31 +604,23 @@ function renderResults() {
 }
 
 function setInputMode(mode) {
-  state.inputMode = mode === "lomari" ? "lomari" : "hanri-hangul";
-  if (hangulKeyboardToggle) {
-    hangulKeyboardToggle.setAttribute("aria-pressed", String(state.inputMode === "hanri-hangul"));
-  }
-  searchInput.placeholder = siteText("Type 漢字, 한글, Lomari, or English...");
-  searchInput.classList.toggle("hangul-ime-active", state.inputMode === "hanri-hangul");
-  searchImeController?.setEnabled();
-  state.currentPage = 1;
-  renderResults();
+  searchBox.setMode(mode === "lomari" ? "lomari" : "hanri-hangul");
 }
 
 async function loadDictionary() {
   try {
     const data = await fetchDictionaryJson(DATA_URL);
-    await searchImeController.preferences.ready;
     state.entries = data.entries || [];
     state.dictionaryIndex = createDictionaryIndex(state.entries);
     state.categories = data.categories || [];
     state.groups = groupEntries(state.entries);
-    searchImeController?.setEntries(state.entries, state.dictionaryIndex);
+    resolveDictionary({ entries: state.entries, index: state.dictionaryIndex });
     state.loaded = true;
     dataStatus.textContent = siteText(`${data.counts?.active_entries || state.entries.length} active TSV entries`);
     renderCategoryFilters();
     renderResults();
   } catch (error) {
+    resolveDictionary({ entries: [], index: null });
     state.loaded = true;
     dataStatus.textContent = siteText("Dictionary failed to load");
     summaryBar.hidden = false;
@@ -632,35 +634,4 @@ async function loadDictionary() {
   }
 }
 
-searchImeController = createTextImeController({
-  control: searchInput,
-  candidateContainer: imeCandidates,
-  dictionaryIndex: state.dictionaryIndex,
-  enabled: () => state.inputMode === "hanri-hangul",
-  onUpdate: () => {
-    state.currentPage = 1;
-    renderResults();
-  },
-  onCandidatesChanged: searchCandidatePopup.schedule,
-  enterBehavior: "none",
-});
-
-clearButton.addEventListener("click", () => {
-  searchImeController?.clear();
-  state.currentPage = 1;
-  renderResults();
-});
-hangulKeyboardToggle?.addEventListener("click", () => {
-  setInputMode(state.inputMode === "hanri-hangul" ? "lomari" : "hanri-hangul");
-  searchInput.focus();
-});
-
-if (typeof URLSearchParams === "function" && window.location?.search) {
-  const initialQuery = new URLSearchParams(window.location.search).get("q");
-  if (initialQuery) {
-    searchImeController.composer.setText(initialQuery.slice(0, 12000), Math.min(initialQuery.length, 12000));
-    searchImeController.updateControlFromComposer({ allowCandidateMenu: false });
-  }
-}
 loadDictionary();
-setInputMode("lomari");

@@ -12,7 +12,7 @@ from urllib.parse import unquote, urljoin, urlsplit
 from build_dictionary_json import DEFAULT_OUTPUT_PATH, main as build_dictionary_json
 from dictionary_data import PUBLISHED_SIDECARS, sidecar_path
 from compressed_audio import EXTENSION as COMPRESSED_AUDIO_EXTENSION, write_compressed_copies
-from build_content import document as content_document
+from build_content import document as content_document, search_box_html
 from page_meta import NOT_FOUND_BODY, meta_tags, robots as robots_txt, sitemap as sitemap_xml
 from build_content import build_content, navigation_links, site_brand
 from import_wordpress import write_song_ime_data
@@ -188,6 +188,12 @@ def main() -> int:
         index = OUTPUT / app / "index.html"
         index.write_text(app_meta(index.read_text(encoding="utf-8").replace("__SITE_NAVIGATION__", navigation_links(f"/{app}/")).replace("__SITE_BRAND__", site_brand(ROOT))
                                   .replace("__ANDROID_KEYBOARD_VERSION__", android_keyboard_version()), app), encoding="utf-8")
+    # The dictionary's search box is the shared one, written here so no page keeps its own copy.
+    view = OUTPUT / "dictionary" / "dictionary-view.html"
+    view.write_text(view.read_text(encoding="utf-8").replace("__SEARCH_BOX__", search_box_html(
+        "dictionarySearch", "en", "full", "dictionary", autofocus=True,
+        ids={"input": "searchInput", "clear": "clearButton", "candidates": "imeCandidates",
+             "toggle": "hangulKeyboardToggle"})), encoding="utf-8")
     shutil.copytree(ROOT / "public" / "audio", OUTPUT / "public" / "audio",
                     ignore=shutil.ignore_patterns("_hokkien_ime_playback.wav"))
     # Opus copies beside the WAV masters; the player uses them only when every

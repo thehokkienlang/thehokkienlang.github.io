@@ -1,0 +1,40 @@
+/* The shared search box (search_box_html in tools/build_content.py; behaviour in web-search-box.js).
+   The same markup and styles wherever a box appears; a page adjusts only what it must. */
+.tli-search { display: grid; gap: 9px; width: 100%; }
+.tli-search-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; width: 100%; }
+.tli-search-heading > label { color: var(--muted, #617079); font-size: 14px; font-weight: 700; }
+.tli-search-input-wrap { position: relative; width: 100%; }
+.tli-search-input { box-sizing: border-box; width: 100%; padding: 11px 46px 11px 14px; border: 1px solid var(--line, #dce4e7); border-radius: 6px; color: var(--ink, var(--text, #17252b)); background: #fff; font: inherit; font-size: 16px; }
+.tli-search-input:focus-visible { outline: 2px solid var(--accent, #08756b); outline-offset: 1px; border-color: var(--accent, #08756b); }
+.tli-search-input::placeholder { color: #7b898d; font-style: italic; }
+.tli-search-clear { position: absolute; top: 50%; right: 6px; width: 34px; height: 34px; transform: translateY(-50%); border: 0; border-radius: 4px; background: transparent; color: var(--muted, #617079); cursor: pointer; font: inherit; font-size: 24px; line-height: 1; }
+.tli-search-clear:hover, .tli-search-clear:focus-visible { background: var(--site-accent-soft, #e8f2ef); color: var(--accent, #08756b); outline: 2px solid transparent; }
+.tli-search .hangul-keyboard-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 34px; padding: 0; border: 0; background: transparent; color: var(--muted, #617079); cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; outline: none; }
+.tli-search .hangul-keyboard-toggle:hover, .tli-search .hangul-keyboard-toggle:focus-visible, .tli-search .hangul-keyboard-toggle[aria-pressed="true"] { color: var(--accent, #08756b); }
+.tli-search .hangul-keyboard-toggle:focus-visible .toggle-switch { box-shadow: 0 0 0 3px rgb(37 99 235 / 16%); }
+.tli-search .toggle-label { white-space: nowrap; }
+.tli-search .toggle-switch { position: relative; flex: 0 0 auto; width: 46px; height: 26px; border-radius: 999px; background: #cbd5e1; box-shadow: inset 0 0 0 1px rgb(15 23 42 / 8%); transition: background 140ms ease, box-shadow 140ms ease; }
+.tli-search .toggle-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(15 23 42 / 28%); transition: transform 140ms ease; }
+.tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-switch { background: var(--accent, #08756b); }
+.tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(20px); }
+.tli-search .hanri-candidate-menu { width: 100%; max-width: 100%; }
+.tli-search [hidden] { display: none !important; }
+/* Compact variant: a header box. The label is for screen readers; the keyboard switch sits inside the input. */
+.tli-search--compact { position: relative; display: block; }
+.tli-search--compact .tli-search-input { padding: 8px 96px 8px 14px; border-radius: 999px; font-size: 15px; }
+.tli-search--compact .tli-search-clear { right: 52px; width: 28px; height: 28px; font-size: 20px; }
+.tli-search--compact .hangul-keyboard-toggle { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); min-height: 0; }
+.tli-search--compact .toggle-switch { width: 34px; height: 20px; }
+.tli-search--compact .toggle-knob { top: 2px; left: 2px; width: 16px; height: 16px; }
+.tli-search--compact .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(14px); }
+/* The results list under a box (results: "dropdown"). */
+.tli-search-dropdown { position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; width: min(460px, calc(100vw - 32px)); max-height: min(70vh, 520px); overflow: auto; border: 1px solid var(--line, #dce4e7); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px #17252b2e; }
+.tli-search-dropdown > a { display: grid; gap: 3px; padding: 10px 14px; border-bottom: 1px solid var(--line, #dce4e7); color: var(--ink, var(--text, #17252b)); text-decoration: none; }
+.tli-search-dropdown > a:last-child { border-bottom: 0; }
+.tli-search-dropdown > a:hover, .tli-search-dropdown > a.is-active { background: var(--site-accent-soft, #e8f2ef); }
+.tli-search-song-title { padding-top: 6px; font-size: 18px; font-weight: 700; line-height: 1.5; }
+.tli-search-song-category { color: var(--muted, #617079); font-size: 12px; }
+.tli-search-song-line { display: grid; gap: 1px; margin-top: 2px; padding-left: 10px; border-left: 2px solid var(--accent, #08756b); font-size: 15px; line-height: 1.45; }
+.tli-search-song-line small { color: var(--muted, #617079); font-size: 12px; }
+.tli-search-dropdown > .tli-search-more { color: var(--accent, #08756b); font-size: 14px; font-weight: 700; }
+.tli-search-empty { padding: 14px; color: var(--muted, #617079); font-size: 14px; }

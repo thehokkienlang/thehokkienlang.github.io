@@ -5,6 +5,7 @@
     "/shared/web-hangul-ime.js",
     "/shared/web-ime-core.js",
     "/shared/web-audio-player.js",
+    "/shared/web-search-box.js",
     "app.js",
   ];
   // tools/build_site.py replaces the next line with content hashes, so a deployed

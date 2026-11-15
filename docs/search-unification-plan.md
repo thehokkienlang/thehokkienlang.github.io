@@ -1,7 +1,7 @@
 # Search box unification plan
 
 Status: in progress. Steps 1 (shared layer and `/songs/`), 2 (Songs sub-header
-and song-page dropdown) and 3 (site search) are done; see "Order of work" for the rest. Nothing in this plan changes readings, tones,
+and song-page dropdown), 3 (site search) and 4 (dictionary) are done; see "Order of work" for the rest. Nothing in this plan changes readings, tones,
 Hanri or song text. How tone marks match was decided by Haru; see "Tone
 matching".
 
@@ -215,7 +215,7 @@ Each step is its own commit, with the release gate run after it.
      shortens, and the dropdown fits the screen.
 3. **Site search.** Move `/search/` onto the shared box. *(Done.)*
 4. **Dictionary.** Move the dictionary box onto the shared box. This is the
-   largest step, because of its mode switch and its own app bundle.
+   largest step, because of its mode switch and its own app bundle. *(Done.)*
 5. **Clean-up and guard.**
    - Delete the old CSS and JS.
    - Add a check to `tools/check_site.py` that every public search box comes

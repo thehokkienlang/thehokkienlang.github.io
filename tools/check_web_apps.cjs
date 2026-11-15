@@ -17,7 +17,10 @@ for (const [route, script] of [['dictionary', 'app.js'], ['ime', 'ime.js']]) {
   const source = fs.readFileSync(path.join(root, appRoot, route, script), 'utf8');
   assert.match(source, /TangliengimWebAudio/, `${route} must use the shared browser audio player`);
   assert.doesNotMatch(source, /function audioTrimFrames\(/, `${route} must not fork browser audio processing`);
-  assert.match(source, /createCandidatePopupPositioner/, `${route} must use shared candidate placement`);
+  // The dictionary's search box, and so its candidate menu, is the shared one.
+  const placement = route === 'dictionary' ? fs.readFileSync(path.join(root, 'shared/web-search-box.js'), 'utf8') : source;
+  assert.match(placement, /createCandidatePopupPositioner/, `${route} must use shared candidate placement`);
+  if (route === 'dictionary') assert.doesNotMatch(source, /createTextImeController/, 'The dictionary must use the shared search box');
 }
 
 function element() {
@@ -26,6 +29,9 @@ function element() {
     style: {}, children: [], scrollTop: 0, scrollHeight: 0,
     classList: { add() {}, remove() {}, toggle() {} },
     addEventListener() {}, setAttribute() {}, focus() {},
+    // Enough of an element for the shared search box to attach to.
+    dataset: {}, matches: () => true, querySelector: () => element(), hasAttribute: () => false,
+    removeAttribute() {}, contains: () => false, closest: () => null,
     setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; },
     replaceChildren(...items) { this.children = items; },
     append(...items) { this.children.push(...items); },
@@ -36,9 +42,12 @@ async function loadApp(route, script) {
   const elements = new Map();
   const requests = [];
   const context = vm.createContext({
-    console, setTimeout, clearTimeout,
+    console, setTimeout, clearTimeout, URL, URLSearchParams,
     navigator: { userAgent: 'Headless test browser' },
+    location: { href: `https://example.test/${route}/`, search: '' },
+    history: { state: null, replaceState() {} },
     document: {
+      documentElement: { lang: 'en' },
       addEventListener() {},
       querySelector(selector) {
         if (!elements.has(selector)) elements.set(selector, element());
@@ -59,6 +68,7 @@ async function loadApp(route, script) {
   context.window = context;
   const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js', 'shared/web-audio-player.js'];
   if (route === 'ime') files.push('shared/web-phonetic-output.js');
+  if (route === 'dictionary') files.push('shared/web-search-box.js');
   files.push(path.posix.join(appRoot, route, script));
   for (const file of files) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });

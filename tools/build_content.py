@@ -49,6 +49,15 @@ SONG_FILTER_TEXT = {
 SEARCH_TEXT = {
     # The Songs sub-header's box: on /songs/ it drives the page's filter, on a song page it opens a
     # dropdown of matching songs.
+    # The dictionary's box (its page is one page shown in three languages, switched when it loads).
+    "dictionary": {
+        "en": {"label": "Search", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
+               "candidates": "Hanri candidates", "placeholder": "Type 漢字, 한글, Lomari, or English..."},
+        "zh-Hant": {"label": "搜尋", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
+                    "candidates": "漢字候選詞", "placeholder": "輸入漢字、諺文、羅馬字或英文…"},
+        "zh-Hans": {"label": "搜索", "keyboard": "启用谚文键盘", "clear": "清除搜索",
+                    "candidates": "汉字候选词", "placeholder": "输入汉字、谚文、罗马字或英文…"},
+    },
     # The /search/ page's box.
     "site": {
         "en": {"label": "Search the website", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
@@ -72,22 +81,25 @@ SEARCH_TEXT = {
 }
 
 
-def search_box_html(box_id, language, variant, labels, results="none", more_href="", toggle_id=""):
+def search_box_html(box_id, language, variant, labels, results="none", more_href="", ids=None, autofocus=False):
     """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
 
-    The input is `<box_id>Input` and its candidate menu `<box_id>Candidates`. `variant` is "full"
+    The input is `<box_id>Input`, its clear button `<box_id>Clear` and its candidate menu
+    `<box_id>Candidates`; `ids` overrides any of them (keys input, clear, candidates) or gives the
+    keyboard switch an id (key toggle), so a page's existing ids stay. `variant` is "full"
     (a page's main search) or "compact" (the Songs sub-header box: its label is for screen readers
     only and the keyboard switch sits inside the input). results="dropdown" adds a results list.
     """
     words = {key: html.escape(value, quote=True) for key, value in SEARCH_TEXT[labels][language].items()}
+    ids = {"input": f"{box_id}Input", "clear": f"{box_id}Clear", "candidates": f"{box_id}Candidates", **(ids or {})}
     toggle = (
-        (f'<button id="{toggle_id}" ' if toggle_id else '<button ') + 'class="hangul-keyboard-toggle" type="button" aria-pressed="false"'
+        (f'<button id="{ids["toggle"]}" ' if "toggle" in ids else '<button ') + 'class="hangul-keyboard-toggle" type="button" aria-pressed="false"'
         + (f' aria-label="{words["keyboard"]}" title="{words["keyboard"]}"' if variant == "compact" else "") + '>'
         f'<span class="toggle-label{" visually-hidden" if variant == "compact" else ""}">{words["keyboard"]}</span>'
         '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button>'
     )
     hidden_class = ' class="visually-hidden"' if variant == "compact" else ""
-    label = f'<label for="{box_id}Input"{hidden_class}>{words["label"]}</label>'
+    label = f'<label for="{ids["input"]}"{hidden_class}>{words["label"]}</label>'
     # A song page is one page shown in three languages, switched when it loads, so the box carries
     # every language's labels and TliSearchBox applies the page's.
     all_labels = html.escape(json.dumps(SEARCH_TEXT[labels], ensure_ascii=False, separators=(",", ":")), quote=True)
@@ -106,13 +118,14 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
         + heading +
         '<div class="tli-search-input-wrap">'
         + (label if variant == "compact" else "") +
-        f'<input id="{box_id}Input" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
+        f'<input id="{ids["input"]}" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
         f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}"'
+        + (" autofocus" if autofocus else "")
         + (f' role="combobox" aria-expanded="false" aria-controls="{box_id}Results" aria-autocomplete="list"'
            if results == "dropdown" else "") + '>'
-        f'<button id="{box_id}Clear" class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
+        f'<button id="{ids["clear"]}" class="tli-search-clear" type="button" aria-label="{words["clear"]}" hidden>&times;</button>'
         + (toggle if variant == "compact" else "") +
-        f'<div id="{box_id}Candidates" class="hanri-candidate-menu" role="listbox" '
+        f'<div id="{ids["candidates"]}" class="hanri-candidate-menu" role="listbox" '
         f'aria-label="{words["candidates"]}" hidden></div></div>'
         + dropdown + '</div>'
     )
@@ -664,7 +677,7 @@ def search_page(language):
     return (
         '<section class="site-search">'
         '<form id="siteSearchForm" class="site-search-form" role="search">'
-        + search_box_html("siteSearch", language, "full", "site", toggle_id="hangulKeyboardToggle") +
+        + search_box_html("siteSearch", language, "full", "site", ids={"toggle": "hangulKeyboardToggle"}) +
         f'<div id="siteSearchFilters" class="site-search-filters" role="group" '
         f'aria-label="{html.escape(labels["filters"], quote=True)}"></div></form>'
         '<p id="siteSearchSummary" class="site-search-summary" aria-live="polite"></p>'

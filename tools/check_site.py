@@ -110,7 +110,11 @@ def main():
     assert "/shared/web-ime-core.js" not in dictionary_html
     assert "dictionary-view.html" not in dictionary_html, "Dictionary view loads before unlocking"
     assert "searchInput" in dictionary_view and "lockDictionaryButton" in dictionary_view
-    assert dictionary_view.index('class="search-row"') < dictionary_view.index('id="imeCandidates"')
+    # The dictionary's box is the shared one (search_box_html), with its existing ids.
+    assert "__SEARCH_BOX__" not in dictionary_view and dictionary_view.count("data-tli-search") == 1
+    assert dictionary_view.index('class="tli-search-input-wrap"') < dictionary_view.index('id="imeCandidates"')
+    assert 'id="clearButton"' in dictionary_view and 'id="hangulKeyboardToggle"' in dictionary_view
+    assert "/shared/web-search-box.js" in local_file("/dictionary/gate.js").read_text(encoding="utf-8")
     assert 'id="keyboardGuideButton"' in ime_html and 'id="keyboardLayout"' in ime_html
     assert 'id="imeToneOverlay"' in ime_html and 'aria-hidden="true"' in ime_html
     assert ime_html.index('class="text-wrap"') < ime_html.index('id="candidateBar"')

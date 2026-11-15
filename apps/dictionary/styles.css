@@ -108,33 +108,10 @@ h1 {
   padding: 16px;
 }
 
-.search-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
-}
-
-.search-label {
-  color: var(--muted);
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-.input-mode-group {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.search-row {
-  position: relative;
-}
-
-.search-input {
-  width: 100%;
+/* The box is the shared .tli-search (shared/web-search-box.css); these keep the dictionary's own look. */
+.search-panel .tli-search { gap: 10px; }
+.search-panel .tli-search-heading > label { font-size: 0.92rem; }
+.search-panel .tli-search-input {
   height: 52px;
   padding: 0 50px 0 16px;
   border: 1px solid #b9c6d6;
@@ -142,58 +119,39 @@ h1 {
   background: #ffffff;
   color: var(--text);
   font-size: 1.08rem;
-  outline: none;
 }
 
-.search-input::-webkit-search-cancel-button,
-.search-input::-webkit-search-decoration {
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.search-input.hangul-ime-active {
+.search-panel .tli-search-input.hangul-ime-active {
   font-family: "TLI Western Punctuation", "Tangliengim Hangul", "TLI Extended Hanri", "Tangliengim Hanri Fallback", "Noto Sans TC", "Noto Sans CJK TC", "Noto Sans KR", "Noto Sans CJK KR", "Noto Sans", sans-serif;
 }
 
-.search-input:focus {
+.search-panel .tli-search-input:focus-visible {
   border-color: var(--focus);
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
+  outline: none;
 }
 
-.search-input::placeholder {
+.search-panel .tli-search-input::placeholder,
+.search-panel .tli-search-input.hangul-ime-active::placeholder {
   color: #8390a2;
   font-family: "TLI Western Punctuation", "Segoe UI", Arial, sans-serif;
   font-size: 1.08rem;
   font-style: italic;
 }
 
-.search-input.hangul-ime-active::placeholder {
-  font-family: "TLI Western Punctuation", "Segoe UI", Arial, sans-serif;
-  font-size: 1.08rem;
-}
-
-.icon-button {
-  position: absolute;
+.search-panel .tli-search-clear {
   top: 7px;
   right: 7px;
   width: 38px;
   height: 38px;
-  border: 0;
+  transform: none;
   border-radius: 6px;
-  background: transparent;
-  color: var(--muted);
   font-size: 1.7rem;
-  line-height: 1;
-  cursor: pointer;
 }
 
-.icon-button:hover {
+.search-panel .tli-search-clear:hover {
   background: #eef2f7;
   color: var(--text);
-}
-
-.icon-button[hidden] {
-  display: none;
 }
 
 .hangul-keyboard-toggle {
@@ -258,7 +216,7 @@ h1 {
   transform: translateX(20px);
 }
 
-.ime-candidates {
+.search-panel .hanri-candidate-menu {
   top: calc(100% + 4px);
   left: 0;
 }
@@ -606,15 +564,9 @@ h1 {
     padding: 13px;
   }
 
-  .search-heading {
+  .search-panel .tli-search-heading {
     align-items: flex-start;
     flex-direction: column;
-  }
-
-  .input-mode-group {
-    align-items: flex-start;
-    flex-direction: column;
-    justify-content: flex-start;
   }
 
   .category-browser {
