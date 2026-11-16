@@ -128,6 +128,7 @@
       keyboardHint?.remove();
       keyboardHint = document.createElement("div");
       keyboardHint.setAttribute("role", "status");
+      keyboardHint.className = "hangul-keyboard-hint";
       keyboardHint.textContent = simplified ? "使用请关闭中文输入法" : "使用請關閉中文輸入法";
       keyboardHint.style.cssText = "position:fixed;z-index:1000;width:max-content;max-width:calc(100vw - 16px);padding:7px 10px;border:1px solid #ccd9d7;border-radius:6px;background:#fff;color:#19272a;box-shadow:0 3px 12px #17252b26;font-size:13px;line-height:1.5;pointer-events:none;";
       document.body.append(keyboardHint);
