@@ -103,10 +103,12 @@ class WebsiteEditorController:
         if action == "simplify-song-title":
             return self.service.simplify_song_title(payload.get("title"))
         if action == "render-song":
-            return self.service.render_song_draft(payload.get("draft"), existing_route=payload.get("route") or "")
+            return self.service.render_song_draft(
+                payload.get("draft"), existing_route=payload.get("route") or "",
+                follows_original=bool(payload.get("followsOriginal")))
         if action == "save-song":
             return self.service.save_song(
-                payload.get("file"), payload.get("revision"), payload.get("categoryRevision"),
+                payload.get("file"), payload.get("revision"),
                 payload.get("urlRevision"), payload.get("manifestRevision"), payload.get("draft"),
             )
         if action == "publish-song":

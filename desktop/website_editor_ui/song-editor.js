@@ -399,7 +399,10 @@
       titleZhuyin: $('songTitleZhuyin').value,
       titlePinyin: $('songTitlePinyin').value,
       videoUrl: $('songVideo').value,
-      category: $('songCategory').value,
+      sound: $('songSound').value,
+      moods: [$('songMood').value, $('songMood2').value].filter(Boolean),
+      dialect: $('songDialect').value,
+      singer: $('songSinger').value,
       lyrics: lineDrafts(),
     };
   }
@@ -650,7 +653,9 @@
   async function renderPreview({loud = false} = {}) {
     const generation = ++state.renderGeneration;
     try {
-      const result = await request('render-song', {draft: currentDraft(), route: state.route});
+      const result = await request('render-song', {
+        draft: currentDraft(), route: state.route, followsOriginal: state.followsOriginal,
+      });
       if (generation !== state.renderGeneration) return null;
       $('songPreview').srcdoc = previewDocument(result.previewBody, result.titleHtml);
       $('songRoute').value = result.route;
@@ -666,8 +671,22 @@
     clearTimeout(state.previewTimer);
     state.previewTimer = setTimeout(() => renderPreview(), 450);
   }
-  function setDraft(draft, {file = '', revision = '', route = ''} = {}) {
+  // A version tab follows its original's sound, moods and dialect: only its singer is its own.
+  function setFollowsOriginal(follows) {
+    state.followsOriginal = Boolean(follows);
+    for (const id of ['songSound', 'songMood', 'songMood2', 'songDialect']) $(id).disabled = state.followsOriginal;
+    $('songFollowsNote').hidden = !state.followsOriginal;
+  }
+  function fillClassificationSelects(snapshot) {
+    const fill = (id, rows, placeholder) => $(id).replaceChildren(
+      new Option(placeholder, ''), ...rows.map(row => new Option(row.label, row.id)));
+    fill('songSound', snapshot.sounds, 'Choose a sound');
+    fill('songMood', snapshot.moods, 'Choose a mood');
+    fill('songMood2', snapshot.moods, 'None');
+  }
+  function setDraft(draft, {file = '', revision = '', route = '', followsOriginal = false} = {}) {
     state.file = file; state.revision = revision; state.route = route; state.publishPaths = [];
+    setFollowsOriginal(followsOriginal);
     state.legacyTitle = draft.legacyTitle || null;
     setControllerText(state.displayTitleController, draft.title || '');
     $('songMandarinTitle').value = draft.mandarinTitle || '';
@@ -686,7 +705,11 @@
     state.titlePinyinManual = Boolean(draft.titlePinyin);
     updateTitleSystem({dirty: false});
     $('songVideo').value = draft.videoUrl || '';
-    $('songCategory').value = draft.category || state.snapshot.categories[0]?.id || '';
+    $('songSound').value = draft.sound || '';
+    $('songMood').value = (draft.moods || [])[0] || '';
+    $('songMood2').value = (draft.moods || [])[1] || '';
+    $('songDialect').value = draft.dialect || '';
+    $('songSinger').value = draft.singer || '';
     $('songRoute').value = route || '';
     renderRows(draft.lyrics);
     $('openSong').hidden = !route; $('openSong').href = route ? '/preview-site' + route : '';
@@ -696,7 +719,7 @@
     if (state.dirty && !confirm('Discard this unsaved song draft?')) return;
     setDraft({title: '', mandarinTitle: '', mandarinSimplifiedTitle: '', mandarinAlternativeTitle: '',
       mandarinAlternativeSimplifiedTitle: '', titleAnnotationSystem: 'tli', titleSource: '', titleZhuyin: '',
-      titleTliRuby: '', titlePinyin: '', videoUrl: '', category: state.snapshot.categories[0]?.id || '',
+      titleTliRuby: '', titlePinyin: '', videoUrl: '', sound: '', moods: [], dialect: '', singer: '',
       lyrics: [{kind:'line', text:'', grey:false}]});
     $('songTitle').focus();
   }
@@ -764,7 +787,9 @@
   }
   async function refreshSnapshot() {
     state.snapshot = await request('song-editor-snapshot');
-    $('songCategory').replaceChildren(...state.snapshot.categories.map(category => new Option(category.label, category.id)));
+    const chosen = ['songSound', 'songMood', 'songMood2'].map(id => $(id).value);
+    fillClassificationSelects(state.snapshot);
+    ['songSound', 'songMood', 'songMood2'].forEach((id, index) => { $(id).value = chosen[index]; });
     renderSongList();
   }
   async function waitForPendingDictionaryJob() {
@@ -822,14 +847,12 @@
     if (!preview) throw new Error('Fix the song fields before saving.');
     const result = await request('save-song', {
       file: state.file, revision: state.revision,
-      categoryRevision: state.snapshot.categoryRevision,
       urlRevision: state.snapshot.urlRevision,
       manifestRevision: state.snapshot.manifestRevision,
       draft: currentDraft(),
     });
     state.file = result.file; state.revision = result.revision; state.route = result.route;
     state.publishPaths = result.publishPaths; state.dirty = false;
-    state.snapshot.categoryRevision = result.categoryRevision;
     state.snapshot.urlRevision = result.urlRevision;
     state.snapshot.manifestRevision = result.manifestRevision;
     const listed = state.snapshot.songs.find(song => song.file === result.file);
@@ -877,7 +900,7 @@
       ]);
       state.snapshot = snapshot; state.dictionary = dictionary.entries;
       state.dictionaryIndex = window.TangliengimImeCore.createDictionaryIndex(state.dictionary);
-      $('songCategory').replaceChildren(...snapshot.categories.map(category => new Option(category.label, category.id)));
+      fillClassificationSelects(snapshot);
       state.searchController = attachIme($('songFilter'), $('songFilterCandidates'), renderSongList, {
         onCandidatesChanged: () => {
           if (!$('songFilterCandidates').hidden) setSongListOpen(false);
@@ -980,7 +1003,9 @@
   };
   $('songTitleZhuyin').oninput = () => { state.legacyTitle = null; markDirty(); };
   $('songTitlePinyin').oninput = () => { state.titlePinyinManual = true; state.legacyTitle = null; markDirty(); };
-  $('songVideo').oninput = markDirty; $('songCategory').onchange = markDirty;
+  $('songVideo').oninput = markDirty;
+  for (const id of ['songSound', 'songMood', 'songMood2', 'songDialect']) $(id).onchange = markDirty;
+  $('songSinger').oninput = markDirty;
   window.addEventListener('resize', () => state.controllers.forEach(controller => {
     if (controller.control.classList.contains('lyric-input')) renderLyricAnnotations(controller);
   }));

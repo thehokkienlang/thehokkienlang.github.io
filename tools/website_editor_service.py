@@ -28,6 +28,10 @@ GENERATED_PREFIXES = ("_site/", "public/data/")
 CONTENT_ROOT = "content"
 
 
+# The fixed song sound and mood lists are lists, not pages, and are not edited here.
+SONG_LIST_FILES = ("song-sounds.json", "song-moods.json")
+
+
 class WebsiteEditorError(EditorError):
     def __init__(self, message, *, code="validation", details=None):
         super().__init__(message, code=code, details=details)
@@ -103,8 +107,9 @@ class WebsiteEditorService:
 
     def page_path(self, relative: str) -> Path:
         target = self._inside(self.content, relative, suffix=".json")
-        if target.name == "song-categories.json":
-            raise WebsiteEditorError("Song categories use their structured editor.", code="forbidden")
+        if target.name in SONG_LIST_FILES:
+            raise WebsiteEditorError("The song sound and mood lists are fixed. Change them in the repository, "
+                                     "not in this editor.", code="forbidden")
         return target
 
     @staticmethod
@@ -121,7 +126,7 @@ class WebsiteEditorService:
     def pages(self) -> list[dict]:
         pages = []
         for path in sorted(self.content.rglob("*.json")):
-            if path.name == "song-categories.json":
+            if path.name in SONG_LIST_FILES:
                 continue
             try:
                 raw, record = self._load_json(path)
@@ -295,21 +300,49 @@ class WebsiteEditorService:
 
     def _song_support_files(self):
         return (
-            self.content / "song-categories.json",
             self.repo / "migration" / "song-urls.json",
             self.repo / "migration" / "wordpress-map.json",
         )
 
-    def _song_categories(self):
-        path, _, _ = self._song_support_files()
-        raw, categories = path.read_bytes(), json.loads(path.read_text(encoding="utf-8"))
-        if not isinstance(categories, list):
-            raise WebsiteEditorError("Song categories are not valid JSON data.")
-        return raw, categories
+    def _song_lists(self):
+        """The fixed sound and mood lists (content/song-sounds.json, content/song-moods.json)."""
+        lists = []
+        for name in ("song-sounds.json", "song-moods.json"):
+            values = json.loads((self.content / name).read_text(encoding="utf-8"))
+            if not isinstance(values, list):
+                raise WebsiteEditorError(f"{name} is not valid JSON data.")
+            lists.append(values)
+        return lists[0], lists[1]
+
+    @staticmethod
+    def _song_follows_original(record):
+        """A version tab (not the page's own file) takes its sound, moods and dialect from the original."""
+        version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
+        return bool(version.get("groupRoute") and record.get("route") != version.get("groupRoute"))
+
+    def _song_classification(self, record):
+        """The sound, moods, dialect and singer to show for a song file. A version tab shows its page's."""
+        source = record
+        if self._song_follows_original(record):
+            group = record["songVersion"]["groupRoute"]
+            for path in (self.content / "songs").glob("*.json"):
+                try:
+                    other = json.loads(path.read_text(encoding="utf-8"))
+                except (UnicodeError, json.JSONDecodeError):
+                    continue
+                if other.get("route") == group:
+                    source = other
+                    break
+        return {
+            "sound": str(source.get("sound") or ""),
+            "moods": [str(value) for value in source.get("moods") or []],
+            "dialect": str(source.get("dialect") or ""),
+            "singer": str(record.get("singer") or ""),
+        }
 
     def song_editor_snapshot(self):
-        category_raw, categories = self._song_categories()
-        _, urls_path, manifest_path = self._song_support_files()
+        sounds, moods = self._song_lists()
+        urls_path, manifest_path = self._song_support_files()
         songs = []
         for path in sorted((self.content / "songs").glob("*.json")):
             try:
@@ -340,13 +373,14 @@ class WebsiteEditorService:
                     editor_source.get("titleSource", "") if isinstance(editor_source, dict) else "",
                 ))),
             })
-        labels = [{"id": row.get("id", ""), "label": row.get("labels", {}).get("en", row.get("id", ""))}
-                  for row in categories]
+        def labelled(rows):
+            return [{"id": row.get("id", ""), "label": row.get("labels", {}).get("en", row.get("id", ""))}
+                    for row in rows]
         return {
             "ok": True,
             "songs": songs,
-            "categories": labels,
-            "categoryRevision": digest(category_raw),
+            "sounds": labelled(sounds),
+            "moods": labelled(moods),
             "urlRevision": digest(urls_path.read_bytes()),
             "manifestRevision": digest(manifest_path.read_bytes()),
         }
@@ -491,8 +525,13 @@ class WebsiteEditorService:
                     pass
             draft["titleTliRuby"] = title_ruby
         draft["lyrics"], converted = self._resolve_hyphenated_readings(draft.get("lyrics") or [], from_page=imported)
+        # Sound, moods, dialect and singer live on the song file itself, which the website reads; an old
+        # songEditor "category" is dropped here and is gone from the file after the next save.
+        draft.pop("category", None)
+        draft.update(self._song_classification(record))
         return {
             "ok": True,
+            "followsOriginal": self._song_follows_original(record),
             "convertedReadings": converted,
             "file": path.relative_to(self.repo).as_posix(),
             "revision": digest(raw),
@@ -520,13 +559,6 @@ class WebsiteEditorService:
         video = re.search(r"youtube(?:-nocookie)?\.com/embed/([A-Za-z0-9_-]{11})", body)
         if not video:
             raise WebsiteEditorError("The existing song's YouTube video could not be recovered.")
-        _, categories = self._song_categories()
-        route = record.get("route", "")
-        version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
-        category_route = version.get("groupRoute") or route
-        category = next((row.get("id", "") for row in categories if category_route in row.get("routes", [])), "")
-        if not category and categories:
-            category = categories[0].get("id", "")
         draft = {
             "version": 1,
             "title": str(record.get("title") or "").strip(),
@@ -536,7 +568,6 @@ class WebsiteEditorService:
             "mandarinAlternativeSimplifiedTitle": self._song_mandarin_alternative_simplified_title(record),
             "titleSource": title_source,
             "videoUrl": f"https://www.youtube.com/watch?v={video.group(1)}",
-            "category": category,
             "lyrics": lyrics,
         }
         if legacy_title:
@@ -597,7 +628,32 @@ class WebsiteEditorService:
                     candidate = parts[1]
         return candidate if re.fullmatch(r"[A-Za-z0-9_-]{11}", candidate) else None
 
-    def _normalize_song_draft(self, draft, *, existing_route=""):
+    def _normalize_song_classification(self, draft, follows_original):
+        """The draft's sound, moods, dialect and singer, checked against the fixed lists.
+
+        A version tab follows its original's sound, moods and dialect, so only its singer is kept.
+        """
+        singer = self._plain(draft.get("singer", ""), "Singer")
+        if len(singer) > 120:
+            raise WebsiteEditorError("The singer is too long.")
+        if follows_original:
+            return {"singer": singer}
+        sounds, moods = self._song_lists()
+        sound = self._plain(draft.get("sound"), "Song sound", required=True)
+        if sound not in {row.get("id") for row in sounds}:
+            raise WebsiteEditorError("Choose an existing song sound.")
+        chosen = draft.get("moods")
+        if not isinstance(chosen, list) or not 1 <= len(chosen) <= 2:
+            raise WebsiteEditorError("Choose one or two moods.")
+        chosen = [self._plain(value, "Song mood", required=True) for value in chosen]
+        if len(set(chosen)) != len(chosen) or not set(chosen) <= {row.get("id") for row in moods}:
+            raise WebsiteEditorError("Choose one or two different existing moods.")
+        dialect = self._plain(draft.get("dialect", ""), "Dialect")
+        if dialect not in ("", "teochew"):
+            raise WebsiteEditorError("The dialect can only be left empty or Teochew.")
+        return {"sound": sound, "moods": chosen, "dialect": dialect, "singer": singer}
+
+    def _normalize_song_draft(self, draft, *, existing_route="", follows_original=False):
         if not isinstance(draft, dict):
             raise WebsiteEditorError("Song data must be an object.")
         title = self._plain(draft.get("title"), "Song title", required=True)
@@ -645,10 +701,7 @@ class WebsiteEditorService:
         video_id = self._youtube_id(video_url)
         if not video_id:
             raise WebsiteEditorError("Enter a valid YouTube video link or video ID.")
-        _, categories = self._song_categories()
-        category = self._plain(draft.get("category"), "Song category", required=True)
-        if category not in {row.get("id") for row in categories}:
-            raise WebsiteEditorError("Choose an existing song category.")
+        classification = self._normalize_song_classification(draft, follows_original)
         raw_lyrics = draft.get("lyrics")
         if not isinstance(raw_lyrics, list) or len(raw_lyrics) > 600:
             raise WebsiteEditorError("Lyrics must be a list of at most 600 rows.")
@@ -697,7 +750,7 @@ class WebsiteEditorService:
             "titleZhuyin": title_zhuyin,
             "titlePinyin": title_pinyin,
             "videoUrl": f"https://www.youtube.com/watch?v={video_id}",
-            "category": category,
+            **classification,
             "lyrics": lyrics,
         }
         if legacy_title:
@@ -849,8 +902,9 @@ class WebsiteEditorService:
             raise WebsiteEditorError("The custom Lomari line could not be applied.")
         return updated
 
-    def render_song_draft(self, draft, *, existing_route=""):
-        clean, route, video_id = self._normalize_song_draft(draft, existing_route=existing_route)
+    def render_song_draft(self, draft, *, existing_route="", follows_original=False):
+        clean, route, video_id = self._normalize_song_draft(
+            draft, existing_route=existing_route, follows_original=follows_original)
         converter = self._tone_marker()
         try:
             if clean["titleAnnotationSystem"] == "zhuyin":
@@ -905,7 +959,7 @@ class WebsiteEditorService:
             identity += 1
         return identity
 
-    def save_song(self, relative, revision, category_revision, url_revision, manifest_revision, draft):
+    def save_song(self, relative, revision, url_revision, manifest_revision, draft):
         existing = None
         path = None
         existing_route = ""
@@ -921,16 +975,16 @@ class WebsiteEditorService:
                 suffix = str(existing.get("songEditorLegacySuffix") or "")
             else:
                 _imported, suffix = self._import_legacy_song(existing)
-        rendered = self.render_song_draft(draft, existing_route=existing_route)
+        follows_original = existing is not None and self._song_follows_original(existing)
+        rendered = self.render_song_draft(draft, existing_route=existing_route, follows_original=follows_original)
         clean, route, body = rendered["draft"], rendered["route"], rendered["body"]
         if suffix:
             body = body.rstrip() + "\n\n" + suffix.lstrip()
-        category_path, urls_path, manifest_path = self._song_support_files()
-        category_raw, url_raw, manifest_raw = (category_path.read_bytes(), urls_path.read_bytes(), manifest_path.read_bytes())
-        if (digest(category_raw) != category_revision or digest(url_raw) != url_revision or
-                digest(manifest_raw) != manifest_revision):
-            raise WebsiteEditorError("Song categories or route data changed outside this window. Reload first.", code="stale")
-        categories, urls, manifest = (json.loads(category_raw), json.loads(url_raw), json.loads(manifest_raw))
+        urls_path, manifest_path = self._song_support_files()
+        url_raw, manifest_raw = urls_path.read_bytes(), manifest_path.read_bytes()
+        if digest(url_raw) != url_revision or digest(manifest_raw) != manifest_revision:
+            raise WebsiteEditorError("Song route data changed outside this window. Reload first.", code="stale")
+        urls, manifest = json.loads(url_raw), json.loads(manifest_raw)
         for other in (self.content / "songs").glob("*.json"):
             if path and other.resolve() == path.resolve():
                 continue
@@ -980,17 +1034,22 @@ class WebsiteEditorService:
             record.pop("titleRomanisation", None)
         if suffix:
             record["songEditorLegacySuffix"] = suffix
+        # The sound, moods and dialect belong to a song's page; a version tab only has its own singer.
+        for key in ("sound", "moods", "dialect"):
+            if follows_original or not clean.get(key):
+                record.pop(key, None)
+            else:
+                record[key] = clean[key]
+        if clean.get("singer"):
+            record["singer"] = clean["singer"]
+        else:
+            record.pop("singer", None)
         rewritten, home_changed = self._sync_lomari(path.relative_to(self.repo).as_posix(), record)
         body = record["body"]
         record["sourceSha256"] = hashlib.sha256(body.encode("utf-8")).hexdigest()
 
         version = record.get("songVersion") if isinstance(record.get("songVersion"), dict) else {}
         grouped_variant = bool(version.get("groupRoute") and route != version.get("groupRoute"))
-        if not grouped_variant:
-            for category in categories:
-                category["routes"] = [value for value in category.get("routes", []) if value != route]
-            target_category = next(row for row in categories if row.get("id") == clean["category"])
-            target_category.setdefault("routes", []).append(route)
         if is_new:
             urls.append({"old_url": source_url, "new_url": route, "display_title": clean["title"]})
             manifest.setdefault("records", []).append({
@@ -1002,7 +1061,6 @@ class WebsiteEditorService:
 
         outputs = {
             path: self._json_bytes(record),
-            category_path: self._json_bytes(categories),
             urls_path: self._json_bytes(urls),
             manifest_path: self._json_bytes(manifest),
         }
@@ -1016,7 +1074,6 @@ class WebsiteEditorService:
             "ok": True,
             "file": path.relative_to(self.repo).as_posix(),
             "revision": digest(outputs[path]),
-            "categoryRevision": digest(outputs[category_path]),
             "urlRevision": digest(outputs[urls_path]),
             "manifestRevision": digest(outputs[manifest_path]),
             "route": route,

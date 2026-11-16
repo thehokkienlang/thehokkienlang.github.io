@@ -14,6 +14,17 @@ sys.path.insert(0, str(ROOT / "tools"))
 from website_editor_service import WebsiteEditorError, WebsiteEditorService
 
 
+def write_song_lists(content):
+    """The fixed sound and mood lists a song needs to be saved."""
+    content.mkdir(parents=True, exist_ok=True)
+    (content / "song-sounds.json").write_text(json.dumps([
+        {"id": "modern", "labels": {"en": "Modern"}}, {"id": "roots", "labels": {"en": "Roots"}},
+    ]), encoding="utf-8")
+    (content / "song-moods.json").write_text(json.dumps([
+        {"id": "lyrical", "labels": {"en": "Lyrical"}}, {"id": "upbeat", "labels": {"en": "Upbeat"}},
+    ]), encoding="utf-8")
+
+
 class WebsiteEditorTests(unittest.TestCase):
     def fixture(self, folder):
         repo = Path(folder)
@@ -81,7 +92,7 @@ class WebsiteEditorTests(unittest.TestCase):
         service = WebsiteEditorService(ROOT)
         result = service.render_song_draft({
             "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
-            "category": "modern", "lyrics": [{"kind": "line", "text": "꽈ˎ 슐-래-슐-킈 죠ˋ걀", "grey": False},
+            "sound": "modern", "moods": ["lyrical"], "lyrics": [{"kind": "line", "text": "꽈ˎ 슐-래-슐-킈 죠ˋ걀", "grey": False},
                                              {"kind": "line", "text": "릐호", "grey": True}],
         })
         found = list(lomari_sync.lines("content/songs/new.json", result["body"], {}))
@@ -94,7 +105,7 @@ class WebsiteEditorTests(unittest.TestCase):
         result = service.render_song_draft({
             "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
             "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
-            "category": "modern", "lyrics": [{
+            "sound": "modern", "moods": ["lyrical"], "lyrics": [{
                 "kind": "line", "text": "我愛你", "grey": False,
                 "pinyin": "wǒ ài nǐ",
             }],
@@ -112,7 +123,7 @@ class WebsiteEditorTests(unittest.TestCase):
             service.render_song_draft({
                 "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
                 "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
-                "category": "modern", "lyrics": [{
+                "sound": "modern", "moods": ["lyrical"], "lyrics": [{
                     "kind": "line", "text": "我愛你", "grey": False, "pinyin": "",
                 }],
             })
@@ -122,7 +133,7 @@ class WebsiteEditorTests(unittest.TestCase):
         result = service.render_song_draft({
             "title": "魚仔", "mandarinTitle": "魚兒", "mandarinSimplifiedTitle": "鱼儿",
             "titleSource": "[魚仔희1아2]", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
-            "category": "modern", "lyrics": [{
+            "sound": "modern", "moods": ["lyrical"], "lyrics": [{
                 "kind": "line", "text": "[我꽈2]愛你", "grey": False,
                 "lomari": "goà ài nǐ",
             }],
@@ -138,7 +149,7 @@ class WebsiteEditorTests(unittest.TestCase):
             "mandarinAlternativeTitle": "勇敢向前", "mandarinAlternativeSimplifiedTitle": "勇敢向前",
             "titleAnnotationSystem": "zhuyin", "titleZhuyin": "ㄍㄢˇ ㄕㄚˇ ㄍㄢˇ ㄔㄨㄥ",
             "titlePinyin": "gǎn shǎ gǎn chōng", "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
-            "category": "modern", "lyrics": [{"kind": "line", "text": "我愛你", "pinyin": "wǒ ài nǐ"}],
+            "sound": "modern", "moods": ["lyrical"], "lyrics": [{"kind": "line", "text": "我愛你", "pinyin": "wǒ ài nǐ"}],
         })
         self.assertIn('class="hanri-title bopomofo-title"', result["titleHtml"])
         self.assertIn("ㄍㄢˇ", result["titleHtml"])
@@ -150,7 +161,7 @@ class WebsiteEditorTests(unittest.TestCase):
         result = service.render_song_draft({
             "title": "愛情", "mandarinTitle": "愛情", "mandarinSimplifiedTitle": "爱情",
             "titleSource": "[愛情애2졩4]", "titleTliRuby": "애ˆ 졩ˊ",
-            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "sound": "modern", "moods": ["lyrical"],
             "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
         })
         self.assertEqual(result["draft"]["titleSource"], "[愛애ˆ][情졩ˊ]")
@@ -162,7 +173,7 @@ class WebsiteEditorTests(unittest.TestCase):
             service.render_song_draft({
                 "title": "愛情", "mandarinTitle": "愛情", "mandarinSimplifiedTitle": "爱情",
                 "titleSource": "[愛情애2졩4]", "titleTliRuby": "애ˆ",
-                "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+                "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "sound": "modern", "moods": ["lyrical"],
                 "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
             })
 
@@ -278,7 +289,7 @@ class WebsiteEditorTests(unittest.TestCase):
                 "id": "song-1", "type": "songs", "title": "薰", "originalTitle": "薰 諺文歌詞",
                 "route": "/songs/薰/", "body": '<h2><ruby>薰<rt>훈ˆ</rt></ruby></h2>',
             }, ensure_ascii=False), encoding="utf-8")
-            (Path(folder) / "content/song-categories.json").write_text("[]\n", encoding="utf-8")
+            write_song_lists(Path(folder) / "content")
             (Path(folder) / "migration").mkdir()
             (Path(folder) / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
             (Path(folder) / "migration/wordpress-map.json").write_text('{"records": []}\n', encoding="utf-8")
@@ -300,9 +311,7 @@ class WebsiteEditorTests(unittest.TestCase):
             shutil.copy2(ROOT / "data/hokkien_hanri_dict.tsv", repo / "data/hokkien_hanri_dict.tsv")
             shutil.copy2(ROOT / "shared/tli-sandhi.json", repo / "shared/tli-sandhi.json")
             (repo / "content/songs").mkdir(parents=True)
-            (repo / "content/song-categories.json").write_text(json.dumps([{
-                "id": "modern", "labels": {"en": "Modern"}, "routes": ["/songs/薰/"]
-            }]), encoding="utf-8")
+            write_song_lists(repo / "content")
             (repo / "migration").mkdir()
             (repo / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
             (repo / "migration/wordpress-map.json").write_text(json.dumps({"records": [{
@@ -320,6 +329,7 @@ class WebsiteEditorTests(unittest.TestCase):
             song = repo / "content/songs/song-1.json"
             song.write_text(json.dumps({
                 "id": "song-1", "sourceId": 1, "sourceUrl": "https://example.com/song-1",
+                "sound": "modern", "moods": ["lyrical"],
                 "type": "songs", "language": "en", "title": "薰", "route": "/songs/薰/", "body": body,
             }, ensure_ascii=False), encoding="utf-8")
 
@@ -340,7 +350,7 @@ class WebsiteEditorTests(unittest.TestCase):
             opened["draft"]["mandarinSimplifiedTitle"] = "熏香"
             opened["draft"]["lyrics"][0]["text"] = "[薰훈ˆ]"
             saved = service.save_song(
-                opened["file"], opened["revision"], snapshot["categoryRevision"],
+                opened["file"], opened["revision"],
                 snapshot["urlRevision"], snapshot["manifestRevision"], opened["draft"],
             )
             record = json.loads(song.read_text(encoding="utf-8"))
@@ -353,7 +363,8 @@ class WebsiteEditorTests(unittest.TestCase):
     def test_page_paths_cannot_escape_content_or_edit_generated_files(self):
         with tempfile.TemporaryDirectory() as folder:
             service, _ = self.fixture(folder)
-            for relative in ("../outside.json", "_site/index.json", "public/data/data.json", "content/song-categories.json"):
+            for relative in ("../outside.json", "_site/index.json", "public/data/data.json",
+                             "content/song-sounds.json", "content/song-moods.json"):
                 with self.subTest(relative=relative), self.assertRaises(WebsiteEditorError):
                     service.page_path(relative)
 
@@ -380,7 +391,7 @@ class WebsiteEditorTests(unittest.TestCase):
         service = WebsiteEditorService(ROOT)
         result = service.render_song_draft({
             "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호",
-            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "category": "modern",
+            "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "sound": "modern", "moods": ["lyrical"],
             "lyrics": [{"kind": "line", "text": "릐호", "grey": True}],
         })
         self.assertEqual(result["route"], "/songs/릐호/")
@@ -401,22 +412,23 @@ class WebsiteEditorTests(unittest.TestCase):
             (repo / "shared").mkdir(exist_ok=True)
             shutil.copy2(ROOT / "shared/tli-sandhi.json", repo / "shared/tli-sandhi.json")
             shutil.copy2(ROOT / "data/hokkien_hanri_dict.tsv", repo / "data/hokkien_hanri_dict.tsv")
-            (repo / "content/song-categories.json").write_text(json.dumps([{
-                "id": "modern", "labels": {"en": "Modern"}, "routes": [],
-            }]), encoding="utf-8")
+            write_song_lists(repo / "content")
             (repo / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
             (repo / "migration/wordpress-map.json").write_text(json.dumps({"records": []}), encoding="utf-8")
             service = WebsiteEditorService(repo)
             snapshot = service.song_editor_snapshot()
-            saved = service.save_song("", "", snapshot["categoryRevision"], snapshot["urlRevision"],
+            saved = service.save_song("", "", snapshot["urlRevision"],
                                       snapshot["manifestRevision"], {
-                "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호", "videoUrl": "HNYkSBkQ33Y", "category": "modern",
+                "title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호", "videoUrl": "HNYkSBkQ33Y", "sound": "modern", "moods": ["lyrical"],
                 "lyrics": [{"kind": "line", "text": "릐호", "grey": False}],
             })
             record = json.loads((repo / saved["file"]).read_text(encoding="utf-8"))
             self.assertEqual(record["route"], "/songs/릐호/")
             self.assertEqual(record["songEditor"]["lyrics"][0]["text"], "릐호")
-            self.assertIn(record["route"], json.loads((repo / "content/song-categories.json").read_text())[0]["routes"])
+            self.assertEqual((record["sound"], record["moods"]), ("modern", ["lyrical"]))
+            self.assertNotIn("dialect", record)
+            self.assertNotIn("singer", record)
+            self.assertNotIn("category", record["songEditor"])
             url_row = json.loads((repo / "migration/song-urls.json").read_text())[0]
             self.assertEqual(url_row["new_url"], record["route"])
             # The site build checks each song's catalogue label against this title.
@@ -424,6 +436,65 @@ class WebsiteEditorTests(unittest.TestCase):
             self.assertEqual(json.loads((repo / "migration/wordpress-map.json").read_text())["records"][0]["file"], saved["file"])
             listed = service.song_editor_snapshot()["songs"][0]
             self.assertIn("릐호", listed["searchText"])
+
+    def test_song_classification_is_checked_against_the_fixed_lists(self):
+        service = WebsiteEditorService(ROOT)
+        base = {"title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호",
+                "videoUrl": "https://youtu.be/HNYkSBkQ33Y",
+                "lyrics": [{"kind": "line", "text": "릐호", "grey": False}]}
+        good = {**base, "sound": "modern", "moods": ["lyrical", "upbeat"], "dialect": "teochew", "singer": " 江蕙 "}
+        clean = service.render_song_draft(good)["draft"]
+        self.assertEqual((clean["sound"], clean["moods"], clean["dialect"], clean["singer"]),
+                         ("modern", ["lyrical", "upbeat"], "teochew", "江蕙"))
+        for change, message in (
+            ({"sound": "disco"}, "existing song sound"),
+            ({"sound": ""}, "Song sound is required"),
+            ({"moods": []}, "one or two moods"),
+            ({"moods": ["lyrical", "upbeat", "lyrical"]}, "one or two moods"),
+            ({"moods": ["lyrical", "lyrical"]}, "different existing moods"),
+            ({"moods": ["angry"]}, "different existing moods"),
+            ({"dialect": "hakka"}, "Teochew"),
+            ({"singer": "x" * 121}, "singer is too long"),
+        ):
+            with self.subTest(change=change), self.assertRaisesRegex(WebsiteEditorError, message):
+                service.render_song_draft({**good, **change})
+
+    def test_a_version_tab_keeps_only_its_own_singer(self):
+        service = WebsiteEditorService(ROOT)
+        draft = {"title": "릐호", "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": "릐호",
+                 "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "singer": "鳳飛飛",
+                 "sound": "disco", "moods": ["nonsense"],
+                 "lyrics": [{"kind": "line", "text": "릐호", "grey": False}]}
+        clean = service.render_song_draft(draft, follows_original=True)["draft"]
+        self.assertEqual(clean["singer"], "鳳飛飛")
+        for key in ("sound", "moods", "dialect"):
+            self.assertNotIn(key, clean)
+
+    def test_snapshot_lists_the_sounds_and_moods(self):
+        with tempfile.TemporaryDirectory() as folder:
+            service, _ = self.fixture(folder)
+            (Path(folder) / "content/songs").mkdir(parents=True)
+            write_song_lists(Path(folder) / "content")
+            (Path(folder) / "migration").mkdir()
+            (Path(folder) / "migration/song-urls.json").write_text("[]\n", encoding="utf-8")
+            (Path(folder) / "migration/wordpress-map.json").write_text('{"records": []}\n', encoding="utf-8")
+            snapshot = service.song_editor_snapshot()
+            self.assertEqual([row["id"] for row in snapshot["sounds"]], ["modern", "roots"])
+            self.assertEqual([row["label"] for row in snapshot["moods"]], ["Lyrical", "Upbeat"])
+            self.assertNotIn("categories", snapshot)
+            self.assertNotIn("categoryRevision", snapshot)
+
+    def test_opening_songs_shows_their_classification(self):
+        service = WebsiteEditorService(ROOT)
+        page = service.song_editor_song("content/songs/song-9833.json")
+        self.assertFalse(page["followsOriginal"])
+        self.assertEqual((page["draft"]["sound"], page["draft"]["moods"], page["draft"]["singer"]),
+                         ("classic", ["spirited"], "伍佰"))
+        self.assertNotIn("category", page["draft"])
+        # The original version is a tab: it shows its page's sound and moods read-only, and its own singer.
+        original = service.song_editor_song("content/songs/song-9833-original.json")
+        self.assertTrue(original["followsOriginal"])
+        self.assertEqual((original["draft"]["sound"], original["draft"]["singer"]), ("classic", "劉德華"))
 
 
 if __name__ == "__main__":
