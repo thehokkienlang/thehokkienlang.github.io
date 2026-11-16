@@ -724,6 +724,37 @@ def search_page(language):
 SONGS_LABELS = {"en": "Songs", "zh-Hant": "歌曲", "zh-Hans": "歌曲"}
 
 
+def language_spans(labels):
+    """A name written in all three languages; a song page shows the one for its language."""
+    return "".join(f'<span data-content-lang="{code}">{html.escape(labels.get(code, labels["en"]))}</span>'
+                   for code in LANGUAGES)
+
+
+def song_meta_html(root, singer, route):
+    """Under a song's title: its singer, its mood chips (each a link to that mood on /songs/) and the
+    dialect badge. `route` is the song page's route; a version tab passes its own version's singer."""
+    _, moods, classification = song_classification(root)
+    found = classification.get(base_route(route))
+    parts = []
+    if singer:
+        parts.append(f'<span class="song-singer">{html.escape(singer)}</span>')
+    if found:
+        by_id = {item["id"]: item for item in moods}
+        for mood_id in found["moods"]:
+            mood = by_id[mood_id]
+            parts.append(
+                f'<a class="song-mood" href="/songs/?mood={html.escape(mood_id, quote=True)}" '
+                f'style="--category-accent:{html.escape(mood["accent"], quote=True)};'
+                f'--category-tint:{html.escape(mood["tint"], quote=True)}">{language_spans(mood["labels"])}</a>')
+        badge = DIALECT_BADGE.get(found["dialect"])
+        if badge:
+            labels = {code: SONG_FILTER_TEXT[code]["teochew"] for code in LANGUAGES}
+            parts.append(
+                f'<span class="song-dialect-badge" style="--category-accent:{badge["accent"]};'
+                f'--category-tint:{badge["tint"]};--category-tint-end:{badge["tintEnd"]}">{language_spans(labels)}</span>')
+    return f'<div class="song-meta">{"".join(parts)}</div>' if parts else ""
+
+
 def songs_subheader(root, route, language):
     """The slim bar under the main header on /songs/ and every song page: a breadcrumb on the left
     (Songs › Category) and the Songs search box on the right.
@@ -731,9 +762,7 @@ def songs_subheader(root, route, language):
     A song page is one page shown in three languages (switched when it loads), so each name is written
     in all three and the page shows the one for its language.
     """
-    def named(labels):
-        return "".join(f'<span data-content-lang="{code}">{html.escape(labels.get(code, labels["en"]))}</span>'
-                       for code in LANGUAGES)
+    named = language_spans
 
     on_index = base_route(route) == "/songs/"
     songs = named(SONGS_LABELS)
@@ -889,6 +918,8 @@ def build_content(root: Path, output: Path):
                 version_body = split_song_notes(song_script_heading(version_body))
                 version_body = PresentationHTML(version_record).render(remove_leading_language_switcher(version_body))
                 version_body = decorate_lyrics(root, version_record, version_body)
+                # Each tab shows its own version's singer, with the song's moods and dialect badge.
+                version_body = song_meta_html(root, str(version_record.get("singer", "")).strip(), route) + version_body
                 rendered_versions.append((version_record, version_body))
             body = song_version_tabs(rendered_versions)
         else:
@@ -898,7 +929,7 @@ def build_content(root: Path, output: Path):
         if not (record["type"] == "songs" and route in versions_by_route):
             body = PresentationHTML(record).render(remove_leading_language_switcher(body))
         if record['type'] == 'songs' and route not in versions_by_route:
-            body = decorate_lyrics(root, record, body)
+            body = song_meta_html(root, str(record.get("singer", "")).strip(), route) + decorate_lyrics(root, record, body)
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in published_records if item["type"] == "songs"],
                                     listen_button(root, record["language"], "學生", "학솅1"))

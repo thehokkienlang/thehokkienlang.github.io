@@ -244,6 +244,16 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertIn('href="/songs/?sound=', crumb)
             for name in ("Songs", "歌曲"):
                 self.assertIn(name, crumb)
+            # Under the title: the singer, the mood chips (links to /songs/?mood=) and, for 月下煮茶, the badge.
+            self.assertIn('<span class="song-singer">椅子樂團</span>', song_page)
+            self.assertIn('href="/songs/?mood=melancholy"', song_page)
+            tea_page = (output / "songs/月下煮茶/index.html").read_text(encoding="utf-8")
+            self.assertIn('class="song-dialect-badge"', tea_page)
+            self.assertNotIn('class="song-dialect-badge"', song_page)
+            # A song with versions shows each version's own singer inside its tab.
+            versions_page = (output / "songs/世界第一等/index.html").read_text(encoding="utf-8")
+            self.assertIn('<span class="song-singer">劉德華</span>', versions_page)
+            self.assertIn('<span class="song-singer">伍佰</span>', versions_page)
             for label in ("Search songs…", "搜尋歌曲…", "搜索歌曲…", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):
                 self.assertIn(label, song_page)
             for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
