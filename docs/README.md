@@ -17,6 +17,8 @@ Finished migrations, audits and their ledgers are in [`history/`](history/).
 - [song-editor.md](song-editor.md): the structured Song Editor.
 - [lyric-timing.md](lyric-timing.md): sentence-synchronised lyrics and their timing sidecars.
 - [ruby-layout.md](ruby-layout.md): how pronunciation ruby is laid out.
+- [search-unification-plan.md](search-unification-plan.md): the shared search box across site search, dictionary and songs (done).
+- [learn-improvements-draft.md](learn-improvements-draft.md): drafted Learn page text awaiting review; not on the site.
 - [archived-content.md](archived-content.md): pages kept out of the public build.
 - [lomari-review.json](lomari-review.json): Lomari lines that differ from their Hangul and wait for review (audit B7).
 
