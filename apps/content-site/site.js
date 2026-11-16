@@ -268,13 +268,13 @@
     const empty = filter.querySelector(".song-filter-empty");
     const catalogue = document.querySelector(".song-catalogue");
     const sections = [...catalogue.querySelectorAll(".song-category")];
-    const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-route]")].map(row => ({
-      row, section, route: row.dataset.songRoute,
+    const rows = sections.flatMap(section => [...section.querySelectorAll("li[data-song-route]")]).map((row, index) => ({
+      row, index, section: row.closest(".song-category"), route: row.dataset.songRoute,
       mandarinMatch: row.querySelector(".song-entry-mandarin-match"),
       match: row.querySelector(".song-entry-match"),
       matchMain: row.querySelector(".song-entry-match-main"),
       matchLomari: row.querySelector(".song-entry-match-lomari"),
-    })));
+    }));
     let matcher = null;
     let category = new URL(location.href).searchParams.get("category") || "";
     if (!chips.some(chip => chip.dataset.songFilterCategory === category)) category = "";
@@ -302,6 +302,19 @@
           item.matchLomari.textContent = lyricMatch.lomari;
         }
       });
+      // Within each category, title matches come before lyric matches (the matcher's order);
+      // with no query the catalogue returns to its own order.
+      const position = new Map([...results.keys()].map((route, index) => [route, index]));
+      const ranked = query.trim() ? item => position.get(item.route) ?? Infinity : item => item.index;
+      for (const list of new Set(rows.map(item => item.row.parentElement))) {
+        const items = rows.filter(item => item.row.parentElement === list).sort((a, b) => ranked(a) - ranked(b) || a.index - b.index);
+        list.append(...items.map(item => item.row));
+      }
+      // Categories follow their closest match too, so a title match is near the top of the page.
+      const best = section => Math.min(...rows.filter(item => item.section === section && !item.row.hidden).map(ranked));
+      const sectionOrder = sections.map((section, index) => ({ section, index, rank: query.trim() ? best(section) : index }))
+        .sort((a, b) => a.rank - b.rank || a.index - b.index);
+      catalogue.append(...sectionOrder.map(item => item.section));
       sections.forEach(section => {
         const count = section.querySelectorAll("li[data-song-route]:not([hidden])").length;
         section.hidden = count === 0;
