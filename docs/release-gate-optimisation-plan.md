@@ -1,7 +1,8 @@
 # Release gate: how it works, and a plan to make it cheaper
 
-Status: approved by Haru (2026-11-16), ready to implement. Steps 5 and 7 are
-already done; steps 1 to 4 and 6 remain. Nothing here weakens a check: every
+Status: implemented (2026-11-16), not yet pushed. Steps 1 to 4 and 6 are
+committed locally; steps 5 and 7 were done earlier. Still to confirm after the
+push: the "Done when" lines of step 6 that need a GitHub run. Nothing here weakens a check: every
 check that runs today still runs before a deploy. The plan only changes *when*,
 *where* and *how noisily* checks run.
 
@@ -309,7 +310,41 @@ exists. The rules:
 - After pushing, check the workflow once with `gh run watch`, or have the app
   watch it, instead of polling repeatedly.
 
-## 3. Expected result
+## 3. Result
+
+Measured on this machine after implementation (2026-11-16, nothing else
+running). The full gate now also runs the site, migration and song-title tests
+that only CI's build job ran before, so it does more work than the 3 m 40 s
+figure it is compared with.
+
+| | Before | After (measured) |
+|---|---|---|
+| Source gate (`--source-only`) | 2 m 15 s | 1 m 9 s (parallel) |
+| Full gate | 3 m 40 s | 2 m 14 s, including the extra site tests |
+| Compressed audio copies, second run | 54 s | 2.7 s |
+| CSS-only change (`--changed`) | 3 m 40 s | 49 s (build and validate the site) |
+| Docs-only change (`--changed`) | 3 m 40 s | none ("Nothing to check") |
+| Output read on a pass (`--quiet`) | about 180 lines | about 60 lines |
+
+Findings:
+
+- **Dictionary tests (47 s):** the time is not WAV hashing. 31 s of it is
+  `test_dictionary_editor.py`, mostly its `PublishTests`, each 3 to 5 s because
+  every test runs the publish workflow end to end. Nothing to cache; the parallel
+  stage hides it behind other sections.
+- **Site tests share `_site`:** `test_site_*`, `test_wordpress_migration.py` and
+  `test_song_title_readings.py` rewrite files under `_site`, which broke
+  `check_site.py` and `check_web_apps.cjs` when run alongside them. Each now runs
+  alone, before the checks of the built site, as CI does.
+- **npm cache (step 6.3):** `setup-node` with `cache: npm` needs a lockfile, and
+  the repository has no `package-lock.json` and no npm dependencies, so only the
+  pip and Opus caches were added.
+- **Docs ignore list (step 6.1):** `paths-ignore` lists the Markdown files only,
+  not `docs/**`, because the Lomari check reads `docs/lomari-review.json`. No
+  ignored path is copied into `_site` (`build_site.py` copies `apps/`, `shared/`,
+  `public/audio` and a fixed list of folders).
+
+## 3a. Original expected result
 
 | | Today | After the plan |
 |---|---|---|

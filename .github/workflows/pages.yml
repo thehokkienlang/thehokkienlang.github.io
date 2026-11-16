@@ -1,10 +1,29 @@
 name: Deploy Tangliengim Website
 
+# Documentation and agent notes are never published and no check reads them, so
+# a push that only touches them skips the workflow. docs/*.json is not ignored:
+# the Lomari check reads docs/lomari-review.json.
 on:
   push:
     branches: [main]
+    paths-ignore:
+      - "docs/**/*.md"
+      - "docs/*.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - ".claude/**"
   pull_request:
     branches: [main]
+    paths-ignore:
+      - "docs/**/*.md"
+      - "docs/*.md"
+      - "AGENTS.md"
+      - "CLAUDE.md"
+      - "README.md"
+      - ".claude/**"
+  schedule:
+    - cron: "0 3 * * 1"
   workflow_dispatch:
 
 permissions:
@@ -17,12 +36,17 @@ concurrency:
 jobs:
   regression:
     name: Desktop and shared-engine regression (Windows)
+    # The weekly scheduled run only exercises the Linux side check below; it
+    # builds and deploys nothing, because build and deploy wait on this job.
+    if: github.event_name != 'schedule'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -31,10 +55,13 @@ jobs:
       - name: Run portable source release gate
         run: python -X utf8 tools/check_release.py --source-only
 
-  # The same gate on Linux, as a side check: nothing waits for it, and a failure
-  # (such as Ubuntu's package servers being unreachable) never blocks a deploy.
+  # The same gate on Linux, as a side check that runs weekly (Mondays 03:00 UTC)
+  # and on "Run workflow", not on pushes or pull requests: nothing waits for it,
+  # and a failure (such as Ubuntu's package servers being unreachable) never
+  # blocks a deploy.
   linux-regression:
     name: Shared-engine regression (Linux, side check)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -42,6 +69,8 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
@@ -62,11 +91,22 @@ jobs:
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
+          cache: pip
+          cache-dependency-path: requirements-dev.txt
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
       - name: Install portable Python build dependencies
         run: python -m pip install -r requirements-dev.txt
+      # Opus copies are cached by each WAV's content and the encoder settings, so
+      # only new recordings are encoded. The key changes with the WAVs and the
+      # encoder settings; an older cache still restores and supplies unchanged files.
+      - name: Restore encoded audio
+        uses: actions/cache@v4
+        with:
+          path: .cache/audio-opus
+          key: opus-${{ hashFiles('public/audio/**/*.wav', 'tools/compressed_audio.py') }}
+          restore-keys: opus-
       - name: Confirm the portable ffmpeg can encode Opus
         run: |
           python - <<'PY'

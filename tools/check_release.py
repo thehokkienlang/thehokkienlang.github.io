@@ -239,9 +239,9 @@ SECTION_TAGS = {
     "Validate published site": {"site"},
     "Compressed audio copies": {"audio"},
     "Validate built Web applications": {"webapps"},
-    "Site, migration and song-title tests": {"site"},
-    "Song-title reading tests": {"site"},
-    "Site tests": {"site"},
+    "Site, migration and song-title tests": {"sitetests"},
+    "Song-title reading tests": {"sitetests"},
+    "Site tests": {"sitetests"},
 }
 
 
@@ -263,9 +263,10 @@ def scope_for_path(path: str) -> tuple[str, set[str]]:
     name = path.rsplit("/", 1)[-1]
     if path.startswith(".claude/"):
         return NO_CHECKS, set()
-    if path.startswith("docs/") or name in ("AGENTS.md", "CLAUDE.md") or (
-            name.endswith(".md") and not path.startswith("content/")):
-        return NO_CHECKS, set()
+    if path == "docs/lomari-review.json":
+        return TAGGED, {"lomari"}  # read by the Lomari check
+    if name.endswith(".md") and not path.startswith("content/"):
+        return NO_CHECKS, set()  # AGENTS.md, CLAUDE.md, README.md and docs/**/*.md
     if (path.startswith("data/") and path.endswith(".tsv")) or path.startswith("public/data/") or (
             path.startswith("tools/") and "dictionary" in name):
         return SOURCE_GATE, set()
@@ -274,7 +275,7 @@ def scope_for_path(path: str) -> tuple[str, set[str]]:
     if path.startswith("desktop/") or path == "shared/tli-sandhi.json":
         return TAGGED, {"py", "desktop", "web"}
     if path.startswith(("content/", "migration/")):
-        return TAGGED, {"build", "site", "lomari"}
+        return TAGGED, {"build", "site", "sitetests", "lomari"}
     if path.endswith(".css") and path.startswith(("apps/", "shared/")):
         return TAGGED, {"build", "site"}
     if path.startswith("apps/") or (path.startswith("shared/") and path.endswith(".js")):
