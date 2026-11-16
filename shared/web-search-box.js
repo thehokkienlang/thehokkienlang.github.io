@@ -213,8 +213,8 @@
       renderCandidates() { controller?.renderCandidates?.(); },
       get controller() { return controller; },
       // Resolves to the IME controller once the keyboard is ready; the box works as a plain search
-      // box before then.
-      ready: null,
+      // box before then. Reading it starts the keyboard if it has not started yet.
+      get ready() { return startKeyboard(); },
     };
 
     if (options.queryParam) {
@@ -223,7 +223,12 @@
     }
     clearButton.hidden = !input.value;
 
-    api.ready = (async () => {
+    // The keyboard and its dictionary (several MB) load straight away on a search page, but a
+    // dropdown box (song pages) waits until the visitor first uses it, so a page nobody searches
+    // from stays light.
+    let keyboard = null;
+    const startKeyboard = () => (keyboard ||= loadKeyboard());
+    const loadKeyboard = async () => {
       if (!root.TangliengimHangulIme) await loadScript('/shared/web-hangul-ime.js');
       if (!root.TangliengimImeCore) await loadScript('/shared/web-ime-core.js');
       const imeCore = root.TangliengimImeCore;
@@ -245,8 +250,12 @@
       await controller.preferences?.ready;
       controller.setEntries(entries, index || imeCore.createDictionaryIndex(entries));
       return controller;
-    })();
-    api.ready.catch(error => console.error('The search keyboard could not load', error));
+    };
+    const start = () => startKeyboard().catch(error => console.error('The search keyboard could not load', error));
+    if (list && !input.value) {
+      input.addEventListener('focus', start, {once: true});
+      toggle.addEventListener('click', start, {once: true});
+    } else start();
 
     // A page opened with ?q= filters straight away.
     if (input.value) changed();

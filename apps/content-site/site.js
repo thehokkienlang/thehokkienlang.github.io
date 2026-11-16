@@ -381,10 +381,12 @@
   }
 
   // #line-N (from a search result): scroll to that lyric line and flash it.
-  const lineTarget = /^#line-(\d+)$/.exec(location.hash);
-  if (lineTarget && document.body.dataset.siteSection === "songs") {
-    const scope = document.querySelector('[role="tabpanel"]') || article;
+  // Also on a hash change, so a dropdown match in the song already open still jumps to its line.
+  if (document.body.dataset.siteSection === "songs") {
     const showLine = () => {
+      const lineTarget = /^#line-(\d+)$/.exec(location.hash);
+      if (!lineTarget) return;
+      const scope = document.querySelector('[role="tabpanel"]') || article;
       const line = scope.querySelectorAll("p:has(> .lyric-line)")[Number(lineTarget[1]) - 1];
       if (!line) return;
       line.scrollIntoView({ block: "center" });
@@ -393,5 +395,6 @@
     };
     showLine();
     document.fonts?.ready.then(showLine);
+    window.addEventListener("hashchange", showLine);
   }
 })();
