@@ -39,6 +39,7 @@
     "v32Changes": "not-required",
     "audit": "docs/history/harmonisation-3.2-audit.json"
   },
+  "dialect": "mandarin",
   "sound": "modern",
   "moods": [
     "spirited"

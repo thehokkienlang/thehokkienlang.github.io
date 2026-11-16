@@ -649,8 +649,8 @@ class WebsiteEditorService:
         if len(set(chosen)) != len(chosen) or not set(chosen) <= {row.get("id") for row in moods}:
             raise WebsiteEditorError("Choose one or two different existing moods.")
         dialect = self._plain(draft.get("dialect", ""), "Dialect")
-        if dialect not in ("", "teochew"):
-            raise WebsiteEditorError("The dialect can only be left empty or Teochew.")
+        if dialect not in ("", "teochew", "mandarin"):
+            raise WebsiteEditorError("The dialect can only be left empty, Teochew or Mandarin.")
         return {"sound": sound, "moods": chosen, "dialect": dialect, "singer": singer}
 
     def _normalize_song_draft(self, draft, *, existing_route="", follows_original=False):

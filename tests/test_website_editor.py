@@ -446,6 +446,7 @@ class WebsiteEditorTests(unittest.TestCase):
         clean = service.render_song_draft(good)["draft"]
         self.assertEqual((clean["sound"], clean["moods"], clean["dialect"], clean["singer"]),
                          ("modern", ["lyrical", "upbeat"], "teochew", "江蕙"))
+        self.assertEqual(service.render_song_draft({**good, "dialect": "mandarin"})["draft"]["dialect"], "mandarin")
         for change, message in (
             ({"sound": "disco"}, "existing song sound"),
             ({"sound": ""}, "Song sound is required"),

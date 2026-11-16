@@ -196,6 +196,8 @@ class SiteLanguageTests(unittest.TestCase):
                 songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 with self.subTest(songs=folder):
                     self.assertIn('data-song-filter', songs)
+                    filter_heading = {"": "Filter by", "zh-hant/": "篩選條件", "zh-hans/": "筛选条件"}[folder]
+                    self.assertIn(f'<p class="song-filter-heading">{filter_heading}</p>', songs)
                     self.assertEqual(re.findall(r'data-song-filter-sound="([^"]*)"', songs), ["", "modern", "classic", "roots"])
                     singer_name = "陈佳" if folder == "zh-hans/" else "陳佳"
                     self.assertRegex(songs, rf'<span class="song-entry-singer"[^>]*>{singer_name}</span>')
@@ -231,6 +233,12 @@ class SiteLanguageTests(unittest.TestCase):
             # A song with versions lists its original's singer; the Teochew song carries its badge.
             self.assertEqual(by_route["/songs/世界第一等/"]["singer"], "劉德華")
             self.assertEqual(by_route["/songs/月下煮茶/"]["dialect"], "teochew")
+            for title in ("敢傻敢衝", "魚仔", "身騎白馬", "你啊你啊"):
+                self.assertEqual(by_route[f"/songs/{title}/"]["dialect"], "mandarin")
+                song_markup = (output / f"songs/{title}/index.html").read_text(encoding="utf-8")
+                self.assertIn('class="song-dialect-badge"', song_markup)
+                for label in ("Mandarin", "華語", "华语"):
+                    self.assertIn(label, song_markup)
             self.assertEqual(json.loads((output / "public/data/hanri-fold.json").read_text(encoding="utf-8"))["hanriFold"]["後"], "后")
             # Each lyric match can open its song at that line: the first line of a song is line 1.
             self.assertEqual(by_route["/songs/生份에릐/"]["lines"][0][4], 1)

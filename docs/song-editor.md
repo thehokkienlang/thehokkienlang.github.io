@@ -11,7 +11,7 @@ established by `金包銀`. Verse breaks remain separate structured rows.
 
 Each song also has a **sound** (Modern, Classic or Roots, chosen by how it
 sounds, not by its year), one or two **moods**, an optional **dialect**
-(Teochew shows a 潮汕 badge) and an optional **singer**. The lists are fixed in
+(Teochew shows a 潮汕 badge; Mandarin shows a 華語 badge) and an optional **singer**. The lists are fixed in
 `content/song-sounds.json` and `content/song-moods.json`. A version tab follows
 its original's sound, moods and dialect and keeps only its own singer. These
 values are written to the song file itself, which the website reads.

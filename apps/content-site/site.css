@@ -346,8 +346,9 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
   .songs-subheader { padding: 8px 16px; gap: 12px; }
   /* The breadcrumb shortens to ‹ Songs, leaving the width to the search box. */
   .songs-breadcrumb-sep, .songs-breadcrumb-category { display: none; }
+  .songs-breadcrumb { flex-shrink: 0; white-space: nowrap; }
   .songs-breadcrumb-root::before { content: "‹ "; }
-  .songs-subheader > .tli-search--compact { flex: 1 1 auto; position: static; }
+  .songs-subheader > .tli-search--compact { flex: 1 1 0; min-width: 0; position: static; }
   /* The dropdown spans the screen below the sub-header, inside the 16px gutters. */
   .songs-subheader .tli-search-dropdown { right: 16px; left: 16px; width: auto; }
 }
@@ -358,6 +359,7 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .song-filter-chip:hover { border-color: var(--category-accent); color: var(--category-accent); }
 .song-filter-chip[aria-pressed="true"] { border-color: var(--category-accent); color: #fff; background: var(--category-accent); }
 .song-filter-chip:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.imported-content .song-filter-heading { margin: 0; color: var(--ink); font-size: 14px; font-weight: 700; line-height: 1.4; }
 .song-filter-group { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
 .song-filter-label { min-width: 3.4em; color: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .04em; }
 .song-filter-clear { margin-left: 6px; padding: 3px 12px; border: 1px solid var(--line); border-radius: 999px; color: var(--accent); background: #fff; font: inherit; font-size: 14px; cursor: pointer; }

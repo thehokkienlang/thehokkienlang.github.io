@@ -97,7 +97,10 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn("--tli-ruby-overlap: 0.05em;", css)
         self.assertIn("--tli-ruby-block-space: calc(var(--tli-ruby-size) * 1.1);", css)
         self.assertIn(".entry-headword-ruby > .entry-headword-reading", css)
-        self.assertNotIn("px", css)
+        zhuyin_offset = (".tli-reading-ruby:is(.bopomofo-title, .tli-bopomofo-reading) > .tli-rt {\n"
+                         "  bottom: calc(100% - var(--tli-ruby-overlap) + 1px) !important;\n}")
+        self.assertIn(zhuyin_offset, css)
+        self.assertNotIn("px", css.replace(zhuyin_offset, ""))
         self.assertNotIn(".tli-tone-ruby", css)
         for path in ("apps/content-site/site.css", "apps/dictionary/styles.css", "shared/web-title-reading.css"):
             styles = (ROOT / path).read_text(encoding="utf-8")

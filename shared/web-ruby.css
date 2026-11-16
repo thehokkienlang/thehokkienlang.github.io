@@ -62,6 +62,11 @@
   --tli-ruby-size: 0.37em;
 }
 
+/* Lift Zhuyin readings by one CSS pixel in titles, lyrics and editor previews. */
+.tli-reading-ruby:is(.bopomofo-title, .tli-bopomofo-reading) > .tli-rt {
+  bottom: calc(100% - var(--tli-ruby-overlap) + 1px) !important;
+}
+
 @media (pointer: coarse) {
   :root {
     --tli-ruby-hit-top: 0.7em;

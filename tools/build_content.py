@@ -40,15 +40,18 @@ LYRIC_SCRIPTS = ('<script src="/shared/web-lyric-player.js" defer></script>'
 TITLE_READING = re.compile(r'class="[^"]*\btitle-reading\b[^"]*"[^>]*>(.*?)</(?:h1|h2|a|span)>', re.S)
 HANGUL = re.compile(r"[\u1100-\u11ff\u3130-\u318f\ua960-\ua97f\uac00-\ud7a3\ud7b0-\ud7ff]")
 SONG_FILTER_TEXT = {
-    "en": {"sound": "Sound", "mood": "Mood", "all": "All", "empty": "No songs match.", "count": "{n} songs",
-           "clear": "Clear filters", "teochew": "Teochew"},
-    "zh-Hant": {"sound": "曲風", "mood": "心情", "all": "全部", "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲",
-                "clear": "清除篩選", "teochew": "潮汕"},
-    "zh-Hans": {"sound": "曲风", "mood": "心情", "all": "全部", "empty": "没有符合的歌曲。", "count": "{n} 首歌曲",
-                "clear": "清除筛选", "teochew": "潮汕"},
+    "en": {"filterBy": "Filter by", "sound": "Sound", "mood": "Mood", "all": "All", "empty": "No songs match.", "count": "{n} songs",
+           "clear": "Clear filters", "teochew": "Teochew", "mandarin": "Mandarin"},
+    "zh-Hant": {"filterBy": "篩選條件", "sound": "曲風", "mood": "心情", "all": "全部", "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲",
+                "clear": "清除篩選", "teochew": "潮汕", "mandarin": "華語"},
+    "zh-Hans": {"filterBy": "筛选条件", "sound": "曲风", "mood": "心情", "all": "全部", "empty": "没有符合的歌曲。", "count": "{n} 首歌曲",
+                "clear": "清除筛选", "teochew": "潮汕", "mandarin": "华语"},
 }
 # The badge colours of a song's dialect (plan: the old Voice of Teochew category's).
-DIALECT_BADGE = {"teochew": {"accent": "#3f718b", "tint": "#cdeef5", "tintEnd": "#dbe5ff"}}
+DIALECT_BADGE = {
+    "teochew": {"accent": "#3f718b", "tint": "#cdeef5", "tintEnd": "#dbe5ff"},
+    "mandarin": {"accent": "#78618b", "tint": "#eee0f5", "tintEnd": "#e4e7fa"},
+}
 
 
 CLASSIFICATION_CACHE = {}
@@ -765,7 +768,7 @@ def song_meta_html(root, singer, route):
                 f'--category-tint:{html.escape(mood["tint"], quote=True)}">{language_spans(mood["labels"])}</a>')
         badge = DIALECT_BADGE.get(found["dialect"])
         if badge:
-            labels = {code: SONG_FILTER_TEXT[code]["teochew"] for code in LANGUAGES}
+            labels = {code: SONG_FILTER_TEXT[code][found["dialect"]] for code in LANGUAGES}
             parts.append(
                 f'<span class="song-dialect-badge" style="--category-accent:{badge["accent"]};'
                 f'--category-tint:{badge["tint"]};--category-tint-end:{badge["tintEnd"]}">{language_spans(labels)}</span>')
@@ -1084,7 +1087,7 @@ def build_content(root: Path, output: Path):
                 badge = DIALECT_BADGE.get(item["dialect"])
                 badge_markup = (
                     f'<span class="song-dialect-badge" style="--category-accent:{badge["accent"]};'
-                    f'--category-tint:{badge["tint"]};--category-tint-end:{badge["tintEnd"]}">{words["teochew"]}</span>'
+                    f'--category-tint:{badge["tint"]};--category-tint-end:{badge["tintEnd"]}">{words[item["dialect"]]}</span>'
                     if badge else "")
                 # Search data lives in public/data/song-search-index.json, joined to this row by route.
                 links.append(
@@ -1126,6 +1129,7 @@ def build_content(root: Path, output: Path):
         return (
             f'<div class="song-filter" role="search" data-song-filter '
             f'data-count-template="{html.escape(words["count"], quote=True)}">'
+            f'<p class="song-filter-heading">{words["filterBy"]}</p>'
             f'{chip_row("sound", section_sounds)}{chip_row("mood", song_moods)}'
             '<p class="song-filter-summary" aria-live="polite"></p>'
             f'<p class="song-filter-empty" hidden>{words["empty"]} '

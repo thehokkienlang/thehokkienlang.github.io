@@ -63,8 +63,8 @@ def check_song_classification():
             unknown = [mood for mood in song_moods if mood not in moods]
             if unknown:
                 problems.append(f"{name}: unknown mood {unknown}")
-        if song.get("dialect", "teochew") != "teochew":
-            problems.append(f"{name}: dialect must be 'teochew' when present")
+        if song.get("dialect", "teochew") not in ("teochew", "mandarin"):
+            problems.append(f"{name}: dialect must be 'teochew' or 'mandarin' when present")
         sound_counts[sound] += 1
         mood_counts.update(mood for mood in (song_moods or []) if mood in moods)
     assert not problems, "Song classification problems:\n  " + "\n  ".join(problems)
