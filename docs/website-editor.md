@@ -60,8 +60,9 @@ These are deliberately separate operations:
 - Page content is edited as guarded HTML with a live site-styled preview. A rich
   block editor is deferred because browser reserialization could damage complex
   ruby, table, audio, and embed markup.
-- Song category ordering in `content/song-categories.json` remains source-only
-  for now; dictionary categories are fully editable.
+- The song sound and mood lists (`content/song-sounds.json`,
+  `content/song-moods.json`) are fixed and source-only; a new one is a
+  deliberate edit in the repository. Dictionary categories are fully editable.
 - Git conflict resolution remains in GitHub Desktop. The CMS detects stale files
   and refuses unsafe overwrites rather than trying to merge authored HTML.
 - Image and audio asset upload/management is deferred. Existing asset paths can
