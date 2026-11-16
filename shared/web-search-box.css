@@ -29,6 +29,8 @@
 .tli-search--compact .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(14px); }
 /* The results list under a box (results: "dropdown"). */
 .tli-search-dropdown { position: absolute; z-index: 60; top: calc(100% + 6px); right: 0; width: min(460px, calc(100vw - 32px)); max-height: min(70vh, 520px); overflow: auto; border: 1px solid var(--line, #dce4e7); border-radius: 10px; background: #fff; box-shadow: 0 14px 34px #17252b2e; }
+/* While the Hanri candidate menu is open it has the space under the box; the results return when it closes. */
+.tli-search:has(.hanri-candidate-menu:not([hidden])) .tli-search-dropdown { display: none; }
 .tli-search-dropdown > a { display: grid; gap: 3px; padding: 10px 14px; border-bottom: 1px solid var(--line, #dce4e7); color: var(--ink, var(--text, #17252b)); text-decoration: none; }
 .tli-search-dropdown > a:last-child { border-bottom: 0; }
 .tli-search-dropdown > a:hover, .tli-search-dropdown > a.is-active { background: var(--site-accent-soft, #e8f2ef); }
