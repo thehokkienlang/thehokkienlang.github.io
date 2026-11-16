@@ -21,7 +21,6 @@
   const BOTTOM = [",", "Emoji", "Space", ".", "Enter"];
   const LAYERS = {
     tli: [
-      ["1", "2", "4", "5", "’"],
       [..."qwertyuiop"],
       [..."asdfghjkl"],
       ["Shift", ..."zxcvbnm", "Backspace"],
@@ -148,8 +147,15 @@
     setShift(false);
   }
 
+  // Tones have no row of their own. Shift (or a hold) on ㅛ ㅕ ㅑ ㅐ types tones 1 2 4 5: none of
+  // those keys has a shifted Hangul that TLI uses. Shift (or a hold) on the comma types the apostrophe.
+  const TONE_KEYS = { y: "1", u: "2", i: "4", o: "5" };
+  const APOSTROPHE = "’";
+  const toneLabel = key => upperTone(hangul.keyboardGuideOutput(TONE_KEYS[key]));
+
   function inputFor(key) {
-    return shifted ? key.toUpperCase() : key;
+    if (!shifted) return key;
+    return TONE_KEYS[key] || key.toUpperCase();
   }
 
   function setShift(next) {
@@ -176,6 +182,11 @@
         if (!commitBuffer()) host.enter();
         return;
     }
+    if (layer === "tli" && key === "," && shifted) {
+      controller.insertText(APOSTROPHE);
+      setShift(false);
+      return;
+    }
     if (layer !== "tli" || key === "," || key === ".") {
       commitBuffer();
       host.commit(key);
@@ -200,9 +211,25 @@
       output.textContent = upperTone(hangul.keyboardGuideOutput(inputFor(key)) || key);
       const input = document.createElement("span");
       input.className = "key-input";
-      input.textContent = inputFor(key);
-      if (/^[0-9]$/.test(key)) button.classList.add("tone");
-      button.append(output, input);
+      // The corner shows what Shift or a hold gives on a tone key, and the Latin letter elsewhere.
+      input.textContent = TONE_KEYS[key] && !shifted ? toneLabel(key) : inputFor(key);
+      if (TONE_KEYS[key]) {
+        button.classList.toggle("tone", shifted);
+        input.classList.add("key-hint-tone");
+      }
+      button.append(output);
+      if (!(TONE_KEYS[key] && shifted)) button.append(input);
+    } else if (layer === "tli" && key === ",") {
+      const output = document.createElement("span");
+      output.className = "key-output";
+      output.textContent = shifted ? APOSTROPHE : key;
+      button.append(output);
+      if (!shifted) {
+        const hint = document.createElement("span");
+        hint.className = "key-input";
+        hint.textContent = APOSTROPHE;
+        button.append(hint);
+      }
     } else {
       button.textContent = key;
     }
@@ -234,17 +261,38 @@
     }));
   }
 
-  // Holding a key offers more characters, as on Gboard: a letter offers its shifted form
-  // (ㄱ gives ㄲ) and the period offers other punctuation.
-  const PERIOD_ALTERNATES = [..."?!:;'\"-@"];
+  // Holding a key offers more characters, as on Gboard's English keyboard. A letter offers its
+  // shifted Hangul (ㄱ gives ㄲ) and the digit or symbol Gboard puts on that key (q 1, a @, s #,
+  // d $ ...); a key on the symbol pages offers Gboard's related symbols.
+  const LETTER_SYMBOLS = {
+    q: "1", w: "2", e: "3", r: "4", t: "5", y: "6", u: "7", i: "8", o: "9", p: "0",
+    a: "@", s: "#", d: "$", f: "_", g: "&", h: "-", j: "+", k: "(", l: ")",
+    z: "*", x: "\"", c: "'", v: ":", b: ";", n: "!", m: "?",
+  };
+  const SYMBOL_ALTERNATES = {
+    "1": "¹½⅓¼⅛", "2": "²⅔", "3": "³¾⅜", "4": "⁴", "5": "⅝", "7": "⅞", "0": "ⁿ∅",
+    "#": "№", "$": "¢£€¥₱", "-": "_–—·", "+": "±", "(": "<{[", ")": ">}]",
+    "*": "†‡★", "\"": "„“”«»", "'": "‚‘’‹›", "!": "¡", "?": "¿‽",
+    "•": "♪♥♠♦♣", "π": "Π", "§": "¶", "^": "←↑↓→", "°": "′″", "=": "≠≈∞",
+    "%": "‰℅", "<": "≤«‹", ">": "≥»›",
+    ".": "?!:;'\"-@",
+  };
   function alternatesFor(key) {
-    if (layer === "tli" && /^[a-z]$/.test(key) && !shifted) {
+    const text = chars => [...chars].map(char => ({ label: char, text: char }));
+    if (layer === "tli" && /^[a-z]$/.test(key)) {
+      const alternates = [];
       const upper = key.toUpperCase();
       const output = hangul.keyboardGuideOutput(upper);
-      if (output && output !== hangul.keyboardGuideOutput(key)) return [{ label: output, input: upper }];
+      if (!shifted && TONE_KEYS[key]) {
+        alternates.push({ label: toneLabel(key), input: TONE_KEYS[key] });
+      } else if (!shifted && output && output !== hangul.keyboardGuideOutput(key)) {
+        alternates.push({ label: output, input: upper });
+      }
+      return [...alternates, ...text(LETTER_SYMBOLS[key] || "")];
     }
-    if (key === ".") return PERIOD_ALTERNATES.map(char => ({ label: char, text: char }));
-    return [];
+    if (layer === "tli" && key === "," && !shifted) return [{ label: APOSTROPHE, input: APOSTROPHE }];
+    if (layer === "tli" && key !== ".") return [];
+    return text(SYMBOL_ALTERNATES[key] || "");
   }
 
   // Character keys type on release, so a hold can be told from a tap. Controls act on touch-down.

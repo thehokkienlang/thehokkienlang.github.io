@@ -148,7 +148,7 @@ body.composing #buffer {
 }
 
 /* Key grid in Gboard's proportions: ten equal columns, a half-key inset on the second letter
-   row, wide Shift and Backspace, and a shorter top row. */
+   row, and wide Shift and Backspace. */
 #keys {
   --gap: 6px;
   --side: 4px;
@@ -167,10 +167,6 @@ body.composing #buffer {
   gap: var(--gap);
   justify-content: center;
   min-height: 0;
-}
-
-.row.row-tli-0 {
-  flex: 0.82 1 0;
 }
 
 .key {
@@ -209,11 +205,6 @@ body.composing #buffer {
   font-size: 9.5px;
   font-weight: 500;
   line-height: 1;
-}
-
-/* Five keys share the ten columns of the top row. */
-.row-tli-0 .key {
-  flex-basis: calc(2 * var(--unit) + var(--gap));
 }
 
 .key.tone {
@@ -335,4 +326,14 @@ body.composing #buffer {
 .key-popup-option.selected {
   background: var(--accent);
   color: #ffffff;
+}
+
+/* A tone key's corner shows its tone mark, in the accent colour. */
+.key-input.key-hint-tone {
+  top: 6px;
+  right: 5px;
+  color: var(--accent);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 0.9;
 }
