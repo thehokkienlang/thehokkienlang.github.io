@@ -823,6 +823,14 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     values["IMESCRIPTS"] = (IME_SCRIPTS if needs_ime else "") + (SONG_SEARCH_SCRIPTS if songs_section else "")
     values["SUBHEADER"] = songs_subheader(root, route, language) if songs_section else ""
     values["LYRICSCRIPTS"] = LYRIC_SCRIPTS if content_type == "songs" else ""
+    # A song page's accent bar under the title takes its sound's colour, as its row on /songs/ does.
+    values["MAINATTRS"] = ""
+    if content_type == "songs":
+        sounds, _, classification = song_classification(root)
+        found = classification.get(base_route(route))
+        sound = next((item for item in sounds if found and item["id"] == found["sound"]), None)
+        if sound:
+            values["MAINATTRS"] = f' style="--song-accent:{html.escape(sound["accent"], quote=True)}"'
     values["BRAND"] = site_brand(root, language)
     values["META"] = meta_tags(title, route, page_description(
         title, base_route(route), body, content_type, language, home_introductions[language]), language)
