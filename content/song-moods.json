@@ -1,0 +1,79 @@
+[
+  {
+    "id": "upbeat",
+    "labels": {
+      "en": "Upbeat",
+      "zh-Hant": "輕快",
+      "zh-Hans": "轻快"
+    },
+    "accent": "#a5546b",
+    "tint": "#ffd7e4",
+    "tintEnd": "#ffe2c2"
+  },
+  {
+    "id": "heartfelt",
+    "labels": {
+      "en": "Heartfelt",
+      "zh-Hant": "暖心",
+      "zh-Hans": "暖心"
+    },
+    "accent": "#5d7850",
+    "tint": "#d8f1d1",
+    "tintEnd": "#f5edb8"
+  },
+  {
+    "id": "melancholy",
+    "labels": {
+      "en": "Melancholy",
+      "zh-Hant": "傷感",
+      "zh-Hans": "伤感"
+    },
+    "accent": "#40566f",
+    "tint": "#d8e4f5",
+    "tintEnd": "#e6dcf2"
+  },
+  {
+    "id": "intense",
+    "labels": {
+      "en": "Intense",
+      "zh-Hant": "激昂",
+      "zh-Hans": "激昂"
+    },
+    "accent": "#843e45",
+    "tint": "#f2cbd0",
+    "tintEnd": "#e2d0e5"
+  },
+  {
+    "id": "spirited",
+    "labels": {
+      "en": "Spirited",
+      "zh-Hant": "勵志",
+      "zh-Hans": "励志"
+    },
+    "accent": "#ad5a4d",
+    "tint": "#ffd8cf",
+    "tintEnd": "#ffe9b9"
+  },
+  {
+    "id": "lyrical",
+    "labels": {
+      "en": "Lyrical",
+      "zh-Hant": "抒情",
+      "zh-Hans": "抒情"
+    },
+    "accent": "#53698f",
+    "tint": "#d9e5ff",
+    "tintEnd": "#eadcff"
+  },
+  {
+    "id": "romantic",
+    "labels": {
+      "en": "Romantic",
+      "zh-Hant": "浪漫",
+      "zh-Hans": "浪漫"
+    },
+    "accent": "#675271",
+    "tint": "#e6d4ee",
+    "tintEnd": "#d1dff0"
+  }
+]

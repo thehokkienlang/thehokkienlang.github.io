@@ -1,0 +1,35 @@
+[
+  {
+    "id": "roots",
+    "labels": {
+      "en": "Roots",
+      "zh-Hant": "傳統源聲",
+      "zh-Hans": "传统源声"
+    },
+    "accent": "#6b7350",
+    "tint": "#e8e7bd",
+    "tintEnd": "#d2e9d1"
+  },
+  {
+    "id": "classic",
+    "labels": {
+      "en": "Classic",
+      "zh-Hant": "經典金曲",
+      "zh-Hans": "经典金曲"
+    },
+    "accent": "#986d2b",
+    "tint": "#ffe2a9",
+    "tintEnd": "#f8c9a5"
+  },
+  {
+    "id": "modern",
+    "labels": {
+      "en": "Modern",
+      "zh-Hant": "當代流行",
+      "zh-Hans": "当代流行"
+    },
+    "accent": "#247b76",
+    "tint": "#c9f2e6",
+    "tintEnd": "#d7eaff"
+  }
+]
