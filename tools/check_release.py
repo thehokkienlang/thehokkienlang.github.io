@@ -4,11 +4,15 @@ from __future__ import annotations
 
 import argparse
 import ast
+import contextlib
 import difflib
+import io
 import json
 import os
 import subprocess
 import sys
+import time
+import traceback
 from pathlib import Path
 
 from capture_legacy_parity import capture
@@ -70,9 +74,35 @@ PYTHON_FILES = (
 )
 
 
-def run(label: str, *command: str) -> None:
-    print(f"\n== {label} ==", flush=True)
-    subprocess.run(command, cwd=ROOT, check=True)
+class Section:
+    """One named step of the gate: either a subprocess command or a Python function."""
+
+    def __init__(self, label, command=None, function=None):
+        self.label = label
+        self.command = command
+        self.function = function
+
+    def execute(self) -> tuple[bool, str]:
+        """Run the section, returning (passed, combined output). Never prints."""
+        if self.command is not None:
+            result = subprocess.run(
+                self.command,
+                cwd=ROOT,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+            )
+            return result.returncode == 0, result.stdout
+        buffer = io.StringIO()
+        try:
+            with contextlib.redirect_stdout(buffer):
+                self.function()
+        except BaseException:  # report any failure with its traceback
+            buffer.write(traceback.format_exc())
+            return False, buffer.getvalue()
+        return True, buffer.getvalue()
 
 
 def check_python_syntax() -> None:
@@ -98,12 +128,70 @@ def check_legacy_parity() -> None:
     print("OK: desktop behaviour matches the checked-in parity baseline.")
 
 
+def build_sections(source_only: bool) -> list[Section]:
+    """Every section of the gate, in the order it runs."""
+    py = [sys.executable, "-X", "utf8"]
+    sections = [Section("Python syntax", function=check_python_syntax)]
+    for relative in JAVASCRIPT_FILES:
+        sections.append(Section(f"JavaScript syntax: {relative}", ["node", "--check", relative]))
+
+    def add(label, *command):
+        sections.append(Section(label, list(command)))
+
+    add("Dictionary TSV schema", *py, "tools/validate_dictionary_tsv.py")
+    add("Canonical source order (read-only)", *py, "tools/sort_dictionary_tsv.py", "--check")
+    add("Redirect log coverage and jamo order", *py, "tools/build_redirect_log.py", "--check")
+    if source_only:
+        add("Build runtime dictionary data", *py, "tools/build_dictionary_json.py")
+    else:
+        add("Build published site", *py, "tools/build_site.py")
+    add("Dictionary counts", *py, "tools/dictionary_counts.py")
+    add("Dictionary collation and audio portability", *py, "-m", "unittest", "discover",
+        "-s", "tests", "-p", "test_dictionary_*.py")
+    add("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
+    add("Stable-ID structural references", "node", "tools/check_entry_references.cjs")
+    if source_only:
+        add("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
+    add("Browser-free engine (mobile keyboard source)", "node", "tests/check_engine_headless.cjs")
+    add("Static priority and reading defaults", "node", "tools/check_static_ranking.cjs")
+    add("Static Desktop ranking and row independence", *py, "tools/check_static_desktop.py")
+    add("Adaptive Web candidate learning", "node", "tools/check_adaptive_ranking.cjs")
+    add("Adaptive Local/Desktop candidate learning", *py, "tools/check_adaptive_desktop.py")
+    add("Adaptive Web safeguards", "node", "tools/check_adaptive_safeguards.cjs")
+    add("Adaptive Local/Desktop safeguards", *py, "tools/check_adaptive_safeguards.py")
+    add("Desktop shell bridge", *py, "tools/check_desktop_shell.py")
+    add("Dictionary editor automatic readings", "node", "tests/check_dictionary_editor_reading.cjs")
+    add("Editor browser lifetime", *py, "-m", "unittest", "discover",
+        "-s", "tests", "-p", "test_desktop_editor_lifetime.py")
+    add("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")
+    add("Lomari follows the Hokkien text", *py, "tools/lomari_sync.py", "--check")
+    add("Compound gloss review (warning only)", *py, "tools/check_compound_glosses.py")
+    add("Audio waveform parity", *py, "tools/check_audio_pcm.py")
+    sections.append(Section("Desktop parity baseline", function=check_legacy_parity))
+    if not source_only:
+        add("Validate published site", *py, "tools/check_site.py")
+        add("Compressed audio copies", *py, "tools/compressed_audio.py")
+        add("Validate built Web applications", "node", "tools/check_web_apps.cjs")
+    return sections
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument(
         "--source-only",
         action="store_true",
         help="Run portable source checks without rebuilding the published site.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Print one OK line per passing section, and the full output of a failing one.",
+    )
+    parser.add_argument(
+        "--from",
+        dest="start_from",
+        metavar="SECTION",
+        help="Start at this section label (an exact label, or a unique prefix) and skip the earlier ones.",
     )
     args = parser.parse_args()
 
@@ -114,44 +202,35 @@ def main() -> int:
         return 1
     os.environ.update(env)
 
-    check_python_syntax()
-    for relative in JAVASCRIPT_FILES:
-        run(f"JavaScript syntax: {relative}", "node", "--check", relative)
-    run("Dictionary TSV schema", sys.executable, "-X", "utf8", "tools/validate_dictionary_tsv.py")
-    run("Canonical source order (read-only)", sys.executable, "-X", "utf8", "tools/sort_dictionary_tsv.py", "--check")
-    run("Redirect log coverage and jamo order", sys.executable, "-X", "utf8", "tools/build_redirect_log.py", "--check")
-    if args.source_only:
-        run("Build runtime dictionary data", sys.executable, "-X", "utf8", "tools/build_dictionary_json.py")
-    else:
-        run("Build published site", sys.executable, "-X", "utf8", "tools/build_site.py")
-    run("Dictionary counts", sys.executable, "-X", "utf8", "tools/dictionary_counts.py")
-    run("Dictionary collation and audio portability", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
-        "-s", "tests", "-p", "test_dictionary_*.py")
-    run("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
-    run("Stable-ID structural references", "node", "tools/check_entry_references.cjs")
-    if args.source_only:
-        run("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
-    run('Browser-free engine (mobile keyboard source)', 'node', 'tests/check_engine_headless.cjs')
-    run('Static priority and reading defaults', 'node', 'tools/check_static_ranking.cjs')
-    run('Static Desktop ranking and row independence',sys.executable,'-X','utf8','tools/check_static_desktop.py')
-    run('Adaptive Web candidate learning', 'node', 'tools/check_adaptive_ranking.cjs')
-    run('Adaptive Local/Desktop candidate learning', sys.executable, '-X', 'utf8', 'tools/check_adaptive_desktop.py')
-    run('Adaptive Web safeguards', 'node', 'tools/check_adaptive_safeguards.cjs')
-    run('Adaptive Local/Desktop safeguards', sys.executable, '-X', 'utf8', 'tools/check_adaptive_safeguards.py')
-    run("Desktop shell bridge", sys.executable, "-X", "utf8", "tools/check_desktop_shell.py")
-    run("Dictionary editor automatic readings", "node", "tests/check_dictionary_editor_reading.cjs")
-    run("Editor browser lifetime", sys.executable, "-X", "utf8", "-m", "unittest", "discover",
-        "-s", "tests", "-p", "test_desktop_editor_lifetime.py")
-    run("Simplified Hokkien normalization suggestions", "node", "tools/check_simplified_normalization.cjs")
-    run("Lomari follows the Hokkien text", sys.executable, "-X", "utf8", "tools/lomari_sync.py", "--check")
-    run("Compound gloss review (warning only)", sys.executable, "-X", "utf8", "tools/check_compound_glosses.py")
-    run("Audio waveform parity", sys.executable, "-X", "utf8", "tools/check_audio_pcm.py")
-    check_legacy_parity()
+    sections = build_sections(args.source_only)
+    if args.start_from:
+        wanted = args.start_from.casefold()
+        labels = [section.label for section in sections]
+        matches = [i for i, label in enumerate(labels) if label.casefold() == wanted]
+        if not matches:
+            matches = [i for i, label in enumerate(labels) if label.casefold().startswith(wanted)]
+        if len(matches) != 1:
+            problem = "ambiguous" if matches else "unknown"
+            print(f"{problem} section label for --from: {args.start_from!r}. Valid labels:", file=sys.stderr)
+            for label in labels:
+                print(f"  {label}", file=sys.stderr)
+            return 2
+        sections = sections[matches[0]:]
 
-    if not args.source_only:
-        run("Validate published site", sys.executable, "-X", "utf8", "tools/check_site.py")
-        run("Compressed audio copies", sys.executable, "-X", "utf8", "tools/compressed_audio.py")
-        run("Validate built Web applications", "node", "tools/check_web_apps.cjs")
+    for section in sections:
+        started = time.perf_counter()
+        passed, output = section.execute()
+        seconds = time.perf_counter() - started
+        if args.quiet and passed:
+            print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
+            continue
+        print(f"\n== {section.label} ==", flush=True)
+        sys.stdout.write(output)
+        if not passed:
+            print(f"\nFAILED: {section.label}  ({seconds:.1f}s)", flush=True)
+            return 1
+        if args.quiet:
+            print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
 
     print("\nOK: Tangliengim release gate passed.")
     return 0
