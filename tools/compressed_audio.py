@@ -91,11 +91,30 @@ def _alignment_lag(reference, copy) -> int:
     return max(window, key=lambda lag: float(np.dot(a[max(0, lag):n + min(0, lag)], b[max(0, -lag):n - max(0, lag)])))
 
 
-def check_compressed_copies(audio_root: Path) -> list[str]:
-    """Every WAV has an Opus copy that decodes to the same length and alignment."""
+VERIFIED = ROOT / ".cache" / "audio-opus-verified"
+# A verified pair is only trusted for the same settings and the same tolerances.
+VERIFY_KEY = hashlib.sha256(
+    f"{SETTINGS_KEY}:{MAX_LENGTH_DIFFERENCE_FRAMES}:{MAX_ALIGNMENT_LAG_FRAMES}:{DECODE_RATE}".encode()
+).hexdigest()[:8]
+
+
+def _pair_marker(wav: Path, copy: Path) -> Path:
+    """Cache file recording that this exact WAV and Opus pair already passed the check."""
+    digest = hashlib.sha256(wav.read_bytes() + b"|" + copy.read_bytes()).hexdigest()[:40]
+    return VERIFIED / f"{digest}-{VERIFY_KEY}"
+
+
+def check_compressed_copies(audio_root: Path, use_cache: bool = True) -> list[str]:
+    """Every WAV has an Opus copy that decodes to the same length and alignment.
+
+    A pair that passed before (same WAV bytes, same Opus bytes, same settings) is
+    skipped, so only new or changed copies are decoded. CI starts with no cache.
+    """
     executable = ffmpeg()
     if executable is None:
         raise RuntimeError("ffmpeg is needed to check the compressed audio copies.")
+    if use_cache:
+        VERIFIED.mkdir(parents=True, exist_ok=True)
     wavs = sorted(audio_root.rglob("*.wav"))
     problems = [f"missing copy: {wav.relative_to(audio_root)}" for wav in wavs
                 if not wav.with_suffix(f".{EXTENSION}").is_file()]
@@ -104,6 +123,9 @@ def check_compressed_copies(audio_root: Path) -> list[str]:
         copy = wav.with_suffix(f".{EXTENSION}")
         if not copy.is_file():
             return None
+        marker = _pair_marker(wav, copy) if use_cache else None
+        if marker is not None and marker.is_file():
+            return None
         reference, decoded = _decode(executable, wav), _decode(executable, copy)
         difference = len(decoded) - len(reference)
         if abs(difference) > MAX_LENGTH_DIFFERENCE_FRAMES:
@@ -111,6 +133,8 @@ def check_compressed_copies(audio_root: Path) -> list[str]:
         lag = _alignment_lag(reference, decoded)
         if abs(lag) > MAX_ALIGNMENT_LAG_FRAMES:
             return f"shifted by {lag} frames: {copy.relative_to(audio_root)}"
+        if marker is not None:
+            marker.touch()
         return None
 
     with ThreadPoolExecutor(max_workers=os.cpu_count() or 4) as pool:
@@ -121,13 +145,17 @@ def check_compressed_copies(audio_root: Path) -> list[str]:
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--audio-root", type=Path, default=ROOT / "_site" / "public" / "audio")
+    parser.add_argument("--no-cache", action="store_true",
+                        help="Decode and compare every copy, ignoring earlier verified pairs.")
     args = parser.parse_args()
     wavs = list(args.audio_root.rglob("*.wav"))
     copies = list(args.audio_root.rglob(f"*.{EXTENSION}"))
     if not copies and ffmpeg() is None and not os.environ.get("CI"):
         print("Notice: no compressed copies and no ffmpeg; the site serves WAV audio only.")
         return 0
-    problems = check_compressed_copies(args.audio_root)
+    if not args.no_cache:
+        VERIFIED.mkdir(parents=True, exist_ok=True)
+    problems = check_compressed_copies(args.audio_root, use_cache=not args.no_cache)
     if problems:
         print("\n".join(problems[:20]))
         print(f"FAIL: {len(problems)} compressed audio problems.")
