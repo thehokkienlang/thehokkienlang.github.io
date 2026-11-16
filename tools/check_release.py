@@ -79,6 +79,7 @@ class Section:
     def __init__(self, label, command=None, function=None, stage=2):
         self.label = label
         self.stage = stage
+        self.tags: set[str] = set()
         self.command = command
         self.function = function
 
@@ -147,7 +148,9 @@ def build_sections(source_only: bool) -> list[Section]:
     """Every section of the gate, in the order it runs."""
     py = [sys.executable, "-X", "utf8"]
     # Stages run in order; the sections inside one stage may run in parallel.
-    #   0 early source checks, 1 build, 2 independent checks, 3 checks of the built site.
+    #   0 early source checks, 1 build, 2 independent checks, 3-5 site tests, 6 checks of the built site.
+    # The site tests rewrite files under _site, so each runs alone (as in CI, where they
+    # run one after another) and before the checks that validate the built site.
     sections = [Section("Python syntax", function=check_python_syntax, stage=0)]
     for relative in JAVASCRIPT_FILES:
         sections.append(Section(f"JavaScript syntax: {relative}", ["node", "--check", relative], stage=0))
@@ -155,6 +158,8 @@ def build_sections(source_only: bool) -> list[Section]:
     def add(label, *command, stage=2):
         sections.append(Section(label, list(command), stage=stage))
 
+    add("Release gate scope tests", *py, "-m", "unittest", "discover", "-s", "tests",
+        "-p", "test_check_release_scope.py", stage=0)
     add("Dictionary TSV schema", *py, "tools/validate_dictionary_tsv.py", stage=0)
     add("Canonical source order (read-only)", *py, "tools/sort_dictionary_tsv.py", "--check", stage=0)
     add("Redirect log coverage and jamo order", *py, "tools/build_redirect_log.py", "--check", stage=0)
@@ -186,10 +191,128 @@ def build_sections(source_only: bool) -> list[Section]:
     add("Audio waveform parity", *py, "tools/check_audio_pcm.py")
     sections.append(Section("Desktop parity baseline", function=check_legacy_parity))
     if not source_only:
-        add("Validate published site", *py, "tools/check_site.py", stage=3)
-        add("Compressed audio copies", *py, "tools/compressed_audio.py", stage=3)
-        add("Validate built Web applications", "node", "tools/check_web_apps.cjs", stage=3)
+        add("Validate published site", *py, "tools/check_site.py", stage=6)
+        add("Compressed audio copies", *py, "tools/compressed_audio.py", stage=6)
+        add("Validate built Web applications", "node", "tools/check_web_apps.cjs", stage=6)
+    if not source_only:
+        sections.append(Section("Site, migration and song-title tests", [
+            *py, "-m", "unittest", "discover", "-s", "tests", "-p", "test_wordpress_migration.py"], stage=3))
+        sections.append(Section("Song-title reading tests", [
+            *py, "-m", "unittest", "discover", "-s", "tests", "-p", "test_song_title_readings.py"], stage=4))
+        sections.append(Section("Site tests", [
+            *py, "-m", "unittest", "discover", "-s", "tests", "-p", "test_site_*.py"], stage=5))
+    for section in sections:
+        section.tags = section_tags(section.label)
     return sections
+
+
+# Each section carries tags; `--changed` runs the sections whose tags the changed
+# files can affect. Adding a section means choosing its tags here (a test fails otherwise).
+SECTION_TAGS = {
+    "Python syntax": {"py"},
+    "Release gate scope tests": {"py"},
+    "Dictionary TSV schema": {"tsv"},
+    "Canonical source order (read-only)": {"tsv"},
+    "Redirect log coverage and jamo order": {"tsv"},
+    "Build runtime dictionary data": {"build"},
+    "Build published site": {"build"},
+    "Dictionary counts": {"dict"},
+    "Dictionary collation and audio portability": {"dict"},
+    "Dictionary behavior and identity baseline": {"dict"},
+    "Stable-ID structural references": {"dict"},
+    "Shared Web IME behaviour": {"web"},
+    "Browser-free engine (mobile keyboard source)": {"web"},
+    "Static priority and reading defaults": {"web"},
+    "Static Desktop ranking and row independence": {"desktop"},
+    "Adaptive Web candidate learning": {"web"},
+    "Adaptive Local/Desktop candidate learning": {"desktop"},
+    "Adaptive Web safeguards": {"web"},
+    "Adaptive Local/Desktop safeguards": {"desktop"},
+    "Desktop shell bridge": {"desktop"},
+    "Dictionary editor automatic readings": {"web"},
+    "Editor browser lifetime": {"desktop"},
+    "Simplified Hokkien normalization suggestions": {"web"},
+    "Lomari follows the Hokkien text": {"desktop", "lomari"},
+    "Compound gloss review (warning only)": {"desktop"},
+    "Audio waveform parity": {"audio"},
+    "Desktop parity baseline": {"desktop"},
+    "Validate published site": {"site"},
+    "Compressed audio copies": {"audio"},
+    "Validate built Web applications": {"webapps"},
+    "Site, migration and song-title tests": {"site"},
+    "Song-title reading tests": {"site"},
+    "Site tests": {"site"},
+}
+
+
+def section_tags(label: str) -> set[str]:
+    if label.startswith("JavaScript syntax:"):
+        return {"js"}
+    return set(SECTION_TAGS.get(label, ()))
+
+
+NO_CHECKS = "none"
+FULL_GATE = "full"
+SOURCE_GATE = "source"
+TAGGED = "tags"
+
+
+def scope_for_path(path: str) -> tuple[str, set[str]]:
+    """What one changed file can affect: (kind, tags). Anything unlisted means the full gate."""
+    path = path.replace("\\", "/")
+    name = path.rsplit("/", 1)[-1]
+    if path.startswith(".claude/"):
+        return NO_CHECKS, set()
+    if path.startswith("docs/") or name in ("AGENTS.md", "CLAUDE.md") or (
+            name.endswith(".md") and not path.startswith("content/")):
+        return NO_CHECKS, set()
+    if (path.startswith("data/") and path.endswith(".tsv")) or path.startswith("public/data/") or (
+            path.startswith("tools/") and "dictionary" in name):
+        return SOURCE_GATE, set()
+    if path.startswith("public/audio/"):
+        return TAGGED, {"audio", "build"}
+    if path.startswith("desktop/") or path == "shared/tli-sandhi.json":
+        return TAGGED, {"py", "desktop", "web"}
+    if path.startswith(("content/", "migration/")):
+        return TAGGED, {"build", "site", "lomari"}
+    if path.endswith(".css") and path.startswith(("apps/", "shared/")):
+        return TAGGED, {"build", "site"}
+    if path.startswith("apps/") or (path.startswith("shared/") and path.endswith(".js")):
+        return TAGGED, {"js", "web", "build", "site", "webapps"}
+    return FULL_GATE, set()
+
+
+def scope_for_paths(paths) -> tuple[str, set[str]]:
+    """Combine the scopes of every changed file into one decision."""
+    kinds, tags = set(), set()
+    for path in paths:
+        kind, found = scope_for_path(path)
+        kinds.add(kind)
+        tags |= found
+    kinds.discard(NO_CHECKS)
+    if not kinds:
+        return NO_CHECKS, set()
+    if FULL_GATE in kinds or (SOURCE_GATE in kinds and TAGGED in kinds):
+        return FULL_GATE, set()
+    if SOURCE_GATE in kinds:
+        return SOURCE_GATE, set()
+    return TAGGED, tags
+
+
+def changed_paths() -> list[str] | None:
+    """Staged, unstaged and untracked files, plus commits not yet on origin/main; None if git can't say."""
+    def git(*args: str) -> list[str] | None:
+        result = subprocess.run(["git", *args], cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+        return None if result.returncode else [line for line in result.stdout.splitlines() if line]
+
+    outputs = [
+        git("diff", "--name-only", "HEAD"),
+        git("ls-files", "--others", "--exclude-standard"),
+        git("diff", "--name-only", "origin/main...HEAD"),
+    ]
+    if any(output is None for output in outputs):
+        return None
+    return sorted({path for output in outputs for path in output})
 
 
 def main() -> int:
@@ -222,6 +345,11 @@ def main() -> int:
         metavar="N",
         help="Run up to N independent sections at once (default 4).",
     )
+    parser.add_argument(
+        "--changed",
+        action="store_true",
+        help="Run only the sections the changed files can affect (see scope_for_path).",
+    )
     args = parser.parse_args()
 
     try:
@@ -231,7 +359,28 @@ def main() -> int:
         return 1
     os.environ.update(env)
 
-    sections = build_sections(args.source_only)
+    source_only = args.source_only
+    selected_tags = None
+    if args.changed:
+        paths = changed_paths()
+        if paths is None:
+            print("Could not read the changed files from git; running the full gate.")
+            kind = FULL_GATE
+        else:
+            kind, selected_tags = scope_for_paths(paths)
+            for path in paths:
+                print(f"  {path}  ->  {scope_for_path(path)[0]}")
+            print(f"Scope: {kind}" + (f" ({', '.join(sorted(selected_tags))})" if selected_tags else ""))
+        if kind == NO_CHECKS:
+            print("Nothing to check for these changes.")
+            return 0
+        if kind == SOURCE_GATE:
+            source_only = True
+        if kind != TAGGED:
+            selected_tags = None
+    sections = build_sections(source_only)
+    if selected_tags is not None:
+        sections = [section for section in sections if section.tags & selected_tags]
     if args.start_from:
         wanted = args.start_from.casefold()
         labels = [section.label for section in sections]

@@ -70,15 +70,15 @@ decision, 2026-11-16: option B in `docs/release-gate-optimisation-plan.md`.)
   the full source gate locally, following the Dictionary Update SOP below.
 - **Documentation only** (`docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`): no
   checks are needed.
-- **Everything else:** run the checks that cover the changed files. For
-  example:
-  - `tools/build_site.py` then `tools/check_site.py` for content, CSS or site
-    JavaScript
-  - the matching `tests/test_*.py` or `tools/check_*.cjs` script for the code
-    you touched
-  - if unsure, `check_release.py --source-only`
-
-  Once `check_release.py --changed` exists, use it instead.
+- **Everything else:** run `python -X utf8 tools/check_release.py --changed --quiet`.
+  It lists the changed files (staged, unstaged, untracked, and commits not yet
+  on `origin/main`), runs only the sections they can affect, and falls back to
+  the full gate for any path it doesn't recognise. `--quiet` prints one line
+  per passing section and the full output of a failing one.
+- After a failure, fix it, then restart at the failed section with
+  `--from "<section label>"` (an unknown label lists the valid ones).
+- Other flags: `--serial` (one section at a time, for debugging), `--jobs N`,
+  and `--no-cache` on `tools/compressed_audio.py` to decode every copy again.
 - Run long checks in the background with their output in a file. Read only the
   result line, or the failing section if there is one.
 - Never rerun a check that passed when nothing has changed since.
