@@ -131,11 +131,11 @@
     "tint": "#f2cbd0",
     "tintEnd": "#e2d0e5",
     "routes": [
-      "/songs/世界第一等/",
       "/songs/萬千花蕊慈母悲哀/",
       "/songs/傷心地獄芳花引魂/",
       "/songs/蓮花空行身染愛/",
-      "/songs/這款自作多情/"
+      "/songs/這款自作多情/",
+      "/songs/世界第一等/"
     ]
   },
   {
