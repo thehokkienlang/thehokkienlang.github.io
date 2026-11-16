@@ -36,7 +36,44 @@ def local_file(url):
     return path
 
 
+def check_song_classification():
+    """Every song page has one sound and 1-2 moods from the fixed lists, and the build reports the counts."""
+    sounds = [row["id"] for row in json.loads((ROOT / "content/song-sounds.json").read_text(encoding="utf-8"))]
+    moods = [row["id"] for row in json.loads((ROOT / "content/song-moods.json").read_text(encoding="utf-8"))]
+    assert len(set(sounds)) == len(sounds) and len(set(moods)) == len(moods), "Duplicate sound or mood id"
+    sound_counts, mood_counts, problems = Counter(), Counter(), []
+    for path in sorted((ROOT / "content/songs").glob("*.json")):
+        song = json.loads(path.read_text(encoding="utf-8"))
+        version = song.get("songVersion")
+        is_page = not version or version.get("groupRoute") == song["route"]
+        name = path.name
+        singer = song.get("singer")
+        if singer is not None and (not isinstance(singer, str) or not singer.strip()):
+            problems.append(f"{name}: singer must be non-empty text")
+        if not is_page:
+            if "sound" in song or "moods" in song or "dialect" in song:
+                problems.append(f"{name}: a version follows its original's sound, moods and dialect")
+            continue
+        sound, song_moods = song.get("sound"), song.get("moods")
+        if sound not in sounds:
+            problems.append(f"{name}: unknown or missing sound {sound!r}")
+        if not isinstance(song_moods, list) or not 1 <= len(song_moods) <= 2 or len(set(song_moods)) != len(song_moods):
+            problems.append(f"{name}: moods must be 1 or 2 different ids, got {song_moods!r}")
+        else:
+            unknown = [mood for mood in song_moods if mood not in moods]
+            if unknown:
+                problems.append(f"{name}: unknown mood {unknown}")
+        if song.get("dialect", "teochew") != "teochew":
+            problems.append(f"{name}: dialect must be 'teochew' when present")
+        sound_counts[sound] += 1
+        mood_counts.update(mood for mood in (song_moods or []) if mood in moods)
+    assert not problems, "Song classification problems:\n  " + "\n  ".join(problems)
+    print("Songs per sound: " + ", ".join(f"{key} {sound_counts[key]}" for key in sounds))
+    print("Songs per mood: " + ", ".join(f"{key} {mood_counts[key]}" for key in moods))
+
+
 def main():
+    check_song_classification()
     route_scripts = {}
     build_info = json.loads(local_file("/build-info.json").read_text(encoding="utf-8"))
     for route in sorted(set(["/", "/dictionary/", "/ime/", *build_info["routes"]])):
