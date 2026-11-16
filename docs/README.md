@@ -25,6 +25,7 @@ Finished migrations, audits and their ledgers are in [`history/`](history/).
 ## Release
 
 - [release-baseline.md](release-baseline.md): the shared IME release baseline.
+- [release-gate-optimisation-plan.md](release-gate-optimisation-plan.md): how the release gate and `pages.yml` work, and the approved plan to make them cheaper (to implement).
 
 ## History
 
