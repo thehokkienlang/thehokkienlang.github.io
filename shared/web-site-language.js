@@ -90,6 +90,9 @@
     });
   });
   const apply = (root = document) => {
+    root.querySelectorAll("[data-singer-traditional]").forEach(node => {
+      node.textContent = simplified ? node.dataset.singerSimplified : node.dataset.singerTraditional;
+    });
     root.querySelectorAll("[data-site-text]").forEach(node => { node.textContent = text(node.dataset.siteText); });
     const labels = {
       ".site-app-header h1": location.pathname.startsWith("/dictionary/") ? "Dictionary" : "IME Pad",

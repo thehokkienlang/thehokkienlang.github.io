@@ -196,6 +196,11 @@ class SiteLanguageTests(unittest.TestCase):
                 songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 with self.subTest(songs=folder):
                     self.assertIn('data-song-filter', songs)
+                    self.assertEqual(re.findall(r'data-song-filter-sound="([^"]*)"', songs), ["", "modern", "classic", "roots"])
+                    singer_name = "陈佳" if folder == "zh-hans/" else "陳佳"
+                    self.assertRegex(songs, rf'<span class="song-entry-singer"[^>]*>{singer_name}</span>')
+                    band_name = "椅子乐团" if folder == "zh-hans/" else "椅子樂團"
+                    self.assertRegex(songs, rf'<span class="song-entry-singer"[^>]*>{band_name}</span>')
                     # The box is the shared one, and the page carries no search data of its own:
                     # the Hanri table and the lyrics come from public/data and are cached there.
                     self.assertEqual(songs.count('data-tli-search'), 1)
@@ -245,15 +250,15 @@ class SiteLanguageTests(unittest.TestCase):
             for name in ("Songs", "歌曲"):
                 self.assertIn(name, crumb)
             # Under the title: the singer, the mood chips (links to /songs/?mood=) and, for 月下煮茶, the badge.
-            self.assertIn('<span class="song-singer">椅子樂團</span>', song_page)
+            self.assertRegex(song_page, '<span class="song-singer"[^>]*>椅子樂團</span>')
             self.assertIn('href="/songs/?mood=melancholy"', song_page)
             tea_page = (output / "songs/月下煮茶/index.html").read_text(encoding="utf-8")
             self.assertIn('class="song-dialect-badge"', tea_page)
             self.assertNotIn('class="song-dialect-badge"', song_page)
             # A song with versions shows each version's own singer inside its tab.
             versions_page = (output / "songs/世界第一等/index.html").read_text(encoding="utf-8")
-            self.assertIn('<span class="song-singer">劉德華</span>', versions_page)
-            self.assertIn('<span class="song-singer">伍佰</span>', versions_page)
+            self.assertRegex(versions_page, '<span class="song-singer"[^>]*>劉德華</span>')
+            self.assertRegex(versions_page, '<span class="song-singer"[^>]*>伍佰</span>')
             for label in ("Search songs…", "搜尋歌曲…", "搜索歌曲…", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):
                 self.assertIn(label, song_page)
             for script in ("web-site-search-variants", "web-search-box", "web-song-search"):

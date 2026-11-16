@@ -730,6 +730,23 @@ def language_spans(labels):
                    for code in LANGUAGES)
 
 
+def singer_labels(singer):
+    # Keep authored names intact; localise their script only for display.
+    traditional = singer.replace("陈佳", "陳佳")
+    simplified = simplified_headword(traditional) or traditional
+    return {"en": traditional, "zh-Hant": traditional, "zh-Hans": simplified}
+
+
+def singer_html(singer, class_name, language="en"):
+    if not singer:
+        return ""
+    labels = singer_labels(singer)
+    return (f'<span class="{class_name}" '
+            f'data-singer-traditional="{html.escape(labels["en"], quote=True)}" '
+            f'data-singer-simplified="{html.escape(labels["zh-Hans"], quote=True)}">'
+            f'{html.escape(labels[language])}</span>')
+
+
 def song_meta_html(root, singer, route):
     """Under a song's title: its singer, its mood chips (each a link to that mood on /songs/) and the
     dialect badge. `route` is the song page's route; a version tab passes its own version's singer."""
@@ -737,7 +754,7 @@ def song_meta_html(root, singer, route):
     found = classification.get(base_route(route))
     parts = []
     if singer:
-        parts.append(f'<span class="song-singer">{html.escape(singer)}</span>')
+        parts.append(singer_html(singer, "song-singer"))
     if found:
         by_id = {item["id"]: item for item in moods}
         for mood_id in found["moods"]:
@@ -1035,7 +1052,7 @@ def build_content(root: Path, output: Path):
 
     sound_by_id = {item["id"]: item for item in song_sounds}
     mood_by_id = {item["id"]: item for item in song_moods}
-    # Sections run Modern, Classic, Roots (the file lists them Roots first, the chip order).
+    # Sections and sound filters run Modern, Classic, Roots.
     section_sounds = list(reversed(song_sounds))
 
     def label_of(item, language):
@@ -1057,8 +1074,7 @@ def build_content(root: Path, output: Path):
                 destination = language_url(route, language) or route
                 item = song_items[route]
                 entry_class = "title-reading song-entry"
-                singer = (f'<span class="song-entry-singer">{html.escape(item["singer"])}</span>'
-                          if item["singer"] else "")
+                singer = singer_html(item["singer"], "song-entry-singer", language)
                 mood_buttons = "".join(
                     f'<button type="button" class="song-row-mood" data-song-row-mood="{html.escape(mood, quote=True)}" '
                     f'style="--category-accent:{html.escape(mood_by_id[mood]["accent"], quote=True)};'
@@ -1110,7 +1126,7 @@ def build_content(root: Path, output: Path):
         return (
             f'<div class="song-filter" role="search" data-song-filter '
             f'data-count-template="{html.escape(words["count"], quote=True)}">'
-            f'{chip_row("sound", song_sounds)}{chip_row("mood", song_moods)}'
+            f'{chip_row("sound", section_sounds)}{chip_row("mood", song_moods)}'
             '<p class="song-filter-summary" aria-live="polite"></p>'
             f'<p class="song-filter-empty" hidden>{words["empty"]} '
             f'<button type="button" class="song-filter-clear" data-song-filter-clear>{words["clear"]}</button></p></div>'
@@ -1175,7 +1191,8 @@ def build_content(root: Path, output: Path):
                 "sound": item["sound"],
                 "moods": item["moods"],
                 "dialect": item["dialect"],
-                "singer": item["singer"],
+                "singer": singer_labels(item["singer"])["en"],
+                "singerLabels": singer_labels(item["singer"]),
                 "label": item["label"],
                 "lomari": item["lomari"],
                 "search": item["search"],

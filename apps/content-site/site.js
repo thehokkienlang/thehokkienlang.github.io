@@ -412,7 +412,7 @@
           const labelOf = (table, id) => (table[id] || {})[language] || (table[id] || {}).en || "";
           const details = document.createElement("small");
           details.className = "tli-search-song-category";
-          details.textContent = [song.singer, labelOf(labels.sounds, song.sound), (song.moods || []).map(id => labelOf(labels.moods, id)).join(" / ")]
+          details.textContent = [song.singerLabels?.[language] || song.singer, labelOf(labels.sounds, song.sound), (song.moods || []).map(id => labelOf(labels.moods, id)).join(" / ")]
             .filter(Boolean).join(" · ");
           link.append(title, details);
           if (lineMatch) {
