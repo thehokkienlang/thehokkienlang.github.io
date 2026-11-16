@@ -263,7 +263,9 @@
   // Hangul is compared syllable by syllable, never as Korean.
   const filter = document.querySelector("[data-song-filter]");
   if (filter && window.TliSearchBox && window.TliSongSearch) {
-    const chips = [...filter.querySelectorAll("[data-song-filter-category]")];
+    const soundChips = [...filter.querySelectorAll("[data-song-filter-sound]")];
+    const moodChips = [...filter.querySelectorAll("[data-song-filter-mood]")];
+    const clearButton = filter.querySelector("[data-song-filter-clear]");
     const summary = filter.querySelector(".song-filter-summary");
     const empty = filter.querySelector(".song-filter-empty");
     const catalogue = document.querySelector(".song-catalogue");
@@ -276,13 +278,36 @@
       matchLomari: row.querySelector(".song-entry-match-lomari"),
     }));
     let matcher = null;
-    let category = new URL(location.href).searchParams.get("category") || "";
-    if (!chips.some(chip => chip.dataset.songFilterCategory === category)) category = "";
-    const showCategory = () => chips.forEach(chip => chip.setAttribute("aria-pressed", String(chip.dataset.songFilterCategory === category)));
+    // Old ?category= links (before sounds and moods) land on the closest new filter.
+    const OLD_CATEGORIES = {
+      modern: { sound: "modern" }, urban: { sound: "modern" }, rock: { sound: "modern", mood: "intense" },
+      golden: { sound: "classic" }, popular: { sound: "classic" }, "after-dark": { sound: "classic", mood: "melancholy" },
+      midnight: { mood: "melancholy" }, "feel-good": { mood: "heartfelt" }, playful: { mood: "upbeat" },
+      vintage: { sound: "roots" }, teochew: {},
+    };
+    const params = new URL(location.href).searchParams;
+    const legacy = OLD_CATEGORIES[params.get("category")] || {};
+    let sound = params.get("sound") || legacy.sound || "";
+    let mood = params.get("mood") || legacy.mood || "";
+    if (!soundChips.some(chip => chip.dataset.songFilterSound === sound)) sound = "";
+    if (!moodChips.some(chip => chip.dataset.songFilterMood === mood)) mood = "";
+    const showFilters = () => {
+      soundChips.forEach(chip => chip.setAttribute("aria-pressed", String(chip.dataset.songFilterSound === sound)));
+      moodChips.forEach(chip => chip.setAttribute("aria-pressed", String(chip.dataset.songFilterMood === mood)));
+    };
+    // The address bar keeps ?sound=, ?mood= and ?q= so a filtered list can be shared.
+    const writeAddress = () => {
+      const url = new URL(location.href);
+      url.searchParams.delete("category");
+      for (const [name, value] of [["sound", sound], ["mood", mood]]) {
+        if (value) url.searchParams.set(name, value); else url.searchParams.delete(name);
+      }
+      history.replaceState(history.state, "", url);
+    };
     const apply = () => {
       if (!matcher) return;
       const query = box.value();
-      const results = new Map(matcher.search(query, { category }).map(result => [result.song.route, result]));
+      const results = new Map(matcher.search(query, { sound, mood }).map(result => [result.song.route, result]));
       rows.forEach(item => {
         const result = results.get(item.route);
         item.row.hidden = !result;
@@ -322,21 +347,32 @@
         if (badge) badge.textContent = String(count).padStart(2, "0");
       });
       const shown = results.size;
-      const filtering = Boolean(query || category);
+      const filtering = Boolean(query || sound || mood);
       catalogue.classList.toggle("is-filtering", filtering);
       empty.hidden = shown > 0;
       summary.textContent = filtering && shown ? filter.dataset.countTemplate.replace("{n}", shown) : "";
     };
     const box = window.TliSearchBox.mount(document.querySelector(".songs-subheader [data-tli-search]"), { queryParam: "q", onChange: apply });
-    chips.forEach(chip => chip.addEventListener("click", () => {
-      category = chip.dataset.songFilterCategory;
-      showCategory();
-      const url = new URL(location.href);
-      if (category) url.searchParams.set("category", category); else url.searchParams.delete("category");
-      history.replaceState(history.state, "", url);
+    const setFilters = next => {
+      if ("sound" in next) sound = next.sound;
+      if ("mood" in next) mood = next.mood;
+      showFilters();
+      writeAddress();
       apply();
-    }));
-    showCategory();
+    };
+    soundChips.forEach(chip => chip.addEventListener("click", () => setFilters({ sound: chip.dataset.songFilterSound })));
+    moodChips.forEach(chip => chip.addEventListener("click", () => setFilters({ mood: chip.dataset.songFilterMood })));
+    // A mood chip on a song row applies that mood filter.
+    catalogue.addEventListener("click", event => {
+      const chip = event.target.closest("[data-song-row-mood]");
+      if (chip) setFilters({ mood: chip.dataset.songRowMood });
+    });
+    clearButton?.addEventListener("click", () => {
+      box.clear();
+      setFilters({ sound: "", mood: "" });
+    });
+    showFilters();
+    if (params.has("category")) writeAddress();
     Promise.all([window.TliSongSearch.loadIndex(), window.TliSiteSearchVariants.loadHanriFold()])
       .then(([index, hanriFold]) => { matcher = window.TliSongSearch.createMatcher(index, hanriFold); apply(); })
       .catch(error => console.error("Song search could not load", error));
@@ -348,7 +384,7 @@
     const language = document.documentElement.lang || "en";
     const limit = 8;
     let matcher = null;
-    let categories = {};
+    let labels = { sounds: {}, moods: {} };
     const songHref = (song, line) => {
       const base = song.urls[language] || song.urls.en;
       return line && line.anchor > 0 ? `${base}#line-${line.anchor}` : base;
@@ -358,7 +394,7 @@
       dropdown: {
         prepare: async () => {
           const [index, hanriFold] = await Promise.all([window.TliSongSearch.loadIndex(), window.TliSiteSearchVariants.loadHanriFold()]);
-          categories = index.categories;
+          labels = { sounds: index.sounds, moods: index.moods };
           matcher = window.TliSongSearch.createMatcher(index, hanriFold);
         },
         search: query => {
@@ -372,10 +408,13 @@
           const title = document.createElement("span");
           title.className = "tli-search-song-title title-reading";
           title.innerHTML = song.label;
-          const category = document.createElement("small");
-          category.className = "tli-search-song-category";
-          category.textContent = (categories[song.category] || {})[language] || (categories[song.category] || {}).en || "";
-          link.append(title, category);
+          // "<singer> · <sound> · <mood>", the singer only when the song has one.
+          const labelOf = (table, id) => (table[id] || {})[language] || (table[id] || {}).en || "";
+          const details = document.createElement("small");
+          details.className = "tli-search-song-category";
+          details.textContent = [song.singer, labelOf(labels.sounds, song.sound), (song.moods || []).map(id => labelOf(labels.moods, id)).join(" / ")]
+            .filter(Boolean).join(" · ");
+          link.append(title, details);
           if (lineMatch) {
             const snippet = document.createElement("span");
             snippet.className = "tli-search-song-line";

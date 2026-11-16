@@ -189,7 +189,9 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertIn(f'href="{row["new_url"]}?lang={language}"', songs)
                     self.assertNotIn(f'/{folder}{row["new_url"]}', routes)
             # Audit A9: the Songs page has a filter, and every song carries its search text.
-            categories = json.loads((ROOT / "content/song-categories.json").read_text(encoding="utf-8"))
+            sounds = json.loads((ROOT / "content/song-sounds.json").read_text(encoding="utf-8"))
+            moods = json.loads((ROOT / "content/song-moods.json").read_text(encoding="utf-8"))
+            song_count = len(json.loads((ROOT / "migration/song-urls.json").read_text(encoding="utf-8")))
             for folder in ("", "zh-hant/", "zh-hans/"):
                 songs = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 with self.subTest(songs=folder):
@@ -202,20 +204,28 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertNotIn('data-song-hanri-fold', songs)
                     self.assertNotIn('data-song-lines', songs)
                     self.assertLess(len(songs), 120_000)
-                    self.assertEqual(songs.count('data-song-filter-category='), len(categories) + 1)
-                    self.assertEqual(songs.count('<li data-song-route="'),
-                                     sum(len(category["routes"]) for category in categories))
+                    self.assertEqual(songs.count('data-song-filter-sound='), len(sounds) + 1)
+                    self.assertEqual(songs.count('data-song-filter-mood='), len(moods) + 1)
+                    self.assertEqual(songs.count('<li data-song-route="'), song_count)
+                    self.assertEqual(songs.count('data-song-sound="'), len(sounds))
+                    self.assertIn('data-song-filter-clear', songs)
+                    self.assertIn('data-song-row-mood="', songs)
                     for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
                         self.assertIn(f'/shared/{script}.js', songs)
             # Lyric-only phrases and Mandarin titles are in the song search index the filter reads.
             index = json.loads((output / "public/data/song-search-index.json").read_text(encoding="utf-8"))
             by_route = {song["route"]: song for song in index["songs"]}
-            self.assertEqual(len(by_route), sum(len(category["routes"]) for category in categories))
+            self.assertEqual(len(by_route), song_count)
             self.assertTrue(any("寒天" in line[2] for line in by_route["/songs/生份에릐/"]["lines"]))
             self.assertIn("腳踏車", by_route["/songs/跤踏車/"]["mandarinSearch"])
             self.assertEqual(by_route["/songs/跤踏車/"]["mandarinTitle"], "腳踏車")
             self.assertEqual(by_route["/songs/跤踏車/"]["urls"]["zh-Hant"], language_url("/songs/跤踏車/", "zh-Hant"))
-            self.assertIn(by_route["/songs/跤踏車/"]["category"], index["categories"])
+            self.assertIn(by_route["/songs/跤踏車/"]["sound"], index["sounds"])
+            self.assertTrue(set(by_route["/songs/跤踏車/"]["moods"]) <= set(index["moods"]))
+            self.assertEqual(by_route["/songs/跤踏車/"]["singer"], "王識賢")
+            # A song with versions lists its original's singer; the Teochew song carries its badge.
+            self.assertEqual(by_route["/songs/世界第一等/"]["singer"], "劉德華")
+            self.assertEqual(by_route["/songs/月下煮茶/"]["dialect"], "teochew")
             self.assertEqual(json.loads((output / "public/data/hanri-fold.json").read_text(encoding="utf-8"))["hanriFold"]["後"], "后")
             # Each lyric match can open its song at that line: the first line of a song is line 1.
             self.assertEqual(by_route["/songs/生份에릐/"]["lines"][0][4], 1)
@@ -231,7 +241,7 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertIn('data-more-href="/songs/"', song_page)
             crumb = song_page.split('<div class="songs-breadcrumb"', 1)[1].split("</div>", 1)[0]
             self.assertIn('class="songs-breadcrumb-root" href="/songs/"', crumb)
-            self.assertIn('href="/songs/?category=', crumb)
+            self.assertIn('href="/songs/?sound=', crumb)
             for name in ("Songs", "歌曲"):
                 self.assertIn(name, crumb)
             for label in ("Search songs…", "搜尋歌曲…", "搜索歌曲…", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):

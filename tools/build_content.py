@@ -40,10 +40,42 @@ LYRIC_SCRIPTS = ('<script src="/shared/web-lyric-player.js" defer></script>'
 TITLE_READING = re.compile(r'class="[^"]*\btitle-reading\b[^"]*"[^>]*>(.*?)</(?:h1|h2|a|span)>', re.S)
 HANGUL = re.compile(r"[\u1100-\u11ff\u3130-\u318f\ua960-\ua97f\uac00-\ud7a3\ud7b0-\ud7ff]")
 SONG_FILTER_TEXT = {
-    "en": {"categories": "Song categories", "all": "All", "empty": "No songs match.", "count": "{n} songs"},
-    "zh-Hant": {"categories": "歌曲分類", "all": "全部", "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲"},
-    "zh-Hans": {"categories": "歌曲分类", "all": "全部", "empty": "没有符合的歌曲。", "count": "{n} 首歌曲"},
+    "en": {"sound": "Sound", "mood": "Mood", "all": "All", "empty": "No songs match.", "count": "{n} songs",
+           "clear": "Clear filters", "teochew": "Teochew"},
+    "zh-Hant": {"sound": "曲風", "mood": "心情", "all": "全部", "empty": "沒有符合的歌曲。", "count": "{n} 首歌曲",
+                "clear": "清除篩選", "teochew": "潮汕"},
+    "zh-Hans": {"sound": "曲风", "mood": "心情", "all": "全部", "empty": "没有符合的歌曲。", "count": "{n} 首歌曲",
+                "clear": "清除筛选", "teochew": "潮汕"},
 }
+# The badge colours of a song's dialect (plan: the old Voice of Teochew category's).
+DIALECT_BADGE = {"teochew": {"accent": "#3f718b", "tint": "#cdeef5", "tintEnd": "#dbe5ff"}}
+
+
+CLASSIFICATION_CACHE = {}
+
+
+def song_classification(root):
+    """The fixed sound and mood lists and each song page's sound, moods and dialect.
+
+    Returns (sounds, moods, by_route). `sounds` and `moods` are the lists in content/song-sounds.json and
+    content/song-moods.json; `by_route` maps a song page's route to its file's sound, moods and dialect.
+    Read once per build (build_content clears the cache), because every song page asks for it.
+    """
+    if root not in CLASSIFICATION_CACHE:
+        CLASSIFICATION_CACHE[root] = _read_song_classification(root)
+    return CLASSIFICATION_CACHE[root]
+
+
+def _read_song_classification(root):
+    sounds = json.loads((root / "content/song-sounds.json").read_text(encoding="utf-8"))
+    moods = json.loads((root / "content/song-moods.json").read_text(encoding="utf-8"))
+    by_route = {}
+    for path in sorted((root / "content/songs").glob("*.json")):
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if "sound" in record:
+            by_route[record["route"]] = {"sound": record["sound"], "moods": record.get("moods", []),
+                                         "dialect": record.get("dialect", "")}
+    return sounds, moods, by_route
 # Every label a public search box shows, in one place: SEARCH_TEXT[box][language]. Python writes
 # these into the markup, so no script keeps its own copy.
 SEARCH_TEXT = {
@@ -708,13 +740,14 @@ def songs_subheader(root, route, language):
     if on_index:
         crumb = f'<span class="songs-breadcrumb-current" aria-current="page">{songs}</span>'
     else:
-        categories = json.loads((root / "content/song-categories.json").read_text(encoding="utf-8"))
-        category = next((item for item in categories if base_route(route) in item["routes"]), None)
+        sounds, _, classification = song_classification(root)
+        found = classification.get(base_route(route))
+        sound = next((item for item in sounds if found and item["id"] == found["sound"]), None)
         crumb = f'<a class="songs-breadcrumb-root" href="/songs/">{songs}</a>'
-        if category:
+        if sound:
             crumb += (f'<span class="songs-breadcrumb-sep" aria-hidden="true">›</span>'
-                      f'<a class="songs-breadcrumb-category" href="/songs/?category={html.escape(category["id"], quote=True)}">'
-                      f'{named(category["labels"])}</a>')
+                      f'<a class="songs-breadcrumb-category" href="/songs/?sound={html.escape(sound["id"], quote=True)}">'
+                      f'{named(sound["labels"])}</a>')
     box = search_box_html("songFilter" if on_index else "songSearch", language, "compact", "songs",
                           results="none" if on_index else "dropdown", more_href="/songs/")
     return (f'<div class="songs-subheader"><div class="songs-breadcrumb" role="navigation" aria-label="Breadcrumb">{crumb}</div>'
@@ -769,6 +802,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
 
 
 def build_content(root: Path, output: Path):
+    CLASSIFICATION_CACHE.clear()  # the song files may have changed since the last build
     content = root / "content"
     if not content.exists():
         return []
@@ -886,16 +920,18 @@ def build_content(root: Path, output: Path):
     def listing(items):
         return '<ul class="page-list">' + "".join(f'<li><a class="title-reading" href="{html.escape(item["route"], quote=True)}">{html.escape(item["title"].replace("Tangliengim", "TLI"))}</a></li>' for item in items) + "</ul>"
     song_rows = json.loads((root / "migration/song-urls.json").read_text(encoding="utf-8"))
-    song_categories = json.loads((root / "content/song-categories.json").read_text(encoding="utf-8"))
+    song_sounds, song_moods, classification = song_classification(root)
     songs_by_route = {item["route"]: item for item in published_records if item["type"] == "songs"}
     approved_routes = {row["new_url"] for row in song_rows}
-    categorized_routes = [route for category in song_categories for route in category["routes"]]
-    if len(categorized_routes) != len(set(categorized_routes)):
-        raise ValueError("A song appears in more than one category")
-    if set(categorized_routes) != approved_routes or approved_routes != set(songs_by_route):
-        missing = sorted(approved_routes - set(categorized_routes))
-        extra = sorted(set(categorized_routes) - approved_routes)
-        raise ValueError(f"Song categories are out of sync; missing={missing}, extra={extra}")
+    if approved_routes != set(songs_by_route) or approved_routes != set(classification):
+        missing = sorted(approved_routes - set(classification))
+        extra = sorted(set(classification) - approved_routes)
+        raise ValueError(f"Song sounds are out of sync with the song list; missing={missing}, extra={extra}")
+    sound_ids = {item["id"] for item in song_sounds}
+    mood_ids = {item["id"] for item in song_moods}
+    for route, found in classification.items():
+        if found["sound"] not in sound_ids or not found["moods"] or not set(found["moods"]) <= mood_ids:
+            raise ValueError(f"{route} has an unknown sound or mood")
 
     song_items = {}
     for route, imported in songs_by_route.items():
@@ -941,6 +977,11 @@ def build_content(root: Path, output: Path):
                     lines.append({**line, "anchor": position if record_index == 0 else 0})
         song_items[route] = {
             "label": label,
+            "sound": classification[route]["sound"],
+            "moods": classification[route]["moods"],
+            "dialect": classification[route]["dialect"],
+            # A song with versions lists its original's singer (the first version).
+            "singer": str(route_records[0].get("singer", "")).strip(),
             "lomari": song_lomari(imported),
             "mandarinTitle": " / ".join(mandarin_titles),
             "mandarinSearch": " ".join([original_titles, *mandarin_titles, *mandarin_simplified_titles]),
@@ -953,15 +994,43 @@ def build_content(root: Path, output: Path):
             ) if part),
         }
 
+    sound_by_id = {item["id"]: item for item in song_sounds}
+    mood_by_id = {item["id"]: item for item in song_moods}
+    # Sections run Modern, Classic, Roots (the file lists them Roots first, the chip order).
+    section_sounds = list(reversed(song_sounds))
+
+    def label_of(item, language):
+        return item["labels"].get(language, item["labels"]["en"])
+
+    def accent_style(item):
+        return (f'--category-accent:{html.escape(item["accent"], quote=True)};'
+                f'--category-tint:{html.escape(item["tint"], quote=True)};'
+                f'--category-tint-end:{html.escape(item["tintEnd"], quote=True)}')
+
     def song_index(language):
+        words = SONG_FILTER_TEXT[language]
         sections = []
-        for category in song_categories:
-            items = sorted(category["routes"], key=lambda route: (song_items[route]["sort"], route))
+        for sound in section_sounds:
+            routes = [route for route, item in song_items.items() if item["sound"] == sound["id"]]
+            items = sorted(routes, key=lambda route: (song_items[route]["sort"], route))
             links = []
             for route in items:
                 destination = language_url(route, language) or route
                 item = song_items[route]
                 entry_class = "title-reading song-entry"
+                singer = (f'<span class="song-entry-singer">{html.escape(item["singer"])}</span>'
+                          if item["singer"] else "")
+                mood_buttons = "".join(
+                    f'<button type="button" class="song-row-mood" data-song-row-mood="{html.escape(mood, quote=True)}" '
+                    f'style="--category-accent:{html.escape(mood_by_id[mood]["accent"], quote=True)};'
+                    f'--category-tint:{html.escape(mood_by_id[mood]["tint"], quote=True)}">'
+                    f'{html.escape(label_of(mood_by_id[mood], language))}</button>'
+                    for mood in item["moods"])
+                badge = DIALECT_BADGE.get(item["dialect"])
+                badge_markup = (
+                    f'<span class="song-dialect-badge" style="--category-accent:{badge["accent"]};'
+                    f'--category-tint:{badge["tint"]};--category-tint-end:{badge["tintEnd"]}">{words["teochew"]}</span>'
+                    if badge else "")
                 # Search data lives in public/data/song-search-index.json, joined to this row by route.
                 links.append(
                     f'<li data-song-route="{html.escape(route, quote=True)}">'
@@ -973,16 +1042,14 @@ def build_content(root: Path, output: Path):
                     '<span class="song-entry-match" hidden>'
                     '<span class="song-entry-match-main"></span>'
                     '<span class="song-entry-match-lomari"></span></span>'
-                    '</a></li>'
+                    '</a>'
+                    f'<div class="song-entry-tags">{singer}{mood_buttons}{badge_markup}</div></li>'
                 )
-            labels = category["labels"]
-            title = labels.get(language, labels["en"])
+            title = label_of(sound, language)
             sections.append(
                 '<section class="song-category" '
-                f'data-song-category="{html.escape(category["id"], quote=True)}" '
-                f'style="--category-accent:{html.escape(category["accent"], quote=True)};'
-                f'--category-tint:{html.escape(category["tint"], quote=True)};'
-                f'--category-tint-end:{html.escape(category["tintEnd"], quote=True)}">'
+                f'data-song-sound="{html.escape(sound["id"], quote=True)}" '
+                f'style="{accent_style(sound)}">'
                 '<header class="song-category-heading">'
                 f'<h2>{html.escape(title)}</h2><span>{len(items):02d}</span></header>'
                 f'<ol class="song-list">{"".join(links)}</ol></section>'
@@ -991,18 +1058,23 @@ def build_content(root: Path, output: Path):
 
     def song_filter(language):
         words = SONG_FILTER_TEXT[language]
-        chips = [f'<button type="button" class="song-filter-chip" data-song-filter-category="" aria-pressed="true">{words["all"]}</button>']
-        for category in song_categories:
-            label = category["labels"].get(language, category["labels"]["en"])
-            chips.append(
-                f'<button type="button" class="song-filter-chip" data-song-filter-category="{html.escape(category["id"], quote=True)}" '
-                f'aria-pressed="false" style="--category-accent:{html.escape(category["accent"], quote=True)}">{html.escape(label)}</button>')
+
+        def chip_row(kind, items):
+            chips = [f'<button type="button" class="song-filter-chip" data-song-filter-{kind}="" aria-pressed="true">{words["all"]}</button>']
+            for item in items:
+                chips.append(
+                    f'<button type="button" class="song-filter-chip" data-song-filter-{kind}="{html.escape(item["id"], quote=True)}" '
+                    f'aria-pressed="false" style="--category-accent:{html.escape(item["accent"], quote=True)}">'
+                    f'{html.escape(label_of(item, language))}</button>')
+            return (f'<div class="song-filter-group"><span class="song-filter-label">{words[kind]}</span>'
+                    f'<div class="song-filter-chips" role="group" aria-label="{words[kind]}">{"".join(chips)}</div></div>')
         return (
             f'<div class="song-filter" role="search" data-song-filter '
             f'data-count-template="{html.escape(words["count"], quote=True)}">'
-            f'<div class="song-filter-chips" role="group" aria-label="{words["categories"]}">{"".join(chips)}</div>'
+            f'{chip_row("sound", song_sounds)}{chip_row("mood", song_moods)}'
             '<p class="song-filter-summary" aria-live="polite"></p>'
-            f'<p class="song-filter-empty" hidden>{words["empty"]}</p></div>'
+            f'<p class="song-filter-empty" hidden>{words["empty"]} '
+            f'<button type="button" class="song-filter-clear" data-song-filter-clear>{words["clear"]}</button></p></div>'
         )
     sections = {}
     languages = manifest.get("languages", ["en"])
@@ -1053,15 +1125,18 @@ def build_content(root: Path, output: Path):
     (output / "public/data/hanri-fold.json").write_text(
         json.dumps({"schemaVersion": 1, "hanriFold": hanri_fold_map()}, ensure_ascii=False, separators=(",", ":")) + "\n",
         encoding="utf-8")
-    category_of = {route: category["id"] for category in song_categories for route in category["routes"]}
     song_search_index = {
-        "schemaVersion": 1,
-        "categories": {category["id"]: category["labels"] for category in song_categories},
+        "schemaVersion": 2,
+        "sounds": {item["id"]: item["labels"] for item in song_sounds},
+        "moods": {item["id"]: item["labels"] for item in song_moods},
         "songs": [
             {
                 "route": route,
                 "urls": {language: language_url(route, language) or route for language in languages},
-                "category": category_of[route],
+                "sound": item["sound"],
+                "moods": item["moods"],
+                "dialect": item["dialect"],
+                "singer": item["singer"],
                 "label": item["label"],
                 "lomari": item["lomari"],
                 "search": item["search"],

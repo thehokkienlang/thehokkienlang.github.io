@@ -30,11 +30,13 @@
       // one that contains it, then the Mandarin title, then lyrics. Songs of equal rank keep index
       // order. Each result gives its `rank`, whether the match is in the Mandarin title only, and
       // the first matching lyric line.
-      search(query, {category = ''} = {}) {
+      // `sound` and `mood` (ids, both optional) narrow the songs first; they combine with the query.
+      search(query, {sound = '', mood = ''} = {}) {
         const needle = normalise(query, hanriFold);
         const results = [];
         prepared.forEach((item, order) => {
-          if (category && item.song.category !== category) return;
+          if (sound && item.song.sound !== sound) return;
+          if (mood && !(item.song.moods || []).includes(mood)) return;
           if (needle && !item.text.includes(needle)) return;
           const rank = !needle ? RANK.all
             : item.titleText === needle ? RANK.title
