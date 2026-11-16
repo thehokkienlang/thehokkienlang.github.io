@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Song sound and mood picker</title>
+<style>
+body{font:15px/1.4 system-ui,"Noto Sans TC",sans-serif;margin:0;padding:16px;background:#fafafa;color:#222}
+h1{font-size:20px;margin:0 0 4px}p{margin:4px 0 12px;max-width:60rem}
+.bar{position:sticky;top:0;background:#fafafa;padding:8px 0;border-bottom:1px solid #ccc;display:flex;gap:8px;flex-wrap:wrap;align-items:center;z-index:1}
+button{font:inherit;padding:6px 12px;border:1px solid #888;border-radius:6px;background:#fff;cursor:pointer}
+table{border-collapse:collapse;width:100%;max-width:70rem}th,td{padding:5px 8px;border-bottom:1px solid #e2e2e2;text-align:left}
+th{font-size:13px;color:#555}select{font:inherit;padding:3px}
+select.todo{background:#fff3c4;border-color:#c9a400}
+td.s{font-size:17px}td.m{color:#666;font-size:13px}
+tr.hide{display:none}
+</style></head><body>
+<h1>Song sound and mood picker</h1>
+<p>Pick a sound and one or two moods for each song. Yellow boxes are guesses or empty and need your choice; they turn white once you change or confirm them. Choices are saved in this browser each time you change one, and when you press <b>Save</b>; the time of the last save shows beside the button. <b>Download choices</b> also makes a file you can bring back with <b>Load from file</b>. When you are done, press <b>Download choices</b> and save the file into the <code>docs</code> folder, or press <b>Copy choices</b> and paste them into the chat. Years are for reference only: "~" marks an estimate, and none have been verified.</p>
+<div class="bar"><button id="sv">Save</button><span id="st"></span><button id="ld">Load from file</button><input type="file" id="lf" accept=".json" hidden><button id="dl">Download choices</button><button id="cp">Copy choices</button>
+<label><input type="checkbox" id="only"> Show only songs still to review</label><span id="count"></span></div>
+<table><thead><tr><th>Song</th><th>Singer</th><th>Year</th><th>Today</th><th>Sound</th><th>Mood 1</th><th>Mood 2</th><th>Teochew</th></tr></thead><tbody id="tb"></tbody></table>
+<script>
+const SONGS = [{"song": "向前行", "old": "Modern", "singer": "林強", "sound": "modern", "soundGuess": false, "mood": "spirited", "moodGuess": true, "year": "1990"}, {"song": "浪溜嗹", "old": "Modern", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2018"}, {"song": "敢傻敢衝", "old": "Modern", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2020"}, {"song": "곻愛릐一擺", "old": "Modern", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2021"}, {"song": "헤비運將情歌", "old": "Modern", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2019"}, {"song": "一吋相思一吋淚", "old": "Modern", "singer": "麗小花", "sound": "classic", "soundGuess": true, "mood": "", "moodGuess": true, "year": "~2010–2020"}, {"song": "寫一條歌寫릐꽈爾爾", "old": "Modern", "singer": "蕭煌奇 feat. 茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2021"}, {"song": "愛情릐比꽈想에곻較偉大", "old": "Modern", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2021"}, {"song": "魚仔", "old": "Modern", "singer": "盧廣仲", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2017"}, {"song": "志明佮春嬌", "old": "Modern", "singer": "五月天", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1999"}, {"song": "身騎白馬", "old": "Modern", "singer": "徐佳瑩", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2009"}, {"song": "你啊你啊", "old": "Modern", "singer": "魏如萱", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2017"}, {"song": "門", "old": "Urban Ballads", "singer": "FunkyMo", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "~2018–2025"}, {"song": "에흐로때디", "old": "Urban Ballads", "singer": "椅子樂團", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2022"}, {"song": "手捧一杯酒", "old": "Urban Ballads", "singer": "椅子樂團", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2018"}, {"song": "메삐메삐", "old": "Urban Ballads", "singer": "椅子樂團", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2020"}, {"song": "總有一工", "old": "Urban Ballads", "singer": "理想混蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "~2023–2025"}, {"song": "家後", "old": "Popular", "singer": "江蕙", "sound": "classic", "soundGuess": false, "mood": "heartfelt", "moodGuess": true, "year": "2001"}, {"song": "堅持", "old": "Popular", "singer": "翁立友", "sound": "classic", "soundGuess": false, "mood": "spirited", "moodGuess": true, "year": "2005"}, {"song": "꽈問天", "old": "Popular", "singer": "翁立友", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2007"}, {"song": "小雨傘", "old": "Popular", "singer": "洪榮宏", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1982"}, {"song": "愛情챻챻", "old": "Popular", "singer": "陳小雲", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1992"}, {"song": "歡喜就好", "old": "Popular", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1994"}, {"song": "愛拚才會贏", "old": "Popular", "singer": "葉啟田", "sound": "classic", "soundGuess": false, "mood": "spirited", "moodGuess": true, "year": "1988"}, {"song": "酒後에心聲", "old": "Popular", "singer": "江蕙", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1992"}, {"song": "無眠", "old": "Midnight", "singer": "蘇打綠", "sound": "modern", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2009"}, {"song": "落雨聲", "old": "Midnight", "singer": "江蕙", "sound": "classic", "soundGuess": true, "mood": "melancholy", "moodGuess": false, "year": "1999"}, {"song": "浪子回頭", "old": "Midnight", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2017"}, {"song": "阿媽에話", "old": "Midnight", "singer": "蕭煌奇", "sound": "classic", "soundGuess": true, "mood": "melancholy", "moodGuess": false, "year": "2004"}, {"song": "生份에릐", "old": "Midnight", "singer": "椅子樂團", "sound": "modern", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2025"}, {"song": "再會랗心愛에無緣에人", "old": "Midnight", "singer": "施文彬", "sound": "classic", "soundGuess": true, "mood": "melancholy", "moodGuess": false, "year": "1995"}, {"song": "跤踏車", "old": "Feel-Good", "singer": "王識賢", "sound": "classic", "soundGuess": true, "mood": "heartfelt", "moodGuess": false, "year": "2001"}, {"song": "恬恬에夢", "old": "Feel-Good", "singer": "椅子樂團", "sound": "modern", "soundGuess": false, "mood": "heartfelt", "moodGuess": false, "year": "2016"}, {"song": "姊妹仔", "old": "Feel-Good", "singer": "旺福", "sound": "modern", "soundGuess": false, "mood": "heartfelt", "moodGuess": false, "year": "2021"}, {"song": "心花開", "old": "Feel-Good", "singer": "李千娜", "sound": "modern", "soundGuess": true, "mood": "heartfelt", "moodGuess": false, "year": "2014"}, {"song": "食飽’쀄", "old": "Feel-Good", "singer": "旺福", "sound": "modern", "soundGuess": false, "mood": "heartfelt", "moodGuess": false, "year": "2025"}, {"song": "水", "old": "Playful", "singer": "李竺芯", "sound": "", "soundGuess": true, "mood": "upbeat", "moodGuess": false, "year": "2024"}, {"song": "保庇", "old": "Playful", "singer": "王彩樺", "sound": "", "soundGuess": true, "mood": "upbeat", "moodGuess": false, "year": "2011"}, {"song": "足芳足芳", "old": "Playful", "singer": "李竺芯", "sound": "", "soundGuess": true, "mood": "upbeat", "moodGuess": false, "year": "2024"}, {"song": "애요애요애애요", "old": "Playful", "singer": "Singapore army song", "sound": "", "soundGuess": true, "mood": "upbeat", "moodGuess": false, "year": "~1970–1990"}, {"song": "愛情에騙子꽈問릐", "old": "Playful", "singer": "陳小雲", "sound": "classic", "soundGuess": true, "mood": "upbeat", "moodGuess": false, "year": "1988"}, {"song": "請問릐감欲做꽈에ᄁힻ흐뗀", "old": "Playful", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "upbeat", "moodGuess": false, "year": "2019"}, {"song": "菝仔", "old": "Playful", "singer": "FunkyMo", "sound": "modern", "soundGuess": false, "mood": "upbeat", "moodGuess": false, "year": "~2018–2025"}, {"song": "世界第一等", "old": "Rock", "singer": "劉德華 (video: 伍佰 cover)", "sound": "modern", "soundGuess": true, "mood": "spirited", "moodGuess": true, "year": "1997"}, {"song": "萬千花蕊慈母悲哀", "old": "Rock", "singer": "珂拉琪", "sound": "modern", "soundGuess": false, "mood": "intense", "moodGuess": true, "year": "2020"}, {"song": "傷心地獄芳花引魂", "old": "Rock", "singer": "珂拉琪", "sound": "modern", "soundGuess": false, "mood": "intense", "moodGuess": true, "year": "2021"}, {"song": "蓮花空行身染愛", "old": "Rock", "singer": "珂拉琪", "sound": "modern", "soundGuess": false, "mood": "intense", "moodGuess": true, "year": "2021"}, {"song": "這款自作多情", "old": "Rock", "singer": "茄子蛋", "sound": "modern", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2019"}, {"song": "小雨", "old": "Golden", "singer": "林玉英", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "~1985–1995"}, {"song": "隨緣", "old": "Golden", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1996"}, {"song": "金包銀", "old": "Golden", "singer": "蔡秋鳳", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1989"}, {"song": "台灣話", "old": "Golden", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1995"}, {"song": "雪中花", "old": "Golden", "singer": "王識賢 & 孫淑媚", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2005"}, {"song": "有影뽀", "old": "Golden", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1993"}, {"song": "風真透", "old": "Golden", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "~1991–1995"}, {"song": "爸囝情深", "old": "Golden", "singer": "何坤", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "—"}, {"song": "夜市人生", "old": "Golden", "singer": "翁立友", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2010"}, {"song": "雲中月圓", "old": "Golden", "singer": "王識賢 & 孫淑媚", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2004"}, {"song": "愛情一陣風", "old": "Golden", "singer": "陳百潭", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "~1985–1995"}, {"song": "惜別에海岸", "old": "Golden", "singer": "江蕙", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1984"}, {"song": "浪子에心情", "old": "Golden", "singer": "葉啟田", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1988"}, {"song": "一人一半感情𣍐散", "old": "Golden", "singer": "小黑 (Malaysian cover)", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "—"}, {"song": "夢中’에情話", "old": "Golden", "singer": "阿杜 & 江蕙", "sound": "classic", "soundGuess": false, "mood": "", "moodGuess": true, "year": "2002"}, {"song": "迷魂芳", "old": "After-Dark", "singer": "翁立友", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2007"}, {"song": "情難忘", "old": "After-Dark", "singer": "王識賢", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2004"}, {"song": "媽媽歌星", "old": "After-Dark", "singer": "江蕙", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "~1984–1990"}, {"song": "失落에夢", "old": "After-Dark", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2007"}, {"song": "春夏秋冬", "old": "After-Dark", "singer": "蔡小虎", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "1993"}, {"song": "飄浪에人", "old": "After-Dark", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "~2000–2015"}, {"song": "聲聲叫됴릐", "old": "After-Dark", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "~2000–2015"}, {"song": "愛릐無條件", "old": "After-Dark", "singer": "黃乙玲", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "1997"}, {"song": "雨水꽈問릐", "old": "After-Dark", "singer": "蔡秋鳳", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2003"}, {"song": "愛徦無命毋知驚", "old": "After-Dark", "singer": "王識賢", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2001"}, {"song": "上媠에花", "old": "After-Dark", "singer": "蕭煌奇", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2014"}, {"song": "靠站", "old": "After-Dark", "singer": "陳雷", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "~2000–2015"}, {"song": "反背", "old": "After-Dark", "singer": "王識賢", "sound": "classic", "soundGuess": false, "mood": "melancholy", "moodGuess": false, "year": "2004"}, {"song": "燒肉粽", "old": "Vintage", "singer": "郭金發", "sound": "roots", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1949"}, {"song": "天烏烏", "old": "Vintage", "singer": "folk song", "sound": "roots", "soundGuess": false, "mood": "", "moodGuess": true, "year": "traditional"}, {"song": "望春風", "old": "Vintage", "singer": "純純 (original); 鳳飛飛 version", "sound": "roots", "soundGuess": false, "mood": "", "moodGuess": true, "year": "1933"}, {"song": "月下煮茶", "old": "Teochew", "singer": "陈佳", "sound": "", "soundGuess": true, "mood": "", "moodGuess": true, "year": "2026"}];
+const SOUNDS = ["roots","classic","modern"];
+const MOODS = ["upbeat","heartfelt","melancholy","intense","spirited","lyrical","romantic"];
+const ZH = {roots:"傳統源聲", classic:"經典金曲", modern:"當代流行", upbeat:"輕快", heartfelt:"暖心", melancholy:"傷感", intense:"激昂", spirited:"勵志", lyrical:"抒情", romantic:"浪漫"};
+const KEY = "song-picker-v1";
+let saved = {};
+try { saved = JSON.parse(localStorage.getItem(KEY) || "{}"); } catch (e) {}
+const tb = document.getElementById("tb");
+function sel(options, value, todo) {
+  const s = document.createElement("select");
+  s.add(new Option("—", ""));
+  options.forEach(o => s.add(new Option(o[0].toUpperCase() + o.slice(1) + " " + ZH[o], o)));
+  s.value = value || "";
+  if (todo) s.classList.add("todo");
+  return s;
+}
+SONGS.forEach(r => {
+  const v = saved[r.song];
+  const tr = document.createElement("tr");
+  const cell = (text, cls) => { const td = document.createElement("td"); td.textContent = text; td.className = cls || ""; tr.append(td); };
+  cell(r.song, "s"); cell(r.singer, "m"); cell(r.year, "m"); cell(r.old, "m");
+  const a = sel(SOUNDS, v ? v.sound : r.sound, v ? !v.soundOk : r.soundGuess);
+  const b = sel(MOODS, v ? v.moods[0] : r.mood, v ? !v.moodOk : r.moodGuess);
+  const c = sel(MOODS, v ? v.moods[1] : "", false);
+  const d = document.createElement("input"); d.type = "checkbox"; d.checked = v ? v.teochew : r.old === "Teochew";
+  [a, b, c, d].forEach(el => { const td = document.createElement("td"); td.append(el); tr.append(td);
+    el.addEventListener("change", () => { el.classList.remove("todo"); save(); });
+    el.addEventListener("click", () => { if (el.value) { el.classList.remove("todo"); save(); } }); });
+  r.els = [a, b, c, d]; r.tr = tr; tb.append(tr);
+});
+const st = document.getElementById("st");
+function store(out) {
+  try {
+    localStorage.setItem(KEY, JSON.stringify(out));
+    if (localStorage.getItem(KEY) !== JSON.stringify(out)) throw new Error("not kept");
+    st.textContent = "Saved " + new Date().toLocaleTimeString(); st.style.color = "#1a7f37";
+    return true;
+  } catch (e) {
+    st.textContent = "This window cannot save. Use Download choices, and Load from file next time.";
+    st.style.color = "#b42318";
+    return false;
+  }
+}
+function apply(data) {
+  SONGS.forEach(r => { const v = data[r.song]; if (!v) return; const [a, b, c, d] = r.els;
+    a.value = v.sound || ""; b.value = (v.moods || [])[0] || ""; c.value = (v.moods || [])[1] || ""; d.checked = !!v.teochew;
+    a.classList.toggle("todo", !v.soundOk); b.classList.toggle("todo", !v.moodOk); });
+  save();
+}
+function collect() {
+  const out = {};
+  SONGS.forEach(r => { const [a, b, c, d] = r.els;
+    out[r.song] = { sound: a.value, moods: [b.value, c.value].filter(Boolean), teochew: d.checked,
+      soundOk: !a.classList.contains("todo"), moodOk: !b.classList.contains("todo") }; });
+  return out;
+}
+function save() {
+  const out = collect();
+  store(out);
+  const left = SONGS.filter(r => r.els[0].classList.contains("todo") || r.els[1].classList.contains("todo"));
+  document.getElementById("count").textContent = left.length + " of " + SONGS.length + " still to review";
+  const only = document.getElementById("only").checked;
+  SONGS.forEach(r => r.tr.classList.toggle("hide", only && !left.includes(r)));
+}
+document.getElementById("only").addEventListener("change", save);
+document.getElementById("sv").onclick = save;
+document.getElementById("ld").onclick = () => document.getElementById("lf").click();
+document.getElementById("lf").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { apply(JSON.parse(await f.text())); } catch (err) { alert("That file could not be read."); }
+  e.target.value = "";
+};
+window.addEventListener("beforeunload", e => { if (!store(collect())) { e.preventDefault(); e.returnValue = ""; } });
+function text() { return JSON.stringify(collect(), null, 1); }
+document.getElementById("dl").onclick = () => {
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([text()], { type: "application/json" }));
+  a.download = "song-categories-choices.json"; a.click();
+};
+document.getElementById("cp").onclick = async e => {
+  try { await navigator.clipboard.writeText(text()); e.target.textContent = "Copied"; }
+  catch (err) { prompt("Copy this:", text()); }
+};
+save();
+</script></body></html>
