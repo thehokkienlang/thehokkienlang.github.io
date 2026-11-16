@@ -4,15 +4,14 @@ from __future__ import annotations
 
 import argparse
 import ast
-import contextlib
 import difflib
-import io
 import json
 import os
 import subprocess
 import sys
 import time
 import traceback
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
 from capture_legacy_parity import capture
@@ -77,8 +76,9 @@ PYTHON_FILES = (
 class Section:
     """One named step of the gate: either a subprocess command or a Python function."""
 
-    def __init__(self, label, command=None, function=None):
+    def __init__(self, label, command=None, function=None, stage=2):
         self.label = label
+        self.stage = stage
         self.command = command
         self.function = function
 
@@ -95,24 +95,20 @@ class Section:
                 errors="replace",
             )
             return result.returncode == 0, result.stdout
-        buffer = io.StringIO()
         try:
-            with contextlib.redirect_stdout(buffer):
-                self.function()
+            return True, self.function() + chr(10)
         except BaseException:  # report any failure with its traceback
-            buffer.write(traceback.format_exc())
-            return False, buffer.getvalue()
-        return True, buffer.getvalue()
+            return False, traceback.format_exc()
 
 
-def check_python_syntax() -> None:
+def check_python_syntax() -> str:
     for relative in PYTHON_FILES:
         path = ROOT / relative
         ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
-    print(f"OK: {len(PYTHON_FILES)} Python sources parsed.")
+    return f"OK: {len(PYTHON_FILES)} Python sources parsed."
 
 
-def check_legacy_parity() -> None:
+def check_legacy_parity() -> str:
     cases = json.loads((FIXTURES / "legacy-ime-parity-cases.json").read_text(encoding="utf-8"))
     expected_path = FIXTURES / "legacy-ime-parity-reference.json"
     expected = json.loads(expected_path.read_text(encoding="utf-8"))
@@ -125,26 +121,47 @@ def check_legacy_parity() -> None:
             difflib.unified_diff(before, after, fromfile="checked-in reference", tofile="current desktop")
         )
         raise AssertionError(f"Desktop parity fixture changed:\n{difference}")
-    print("OK: desktop behaviour matches the checked-in parity baseline.")
+    return "OK: desktop behaviour matches the checked-in parity baseline."
+
+
+def run_stage(batch: list[Section], jobs: int) -> list[tuple[bool, str, float]]:
+    """Run one stage's sections, `jobs` at a time, returning results in the original order."""
+
+    def timed(section: Section) -> tuple[bool, str, float]:
+        started = time.perf_counter()
+        passed, output = section.execute()
+        return passed, output, time.perf_counter() - started
+
+    if jobs == 1 or len(batch) == 1:
+        results = []
+        for section in batch:
+            results.append(timed(section))
+            if not results[-1][0]:
+                break  # serial mode stops at the first failure, as before
+        return results
+    with ThreadPoolExecutor(max_workers=jobs) as pool:
+        return list(pool.map(timed, batch))
 
 
 def build_sections(source_only: bool) -> list[Section]:
     """Every section of the gate, in the order it runs."""
     py = [sys.executable, "-X", "utf8"]
-    sections = [Section("Python syntax", function=check_python_syntax)]
+    # Stages run in order; the sections inside one stage may run in parallel.
+    #   0 early source checks, 1 build, 2 independent checks, 3 checks of the built site.
+    sections = [Section("Python syntax", function=check_python_syntax, stage=0)]
     for relative in JAVASCRIPT_FILES:
-        sections.append(Section(f"JavaScript syntax: {relative}", ["node", "--check", relative]))
+        sections.append(Section(f"JavaScript syntax: {relative}", ["node", "--check", relative], stage=0))
 
-    def add(label, *command):
-        sections.append(Section(label, list(command)))
+    def add(label, *command, stage=2):
+        sections.append(Section(label, list(command), stage=stage))
 
-    add("Dictionary TSV schema", *py, "tools/validate_dictionary_tsv.py")
-    add("Canonical source order (read-only)", *py, "tools/sort_dictionary_tsv.py", "--check")
-    add("Redirect log coverage and jamo order", *py, "tools/build_redirect_log.py", "--check")
+    add("Dictionary TSV schema", *py, "tools/validate_dictionary_tsv.py", stage=0)
+    add("Canonical source order (read-only)", *py, "tools/sort_dictionary_tsv.py", "--check", stage=0)
+    add("Redirect log coverage and jamo order", *py, "tools/build_redirect_log.py", "--check", stage=0)
     if source_only:
-        add("Build runtime dictionary data", *py, "tools/build_dictionary_json.py")
+        add("Build runtime dictionary data", *py, "tools/build_dictionary_json.py", stage=1)
     else:
-        add("Build published site", *py, "tools/build_site.py")
+        add("Build published site", *py, "tools/build_site.py", stage=1)
     add("Dictionary counts", *py, "tools/dictionary_counts.py")
     add("Dictionary collation and audio portability", *py, "-m", "unittest", "discover",
         "-s", "tests", "-p", "test_dictionary_*.py")
@@ -169,9 +186,9 @@ def build_sections(source_only: bool) -> list[Section]:
     add("Audio waveform parity", *py, "tools/check_audio_pcm.py")
     sections.append(Section("Desktop parity baseline", function=check_legacy_parity))
     if not source_only:
-        add("Validate published site", *py, "tools/check_site.py")
-        add("Compressed audio copies", *py, "tools/compressed_audio.py")
-        add("Validate built Web applications", "node", "tools/check_web_apps.cjs")
+        add("Validate published site", *py, "tools/check_site.py", stage=3)
+        add("Compressed audio copies", *py, "tools/compressed_audio.py", stage=3)
+        add("Validate built Web applications", "node", "tools/check_web_apps.cjs", stage=3)
     return sections
 
 
@@ -192,6 +209,18 @@ def main() -> int:
         dest="start_from",
         metavar="SECTION",
         help="Start at this section label (an exact label, or a unique prefix) and skip the earlier ones.",
+    )
+    parser.add_argument(
+        "--serial",
+        action="store_true",
+        help="Run one section at a time, in order (for debugging).",
+    )
+    parser.add_argument(
+        "--jobs",
+        type=int,
+        default=4,
+        metavar="N",
+        help="Run up to N independent sections at once (default 4).",
     )
     args = parser.parse_args()
 
@@ -217,20 +246,24 @@ def main() -> int:
             return 2
         sections = sections[matches[0]:]
 
-    for section in sections:
-        started = time.perf_counter()
-        passed, output = section.execute()
-        seconds = time.perf_counter() - started
-        if args.quiet and passed:
-            print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
-            continue
-        print(f"\n== {section.label} ==", flush=True)
-        sys.stdout.write(output)
-        if not passed:
-            print(f"\nFAILED: {section.label}  ({seconds:.1f}s)", flush=True)
+    jobs = 1 if args.serial else max(1, args.jobs)
+    for stage in sorted({section.stage for section in sections}):
+        batch = [section for section in sections if section.stage == stage]
+        results = run_stage(batch, jobs)
+        failed = False
+        for section, (passed, output, seconds) in zip(batch, results):
+            if args.quiet and passed:
+                print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
+                continue
+            print(f"\n== {section.label} ==", flush=True)
+            sys.stdout.write(output)
+            if passed:
+                print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
+            else:
+                print(f"\nFAILED: {section.label}  ({seconds:.1f}s)", flush=True)
+                failed = True
+        if failed:
             return 1
-        if args.quiet:
-            print(f"OK  {section.label}  {seconds:.1f}s", flush=True)
 
     print("\nOK: Tangliengim release gate passed.")
     return 0
