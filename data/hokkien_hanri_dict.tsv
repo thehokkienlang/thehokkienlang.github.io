@@ -789,6 +789,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 人	〃	랑4	〃	〃	person; people		lexical	U+4EBA_00
 聾	聋	랑4	〃	聋	deaf		lexical	U+807E_00
 弄	〃	랑5	〃	〃	play with; make		lexical	U+5F04_00
+閬港	阆港	랑2강2	潛逃外地	潜逃外地	to flee		lexical	U+95AC_U+6E2F_00
 人家	〃	랑게1	〃	〃	person; people; home; family		lexical	U+4EBA_U+5BB6_00
 人客	〃	랑켛	客人	〃	guest; customer		lexical	U+4EBA_U+5BA2_00
 漏	〃	ᄅᅷ	〃	〃	leak		lexical	U+6F0F_00
@@ -1140,6 +1141,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 屏東	屏东	빈덩1	〃	屏东	Pingtung		lexical	U+5C4F_U+6771_00
 貧惰	贫惰	빈돨5	懶惰	懒惰	poor; lazy		lexical	U+8CA7_U+60F0_00
 筆	笔	빋	〃	笔	pen; brush		lexical	U+7B46_00
+必巡	〃	빋1순4	裂縫	裂缝	crack		lexical	U+5FC5_U+5DE1_00
 邊	边	빌1	〃	边	side; edge		lexical	U+908A_00
 鱉	鳖	빟	〃	鳖	softshell turtle		lexical	U+9C49_00
 木	木	빡1	木	木	wood		lexical	U+6728_00
@@ -1587,6 +1589,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 神通	〃	신텅1	〃	〃	supernatural power		lexical	U+795E_U+901A_00
 身體	身体	신5테2	〃	身体	body		lexical	U+8EAB_U+9AD4_00
 實	实	싣1	〃	实	real; solid		lexical	U+5BE6_00
+翼	翼	싣1	翼	翼	wing		lexical	U+7FFC_00
 失	〃	싣	〃	〃	lose; mistake		lexical	U+5931_00
 失落	〃	싣1롷1	〃	〃	lost; disappointed		lexical	U+5931_U+843D_00
 失敗	失败	싣1배	〃	失败	fail		lexical	U+5931_U+6557_00

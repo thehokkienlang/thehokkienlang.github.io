@@ -613,6 +613,12 @@
       "sourceId": 11543,
       "route": "/songs/身騎白馬/",
       "file": "content/songs/song-11543.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/必巡/",
+      "sourceId": 11544,
+      "route": "/songs/必巡/",
+      "file": "content/songs/song-11544.json"
     }
   ],
   "deferred": {
