@@ -405,6 +405,12 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
 }
 
+// The clips for the site-wide Taipei/Singapore preference (shared/web-sandhi-preference.js): an
+// entry's Singapore clips when it has them, otherwise its own. The shown reading stays Taipei.
+function audioForPreference(entry) {
+  return TangliengimPhoneticOutput.audioForSandhiMode(entry.audio, window.TliSandhiPreference?.get());
+}
+
 async function playAudioSequence(audio, button) {
   button.classList.add("playing");
   button.disabled = true;
@@ -460,7 +466,7 @@ function renderReading(entry) {
       return;
     }
     try {
-      await playAudioSequence(entry.audio, playButton);
+      await playAudioSequence(audioForPreference(entry), playButton);
       if (missingAudio.length) {
         showToast(`Missing audio: ${missingAudio.join(", ")}`);
       }

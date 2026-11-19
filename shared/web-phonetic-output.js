@@ -653,6 +653,13 @@ const TangliengimPhoneticOutput = (() => {
     return { render, resolvedHangulToneSpans };
   }
 
+  // The clips to play for a sandhi preference: an entry's Singapore clips when the preference is
+  // Singapore and the entry has them, otherwise its own (Taipei) clips.
+  function audioForSandhiMode(audio, mode) {
+    if (mode === "singapore" && audio?.singapore) return audio.singapore;
+    return audio;
+  }
+
   function createAudioPlanner({
     imeCore,
     getSandhiMode = () => "taipei",
@@ -677,8 +684,7 @@ const TangliengimPhoneticOutput = (() => {
     }
 
     function audioForCurrentSandhiMode(audio) {
-      if (getSandhiMode() === "singapore" && audio?.singapore) return audio.singapore;
-      return audio;
+      return audioForSandhiMode(audio, getSandhiMode());
     }
 
     function dictionaryAudioPath(file) {
@@ -945,7 +951,7 @@ const TangliengimPhoneticOutput = (() => {
     return { plan };
   }
 
-  return { applyTone, canonicalizeAudioUnit, createAudioPlanner, createRenderer, keyboardGuideRomanisation, romanizeUnit };
+  return { applyTone, audioForSandhiMode, canonicalizeAudioUnit, createAudioPlanner, createRenderer, keyboardGuideRomanisation, romanizeUnit };
 })();
 
 window.TangliengimPhoneticOutput = TangliengimPhoneticOutput;

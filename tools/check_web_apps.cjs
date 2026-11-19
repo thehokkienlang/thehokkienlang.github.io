@@ -68,7 +68,7 @@ async function loadApp(route, script) {
   context.window = context;
   const files = ['shared/web-sandhi-preference.js', 'shared/web-hangul-ime.js', 'shared/web-ime-core.js', 'shared/web-audio-player.js'];
   if (route === 'ime') files.push('shared/web-phonetic-output.js');
-  if (route === 'dictionary') files.push('shared/web-search-box.js');
+  if (route === 'dictionary') files.push('shared/web-phonetic-output.js', 'shared/web-search-box.js');
   files.push(path.posix.join(appRoot, route, script));
   for (const file of files) {
     vm.runInContext(fs.readFileSync(path.join(root, file), 'utf8'), context, { filename: file });
@@ -219,6 +219,23 @@ async function loadApp(route, script) {
   const dictionary = await loadApp('dictionary', 'app.js');
   assert.equal(dictionary.elements.get('#results').children.length, 0, 'Empty search must stay empty');
   assert.ok(!dictionary.elements.get('#dataStatus').textContent.includes('failed'));
+  // The Dictionary plays the clips for the site-wide sandhi preference: Singapore clips when the
+  // entry has them, its own otherwise, and the shown reading is never changed.
+  assert.deepEqual(JSON.parse(vm.runInContext(`(() => {
+    const withSingapore = state.entries.find(entry => entry.audio?.singapore?.segments?.length);
+    const without = state.entries.find(entry => entry.audio?.segments?.length && !entry.audio.singapore);
+    const shown = withSingapore.reading;
+    const result = {};
+    for (const mode of ['taipei', 'singapore']) {
+      TliSandhiPreference.set(mode);
+      result[mode] = [audioForPreference(withSingapore) === (mode === 'singapore' ? withSingapore.audio.singapore : withSingapore.audio),
+        audioForPreference(without) === without.audio];
+    }
+    TliSandhiPreference.set('taipei');
+    result.readingUnchanged = withSingapore.reading === shown;
+    return JSON.stringify(result);
+  })()`, dictionary.context)), { taipei: [true, true], singapore: [true, true], readingUnchanged: true },
+    'The Dictionary must play Singapore clips only in Singapore mode, and only where an entry has them');
   assert.ok(vm.runInContext(`(() => {
     return ['米粉粿', '麵粉粿', '面粉粿', '삐1훈1궤2', '삐훈궤'].every(query => {
       searchInput.value = query;
