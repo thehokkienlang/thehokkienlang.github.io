@@ -3,7 +3,8 @@
 The imported WordPress pages carry their images with empty or missing alt text.
 The build fills in these descriptions so the source pages stay untouched.
 Descriptions say what each image shows; they add no new linguistic claims.
-The text version transcribes the Taipei sandhi diagram exactly as drawn.
+The text version transcribes the Taipei sandhi diagram exactly as drawn; the Singapore diagram
+differs from it in one arrow (Falling goes to Rising, not High) and its text version says so.
 """
 
 from __future__ import annotations
@@ -16,6 +17,11 @@ _SANDHI_DIAGRAM = {
     "zh-Hant": "台北變調規則圖。下方附有文字版。",
     "zh-Hans": "台北变调规则图。下方附有文字版。",
 }
+_SANDHI_DIAGRAM_SINGAPORE = {
+    "en": "Diagram of the Singapore tone sandhi pattern. A text version follows.",
+    "zh-Hant": "新加坡變調規則圖。下方附有文字版。",
+    "zh-Hans": "新加坡变调规则图。下方附有文字版。",
+}
 _HIGH_TO_MID = {
     "en": "In tone sandhi, the High tone (東) becomes the Mid tone (洞).",
     "zh-Hant": "變調時，高調（東）變為中調（洞）。",
@@ -26,6 +32,8 @@ _HIGH_TO_MID = {
 ALT_TEXT = {
     "ffbe2a8272c7-taipei-sandhi.png": _SANDHI_DIAGRAM,
     "eb5dcc7d8d80-taipei-sandhi-sc.png": _SANDHI_DIAGRAM,
+    "singapore-sandhi.png": _SANDHI_DIAGRAM_SINGAPORE,
+    "singapore-sandhi-sc.png": _SANDHI_DIAGRAM_SINGAPORE,
     "74a429b6c640-high-to-mid-sandhi.png": _HIGH_TO_MID,
     "206b70dff342-high-to-mid-sandhi-sc.png": _HIGH_TO_MID,
     "7422c04d94d8-consonants-illustration_v2.png": {
@@ -74,25 +82,37 @@ _SANDHI_ROWS = {
     "zh-Hans": (("高调", "东", "中调"), ("中调", "洞", "低调"), ("升调", "同", "低调"), ("低调", "栋", "降调"),
                 ("降调", "党", "高调"), ("高入调", "独", "低入调"), ("低入调", "督", "高入调")),
 }
+
+
+def _singapore_rows(rows):
+    """Singapore sandhi differs from Taipei in one step: Falling becomes Rising (4), not High (1)."""
+    rising = rows[2][0]
+    return tuple((tone, example, rising) if tone == rows[4][0] else (tone, example, after)
+                 for tone, example, after in rows)
+
+
+_SANDHI_ROWS_SINGAPORE = {language: _singapore_rows(rows) for language, rows in _SANDHI_ROWS.items()}
 _SANDHI_LABELS = {
     "en": ("Text version of the diagram", "Tone (example)", "Before another syllable",
            "Checked syllables end in -ㄱ, -ㄷ, -ㅂ or -ㅎ."),
     "zh-Hant": ("圖表文字版", "本調（例字）", "後接其他音節時", "入聲字以 -ㄱ、-ㄷ、-ㅂ 或 -ㅎ 結尾。"),
     "zh-Hans": ("图表文字版", "本调（例字）", "后接其他音节时", "入声字以 -ㄱ、-ㄷ、-ㅂ 或 -ㅎ 结尾。"),
 }
-TEXT_VERSIONS = {"ffbe2a8272c7-taipei-sandhi.png", "eb5dcc7d8d80-taipei-sandhi-sc.png"}
+TEXT_VERSIONS = {"ffbe2a8272c7-taipei-sandhi.png": "taipei", "eb5dcc7d8d80-taipei-sandhi-sc.png": "taipei",
+                 "singapore-sandhi.png": "singapore", "singapore-sandhi-sc.png": "singapore"}
 
 IMG = re.compile(r"<img\b[^>]*>", re.I)
 SRC = re.compile(r'\bsrc="([^"]+)"', re.I)
 ALT = re.compile(r'\salt="([^"]*)"', re.I)
 
 
-def sandhi_text_version(language: str) -> str:
+def sandhi_text_version(language: str, mode: str = "taipei") -> str:
     summary, tone_header, sandhi_header, note = _SANDHI_LABELS[language]
+    table = _SANDHI_ROWS_SINGAPORE if mode == "singapore" else _SANDHI_ROWS
     rows = "".join(f"<tr><td>{html.escape(tone)}（{example}）</td><td>{html.escape(after)}</td></tr>"
                    if language != "en" else
                    f"<tr><td>{html.escape(tone)} ({example})</td><td>{html.escape(after)}</td></tr>"
-                   for tone, example, after in _SANDHI_ROWS[language])
+                   for tone, example, after in table[language])
     return ('<details class="diagram-text-version"><summary>' + html.escape(summary) + "</summary>"
             f"<table><thead><tr><th>{html.escape(tone_header)}</th><th>{html.escape(sandhi_header)}</th></tr></thead>"
             f"<tbody>{rows}</tbody></table><p>{html.escape(note)}</p></details>")
@@ -100,7 +120,7 @@ def sandhi_text_version(language: str) -> str:
 
 def describe_images(body: str, language: str) -> str:
     """Fill empty or missing alt text and add the sandhi diagram's text version."""
-    pending_text_version = False
+    pending_text_version = ""
 
     def image(match: re.Match) -> str:
         nonlocal pending_text_version
@@ -111,7 +131,7 @@ def describe_images(body: str, language: str) -> str:
         if not descriptions:
             return tag
         if name in TEXT_VERSIONS:
-            pending_text_version = True
+            pending_text_version = TEXT_VERSIONS[name]
         existing = ALT.search(tag)
         if existing and existing.group(1).strip():
             return tag
@@ -133,8 +153,8 @@ def describe_images(body: str, language: str) -> str:
             close = body.find("</figure>", position)
             next_image = IMG.search(body, position)
             end = close + len("</figure>") if close != -1 and (next_image is None or close < next_image.start()) else position
-            pieces.append(body[position:end] + sandhi_text_version(language))
+            pieces.append(body[position:end] + sandhi_text_version(language, pending_text_version))
             position = end
-            pending_text_version = False
+            pending_text_version = ""
     pieces.append(body[position:])
     return "".join(pieces)

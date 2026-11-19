@@ -220,6 +220,39 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn("tliAudioSingapore", site_js)
         self.assertIn("TliSandhiPreference", site_js)
 
+    def test_tone_sandhi_guide_follows_the_sandhi_preference(self):
+        import image_descriptions
+        from build_content import expand_listen_tokens
+        for folder, language in (("content/guides", "en"), ("content/zh-hant/guides", "zh-Hant"), ("content/zh-hans/guides", "zh-Hans")):
+            body = json.loads((ROOT / folder / "tone-sandhi.json").read_text(encoding="utf-8"))["body"]
+            with self.subTest(language=language):
+                # Both versions of the pattern diagram are there; the page shows the one for the preference.
+                self.assertEqual(body.count('data-sandhi-show="taipei"'), 1)
+                self.assertEqual(body.count('data-sandhi-show="singapore"'), 1)
+                self.assertEqual(len(re.findall(r"singapore-sandhi(?:-sc)?\.png", body)), 1)
+                # The one example whose sandhi differs between the two (水內) is replaced by 心內, which
+                # sounds the same in both, so no recording needs switching.
+                self.assertNotIn("쥐래", body)
+                self.assertNotIn("jûi", body.replace("û", "û"))
+                self.assertIn("[[tli-listen 心內 심5래5]]", body)
+                playable = expand_listen_tokens(ROOT, language, body)
+                self.assertNotIn("[[tli-listen", playable)
+                self.assertIn('class="tli-listen" data-tli-audio=', playable)
+                self.assertNotIn("data-tli-audio-singapore", playable, "心內 sounds the same in both")
+        # The Singapore diagram's text version differs from the Taipei one in one row: Falling goes to Rising.
+        for language in ("en", "zh-Hant", "zh-Hans"):
+            rows = dict((tone, after) for tone, _example, after in image_descriptions._SANDHI_ROWS[language])
+            singapore = dict((tone, after) for tone, _example, after in image_descriptions._SANDHI_ROWS_SINGAPORE[language])
+            changed = {tone for tone in rows if rows[tone] != singapore[tone]}
+            self.assertEqual(len(changed), 1, language)
+            (falling,) = changed
+            self.assertEqual(rows[falling], next(tone for tone in rows if tone.startswith(("High", "高")) and "checked" not in tone and "入" not in tone))
+            self.assertEqual(singapore[falling], next(tone for tone in rows if tone.startswith(("Rising", "升"))))
+        self.assertIn("singapore-sandhi.png", image_descriptions.ALT_TEXT)
+        self.assertEqual(image_descriptions.TEXT_VERSIONS["singapore-sandhi-sc.png"], "singapore")
+        for name in ("singapore-sandhi.png", "singapore-sandhi-sc.png"):
+            self.assertTrue((ROOT / "assets/content/wordpress" / name).is_file(), name)
+
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)

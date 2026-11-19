@@ -429,6 +429,24 @@ def listen_button(root, language, hanri, reading):
     return ""
 
 
+LISTEN_TOKEN = re.compile(r'(?:<p[^>]*>\s*)?\[\[tli-listen (\S+) (\S+)\]\](?:\s*</p>)?')
+
+
+def expand_listen_tokens(root, language, body):
+    """Turn "[[tli-listen 心內 심5래5]]" in a guide into that dictionary entry's play button.
+
+    A guide example plays the dictionary's own recording instead of a separate audio file, so it
+    follows the dictionary (and the Taipei/Singapore preference). A token with no matching entry
+    that has audio is an error, never a silent gap.
+    """
+    def button(match):
+        result = listen_button(root, language, match[1], match[2])
+        if not result:
+            raise ValueError(f"No dictionary audio for {match[1]} {match[2]} (a [[tli-listen]] token in a guide)")
+        return f'<p class="tli-listen-slot">{result}</p>'
+    return LISTEN_TOKEN.sub(button, body)
+
+
 def play_button(language, segments, singapore=None):
     clips = html.escape(json.dumps(segments, ensure_ascii=False, separators=(",", ":")), quote=True)
     singapore_clips = ""
@@ -989,6 +1007,8 @@ def build_content(root: Path, output: Path):
         if base_route(route) == "/":
             body = curate_home_body(body, record["language"], [item for item in published_records if item["type"] == "songs"],
                                     listen_button(root, record["language"], "學生", "학솅1"))
+        if record["type"] == "guides":
+            body = expand_listen_tokens(root, record["language"], body)
         body = describe_images(body, record["language"])
         page_body = body + learn_next_link(route, record["language"], published_records) if record["type"] == "guides" else body
         target.write_text(document(root, record["title"], route, page_body, record["type"], record["sourceUrl"], heading_html), encoding="utf-8")

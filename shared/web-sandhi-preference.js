@@ -109,7 +109,15 @@
   root.TliSandhiPreference = {...api, ...preference};
   root.addEventListener?.('storage', event => preference.receiveStorageEvent(event));
 
+  // <html data-sandhi="taipei|singapore">: lets CSS show the Taipei or the Singapore version of a
+  // figure ([data-sandhi-show]) with no script of its own.
+  function markRoot() {
+    try { root.document.documentElement.dataset.sandhi = preference.get(); } catch (_error) { /* no DOM */ }
+  }
+  markRoot();
+
   function syncControls() {
+    markRoot();
     if (!root.document?.querySelectorAll) return;
     const mode = preference.get();
     root.document.querySelectorAll('[data-sandhi-choice]').forEach(button => {

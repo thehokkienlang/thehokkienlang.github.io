@@ -60,7 +60,8 @@ class ImageDescriptionTests(unittest.TestCase):
                     continue
                 self.assertRegex(tag, r'\balt="[^"]+"', f"{page.relative_to(SITE)}: {tag[:90]}")
         for path in ("learn/tone-sandhi/index.html", "zh-hant/learn/tone-sandhi/index.html", "zh-hans/learn/tone-sandhi/index.html"):
-            self.assertEqual(built(path).count('class="diagram-text-version"'), 1, path)
+            # One text version for each of the two diagrams (Taipei and Singapore) on the page.
+            self.assertEqual(built(path).count('class="diagram-text-version"'), 2, path)
 
 
 class DiscoveryTests(unittest.TestCase):
