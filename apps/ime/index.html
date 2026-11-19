@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="/shared/web-ime-menu.css">
     <link rel="stylesheet" href="/shared/web-site-navigation.css">
-    <script src="/shared/web-sandhi-preference.js" defer></script>
+    <script src="/shared/web-sandhi-preference.js"></script>
     <script src="/shared/web-site-language.js" defer></script>
     <script src="/shared/web-ruby-selection.js" defer></script>
     <link rel="stylesheet" href="/shared/web-ruby.css">
@@ -79,8 +79,8 @@
           </div>
           <div class="sandhi-control" role="group" aria-label="Sandhi mode">
             <span class="sandhi-label">Sandhi:</span>
-            <button id="taipeiButton" class="sandhi-button active" type="button" aria-pressed="true">Taipei</button>
-            <button id="singaporeButton" class="sandhi-button" type="button" aria-pressed="false">Singapore</button>
+            <button id="taipeiButton" class="sandhi-button active" type="button" data-sandhi-choice="taipei" aria-pressed="true">Taipei</button>
+            <button id="singaporeButton" class="sandhi-button" type="button" data-sandhi-choice="singapore" aria-pressed="false">Singapore</button>
           </div>
           <button
             id="keyboardGuideButton"

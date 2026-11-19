@@ -184,10 +184,19 @@ class SiteLanguageTests(unittest.TestCase):
         # The choices come in the Traditional and Simplified variants of the header too.
         with_variants = navigation_links("/", "en")
         self.assertEqual(with_variants.count("data-sandhi-choice="), 2 * 3)
+        # The IME Pad's buttons and the Translator's menu are controls of the same preference.
+        ime = (ROOT / "apps/ime/index.html").read_text(encoding="utf-8")
+        self.assertIn('id="taipeiButton" class="sandhi-button active" type="button" data-sandhi-choice="taipei"', ime)
+        self.assertIn('data-sandhi-choice="singapore"', ime)
+        self.assertNotIn('web-sandhi-preference.js" defer', ime, "ime.js runs at the end of the body, so the preference must load first")
+        translator = (ROOT / "apps/translate/index.html").read_text(encoding="utf-8")
+        self.assertIn('<select id="sandhiMode" data-sandhi-select>', translator)
         for page in ("apps/content-site/page.html", "apps/dictionary/index.html", "apps/ime/index.html", "apps/translate/index.html"):
             source = (ROOT / page).read_text(encoding="utf-8")
             self.assertIn("/shared/web-sandhi-preference.js", source, page)
             self.assertLess(source.index("web-sandhi-preference.js"), source.index("web-site-language.js"), page)
+        for script in ("apps/ime/ime.js", "apps/translate/translate.js"):
+            self.assertIn("TliSandhiPreference", (ROOT / script).read_text(encoding="utf-8"), script)
 
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:

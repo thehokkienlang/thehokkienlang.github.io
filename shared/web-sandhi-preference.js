@@ -110,6 +110,7 @@
   root.addEventListener?.('storage', event => preference.receiveStorageEvent(event));
 
   function syncControls() {
+    if (!root.document?.querySelectorAll) return;
     const mode = preference.get();
     root.document.querySelectorAll('[data-sandhi-choice]').forEach(button => {
       const active = button.dataset.sandhiChoice === mode;

@@ -29,7 +29,6 @@
   const hokkienRole = document.querySelector("#hokkienRole");
   const alternatives = document.querySelector("#alternatives");
   const alternativeList = document.querySelector("#alternativeList");
-  const sandhiMode = document.querySelector("#sandhiMode");
   const audioButton = document.querySelector("#listenHokkien");
   const toast = document.querySelector("#toast");
 
@@ -209,7 +208,7 @@
     findUnitRoman: unit => state.unitRoman.get(unit) || "", findJamoLomari: unit => state.jamoLomari.get(unit) || "",
   });
   const audioPlanner = phoneticCore.createAudioPlanner({
-    imeCore: ImeCore, getSandhiMode: () => sandhiMode.value, findHanriEntry,
+    imeCore: ImeCore, getSandhiMode: () => window.TliSandhiPreference.get(), findHanriEntry,
     findReadingEntry: reading => state.index.findReadingEntry(reading), findHangulOverrideAt,
     findRememberedHangulEntryAt: (text, index) => ime.findRememberedHangulEntryAt(text, index),
     findJamoAudio: unit => state.jamoAudio.get(unit), findRawHangulAudio: key => state.rawHangulAudio.get(key),

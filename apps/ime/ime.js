@@ -18,8 +18,6 @@ const imeText = document.querySelector("#imeText");
 const clearButton = document.querySelector("#clearButton");
 const copyButton = document.querySelector("#copyButton");
 const audioButton = document.querySelector("#audioButton");
-const taipeiButton = document.querySelector("#taipeiButton");
-const singaporeButton = document.querySelector("#singaporeButton");
 const candidateBar = document.querySelector("#candidateBar");
 const imeToneOverlay = document.querySelector("#imeToneOverlay");
 const lomariPreview = document.querySelector("#lomariPreview");
@@ -68,8 +66,10 @@ const state = {
   rawHangulAudio: new Map(),
   jamoLomari: new Map(),
   jamoAudio: new Map(),
-  sandhiMode: "taipei",
 };
+// Taipei or Singapore sandhi: the one site-wide preference (shared/web-sandhi-preference.js). The
+// buttons in the page and in the header menu all read and write it, so this page keeps no copy.
+const sandhiPreference = window.TliSandhiPreference;
 const lomariRenderer = phoneticCore.createRenderer({
   imeCore,
   findHanriEntry,
@@ -81,7 +81,7 @@ const lomariRenderer = phoneticCore.createRenderer({
 });
 const audioPlanner = phoneticCore.createAudioPlanner({
   imeCore,
-  getSandhiMode: () => state.sandhiMode,
+  getSandhiMode: () => sandhiPreference.get(),
   findHanriEntry,
   findReadingEntry,
   findHangulOverrideAt,
@@ -368,12 +368,9 @@ async function playPadAudio() {
   }
 }
 
+// The page's buttons set the shared preference themselves; this is for code that sets it directly.
 function setSandhiMode(mode) {
-  state.sandhiMode = mode === "singapore" ? "singapore" : "taipei";
-  taipeiButton.classList.toggle("active", state.sandhiMode === "taipei");
-  singaporeButton.classList.toggle("active", state.sandhiMode === "singapore");
-  taipeiButton.setAttribute("aria-pressed", String(state.sandhiMode === "taipei"));
-  singaporeButton.setAttribute("aria-pressed", String(state.sandhiMode === "singapore"));
+  sandhiPreference.set(mode);
   updateLomariPreview();
 }
 
@@ -422,8 +419,7 @@ keyboardRomanisationHints.addEventListener("change", () => {
   if (guideHintsRestoreFocus) imeText.focus({ preventScroll: true });
   guideHintsRestoreFocus = false;
 });
-taipeiButton.addEventListener("click", () => setSandhiMode("taipei"));
-singaporeButton.addEventListener("click", () => setSandhiMode("singapore"));
+sandhiPreference.onChange(() => updateLomariPreview());
 
 keyboardGuideButton.addEventListener("click", () => {
   if (isMobileWebIme) return;

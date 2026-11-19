@@ -66,7 +66,7 @@ async function loadApp(route, script) {
     },
   });
   context.window = context;
-  const files = ['shared/web-hangul-ime.js', 'shared/web-ime-core.js', 'shared/web-audio-player.js'];
+  const files = ['shared/web-sandhi-preference.js', 'shared/web-hangul-ime.js', 'shared/web-ime-core.js', 'shared/web-audio-player.js'];
   if (route === 'ime') files.push('shared/web-phonetic-output.js');
   if (route === 'dictionary') files.push('shared/web-search-box.js');
   files.push(path.posix.join(appRoot, route, script));
@@ -768,7 +768,7 @@ async function loadApp(route, script) {
       imeController.handleCursorChange({ type: 'keyup', key });
     };
     for (const sandhiMode of ['taipei', 'singapore']) {
-      state.sandhiMode = sandhiMode;
+      TliSandhiPreference.set(sandhiMode);
       for (const [unit, forms] of [
         ['뎩', ['tiêk', 'tièk', 'tiek', 'tiék', 'tiēk']],
         ['아', ['â', 'à', 'a', 'á', 'ā']],
@@ -797,7 +797,7 @@ async function loadApp(route, script) {
         }
       }
     }
-    state.sandhiMode = 'taipei';
+    TliSandhiPreference.set('taipei');
     return JSON.stringify(results);
   })()`, context));
   for (const result of selectedToneResults) {
