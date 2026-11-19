@@ -126,15 +126,15 @@
     host.setComposing(text);
   }
 
-  // Hand the buffer to the app as finished text.
-  function commitBuffer(replacement = null) {
+  // Hand the buffer to the app as finished text, followed by `suffix` in the same commit.
+  function commitBuffer(replacement = null, suffix = "") {
     let text = buffer.value;
     if (!text) return false;
     if (replacement && text.startsWith(replacement.hanri, replacement.start)) {
       text = text.slice(0, replacement.start) + replacement.written +
         text.slice(replacement.start + replacement.hanri.length);
     }
-    host.commit(text);
+    host.commit(text + suffix);
     lastSent = "";
     controller.clear();
     return true;
@@ -175,8 +175,8 @@
         if (buffer.value) controller.backspace(); else host.deleteBackward();
         return;
       case "Space":
-        // Like other CJK keyboards: the first space finishes the composition, the next types a space.
-        if (!commitBuffer()) host.commit(" ");
+        // One press finishes the composition and types the space, as on Gboard's Korean keyboard.
+        if (!commitBuffer(null, " ")) host.commit(" ");
         return;
       case "Enter":
         if (!commitBuffer()) host.enter();
@@ -399,12 +399,18 @@
       }
       return;
     }
+    // Keep the rest of the gesture on this key, wherever the finger slides.
+    try { button.setPointerCapture(event.pointerId); } catch { /* the pointer is already gone */ }
     pending = { button, key, popup: null, choice: null, timer: setTimeout(openPopup, HOLD_MS) };
   });
+  // As on Gboard, sliding sideways picks an alternate: only the finger's horizontal position
+  // counts, so it need not reach the popup's row. Past either end, the end option stays chosen.
   keys.addEventListener("pointermove", event => {
     if (!pending?.popup) return;
-    const option = document.elementFromPoint(event.clientX, event.clientY)?.closest?.(".key-popup-option");
-    if (option) choose(Number(option.dataset.index));
+    const options = [...pending.popup.querySelectorAll(".key-popup-option")];
+    let index = options.findIndex(option => event.clientX < option.getBoundingClientRect().right);
+    if (index < 0) index = options.length - 1;
+    if (index !== pending.choice) choose(index);
   });
   keys.addEventListener("pointerup", event => {
     const button = event.target.closest(".key");

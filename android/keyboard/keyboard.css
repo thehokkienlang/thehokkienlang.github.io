@@ -16,6 +16,13 @@
   touch-action: manipulation;
 }
 
+/* A slide on a key picks a hold alternate; it must never become a pan, which cancels the touch.
+   The emoji grid keeps its own pan-y so it still scrolls. */
+#keys .row,
+#keys .row .key {
+  touch-action: none;
+}
+
 html, body {
   height: 100%;
   margin: 0;
