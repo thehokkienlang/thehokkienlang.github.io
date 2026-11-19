@@ -423,13 +423,19 @@ def listen_button(root, language, hanri, reading):
     for entry in _runtime_entries[path]:
         segments = (entry.get("audio") or {}).get("segments") or []
         if entry.get("hanri") == hanri and entry.get("reading") == reading and segments:
-            return play_button(language, segments)
+            # The Singapore clips go beside the Taipei ones, only where they differ.
+            singapore = ((entry.get("audio") or {}).get("singapore") or {}).get("segments") or []
+            return play_button(language, segments, singapore)
     return ""
 
 
-def play_button(language, segments):
+def play_button(language, segments, singapore=None):
     clips = html.escape(json.dumps(segments, ensure_ascii=False, separators=(",", ":")), quote=True)
-    return (f'<button type="button" class="tli-listen" data-tli-audio="{clips}">'
+    singapore_clips = ""
+    if singapore and singapore != segments:
+        singapore_clips = (' data-tli-audio-singapore="'
+                           + html.escape(json.dumps(singapore, ensure_ascii=False, separators=(",", ":")), quote=True) + '"')
+    return (f'<button type="button" class="tli-listen" data-tli-audio="{clips}"{singapore_clips}>'
             f'<span class="tli-listen-icon" aria-hidden="true"></span><span>{LISTEN_LABEL[language]}</span></button>')
 
 

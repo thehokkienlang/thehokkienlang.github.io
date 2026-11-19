@@ -207,7 +207,9 @@
     listening = button;
     button.classList.add("is-playing");
     try {
-      await listenPlayer.play(JSON.parse(button.dataset.tliAudio));
+      // The site-wide Taipei/Singapore preference picks the clips; a button without Singapore clips has one set.
+      const singapore = button.dataset.tliAudioSingapore && window.TliSandhiPreference?.get() === "singapore";
+      await listenPlayer.play(JSON.parse(singapore ? button.dataset.tliAudioSingapore : button.dataset.tliAudio));
     } catch (error) {
       console.error(error);
     } finally {

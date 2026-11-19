@@ -198,6 +198,28 @@ class SiteLanguageTests(unittest.TestCase):
         for script in ("apps/ime/ime.js", "apps/translate/translate.js"):
             self.assertIn("TliSandhiPreference", (ROOT / script).read_text(encoding="utf-8"), script)
 
+    def test_listen_buttons_carry_singapore_clips_only_where_they_differ(self):
+        from build_content import listen_button, play_button
+        taipei = [{"file": "/public/audio/a/an1.wav"}]
+        singapore = [{"file": "/public/audio/a/an4.wav"}]
+        both = play_button("en", taipei, singapore)
+        self.assertIn('data-tli-audio="[{&quot;file&quot;:&quot;/public/audio/a/an1.wav&quot;}]"', both)
+        self.assertIn('data-tli-audio-singapore="[{&quot;file&quot;:&quot;/public/audio/a/an4.wav&quot;}]"', both)
+        for same in (None, [], taipei):
+            self.assertNotIn("data-tli-audio-singapore", play_button("en", taipei, same))
+        # Entries read from the built dictionary: one that has Singapore clips and one that does not.
+        entries = json.loads((ROOT / "public/data/hokkien-hanri-dict.json").read_text(encoding="utf-8"))["entries"]
+        with_singapore = next(e for e in entries if (e.get("audio") or {}).get("singapore", {}).get("segments")
+                              and e["audio"]["singapore"]["segments"] != e["audio"].get("segments"))
+        button = listen_button(ROOT, "en", with_singapore["hanri"], with_singapore["reading"])
+        self.assertIn("data-tli-audio-singapore=", button)
+        # The homepage's own button (學生, a checked syllable) sounds the same in both and has no second set.
+        self.assertNotIn("data-tli-audio-singapore", listen_button(ROOT, "en", "學生", "학솅1"))
+        # site.js plays the clips for the preference.
+        site_js = (ROOT / "apps/content-site/site.js").read_text(encoding="utf-8")
+        self.assertIn("tliAudioSingapore", site_js)
+        self.assertIn("TliSandhiPreference", site_js)
+
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
