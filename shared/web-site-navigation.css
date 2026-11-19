@@ -153,6 +153,14 @@
   box-shadow: 0 6px 18px #17252b1a;
   line-height: 1.5;
 }
+.site-sandhi { margin-top: 6px; padding: 10px 10px 8px; border-top: 1px solid var(--site-line); }
+.site-sandhi-label { display: block; margin-bottom: 6px; color: var(--site-muted, #5b6a70); font-size: 12px; font-weight: 700; letter-spacing: .04em; }
+.site-sandhi-choices { display: flex; gap: 6px; }
+.site-sandhi-choice { flex: 1 1 0; padding: 5px 8px; border: 1px solid var(--site-line); border-radius: 999px; color: var(--site-ink); background: #fff; font: inherit; font-size: 14px; cursor: pointer; }
+.site-sandhi-choice:hover { border-color: var(--site-accent); color: var(--site-accent); }
+.site-sandhi-choice[aria-pressed="true"] { border-color: var(--site-accent); color: #fff; background: var(--site-accent); }
+.site-sandhi-choice:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.site-sandhi-note { margin: 8px 0 0; color: var(--site-muted, #5b6a70); font-size: 12px; line-height: 1.45; }
 .site-nav-panel::before {
   content: "";
   position: absolute;

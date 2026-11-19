@@ -336,6 +336,28 @@ def learn_next_link(route, language, records):
             f'{lead_html}<span class="learn-next-title">{label}</span></a></nav>')
 
 
+# The sandhi setting in the header's language menu (docs/sandhi-toggle-plan.md). The same words are in
+# shared/web-sandhi-preference.js; a test checks the two agree.
+SANDHI_NAV_LABELS = {
+    "en": {"sandhi": "Sandhi", "taipei": "Taipei", "singapore": "Singapore",
+           "note": "Changes how tone sandhi sounds and is marked. Stored readings use Taipei."},
+    "zh-Hant": {"sandhi": "變調", "taipei": "臺北", "singapore": "新加坡",
+                "note": "改變變調的讀音與標示方式；儲存的讀音以臺北為準。"},
+    "zh-Hans": {"sandhi": "变调", "taipei": "台北", "singapore": "新加坡",
+                "note": "改变变调的读音与标示方式；存储的读音以台北为准。"},
+}
+
+
+def sandhi_setting(language):
+    words = SANDHI_NAV_LABELS[language]
+    return ('<div class="site-sandhi" role="group" aria-label="' + words["sandhi"] + '">'
+            f'<span class="site-sandhi-label">{words["sandhi"]}</span>'
+            '<span class="site-sandhi-choices">'
+            f'<button type="button" class="site-sandhi-choice" data-sandhi-choice="taipei" aria-pressed="false">{words["taipei"]}</button>'
+            f'<button type="button" class="site-sandhi-choice" data-sandhi-choice="singapore" aria-pressed="false">{words["singapore"]}</button>'
+            f'</span><p class="site-sandhi-note">{words["note"]}</p></div>')
+
+
 def navigation_links(route, language=None, variants=True):
     language = language or language_for_route(route)
 
@@ -377,7 +399,7 @@ def navigation_links(route, language=None, variants=True):
     language_title = {"en": "Language", "zh-Hant": "語言", "zh-Hans": "语言"}[language]
     items.append('<details class="site-nav-dropdown site-language-dropdown" name="site-navigation">'
                  f'<summary class="site-nav-trigger" title="{language_title}"><span class="site-language-icon" aria-hidden="true"></span>{LANGUAGE_NAMES[language]}</summary>'
-                 f'<div class="site-nav-panel">{"".join(choices)}</div></details>')
+                 f'<div class="site-nav-panel">{"".join(choices)}{sandhi_setting(language)}</div></details>')
     if variants:
         for code in LANGUAGES:
             if code != language:

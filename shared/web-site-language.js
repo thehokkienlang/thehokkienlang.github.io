@@ -71,6 +71,7 @@
   document.querySelectorAll('nav[aria-label="Main navigation"]').forEach(nav => {
     const variant = nav.querySelector(`template[data-navigation-language="${language}"]`);
     if (variant) nav.replaceChildren(variant.content.cloneNode(true));
+    window.TliSandhiPreference?.syncControls?.(); // the language variant just replaced the buttons
     nav.querySelectorAll("[data-language-choice]").forEach(link => {
       const target = new URL(link.href);
       if (target.pathname === location.pathname) {

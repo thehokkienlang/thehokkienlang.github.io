@@ -166,6 +166,29 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('href="/zh-hans/read/">阅读</a>', navigation_links("/zh-hans/", variants=False))
         self.assertIn('href="/zh-hant/read/" aria-current="page">閱讀</a>', egg)
 
+    def test_header_has_the_sandhi_setting_in_each_language_and_every_page_loads_its_script(self):
+        from build_content import SANDHI_NAV_LABELS
+        script = (ROOT / "shared/web-sandhi-preference.js").read_text(encoding="utf-8")
+        for language, words in SANDHI_NAV_LABELS.items():
+            nav = navigation_links("/", language, variants=False)
+            self.assertEqual(nav.count("data-sandhi-choice="), 2, language)
+            self.assertIn('data-sandhi-choice="taipei"', nav)
+            self.assertIn('data-sandhi-choice="singapore"', nav)
+            self.assertIn(f'<span class="site-sandhi-label">{words["sandhi"]}</span>', nav)
+            self.assertIn(words["note"], nav)
+            # The setting sits in the language menu, after the language choices.
+            self.assertLess(nav.index("data-language-choice"), nav.index("data-sandhi-choice"))
+            # The words in the page header and the ones in the script are the same.
+            for word in words.values():
+                self.assertIn(word, script, f"{language}: {word!r} is missing from web-sandhi-preference.js")
+        # The choices come in the Traditional and Simplified variants of the header too.
+        with_variants = navigation_links("/", "en")
+        self.assertEqual(with_variants.count("data-sandhi-choice="), 2 * 3)
+        for page in ("apps/content-site/page.html", "apps/dictionary/index.html", "apps/ime/index.html", "apps/translate/index.html"):
+            source = (ROOT / page).read_text(encoding="utf-8")
+            self.assertIn("/shared/web-sandhi-preference.js", source, page)
+            self.assertLess(source.index("web-sandhi-preference.js"), source.index("web-site-language.js"), page)
+
     def test_build_rewrites_language_links_and_reuses_all_song_pages(self):
         with tempfile.TemporaryDirectory() as directory:
             output = Path(directory)
