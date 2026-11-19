@@ -22,6 +22,13 @@ is published at https://thehokkienlang.github.io/.
   - the old `Hokkien Hangul IME` folder
   - the OneDrive `Hokkien Hangul Project` folder
 - Commit or push only when asked. Pushing to `main` deploys the site.
+- **The Taipei/Singapore sandhi preference never changes stored data.** Readings,
+  the TSV, song sources and typed text keep Taipei sandhi digits. Singapore is
+  derived from them (an open sandhi tone 1 becomes 4) and only changes what a
+  reader hears and sees. Never write Singapore digits into data;
+  `tools/check_stored_sandhi_tones.py` fails on a non-final open tone 4. The
+  preference lives in `shared/web-sandhi-preference.js`
+  (see `docs/sandhi-toggle-plan.md`).
 
 ## Push descriptions
 
