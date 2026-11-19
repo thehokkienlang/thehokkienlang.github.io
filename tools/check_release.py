@@ -25,6 +25,7 @@ JAVASCRIPT_FILES = (
     "apps/search/search.js",
     "shared/web-site-language.js",
     "shared/web-site-navigation.js",
+    "shared/web-sandhi-preference.js",
     "desktop/desktop_restart.js",
     "desktop/editor_lifetime.js",
     "desktop/dictionary_editor_ui/editor.js",
@@ -175,6 +176,7 @@ def build_sections(source_only: bool) -> list[Section]:
     if source_only:
         add("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     add("Browser-free engine (mobile keyboard source)", "node", "tests/check_engine_headless.cjs")
+    add("Sandhi preference", "node", "tests/check_sandhi_preference.cjs")
     add("Static priority and reading defaults", "node", "tools/check_static_ranking.cjs")
     add("Static Desktop ranking and row independence", *py, "tools/check_static_desktop.py")
     add("Adaptive Web candidate learning", "node", "tools/check_adaptive_ranking.cjs")
@@ -222,6 +224,7 @@ SECTION_TAGS = {
     "Stable-ID structural references": {"dict"},
     "Shared Web IME behaviour": {"web"},
     "Browser-free engine (mobile keyboard source)": {"web"},
+    "Sandhi preference": {"web"},
     "Static priority and reading defaults": {"web"},
     "Static Desktop ranking and row independence": {"desktop"},
     "Adaptive Web candidate learning": {"web"},
