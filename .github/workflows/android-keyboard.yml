@@ -1,0 +1,61 @@
+name: Build Android Keyboard
+
+# Builds the TLI keyboard APK with the current dictionary and engine. It only
+# builds: the APK is attached to the run as an artifact and nothing is
+# published. A release for the site's download link is still made by hand.
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "android/**"
+      - "data/**"
+      - "shared/web-hangul-ime.js"
+      - "shared/web-ime-core.js"
+      - "shared/web-ime-menu.css"
+      - "shared/web-punctuation.css"
+      - "shared/web-hangul-font.css"
+      - "shared/tli-sandhi.json"
+      - "assets/fonts/**"
+      - "tools/build_dictionary_json.py"
+      - ".github/workflows/android-keyboard.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: android-keyboard-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: "8.14.3"
+      # The APK bundles public/data/hokkien-hanri-dict.json, which is generated
+      # from data/hokkien_hanri_dict.tsv and not kept in git.
+      - name: Build dictionary data
+        run: python -X utf8 tools/build_dictionary_json.py
+      # The runner image includes the Android SDK (ANDROID_HOME).
+      - name: Build APK
+        run: gradle -p android assembleDebug --no-daemon
+      - name: Name the APK
+        run: |
+          version=$(sed -n 's/.*versionName "\(.*\)".*/\1/p' android/app/build.gradle)
+          mkdir -p dist
+          cp android/app/build/outputs/apk/debug/app-debug.apk "dist/TLI-Keyboard-$version.apk"
+          echo "APK_NAME=TLI-Keyboard-$version" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APK_NAME }}
+          path: dist/*.apk
+          retention-days: 30
