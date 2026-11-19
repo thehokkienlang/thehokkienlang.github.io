@@ -65,6 +65,7 @@ PYTHON_FILES = (
     "tools/website_editor_service.py",
     "tools/lyric_timing.py",
     "tools/check_compound_glosses.py",
+    "tools/check_stored_sandhi_tones.py",
     "tools/compressed_audio.py",
     "tools/dictionary_editor_publish.py",
     "desktop/Hokkien Tangliengim IME Pad.py",
@@ -173,6 +174,7 @@ def build_sections(source_only: bool) -> list[Section]:
         "-s", "tests", "-p", "test_dictionary_*.py")
     add("Dictionary behavior and identity baseline", "node", "tools/check_dictionary_baseline.cjs")
     add("Stable-ID structural references", "node", "tools/check_entry_references.cjs")
+    add("Stored readings keep Taipei sandhi digits", *py, "tools/check_stored_sandhi_tones.py")
     if source_only:
         add("Shared Web IME behaviour", "node", "tools/check_web_apps.cjs", "--source")
     add("Browser-free engine (mobile keyboard source)", "node", "tests/check_engine_headless.cjs")
@@ -222,6 +224,7 @@ SECTION_TAGS = {
     "Dictionary collation and audio portability": {"dict"},
     "Dictionary behavior and identity baseline": {"dict"},
     "Stable-ID structural references": {"dict"},
+    "Stored readings keep Taipei sandhi digits": {"dict"},
     "Shared Web IME behaviour": {"web"},
     "Browser-free engine (mobile keyboard source)": {"web"},
     "Sandhi preference": {"web"},
