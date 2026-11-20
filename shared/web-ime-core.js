@@ -1169,9 +1169,12 @@ const TangliengimImeCore = (() => {
     mirror.style.userSelect = "none";
     mirror.style.webkitUserSelect = "none";
     mirror.style.caretColor = "transparent";
-    mirror.style.whiteSpace = "pre-wrap";
-    mirror.style.overflowWrap = "break-word";
-    mirror.style.width = `${control.clientWidth}px`;
+    // A one-line <input> never wraps: text past its width stays on the one line (scrolled out of
+    // view), so a wrapping mirror would put those marks on a second line, under the line's start.
+    const singleLine = control.tagName === "INPUT";
+    mirror.style.whiteSpace = singleLine ? "pre" : "pre-wrap";
+    mirror.style.overflowWrap = singleLine ? "normal" : "break-word";
+    mirror.style.width = singleLine ? "max-content" : `${control.clientWidth}px`;
     for (const property of properties) mirror.style[property] = style[property];
 
     const textNode = document.createTextNode(source);
@@ -1912,6 +1915,12 @@ const TangliengimImeCore = (() => {
 
     handleKeydown(event) {
       if (!this.shouldHandleKey(event)) return;
+      // Moving the caret over a selection (or extending it with Shift) is the browser's job; the
+      // composer path below would delete the selected text first.
+      if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+        const [selectionStart, selectionEnd] = this.normalizeControlSelection();
+        if (event.shiftKey || selectionStart !== selectionEnd) return;
+      }
       let dismissAfterNavigation = false;
 
       if (this.activeCandidates.length) {

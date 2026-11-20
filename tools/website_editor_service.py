@@ -735,8 +735,10 @@ class WebsiteEditorService:
         if not any(item.get("kind") == "line" for item in lyrics):
             raise WebsiteEditorError("Add at least one lyric line.")
         legacy_title = self._normalize_legacy_title(draft.get("legacyTitle"), title, title_source)
-        # A title's tone marks (릐ˋ) are drawn above the Hangul; they never go into the web address.
-        route_title = re.sub(r"[\sˆˋˊˉꞈˎˏˍ]+", "", title)
+        # A title's tone marks (릐ˋ), spaces and punctuation (릐講’에話) never go into the web address.
+        route_title = "".join(
+            char for char in title
+            if char not in "ˆˋˊˉꞈˎˏˍ`" and not char.isspace() and unicodedata.category(char)[0] not in "PSZ")
         route = existing_route or f"/songs/{route_title}/"
         clean = {
             "version": 1,

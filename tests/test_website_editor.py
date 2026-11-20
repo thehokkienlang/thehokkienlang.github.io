@@ -400,6 +400,16 @@ class WebsiteEditorTests(unittest.TestCase):
         self.assertIn("호)", result["body"])
         self.assertIn("youtube.com/embed/HNYkSBkQ33Y", result["body"])
 
+    def test_song_route_drops_spaces_punctuation_and_tone_marks(self):
+        service = WebsiteEditorService(ROOT)
+        for title in ("릐講’에話", "릐ˋ 講’ 에 話", "릐講-에話!"):
+            result = service.render_song_draft({
+                "title": title, "mandarinTitle": "你好", "mandarinSimplifiedTitle": "你好", "titleSource": title,
+                "titleTliRuby": "강 화", "videoUrl": "https://youtu.be/HNYkSBkQ33Y", "sound": "modern",
+                "moods": ["lyrical"], "lyrics": [{"kind": "line", "text": "릐호"}],
+            })
+            self.assertEqual(result["route"], "/songs/릐講에話/", title)
+
     def test_structured_song_save_updates_all_canonical_registries(self):
         with tempfile.TemporaryDirectory() as folder:
             initial, _ = self.fixture(folder)
