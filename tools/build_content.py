@@ -504,8 +504,8 @@ def home_launch(language, listen=""):
 
     paths = (
         ("01", learn, learn_note, "/learn/introduction/", learn_link),
-        ("02", read, read_note, "/read/", read_link),
-        ("03", hear, hear_note, "/songs/", hear_link),
+        ("02", hear, hear_note, "/songs/", hear_link),
+        ("03", read, read_note, "/read/", read_link),
     )
     path_html = "".join(
         '<article class="home-path">'

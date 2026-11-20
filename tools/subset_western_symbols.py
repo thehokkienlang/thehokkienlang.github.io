@@ -7,12 +7,12 @@ from subset_content_fallbacks import subset_font
 
 TONE_2, TONE_4 = 0x02CB, 0x02CA  # ˋ, ˊ
 # Version of each output family; the symbols font is v5: tone 4 is redrawn. Tone 1 keeps its own position there;
-# the 1px-left tone 1 lives in a small font used only for lyric readings (see build_lyric_marks).
+# the 0.5px-left tone 1 lives in a small font used only for lyric readings (see build_lyric_marks).
 VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v5"}
 TONE_1 = 0x02C6  # ˆ
-# 1px at the usual lyric reading size (about 13px) is 76 of the font's 1000 units. Used only for
+# 0.5px at the usual lyric reading size (about 13px) is 38 of the font's 1000 units. Used only for
 # lyric readings: at title and song-list sizes the same fraction would be too far.
-TONE_1_SHIFT_LEFT = 76
+TONE_1_SHIFT_LEFT = 38
 
 
 # How much wider (bottom) and narrower (top) the tone 4 stroke is than tone 2's, so its ink
@@ -103,11 +103,11 @@ def main():
                     tone_4_from_tone_2(font)
                 font.save(output)
                 if filename == "tli-noto-symbols":
-                    build_lyric_marks(output, args.output_dir / f"tli-lyric-marks-{weight}-v1.woff2", style)
+                    build_lyric_marks(output, args.output_dir / f"tli-lyric-marks-{weight}-v2.woff2", style)
 
 
 def build_lyric_marks(symbols_font, output, style):
-    """A tiny font of the tone 1 marks (ˆ and ꞈ) set 1px left, for lyric readings only."""
+    """A tiny font of the tone 1 marks (ˆ and ꞈ) set 0.5px left, for lyric readings only."""
     from fontTools.ttLib import TTFont
 
     subset_font(symbols_font, {TONE_1, 0xA788}, "TLI Lyric Marks", output)
