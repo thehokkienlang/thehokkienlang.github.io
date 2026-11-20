@@ -180,10 +180,23 @@
     const spans = controller.getRememberedHanriReadings(text)
       .sort((left, right) => left.start - right.start || left.end - right.end);
     const segments = [];
+    // Bare Hangul shows its tone too (릐ˋ), the same tone the mark drawn above it in the lyric box
+    // shows, so Hangul and Hanri readings look alike in this row. Only Hanri readings are edited here.
+    const hangulTones = new Map((controller.lyricToneRenderer?.resolvedHangulToneSpans(text) || [])
+      .map(span => [span.start, span]));
+    const plain = (from, to) => {
+      let out = '';
+      for (let index = from; index < to;) {
+        const span = hangulTones.get(index);
+        if (span && span.end <= to) { out += toneMarksForDisplay(span.reading); index = span.end; continue; }
+        out += text[index]; index += 1;
+      }
+      return out;
+    };
     let value = '', cursor = 0;
     for (const span of spans) {
       if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== span.hanri) continue;
-      value += text.slice(cursor, span.start);
+      value += plain(cursor, span.start);
       const start = value.length;
       value += toneMarksForDisplay(resolveSandhi && hasFollowingLyricUnit(text, span.end)
         ? resolvedRubyReading(span.reading)
@@ -191,7 +204,7 @@
       segments.push({start, end: value.length, span});
       cursor = span.end;
     }
-    return {value: value + text.slice(cursor), segments};
+    return {value: value + plain(cursor, text.length), segments};
   }
   function hangulReadingUnits(reading) {
     const source = String(reading || '').trim();
@@ -961,14 +974,13 @@
           else renderSongList();
         },
       });
+      // The plain Song title box is shown only for Zhuyin titles. A TLI title is typed in the one TLI
+      // title field, which fills this box; the box never writes back into it (doing so after a
+      // song loads would replace the TLI title, readings and spacing with this plain copy).
       state.displayTitleController = attachIme($('songTitle'), $('songTitleCandidates'), () => {
+        if ($('songTitleSystem').value === 'tli') return;
         state.legacyTitle = null;
-        if ($('songTitleSystem').value === 'tli') {
-          setLyricControllerSource(state.titleController, lyricControllerSource(state.displayTitleController));
-          syncTitleTliRuby();
-        } else {
-          updateTitlePinyin();
-        }
+        updateTitlePinyin();
         markDirty();
       }, {toneInputStyle: 'symbols'});
       // The TLI title works like a lyric line: tones typed after Hangul are kept out of the text and
