@@ -160,6 +160,9 @@
 .site-sandhi-choice:hover { border-color: var(--site-accent); color: var(--site-accent); }
 .site-sandhi-choice[aria-pressed="true"] { border-color: var(--site-accent); color: #fff; background: var(--site-accent); }
 .site-sandhi-choice:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+/* Singapore takes the amber of its varying tones (.tli-sandhi-varies below). */
+.site-sandhi-choice[data-sandhi-choice="singapore"]:hover { border-color: #b45309; color: #b45309; }
+.site-sandhi-choice[data-sandhi-choice="singapore"][aria-pressed="true"] { border-color: #b45309; color: #fff; background: #b45309; }
 .site-sandhi-note { margin: 8px 0 0; color: var(--site-muted, #5b6a70); font-size: 12px; line-height: 1.45; }
 .site-nav-panel::before {
   content: "";

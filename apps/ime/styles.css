@@ -354,6 +354,13 @@ h1 {
   border-color: rgba(29, 112, 215, 0.45);
 }
 
+/* Singapore takes the amber of its varying tones (shared/web-site-navigation.css). */
+.sandhi-button.active[data-sandhi-choice="singapore"] {
+  border-color: #f0c89a;
+  background: #fdf1e3;
+  color: #b45309;
+}
+
 .status-line {
   flex: 1 1 220px;
   min-width: 0;
