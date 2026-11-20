@@ -137,6 +137,13 @@
     const select = event.target.closest?.('select[data-sandhi-select]');
     if (select) preference.set(select.value);
   });
+  // While text is selected, a Lomari vowel with a coloured tone shows its plain text (CSS:
+  // .tli-text-selected in shared/web-site-navigation.css), so the selection highlight looks normal.
+  root.document?.addEventListener('selectionchange', () => {
+    let selected = false;
+    try { const selection = root.getSelection?.(); selected = Boolean(selection && !selection.isCollapsed); } catch (_error) { /* none */ }
+    root.document.documentElement.classList.toggle('tli-text-selected', selected);
+  });
   if (root.document?.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', syncControls);
   else syncControls();
 })(typeof window !== 'undefined' ? window : globalThis);

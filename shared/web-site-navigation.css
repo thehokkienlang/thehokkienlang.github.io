@@ -245,19 +245,28 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
   vertical-align: middle;
 }
 
-/* A tone mark (or Lomari vowel) that differs between Taipei and Singapore sandhi: one accent
-   colour in both modes, so readers can see which tones vary by variety. The mark itself carries
-   the tone, so the colour is never the only signal. */
-.tli-sandhi-varies { color: #b45309; }
-/* Taipei shows the varying tones in blue (Haru, 2026-11-20); Singapore keeps the amber above.
-   <html data-sandhi> is set by shared/web-sandhi-preference.js. */
-:root[data-sandhi="taipei"] .tli-sandhi-varies { color: #1d4ed8; }
-/* In Lomari only the tone accent is coloured. The vowel's real text keeps the normal colour (and
-   is what a copy takes); two decorative layers sit exactly on it: the letter with its accent in
-   the accent colour (data-tone-mark), then the bare letter in the normal colour (data-tone-base).
-   top: 50% with line-height: 0 centres each layer on the letter's own text box. */
-.tli-lomari-tone { position: relative; }
-.tli-lomari-tone::before, .tli-lomari-tone::after { position: absolute; left: 0; top: 50%; line-height: 0; pointer-events: none; }
-.tli-lomari-tone::before { content: attr(data-tone-mark); color: #b45309; }
-:root[data-sandhi="taipei"] .tli-lomari-tone::before { color: #1d4ed8; }
-.tli-lomari-tone::after { content: attr(data-tone-base); color: inherit; }
+/* A tone mark that differs between Taipei and Singapore sandhi is coloured, so readers can see
+   which tones vary by variety: cyan for Taipei, amber for Singapore (Haru, 2026-11-20).
+   <html data-sandhi> is set by shared/web-sandhi-preference.js. The mark itself carries the
+   tone, so the colour is never the only signal. */
+:root { --tli-sandhi-varies: #b45309; }
+:root[data-sandhi="taipei"] { --tli-sandhi-varies: #0e7490; }
+.tli-sandhi-varies { color: var(--tli-sandhi-varies); }
+
+/* In Lomari only the tone accent is coloured. The vowel's real text stays (a selection and a copy
+   use it) but is drawn invisibly; two copies of it are drawn exactly over it and cut where the
+   letter ends, so nothing overlaps: the letter in the text colour, the accent in the accent
+   colour. top: 50% with line-height: 0 centres each copy on the letter's own text box, and the
+   cut is measured from that centre in TLI Noto Sans: 0.58em above the baseline for small letters
+   (letter top 0.55em, accent bottom 0.61em) and 0.76em for capitals. */
+.tli-lomari-tone { position: relative; -webkit-text-fill-color: transparent; --tli-tone-cut: -0.19em; }
+.tli-lomari-tone[data-tone-upper] { --tli-tone-cut: -0.37em; }
+.tli-lomari-tone::before, .tli-lomari-tone::after {
+  content: attr(data-tone-text); position: absolute; left: 0; top: 50%; line-height: 0;
+  -webkit-text-fill-color: currentColor; pointer-events: none; user-select: none;
+}
+.tli-lomari-tone::before { clip-path: inset(var(--tli-tone-cut) -0.5em -1.5em -0.5em); }
+.tli-lomari-tone::after { color: var(--tli-sandhi-varies); clip-path: inset(-1.5em -0.5em calc(-1 * var(--tli-tone-cut)) -0.5em); }
+/* While text is selected the real text is shown as usual, so the highlight looks normal. */
+.tli-text-selected .tli-lomari-tone { -webkit-text-fill-color: currentColor; }
+.tli-text-selected .tli-lomari-tone::before, .tli-text-selected .tli-lomari-tone::after { content: none; }

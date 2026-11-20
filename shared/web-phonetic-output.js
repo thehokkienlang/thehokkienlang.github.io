@@ -705,19 +705,16 @@ const TangliengimPhoneticOutput = (() => {
         while (start > 0 && /[̀-ͯ]/u.test(syllable[start])) start -= 1;
         let end = mark + 1;
         while (end < syllable.length && /[̀-ͯ]/u.test(syllable[end])) end += 1;
-        // The vowel's real text (with any nasal tilde) stays in the normal colour and is copied
-        // exactly. CSS draws the letter with its accent in the accent colour, then the bare letter
-        // over it (.tli-lomari-tone in shared/web-site-navigation.css), so only the accent shows
-        // coloured. Same layers as toneLayers() in shared/web-sandhi-display.js.
+        // The vowel's real text (with any nasal tilde) is kept for selecting and copying but drawn
+        // invisibly; CSS draws it again cut in two, the letter in the normal colour and the
+        // accent in the accent colour (.tli-lomari-tone in shared/web-site-navigation.css).
         const vowel = syllable.slice(start, end);
         const letter = String.fromCodePoint(vowel.codePointAt(0));
-        const toneMatch = vowel.slice(letter.length).match(/[́̂]/u);
         const tone = document.createElement("span");
         tone.className = "tli-lomari-tone";
         tone.textContent = vowel;
-        tone.dataset.toneMark = /[́̂]/u.test(letter.normalize("NFD")) || !toneMatch ? letter : letter + toneMatch[0];
-        // A dotless ı for i: an accented î has no dot, so a plain i laid over it would show one.
-        tone.dataset.toneBase = letter.normalize("NFD").replace(/[́̂]/gu, "").replace(/i/gu, "ı").normalize("NFC");
+        tone.dataset.toneText = vowel;
+        if (letter !== letter.toLowerCase()) tone.dataset.toneUpper = "";
         nodes.push(syllable.slice(0, start), tone, syllable.slice(end));
       }
       target.replaceChildren(...nodes);

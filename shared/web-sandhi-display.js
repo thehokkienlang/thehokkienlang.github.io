@@ -148,18 +148,10 @@
     while (at > 0 && COMBINING.test(source[at])) at -= 1;
     return at;
   }
-  // The two decorative layers drawn over a Lomari vowel whose tone varies (.tli-lomari-tone):
-  // mark = the letter with its tone accent, in the text's own form (â, or a + U+0302), coloured;
-  // base = the letter alone in the normal colour, laid over it so only the accent shows coloured.
-  // The vowel's real text, with any other marks (the nasal tilde), is never changed.
-  function toneLayers(cluster) {
-    const vowel = String(cluster);
-    const letter = String.fromCodePoint(vowel.codePointAt(0) || 32);
-    const tone = vowel.slice(letter.length).match(/[́̂]/u);
-    const mark = /[́̂]/u.test(letter.normalize('NFD')) || !tone ? letter : letter + tone[0];
-    // A dotless ı for i: an accented î has no dot, so a plain i laid over it would show one.
-    const base = letter.normalize('NFD').replace(/[́̂]/gu, '').replace(/i/gu, 'ı').normalize('NFC');
-    return {mark, base};
+  // Whether a Lomari vowel is a capital: its accent sits higher, so the colour cut is higher.
+  function toneUpper(cluster) {
+    const letter = String.fromCodePoint(String(cluster).codePointAt(0) || 32);
+    return letter !== letter.toLowerCase();
   }
 
   // The end of any marks that follow index (they belong to the same vowel).
@@ -192,7 +184,7 @@
     return parts;
   }
 
-  const api = {singaporeReading, singaporeLomari, lomariRanges, lomariParts, toneLayers, startsSyllable, variesIndexes};
+  const api = {singaporeReading, singaporeLomari, lomariRanges, lomariParts, toneUpper, startsSyllable, variesIndexes};
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
     return;
@@ -240,13 +232,14 @@
     return span;
   }
 
-  // A Lomari vowel whose tone varies: its real text stays in the normal colour and is copied as
-  // is; CSS draws the letter with its accent (coloured) and then the bare letter over it, from
-  // data-tone-mark and data-tone-base (.tli-lomari-tone in shared/web-site-navigation.css).
+  // A Lomari vowel whose tone varies: its real text is kept (it is what a selection shows and a
+  // copy takes) but drawn invisibly; CSS draws two copies of it in the same place, the letter
+  // below the accent in the normal colour and the accent above in the accent colour, so nothing
+  // overlaps (.tli-lomari-tone in shared/web-site-navigation.css).
   function setToneLayers(span) {
-    const {mark, base} = toneLayers(span.textContent);
-    span.dataset.toneMark = mark;
-    span.dataset.toneBase = base;
+    span.dataset.toneText = span.textContent;
+    if (toneUpper(span.textContent)) span.dataset.toneUpper = '';
+    else delete span.dataset.toneUpper;
     return span;
   }
   function lomariToneSpan(text) {
