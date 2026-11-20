@@ -619,6 +619,12 @@
       "sourceId": 11544,
       "route": "/songs/必巡/",
       "file": "content/songs/song-11544.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/릐講’에話/",
+      "sourceId": 11545,
+      "route": "/songs/릐講’에話/",
+      "file": "content/songs/song-11545.json"
     }
   ],
   "deferred": {
