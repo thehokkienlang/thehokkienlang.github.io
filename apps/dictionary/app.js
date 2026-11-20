@@ -429,10 +429,7 @@ function lomariShownParts(lomari) {
   if (!display) return [text];
   return display.lomariParts(text, Boolean(singaporeShown())).map(part => {
     if (!part.varies) return part.text;
-    const span = document.createElement("span");
-    span.className = "tli-sandhi-varies";
-    span.textContent = part.text.normalize("NFC");
-    return span;
+    return display.lomariToneSpan(part.text); // only the tone accent is coloured
   });
 }
 function shownLomari(lomari) {

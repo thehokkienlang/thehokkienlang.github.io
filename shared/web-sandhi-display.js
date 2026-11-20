@@ -116,7 +116,10 @@
     }
     return ranges;
   }
-  const toAcute = text => String(text).normalize('NFD').replace(/̂/gu, '́').normalize('NFC');
+  // Tone 1 to tone 4, keeping the text's own form: a precomposed vowel stays precomposed (â -> á),
+  // and a separate U+0302 becomes a separate U+0301.
+  const toAcute = text => [...String(text)].map(char => char === '̂' ? '́'
+    : char.normalize('NFD').includes('̂') ? char.normalize('NFD').replace('̂', '́').normalize('NFC') : char).join('');
   function singaporeLomari(text) {
     const source = String(text || '');
     let output = '';
@@ -145,6 +148,20 @@
     while (at > 0 && COMBINING.test(source[at])) at -= 1;
     return at;
   }
+  // The two decorative layers drawn over a Lomari vowel whose tone varies (.tli-lomari-tone):
+  // mark = the letter with its tone accent, in the text's own form (â, or a + U+0302), coloured;
+  // base = the letter alone in the normal colour, laid over it so only the accent shows coloured.
+  // The vowel's real text, with any other marks (the nasal tilde), is never changed.
+  function toneLayers(cluster) {
+    const vowel = String(cluster);
+    const letter = String.fromCodePoint(vowel.codePointAt(0) || 32);
+    const tone = vowel.slice(letter.length).match(/[́̂]/u);
+    const mark = /[́̂]/u.test(letter.normalize('NFD')) || !tone ? letter : letter + tone[0];
+    // A dotless ı for i: an accented î has no dot, so a plain i laid over it would show one.
+    const base = letter.normalize('NFD').replace(/[́̂]/gu, '').replace(/i/gu, 'ı').normalize('NFC');
+    return {mark, base};
+  }
+
   // The end of any marks that follow index (they belong to the same vowel).
   function marksAfter(source, index) {
     let at = index;
@@ -175,7 +192,7 @@
     return parts;
   }
 
-  const api = {singaporeReading, singaporeLomari, lomariRanges, lomariParts, startsSyllable, variesIndexes};
+  const api = {singaporeReading, singaporeLomari, lomariRanges, lomariParts, toneLayers, startsSyllable, variesIndexes};
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;
     return;
@@ -221,6 +238,22 @@
     span.dataset.sandhiKind = 'mark';
     span.textContent = singaporeNow ? singapore : taipei;
     return span;
+  }
+
+  // A Lomari vowel whose tone varies: its real text stays in the normal colour and is copied as
+  // is; CSS draws the letter with its accent (coloured) and then the bare letter over it, from
+  // data-tone-mark and data-tone-base (.tli-lomari-tone in shared/web-site-navigation.css).
+  function setToneLayers(span) {
+    const {mark, base} = toneLayers(span.textContent);
+    span.dataset.toneMark = mark;
+    span.dataset.toneBase = base;
+    return span;
+  }
+  function lomariToneSpan(text) {
+    const span = document.createElement('span');
+    span.className = 'tli-lomari-tone';
+    span.textContent = text;
+    return setToneLayers(span);
   }
 
   // A reading that is plain text: each varying mark becomes a coloured span.
@@ -331,7 +364,9 @@
         const middle = found.text.splitText(found.at);
         middle.splitText(length);
         const taipei = middle.nodeValue;
-        middle.replaceWith(markSpan(taipei, toAcute(taipei), singaporeNow));
+        const span = markSpan(taipei, toAcute(taipei), singaporeNow);
+        span.className = 'tli-lomari-tone';
+        middle.replaceWith(setToneLayers(span));
       }
     });
   }
@@ -345,10 +380,13 @@
       const kind = element.dataset.sandhiKind;
       if (kind === 'title' && core?.renderInlineUpperToneReading) element.replaceChildren(core.renderInlineUpperToneReading(text, variesOf(element)));
       else if (kind === 'bare' && core?.renderToneMarkedReading) element.replaceChildren(core.renderToneMarkedReading(text, variesOf(element)));
-      else element.textContent = text;
+      else {
+        element.textContent = text;
+        if (element.classList.contains('tli-lomari-tone')) setToneLayers(element);
+      }
     });
   }
 
-  root.TliSandhiDisplay = {...api, prepare, prepareLomari, show, variesOf};
+  root.TliSandhiDisplay = {...api, prepare, prepareLomari, show, variesOf, lomariToneSpan};
   root.TliSandhiPreference?.onChange?.(next => show(next));
 })(typeof window !== 'undefined' ? window : globalThis);

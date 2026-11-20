@@ -249,3 +249,15 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
    colour in both modes, so readers can see which tones vary by variety. The mark itself carries
    the tone, so the colour is never the only signal. */
 .tli-sandhi-varies { color: #b45309; }
+/* Taipei shows the varying tones in blue (Haru, 2026-11-20); Singapore keeps the amber above.
+   <html data-sandhi> is set by shared/web-sandhi-preference.js. */
+:root[data-sandhi="taipei"] .tli-sandhi-varies { color: #1d4ed8; }
+/* In Lomari only the tone accent is coloured. The vowel's real text keeps the normal colour (and
+   is what a copy takes); two decorative layers sit exactly on it: the letter with its accent in
+   the accent colour (data-tone-mark), then the bare letter in the normal colour (data-tone-base).
+   top: 50% with line-height: 0 centres each layer on the letter's own text box. */
+.tli-lomari-tone { position: relative; }
+.tli-lomari-tone::before, .tli-lomari-tone::after { position: absolute; left: 0; top: 50%; line-height: 0; pointer-events: none; }
+.tli-lomari-tone::before { content: attr(data-tone-mark); color: #b45309; }
+:root[data-sandhi="taipei"] .tli-lomari-tone::before { color: #1d4ed8; }
+.tli-lomari-tone::after { content: attr(data-tone-base); color: inherit; }

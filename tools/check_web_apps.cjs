@@ -38,7 +38,10 @@ function element() {
       this.children = items;
       this.textContent = items.map(item => (typeof item === 'string' ? item : item?.textContent || '')).join('');
     },
-    append(...items) { this.children.push(...items); },
+    append(...items) {
+      this.children.push(...items);
+      this.textContent += items.map(item => (typeof item === 'string' ? item : item?.textContent || '')).join('');
+    },
   };
 }
 
