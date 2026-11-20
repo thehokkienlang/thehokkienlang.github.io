@@ -8,6 +8,7 @@
   <link rel="stylesheet" href="website-editor.css">
   <link rel="stylesheet" href="/shared/web-ime-menu.css">
   <link rel="stylesheet" href="song-editor.css">
+  <link rel="stylesheet" href="/shared/web-title-reading.css">
   <script src="/shared/web-hangul-ime.js" defer></script>
   <script src="/shared/web-ime-core.js" defer></script>
   <script src="/shared/web-phonetic-output.js" defer></script>
@@ -29,8 +30,21 @@
     <section class="song-form-panel">
       <form id="songForm">
         <div class="song-fields">
-          <label class="tli-field">Song title
-            <span class="tli-input-wrap"><input id="songTitle" required autocomplete="off" spellcheck="false" aria-controls="songTitleCandidates" aria-autocomplete="list"><span id="songTitleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
+          <!-- One TLI title field, laid out like a lyric line: editable Hanri readings above, tone marks
+               drawn above bare Hangul. The plain title and the per-character title ruby are filled from it. -->
+          <label class="tli-field tli-title-field" for="songTitleSource">Song title <small>Type in Hanri and Hangul; the readings above can be edited</small>
+            <span class="lyric-input-wrap title-input-wrap">
+              <input id="songTitleRubyRow" class="lyric-ruby-input" type="text" autocomplete="off" spellcheck="false" aria-label="Editable title ruby readings" placeholder="Ruby readings (editable)">
+              <span class="lyric-text-wrap">
+                <input id="songTitleSource" class="lyric-input" type="text" required autocomplete="off" spellcheck="false" aria-controls="titleCandidates" aria-autocomplete="list">
+                <span class="lyric-annotation-overlay" aria-hidden="true"></span>
+                <span id="titleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span>
+              </span>
+            </span>
+            <input id="songTitleTliRuby" type="hidden">
+          </label>
+          <label class="tli-field zhuyin-title-field" hidden>Song title
+            <span class="tli-input-wrap"><input id="songTitle" autocomplete="off" spellcheck="false" aria-controls="songTitleCandidates" aria-autocomplete="list"><span id="songTitleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
           </label>
           <label>Mandarin title<input id="songMandarinTitle" required autocomplete="off"></label>
           <label>Mandarin title (Simplified)
@@ -41,12 +55,6 @@
             <span class="generated-title-field"><input id="songMandarinAlternativeSimplifiedTitle" autocomplete="off" placeholder="Optional"><button id="regenerateMandarinAlternativeSimplified" type="button">Regenerate</button></span>
           </label>
           <label>Title annotation<select id="songTitleSystem"><option value="tli">TLI (Hangul ruby)</option><option value="zhuyin">Mandarin (Zhuyin ruby)</option></select></label>
-          <label class="tli-field tli-title-field">TLI title <small>Select the intended reading for each Hanri word</small>
-            <span class="tli-input-wrap"><input id="songTitleSource" required autocomplete="off" spellcheck="false" aria-controls="titleCandidates" aria-autocomplete="list"><span id="titleCandidates" class="hanri-candidate-menu" role="listbox" hidden></span></span>
-          </label>
-          <label class="tli-field tli-title-field">TLI title ruby <small>One Hangul reading per Hanri character; automatic readings use sandhi</small>
-            <span class="generated-title-field"><input id="songTitleTliRuby" autocomplete="off" spellcheck="false" placeholder="애ˆ 졩 충 충"><button id="regenerateTitleTliRuby" type="button">Regenerate</button></span>
-          </label>
           <label class="zhuyin-title-field" hidden>Zhuyin title reading <small>One spaced reading per title character</small><input id="songTitleZhuyin" autocomplete="off" spellcheck="false" placeholder="ㄍㄢˇ ㄕㄚˇ ㄍㄢˇ ㄔㄨㄥ"></label>
           <label class="zhuyin-title-field" hidden>Title Pinyin<input id="songTitlePinyin" autocomplete="off" spellcheck="false"></label>
           <label>YouTube link<input id="songVideo" type="url" required autocomplete="off"></label>

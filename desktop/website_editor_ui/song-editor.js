@@ -79,6 +79,7 @@
     document.querySelectorAll('.tli-title-field').forEach(node => { node.hidden = zhuyin; });
     document.querySelectorAll('.zhuyin-title-field').forEach(node => { node.hidden = !zhuyin; });
     $('songTitleSource').required = !zhuyin;
+    $('songTitle').required = zhuyin;
     $('songTitleZhuyin').required = zhuyin;
     $('songTitlePinyin').required = zhuyin;
     if (zhuyin) updateTitlePinyin();
@@ -230,6 +231,55 @@
   function syncTitleTliRuby({resolveSandhi = true} = {}) {
     if (!state.titleController) return;
     $('songTitleTliRuby').value = titleRubyFromController(state.titleController, {resolveSandhi});
+  }
+  // The TLI title is one field laid out like a lyric line (song-editor.html): tone marks are drawn
+  // above bare Hangul and the Hanri readings are edited in the row above. The plain title and the
+  // per-character title ruby are filled from it.
+  function refreshTitleField() {
+    const controller = state.titleController;
+    if (!controller) return;
+    renderLyricAnnotations(controller);
+    syncLyricRubyInput(controller);
+    syncTitleTliRuby();
+    if ($('songTitleSystem').value === 'tli') $('songTitle').value = titleTextFromController(controller);
+  }
+  // A bare Hangul syllable keeps the tone the editor shows for it, written into the title source,
+  // so the site's title heading draws the same mark above it as the editor does.
+  function fixTitleHangulTones(controller) {
+    const text = controller.control.value;
+    const remembered = controller.getRememberedHangulReadings(text);
+    for (const span of controller.lyricToneRenderer?.resolvedHangulToneSpans(text) || []) {
+      if (remembered.some(item => item.start <= span.start && span.end <= item.end)) continue;
+      if (/3$/u.test(span.reading)) continue; // tone 3 is unmarked
+      controller.rememberHangulReading(span.start, span.end, span.reading, null, text, true);
+    }
+  }
+  // What a draft stores for the title. With a TLI title, each bare Hangul syllable keeps the tone
+  // shown for it, in both the source and the plain title (the server checks the two agree).
+  function titleForDraft() {
+    if ($('songTitleSystem').value !== 'tli' || !state.titleController) return $('songTitle').value;
+    fixTitleHangulTones(state.titleController);
+    return ($('songTitle').value = titleTextFromController(state.titleController));
+  }
+  function titleSourceForDraft() {
+    if ($('songTitleSystem').value === 'tli' && state.titleController) fixTitleHangulTones(state.titleController);
+    return lyricControllerSource(state.titleController);
+  }
+  // The plain title as stored: the title text, with each bare Hangul syllable's tone as a mark
+  // after it (릐ˋ), as older song titles are written. Tone 3 is unmarked.
+  function titleTextFromController(controller) {
+    const text = controller.control.value;
+    const spans = controller.getRememberedHangulReadings(text)
+      .sort((left, right) => left.start - right.start || right.end - left.end);
+    const upper = {'ꞈ': 'ˆ', 'ˎ': 'ˋ', 'ˏ': 'ˊ', 'ˍ': 'ˉ'};
+    let title = '', cursor = 0;
+    for (const span of spans) {
+      if (span.start < cursor || text.slice(span.start, span.end) !== span.hangul) continue;
+      title += text.slice(cursor, span.start) +
+        toneMarksForDisplay(span.reading).replace(/[ꞈˎˏˍ]/gu, mark => upper[mark]);
+      cursor = span.end;
+    }
+    return title + text.slice(cursor);
   }
   function syncLyricRubyInput(controller, selection = null) {
     const rubyInput = controller.control.closest('.lyric-input-wrap')?.querySelector('.lyric-ruby-input');
@@ -388,13 +438,13 @@
   function currentDraft() {
     return {
       version: 1,
-      title: $('songTitle').value,
+      title: titleForDraft(),
       mandarinTitle: $('songMandarinTitle').value,
       mandarinSimplifiedTitle: $('songMandarinSimplifiedTitle').value,
       mandarinAlternativeTitle: $('songMandarinAlternativeTitle').value,
       mandarinAlternativeSimplifiedTitle: $('songMandarinAlternativeSimplifiedTitle').value,
       titleAnnotationSystem: $('songTitleSystem').value,
-      titleSource: lyricControllerSource(state.titleController),
+      titleSource: titleSourceForDraft(),
       titleTliRuby: $('songTitleTliRuby').value,
       titleZhuyin: $('songTitleZhuyin').value,
       titlePinyin: $('songTitlePinyin').value,
@@ -697,6 +747,8 @@
     $('songTitleTliRuby').value = draft.titleTliRuby || titleRubyFromController(
       state.titleController, {resolveSandhi: false}
     );
+    renderLyricAnnotations(state.titleController);
+    syncLyricRubyInput(state.titleController);
     $('songTitleSystem').value = draft.titleAnnotationSystem ||
       (draft.legacyTitle?.segments?.some(segment => segment.system === 'bopomofo') ? 'zhuyin' : 'tli');
     $('songTitleZhuyin').value = draft.titleZhuyin || (draft.legacyTitle?.segments || [])
@@ -721,7 +773,7 @@
       mandarinAlternativeSimplifiedTitle: '', titleAnnotationSystem: 'tli', titleSource: '', titleZhuyin: '',
       titleTliRuby: '', titlePinyin: '', videoUrl: '', sound: '', moods: [], dialect: '', singer: '',
       lyrics: [{kind:'line', text:'', grey:false}]});
-    $('songTitle').focus();
+    ($('songTitleSystem').value === 'zhuyin' ? $('songTitle') : $('songTitleSource')).focus();
   }
   async function openSong(file) {
     if (state.dirty && !confirm('Discard this unsaved song draft?')) return;
@@ -759,7 +811,9 @@
       const button = document.createElement('button'); button.type = 'button';
       button.classList.toggle('current-song', song.file === state.file);
       button.setAttribute('role', 'option'); button.setAttribute('aria-selected', 'false');
-      const title = document.createElement('span'); title.textContent = song.title;
+      // Tone marks on bare Hangul are drawn above it, as on the site (web-title-reading.css).
+      const title = document.createElement('span'); title.className = 'title-reading';
+      title.append(window.TangliengimImeCore.renderToneMarkedReading(song.title));
       const route = document.createElement('small'); route.textContent = song.route;
       const mode = document.createElement('small'); mode.className = 'song-record-kind';
       mode.textContent = song.editable ? 'Editable song' : 'Existing song';
@@ -917,9 +971,23 @@
         }
         markDirty();
       }, {toneInputStyle: 'symbols'});
+      // The TLI title works like a lyric line: tones typed after Hangul are kept out of the text and
+      // drawn above it, and the readings row above edits the Hanri readings.
       state.titleController = attachIme($('songTitleSource'), $('titleCandidates'), () => {
-        state.legacyTitle = null; syncTitleTliRuby(); markDirty();
-      }, {toneInputStyle: 'symbols'});
+        state.legacyTitle = null; refreshTitleField(); markDirty();
+      });
+      state.titleController.lyricToneRenderer = createLyricToneRenderer(state.titleController);
+      $('songTitleSource').imeController = state.titleController;
+      const titleRubyRow = $('songTitleRubyRow');
+      titleRubyRow.imeController = attachRubyIme(titleRubyRow, () => {
+        state.legacyTitle = null;
+        applyLyricRubyEdit(state.titleController, titleRubyRow);
+        syncTitleTliRuby();
+        $('songTitle').value = titleTextFromController(state.titleController);
+      });
+      titleRubyRow.addEventListener('focus', () => syncLyricRubyInput(state.titleController));
+      titleRubyRow.addEventListener('blur', () => syncLyricRubyInput(state.titleController));
+      $('songTitleSource').addEventListener('scroll', () => syncLyricOverlayViewport(state.titleController));
       await Promise.all([state.searchController.preferences.ready, state.displayTitleController.preferences.ready,
         state.titleController.preferences.ready]);
       newSong(); renderSongList();
@@ -996,11 +1064,6 @@
   };
   $('songTitleSystem').onchange = () => updateTitleSystem();
   $('songTitleTliRuby').oninput = () => { state.legacyTitle = null; markDirty(); };
-  $('regenerateTitleTliRuby').onclick = () => {
-    state.legacyTitle = null;
-    syncTitleTliRuby();
-    markDirty();
-  };
   $('songTitleZhuyin').oninput = () => { state.legacyTitle = null; markDirty(); };
   $('songTitlePinyin').oninput = () => { state.titlePinyinManual = true; state.legacyTitle = null; markDirty(); };
   $('songVideo').oninput = markDirty;

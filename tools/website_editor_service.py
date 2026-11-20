@@ -735,7 +735,8 @@ class WebsiteEditorService:
         if not any(item.get("kind") == "line" for item in lyrics):
             raise WebsiteEditorError("Add at least one lyric line.")
         legacy_title = self._normalize_legacy_title(draft.get("legacyTitle"), title, title_source)
-        route_title = re.sub(r"\s+", "", title)
+        # A title's tone marks (릐ˋ) are drawn above the Hangul; they never go into the web address.
+        route_title = re.sub(r"[\sˆˋˊˉꞈˎˏˍ]+", "", title)
         route = existing_route or f"/songs/{route_title}/"
         clean = {
             "version": 1,
@@ -945,8 +946,14 @@ class WebsiteEditorService:
         ]
         preview_body = "\n\n\n".join(content_blocks) + "\n"
         body = f'<h2 class="wp-block-heading">{title_html}</h2>\n\n\n' + preview_body
+        # The preview's title heading is built as the site builds it (song_title_readings), so a tone
+        # mark sits above bare Hangul there too, not beside it as a tone-only ruby.
+        try:
+            heading_html = song_title({"id": "preview", "title": clean["title"], "body": body})[0]
+        except Exception:
+            heading_html = title_html
         return {"ok": True, "draft": clean, "route": route, "videoId": video_id,
-                "titleHtml": title_html, "previewBody": preview_body, "body": body}
+                "titleHtml": heading_html, "previewBody": preview_body, "body": body}
 
     def _next_song_identity(self):
         values = []
@@ -1058,6 +1065,11 @@ class WebsiteEditorService:
             })
         elif not grouped_variant and not any(row.get("file") == path.relative_to(self.repo).as_posix() for row in manifest.get("records", [])):
             raise WebsiteEditorError("The song is missing from the website content manifest.")
+        if not is_new:
+            # A renamed title (or one that gains a tone mark, 릐ˋ) keeps the route map in step.
+            for row in urls:
+                if row.get("new_url") == route and row.get("display_title") != clean["title"]:
+                    row["display_title"] = clean["title"]
 
         outputs = {
             path: self._json_bytes(record),
