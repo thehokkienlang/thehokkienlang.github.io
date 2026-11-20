@@ -58,6 +58,10 @@
 .verse-break { display:flex; align-items:center; gap:8px; padding:8px; color:var(--muted); font-size:12px; }
 .verse-break::before,.verse-break::after { content:""; flex:1; border-top:1px dashed #aebbc0; }
 .verse-break button { width:32px; min-height:30px; padding:0; }
+/* Copy verse / Paste verse: top right of each verse, on its first line (space made above it). */
+.lyric-row.verse-start { padding-top:38px; }
+.verse-tools { position:absolute; top:6px; right:8px; display:flex; gap:6px; }
+.verse-tools button { min-height:26px; padding:0 10px; font-size:12px; }
 .song-actions { position:sticky; bottom:0; z-index:5; justify-content:flex-start; margin:22px -22px -22px; padding:14px 22px; border-top:1px solid var(--line); background:#fff; }
 .song-actions #songState { margin-left:auto; color:var(--muted); font-size:12px; }
 .publish-progress { margin-top:18px; border:1px solid var(--line); }

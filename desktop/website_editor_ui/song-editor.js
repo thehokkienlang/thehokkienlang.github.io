@@ -7,7 +7,7 @@
     displayTitleController: null, searchController: null,
     file: '', revision: '', route: '', dirty: false, previewTimer: null, renderGeneration: 0,
     publishPaths: [], job: null, legacyTitle: null, renderingRows: false, dictionaryGeneration: null,
-    lineClipboard: null, simplifiedTitleTimer: null, simplifiedTitleGeneration: 0,
+    lineClipboard: null, verseClipboard: null, simplifiedTitleTimer: null, simplifiedTitleGeneration: 0,
     simplifiedAlternativeTimer: null, simplifiedAlternativeGeneration: 0, titlePinyinManual: false,
     visibleSongs: [], activeSongIndex: -1,
   };
@@ -526,16 +526,73 @@
       button.disabled = !state.lineClipboard;
     });
   }
-  function copyRow(row) {
+  // One lyric row as draft data: its TLI source (readings and tones), grey-out and reading mode.
+  function lineItem(row) {
     const readingMode = row.querySelector('.lyric-reading-mode').value;
     const reading = row.querySelector('.lyric-reading-input').value;
-    state.lineClipboard = {
+    return {
       kind: 'line',
       text: lyricControllerSource(row.querySelector('.lyric-input').imeController),
       grey: row.querySelector('.grey-input').checked,
       ...(readingMode === 'pinyin' ? {pinyin: reading}
         : readingMode === 'custom-lomari' ? {lomari: reading} : {}),
     };
+  }
+  // The lyric rows of the verse a row belongs to: the lines between the verse breaks around it.
+  function verseRows(row) {
+    let first = row;
+    while (first.previousElementSibling?.dataset.kind === 'line') first = first.previousElementSibling;
+    const rows = [];
+    for (let item = first; item?.dataset.kind === 'line'; item = item.nextElementSibling) rows.push(item);
+    return rows;
+  }
+  function updateVersePasteButtons() {
+    document.querySelectorAll('.verse-paste-button').forEach(button => {
+      button.disabled = !state.verseClipboard;
+    });
+  }
+  function copyVerse(row) {
+    const rows = verseRows(row);
+    state.verseClipboard = rows.map(lineItem);
+    updateVersePasteButtons();
+    notice(`Verse copied (${rows.length} ${rows.length === 1 ? 'line' : 'lines'}). Use Paste verse on the verse you want to replace.`);
+    const systemClipboardWrite = navigator.clipboard?.writeText?.(state.verseClipboard.map(item => item.text).join('\n'));
+    systemClipboardWrite?.catch(() => {});
+  }
+  // Paste the copied verse over a verse, as Paste line does over a line: its lines are replaced.
+  function pasteVerse(row) {
+    if (!state.verseClipboard?.length) return;
+    const old = verseRows(row);
+    const before = old[old.length - 1].nextElementSibling;
+    old.forEach(item => item.remove());
+    const rows = state.verseClipboard.map(item => addLineRow({...item}, before));
+    updateLinePasteButtons();
+    renumberRows();
+    selectLineRow(rows[0]);
+    rows[0].scrollIntoView({block: 'nearest'});
+    markDirty();
+    notice(`Verse pasted (${rows.length} ${rows.length === 1 ? 'line' : 'lines'}).`);
+  }
+  // Copy verse and Paste verse sit at the top right of each verse (on its first line), and move
+  // with it when lines or verse breaks change.
+  function updateVerseTools() {
+    const container = $('lyricRows');
+    container.querySelectorAll('.verse-tools').forEach(tools => tools.remove());
+    container.querySelectorAll('.lyric-row.verse-start').forEach(row => row.classList.remove('verse-start'));
+    [...container.children].forEach(row => {
+      if (row.dataset.kind !== 'line' || row.previousElementSibling?.dataset.kind === 'line') return;
+      row.classList.add('verse-start');
+      const tools = document.createElement('span'); tools.className = 'verse-tools';
+      const copy = newButton('Copy verse', 'Copy every line of this verse', () => copyVerse(row));
+      const paste = newButton('Paste verse', 'Replace this verse with the copied verse', () => pasteVerse(row));
+      paste.className = 'verse-paste-button';
+      paste.disabled = !state.verseClipboard;
+      tools.append(copy, paste);
+      row.append(tools);
+    });
+  }
+  function copyRow(row) {
+    state.lineClipboard = lineItem(row);
     updateLinePasteButtons();
     notice('Line copied. Use Paste on the line you want to replace.');
     const systemClipboardWrite = navigator.clipboard?.writeText?.(state.lineClipboard.text);
@@ -688,9 +745,11 @@
     const row = document.createElement('div'); row.className = 'verse-break'; row.dataset.kind = 'break';
     row.append(document.createTextNode('Verse break'), newButton('×', 'Remove verse break', () => removeRow(row)));
     if (before) $('lyricRows').insertBefore(row, before); else $('lyricRows').append(row);
+    updateVerseTools();
     markDirty();
   }
   function renumberRows() {
+    updateVerseTools();
     let line = 0;
     [...$('lyricRows').children].forEach(row => {
       if (row.dataset.kind === 'line') row.querySelector('.lyric-row-number').textContent = String(++line).padStart(2, '0');
