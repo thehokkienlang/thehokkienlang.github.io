@@ -68,10 +68,10 @@ pattern diagrams (`assets/content/wordpress/singapore-sandhi*.png`).
   the entry has it, otherwise `entry.audio`. This is the same rule as
   `audioForCurrentSandhiMode()` in `shared/web-phonetic-output.js`, so it should
   reuse that function rather than copy it.
-- **Shown readings:** keep the stored Taipei reading in the results list,
-  because it is the headword's spelling. Where a reading is shown as spoken in
-  a phrase, show the derived Singapore marks. That way the shown marks never
-  disagree with the audio.
+- **Shown readings (Haru, 2026-11-20: Singapore is shown site-wide):** the
+  headword reading, its Lomari and what Copy gives show the derived Singapore
+  marks when the preference is Singapore, so the marks never disagree with the
+  audio. The stored reading stays Taipei.
 - **Search:** unchanged. A Singapore speaker typing 4 on a non-final syllable
   should still find the word. That needs the typed-input normalisation below,
   which is optional and listed separately.
@@ -114,12 +114,34 @@ pattern diagrams (`assets/content/wordpress/singapore-sandhi*.png`).
   today's diagram. The guide's line "specifically follows the Taipei tone
   sandhi pattern" changes to say both are shown, and how to switch.
 
+### Marks everywhere (Haru, 2026-11-20)
+
+"If there is a global switch, it should switch the site": with Singapore, the
+site shows Singapore marks, not only Singapore audio.
+
+- **IME Pad and Translator:** the tone marks over the text and the Lomari
+  preview (`applySingaporeDisplay` in `shared/web-phonetic-output.js`, the same
+  rule as the audio engine). The typed text itself is never changed.
+- **Dictionary:** see above.
+- **Songs, stories and homepage song picks:** below.
+- **Learn pages stay as written.** They teach the writing system, which records
+  Taipei, and the romanisation guide quotes POJ and Tâi-lô spellings that must
+  not change. The tone-sandhi guide shows the Singapore pattern itself.
+- **Teochew text** (`data-sandhi-fixed`) keeps its own marks.
+
+### Songs (Haru, 2026-11-20)
+
+- Song lyrics, song titles and the `/songs/` list show the reader's sandhi
+  (`shared/web-sandhi-display.js`, tested by `tests/check_sandhi_display.cjs`).
+  The pages stay baked with Taipei marks; the browser swaps them. An open
+  syllable marked tone 1 that is joined to the next syllable shows tone 4
+  (ˆ → ˊ, ꞈ → ˏ, Lomari â → á). "Joined" follows how the pages are written: a
+  following syllable in the same reading, a trailing "-" on a lyric reading,
+  what directly follows a tone-only ruby or a title reading, and a single
+  hyphen in Lomari. Checked syllables keep tone 1.
+
 ## Out of scope
 
-- **Songs.** A recording is sung in one variety, so the lyrics and Follow
-  lyrics follow what is sung, not the reader's preference. A song sung with
-  Singapore sandhi can later get `"sandhi": "singapore"` in its song file,
-  which would render its derived tones as Singapore whatever the toggle says.
 - **Stored data and typing.** TSV, song sources and the Android keyboard keep
   Taipei digits.
 

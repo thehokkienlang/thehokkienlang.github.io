@@ -104,9 +104,12 @@
   }, fail).then(player => {
     if (playerFailed) { releasePlayer(player); return; }
     controller = player;
+    if (iframe.dataset) iframe.dataset.lyricPlayer = ''; // site.js leaves pausing this video to the player
     if (pendingSeek !== null) { controller.seek(pendingSeek, true); pendingSeek = null; }
   }).catch(fail).finally(() => { connecting = false; });
   }
+  // Switching to another version's tab pauses this one's video.
+  scope.addEventListener?.('song-version-hidden', () => controller?.pause?.());
   // A hidden tab's player connects when that tab is first shown.
   if (scope.hidden) scope.addEventListener('song-version-shown', connectPlayer, { once: true });
   else connectPlayer();

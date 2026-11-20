@@ -891,12 +891,17 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     values["LYRICSCRIPTS"] = LYRIC_SCRIPTS if content_type == "songs" else ""
     # A song page's accent bar under the title takes its sound's colour, as its row on /songs/ does.
     values["MAINATTRS"] = ""
+    values["HEADINGATTRS"] = ""
     if content_type == "songs":
         sounds, _, classification = song_classification(root)
         found = classification.get(base_route(route))
         sound = next((item for item in sounds if found and item["id"] == found["sound"]), None)
         if sound:
             values["MAINATTRS"] = f' style="--song-accent:{html.escape(sound["accent"], quote=True)}"'
+        # A song in another dialect (Teochew) has its title in that dialect: its tone marks stay as
+        # written whatever the reader's Taipei/Singapore sandhi (shared/web-sandhi-display.js).
+        if found and found.get("dialect"):
+            values["HEADINGATTRS"] = " data-sandhi-fixed"
     values["BRAND"] = site_brand(root, language)
     values["META"] = meta_tags(title, route, page_description(
         title, base_route(route), body, content_type, language, home_introductions[language]), language)
@@ -1139,7 +1144,8 @@ def build_content(root: Path, output: Path):
                     if badge else "")
                 # Search data lives in public/data/song-search-index.json, joined to this row by route.
                 links.append(
-                    f'<li data-song-route="{html.escape(route, quote=True)}">'
+                    f'<li data-song-route="{html.escape(route, quote=True)}"'
+                    f'{" data-sandhi-fixed" if item["dialect"] else ""}>'
                     f'<a class="{entry_class}" '
                     f'href="{html.escape(destination, quote=True)}">'
                     f'<span class="song-entry-title">{item["label"]}'

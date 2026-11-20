@@ -78,6 +78,7 @@ const lomariRenderer = phoneticCore.createRenderer({
   findRememberedHangulEntryAt: (text, index) => imeController.findRememberedHangulEntryAt(text, index),
   findUnitRoman: (unit) => state.unitRoman.get(unit) || "",
   findJamoLomari: (unit) => state.jamoLomari.get(unit) || "",
+  getSandhiMode: () => sandhiPreference.get(),
 });
 const audioPlanner = phoneticCore.createAudioPlanner({
   imeCore,
@@ -282,8 +283,8 @@ function findHangulOverrideAt(text, index) {
 }
 
 function updateLomariPreview() {
-  // Lomari always follows the Taipei display convention. Sandhi selection affects audio only.
-  lomariPreview.textContent = lomariRenderer.render(imeText.value);
+  // Tone marks and Lomari follow the Taipei/Singapore preference; the typed text never changes.
+  lomariRenderer.renderPreview(lomariPreview, imeText.value);
   lomariPreview.scrollTop = lomariPreview.scrollHeight;
 }
 
@@ -371,7 +372,7 @@ async function playPadAudio() {
 // The page's buttons set the shared preference themselves; this is for code that sets it directly.
 function setSandhiMode(mode) {
   sandhiPreference.set(mode);
-  updateLomariPreview();
+  updateImePresentation();
 }
 
 async function loadDictionary() {
@@ -419,7 +420,7 @@ keyboardRomanisationHints.addEventListener("change", () => {
   if (guideHintsRestoreFocus) imeText.focus({ preventScroll: true });
   guideHintsRestoreFocus = false;
 });
-sandhiPreference.onChange(() => updateLomariPreview());
+sandhiPreference.onChange(() => updateImePresentation());
 
 keyboardGuideButton.addEventListener("click", () => {
   if (isMobileWebIme) return;

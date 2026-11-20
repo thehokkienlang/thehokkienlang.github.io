@@ -18,12 +18,14 @@
     }
     picks.replaceChildren(...songs.slice(0, 3).map(song => song.cloneNode(true)));
   }
+  const sandhiVaries = element => window.TliSandhiDisplay?.variesOf(element) || null;
   const renderTitleTones = scope => {
     const toneRenderer = window.TangliengimImeCore;
     if (!toneRenderer) return;
     scope.querySelectorAll(".title-reading").forEach(title => {
       title.querySelectorAll(".hanri-title:not(.bopomofo-title) > rt").forEach(reading => {
-        reading.replaceChildren(toneRenderer.renderInlineUpperToneReading(reading.textContent));
+        // A mark that differs between Taipei and Singapore is coloured (shared/web-sandhi-display.js).
+        reading.replaceChildren(toneRenderer.renderInlineUpperToneReading(reading.textContent, sandhiVaries(reading)));
       });
       const walker = document.createTreeWalker(title, NodeFilter.SHOW_TEXT, {
         acceptNode: node => node.parentElement.closest("rt, rp, .hangul-tone")
@@ -31,9 +33,15 @@
       });
       const textNodes = [];
       while (walker.nextNode()) textNodes.push(walker.currentNode);
-      textNodes.forEach(node => node.replaceWith(toneRenderer.renderToneMarkedReading(node.textContent)));
+      textNodes.forEach(node => node.replaceWith(toneRenderer.renderToneMarkedReading(node.textContent, sandhiVaries(node.parentElement))));
     });
   };
+  document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
+    node.textContent = node.textContent.normalize("NFC");
+  });
+  // Song lyrics and titles follow the reader's Taipei/Singapore sandhi (shared/web-sandhi-display.js);
+  // it reads the "-" join marks, so it runs before they are drawn away (and Lomari after).
+  window.TliSandhiDisplay?.prepare(document);
   renderTitleTones(document);
   // WebKit can place positioned rt boxes below their base; use ordinary boxes for display.
   const normalizeRuby = scope => [...scope.querySelectorAll('ruby')].reverse().forEach(ruby => {
@@ -70,8 +78,14 @@
     ruby.replaceWith(annotation);
   });
   normalizeRuby(document);
+  window.TliSandhiDisplay?.prepareLomari(document);
   // For markup drawn after load (search results): the same tone marks and ruby as the page's own.
-  window.TliSiteDisplay = { decorate: scope => { renderTitleTones(scope); normalizeRuby(scope); } };
+  window.TliSiteDisplay = { decorate: scope => {
+    window.TliSandhiDisplay?.prepare(scope);
+    renderTitleTones(scope);
+    normalizeRuby(scope);
+    window.TliSandhiDisplay?.prepareLomari(scope);
+  } };
   const updateWrappedTitles = () => {
     document.querySelectorAll("h1.title-reading").forEach(title => {
       title.classList.remove("title-reading-wrapped");
@@ -89,9 +103,6 @@
   scheduleTitleWrapUpdate();
   document.fonts?.ready.then(scheduleTitleWrapUpdate);
   window.addEventListener("resize", scheduleTitleWrapUpdate, { passive: true });
-  document.querySelectorAll(".song-entry-lomari, .home-songbook small").forEach(node => {
-    node.textContent = node.textContent.normalize("NFC");
-  });
   // Keep catalogue entries as full links; only homepage picks use base-text links.
   document.querySelectorAll("[data-home-song-picks] > a").forEach(original => {
     const href = original.getAttribute("href");
@@ -218,7 +229,10 @@
   }));
 
   // A video in a tab you leave must stop, or its sound keeps playing out of sight.
+  // A video with a connected lyric player is paused by that player (song-version-hidden, in
+  // shared/web-lyric-sync.js): YouTube ignores raw commands once its API has the frame.
   const stopVideos = panel => panel.querySelectorAll("iframe").forEach(frame => {
+    if (frame.dataset.lyricPlayer !== undefined) return;
     const source = frame.src;
     if (source.includes("enablejsapi=1")) {
       frame.contentWindow?.postMessage(JSON.stringify({ event: "command", func: "pauseVideo", args: "" }), new URL(source).origin);
@@ -240,7 +254,10 @@
         if (panel.hidden === !shown) return;
         panel.hidden = !shown;
         if (shown) panel.dispatchEvent(new Event("song-version-shown"));
-        else stopVideos(panel);
+        else {
+          panel.dispatchEvent(new Event("song-version-hidden"));
+          stopVideos(panel);
+        }
       });
       if (updateHash) history.replaceState(null, "", `#version-${button.dataset.songVersionKey}`);
     };

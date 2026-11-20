@@ -397,6 +397,7 @@ const TangliengimPhoneticOutput = (() => {
     findRememberedHangulEntryAt = () => null,
     findUnitRoman = () => "",
     findJamoLomari = () => "",
+    getSandhiMode = () => "taipei",
   }) {
     function syllablesForEntry(entry, protectFinal) {
       const segments = entrySegments(entry, imeCore);
@@ -407,6 +408,8 @@ const TangliengimPhoneticOutput = (() => {
         roman: segment.roman || "",
         externalSandhi: !protectFinal && !entry.autoSandhi && index === segments.length - 1,
         fromTsv: true,
+        // A word's own last syllable carries its citation tone, not a sandhi tone.
+        citationFinal: index === segments.length - 1,
       }));
     }
 
@@ -458,6 +461,9 @@ const TangliengimPhoneticOutput = (() => {
         else tokens.push({ type: "literal", text: char });
         index += char.length;
       }
+      // As written, the reading's last syllable has its citation tone (see applySingaporeDisplay).
+      const last = tokens.findLastIndex((token) => token.type === "syllable");
+      if (last >= 0) tokens[last] = { ...tokens[last], citationFinal: true };
       return tokens;
     }
 
@@ -481,7 +487,7 @@ const TangliengimPhoneticOutput = (() => {
             while (finalSyllable >= 0 && annotationTokens[finalSyllable].type !== "syllable") finalSyllable -= 1;
             if (finalSyllable >= 0) {
               const token = annotationTokens[finalSyllable];
-              annotationTokens[finalSyllable] = { ...token, tone: sandhiTone(token.unit, token.tone) };
+              annotationTokens[finalSyllable] = { ...token, tone: sandhiTone(token.unit, token.tone), citationFinal: false };
             }
           }
           tokens.push(...annotationTokens);
@@ -599,14 +605,37 @@ const TangliengimPhoneticOutput = (() => {
         if (!token.externalSandhi) return token;
         const next = tokens[index + 1];
         if (!next || !["syllable", "word", "hyphen"].includes(next.type)) return token;
-        return { ...token, tone: sandhiTone(token.unit, token.tone) };
+        return { ...token, tone: sandhiTone(token.unit, token.tone), citationFinal: false };
       });
     }
 
-    function render(text) {
+    // Singapore sandhi, shown when the reader picks it (shared/web-sandhi-preference.js): 1 -> 5 ->
+    // 3 -> 2 -> 4 -> 3 differs from Taipei only in open 2 -> 4, so an open syllable showing sandhi
+    // tone 1 and joined to what follows shows 4. A word's own final citation tone 1 (真) stays 1,
+    // and checked syllables keep 1 <-> 3. Mirrors visible_text_to_audio_segments() in
+    // desktop/tangliengim_engine.py; what is typed and stored is never changed.
+    // Such a syllable is marked varies in both modes, so its tone can be coloured
+    // (.tli-sandhi-varies) as one that differs by variety.
+    function applySingaporeDisplay(tokens) {
+      const singapore = getSandhiMode() === "singapore";
+      return tokens.map((token, index) => {
+        if (token.type !== "syllable" || String(token.tone) !== "1" || token.citationFinal) return token;
+        if (imeCore.isCheckedFinalUnit(token.unit)) return token;
+        const next = tokens[index + 1];
+        if (!next || !["syllable", "word", "hyphen"].includes(next.type)) return token;
+        return { ...token, tone: singapore ? "4" : token.tone, varies: true };
+      });
+    }
+
+    const shownTokens = (normalizedText) => applySingaporeDisplay(applyExternalSandhi(tokenize(normalizedText)));
+
+    // The Lomari as parts: [{text, varies}], varies marking a syllable whose tone differs by
+    // sandhi variety. render() joins them.
+    function renderParts(text) {
       const normalizedText = imeCore.normalizeApostrophes(text);
-      const tokens = applyExternalSandhi(tokenize(normalizedText));
+      const tokens = shownTokens(normalizedText);
       const output = [];
+      const varying = new Set();
       let previousWasWord = false;
       const appendPronunciation = (value) => {
         const rendered = String(value || "");
@@ -622,6 +651,7 @@ const TangliengimPhoneticOutput = (() => {
           appendPronunciation(
             applyTone(token.roman || findUnitRoman(token.unit) || romanizeUnit(token.unit), token.tone)
           );
+          if (token.varies) varying.add(output.length - 1);
           previousWasWord = true;
         } else if (token.type === "word") {
           if (previousWasWord) output.push("-");
@@ -635,22 +665,55 @@ const TangliengimPhoneticOutput = (() => {
           previousWasWord = false;
         }
       }
-      return output.join("");
+      return output.map((part, index) => ({ text: part, varies: varying.has(index) }));
+    }
+
+    function render(text) {
+      return renderParts(text).map((part) => part.text).join("");
     }
 
     function resolvedHangulToneSpans(text) {
       const normalizedText = imeCore.normalizeApostrophes(text);
-      return applyExternalSandhi(tokenize(normalizedText))
+      return shownTokens(normalizedText)
         .filter((token) => token.type === "syllable" && Number.isInteger(token.sourceStart))
         .map((token) => ({
           start: token.sourceStart,
           end: token.sourceEnd,
           hangul: token.unit,
           reading: `${token.unit}${token.tone}`,
+          varies: Boolean(token.varies),
         }));
     }
 
-    return { render, resolvedHangulToneSpans };
+    // The Lomari preview as DOM: in a varying syllable, the vowel carrying its tone (with any
+    // marks on it) is in the accent colour, as on the site's pages.
+    function renderPreview(target, text) {
+      const nodes = [];
+      for (const part of renderParts(text)) {
+        // applyTone() writes the tone as a combining mark, so the text keeps its own form here.
+        const syllable = part.text;
+        const mark = part.varies ? syllable.search(/[̂́]/u) : -1;
+        if (mark < 0) {
+          if (!part.varies) { nodes.push(syllable); continue; }
+          const whole = document.createElement("span");
+          whole.className = "tli-sandhi-varies";
+          whole.textContent = syllable;
+          nodes.push(whole);
+          continue;
+        }
+        let start = mark;
+        while (start > 0 && /[̀-ͯ]/u.test(syllable[start])) start -= 1;
+        let end = mark + 1;
+        while (end < syllable.length && /[̀-ͯ]/u.test(syllable[end])) end += 1;
+        const span = document.createElement("span");
+        span.className = "tli-sandhi-varies";
+        span.textContent = syllable.slice(start, end);
+        nodes.push(syllable.slice(0, start), span, syllable.slice(end));
+      }
+      target.replaceChildren(...nodes);
+    }
+
+    return { render, renderParts, renderPreview, resolvedHangulToneSpans };
   }
 
   // The clips to play for a sandhi preference: an entry's Singapore clips when the preference is

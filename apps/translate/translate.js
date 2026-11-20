@@ -206,6 +206,7 @@
     imeCore: ImeCore, findHanriEntry, findHangulOverride: reading => state.index.findHangulOverride(reading), findHangulOverrideAt,
     findRememberedHangulEntryAt: (text, index) => ime.findRememberedHangulEntryAt(text, index),
     findUnitRoman: unit => state.unitRoman.get(unit) || "", findJamoLomari: unit => state.jamoLomari.get(unit) || "",
+    getSandhiMode: () => window.TliSandhiPreference.get(), // marks and Lomari follow the preference
   });
   const audioPlanner = phoneticCore.createAudioPlanner({
     imeCore: ImeCore, getSandhiMode: () => window.TliSandhiPreference.get(), findHanriEntry,
@@ -223,7 +224,8 @@
     toneOverlay.style.width = `${hokkienText.clientWidth}px`; toneOverlay.style.height = `${hokkienText.clientHeight}px`;
     for (const anchor of toneOverlay.children) anchor.style.transform = `translate(${-hokkienText.scrollLeft}px, ${-hokkienText.scrollTop}px)`;
   }
-  function updateHokkienPresentation() { lomariPreview.textContent = lomariRenderer.render(hokkienText.value); updateToneOverlay(); }
+  function updateHokkienPresentation() { lomariRenderer.renderPreview(lomariPreview, hokkienText.value); updateToneOverlay(); }
+  window.TliSandhiPreference.onChange(() => updateHokkienPresentation());
   function updateCounts() { document.querySelector("#englishCount").textContent = `${englishText.value.length} / ${LIMIT}`; document.querySelector("#hokkienCount").textContent = `${hokkienText.value.length} / ${LIMIT}`; }
   function showToast(message) { toast.textContent = message; toast.classList.add("visible"); clearTimeout(showToast.timer); showToast.timer = setTimeout(() => toast.classList.remove("visible"), 1500); }
   async function copy(value) { await navigator.clipboard.writeText(value); showToast("Copied"); }

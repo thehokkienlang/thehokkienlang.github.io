@@ -287,7 +287,7 @@ function findNextMixedReadingBoundary(source, sourceIndex, reading, readingIndex
   return reading.length;
 }
 
-function appendHanriRuby(fragment, hanriText, readingText) {
+function appendHanriRuby(fragment, hanriText, readingText, varies = null) {
   if (!readingText) {
     fragment.append(displayTextNode(hanriText));
     return;
@@ -300,12 +300,12 @@ function appendHanriRuby(fragment, hanriText, readingText) {
   base.append(displayTextNode(hanriText));
   const rt = document.createElement("span");
   rt.className = "entry-headword-reading";
-  rt.append(renderInlineUpperToneReading(readingText));
+  rt.append(renderInlineUpperToneReading(readingText, varies));
   ruby.append(base, rt);
   fragment.append(ruby);
 }
 
-function renderMixedEntryHeadword(group, reading) {
+function renderMixedEntryHeadword(group, reading, varies = null) {
   const fragment = document.createDocumentFragment();
   const source = String(group.hanri || "");
   let sourceIndex = 0;
@@ -317,7 +317,7 @@ function renderMixedEntryHeadword(group, reading) {
 
     if (unit.kind === "hanri") {
       const boundary = findNextMixedReadingBoundary(source, unit.end, reading, readingIndex);
-      appendHanriRuby(fragment, unit.text, reading.slice(readingIndex, boundary));
+      appendHanriRuby(fragment, unit.text, reading.slice(readingIndex, boundary), variesFrom(varies, readingIndex, boundary));
       readingIndex = boundary;
     } else if (unit.kind === "hangul") {
       const hangul = document.createElement("span");
@@ -344,18 +344,20 @@ function renderMixedEntryHeadword(group, reading) {
 
 function renderEntryHeadword(group) {
   const fragment = document.createDocumentFragment();
-  const primaryReading = group.readings[0]?.reading || group.hanri || "";
+  const storedReading = group.readings[0]?.reading || group.hanri || "";
+  const primaryReading = shownReading(storedReading);
+  const varies = readingVaries(storedReading);
 
   if (group.kind === "hangul_override") {
     const hangul = document.createElement("span");
     hangul.className = "entry-headword-hangul";
-    hangul.append(renderToneMarkedReading(primaryReading));
+    hangul.append(renderToneMarkedReading(primaryReading, varies));
     fragment.append(hangul);
     return fragment;
   }
 
   if (group.kind === "mixed_hanri") {
-    fragment.append(renderMixedEntryHeadword(group, primaryReading));
+    fragment.append(renderMixedEntryHeadword(group, primaryReading, varies));
     return fragment;
   }
 
@@ -366,7 +368,7 @@ function renderEntryHeadword(group) {
   base.append(displayTextNode(group.hanri));
   const rt = document.createElement("span");
   rt.className = "entry-headword-reading";
-  rt.append(renderInlineUpperToneReading(primaryReading));
+  rt.append(renderInlineUpperToneReading(primaryReading, varies));
   ruby.append(base, rt);
   fragment.append(ruby);
   return fragment;
@@ -405,8 +407,38 @@ function showToast(message) {
   showToast.timer = window.setTimeout(() => toast.classList.remove("visible"), 1500);
 }
 
-// The clips for the site-wide Taipei/Singapore preference (shared/web-sandhi-preference.js): an
-// entry's Singapore clips when it has them, otherwise its own. The shown reading stays Taipei.
+// The site-wide Taipei/Singapore preference (shared/web-sandhi-preference.js). Stored readings keep
+// Taipei sandhi digits; with Singapore, a reading and its Lomari are shown (and copied) with an open
+// sandhi tone 1 as 4 (shared/web-sandhi-display.js), and the entry's Singapore clips play.
+const singaporeShown = () => window.TliSandhiPreference?.get() === "singapore" && window.TliSandhiDisplay;
+function shownReading(reading) {
+  return singaporeShown() ? window.TliSandhiDisplay.singaporeReading(reading) : reading;
+}
+// The tone marks that differ between Taipei and Singapore, coloured in both modes.
+function readingVaries(reading) {
+  const display = window.TliSandhiDisplay;
+  return display ? display.variesIndexes(reading, display.singaporeReading(reading)) : null;
+}
+function variesFrom(varies, start, end) {
+  if (!varies) return null;
+  return new Set([...varies].filter(index => index >= start && index < end).map(index => index - start));
+}
+function lomariShownParts(lomari) {
+  const text = normalizeApostrophes(lomari);
+  const display = window.TliSandhiDisplay;
+  if (!display) return [text];
+  return display.lomariParts(text, Boolean(singaporeShown())).map(part => {
+    if (!part.varies) return part.text;
+    const span = document.createElement("span");
+    span.className = "tli-sandhi-varies";
+    span.textContent = part.text.normalize("NFC");
+    return span;
+  });
+}
+function shownLomari(lomari) {
+  return singaporeShown() ? window.TliSandhiDisplay.singaporeLomari(lomari).normalize("NFC") : lomari;
+}
+
 function audioForPreference(entry) {
   return TangliengimPhoneticOutput.audioForSandhiMode(entry.audio, window.TliSandhiPreference?.get());
 }
@@ -433,7 +465,7 @@ function renderReading(entry) {
   lomariLabel.textContent = siteText("Lomari");
   const lomari = document.createElement("span");
   lomari.className = "lomari";
-  lomari.textContent = normalizeApostrophes(entry.lomari || " ");
+  lomari.replaceChildren(...lomariShownParts(entry.lomari || " "));
   lomariField.append(lomariLabel, lomari);
 
   const englishField = document.createElement("div");
@@ -455,7 +487,9 @@ function renderReading(entry) {
   playButton.className = "audio-reading";
   playButton.type = "button";
   playButton.textContent = siteText("Listen");
-  playButton.setAttribute("aria-label", `${siteText("Listen to")} ${normalizeApostrophes(entry.reading)}`);
+  const reading = shownReading(entry.reading);
+  const lomariText = shownLomari(entry.lomari || "");
+  playButton.setAttribute("aria-label", `${siteText("Listen to")} ${normalizeApostrophes(reading)}`);
   if (!audioSegments.length) {
     playButton.disabled = true;
     playButton.title = missingAudio.length ? `${siteText("No audio for")} ${missingAudio.join(", ")}` : siteText("No audio for this reading");
@@ -481,11 +515,11 @@ function renderReading(entry) {
   copyButton.className = "copy-reading";
   copyButton.type = "button";
   copyButton.textContent = siteText("Copy");
-  copyButton.setAttribute("aria-label", `${siteText("Copy")} ${normalizeApostrophes(entry.reading)} ${normalizeApostrophes(entry.lomari || "")}`.trim());
+  copyButton.setAttribute("aria-label", `${siteText("Copy")} ${normalizeApostrophes(reading)} ${normalizeApostrophes(lomariText)}`.trim());
   copyButton.addEventListener("click", async () => {
-    const value = entry.lomari
-      ? `${normalizeApostrophes(entry.reading)}\t${normalizeApostrophes(entry.lomari)}`
-      : normalizeApostrophes(entry.reading);
+    const value = lomariText
+      ? `${normalizeApostrophes(reading)}\t${normalizeApostrophes(lomariText)}`
+      : normalizeApostrophes(reading);
     try {
       await copyText(value);
       showToast("Reading copied");
@@ -608,6 +642,9 @@ function renderResults() {
   resultSummary.textContent = siteText(`${categoryPrefix}${total} result${total === 1 ? "" : "s"} · showing ${rangeStart}-${rangeEnd}`);
   renderPagination(page, totalPages);
 }
+
+// Readings follow the Taipei/Singapore preference, so a change redraws them.
+window.TliSandhiPreference?.onChange(() => renderResults());
 
 function setInputMode(mode) {
   searchBox.setMode(mode === "lomari" ? "lomari" : "hanri-hangul");

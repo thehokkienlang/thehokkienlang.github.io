@@ -1099,7 +1099,12 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
-  function tonedHangulNode(unit, tone) {
+  // A tone mark that differs between Taipei and Singapore sandhi gets one accent colour
+  // (.tli-sandhi-varies in shared/web-site-navigation.css), in both modes.
+  const VARIES_CLASS = "tli-sandhi-varies";
+  const markVaries = (varies, index) => Boolean(varies && typeof varies.has === "function" && varies.has(index));
+
+  function tonedHangulNode(unit, tone, varies = false) {
     const mark = HANGUL_TONE_MARKS[tone];
     if (!mark) {
       return document.createTextNode(unit);
@@ -1112,12 +1117,14 @@ const TangliengimImeCore = (() => {
 
     const rt = document.createElement("span");
     rt.className = "tone-mark";
+    if (varies) rt.classList.add(VARIES_CLASS);
     rt.textContent = mark;
     ruby.append(rt);
     return ruby;
   }
 
-  function renderToneMarkedReading(reading) {
+  // varies: optional Set of the indexes (in reading) of tone marks that differ by sandhi.
+  function renderToneMarkedReading(reading, varies = null) {
     const fragment = document.createDocumentFragment();
     const text = normalizeApostrophes(reading);
     let index = 0;
@@ -1128,7 +1135,7 @@ const TangliengimImeCore = (() => {
 
       const tone = text[unit.end];
       if (unit.canCarryTone && isToneMark(tone)) {
-        fragment.append(tonedHangulNode(unit.text, tone));
+        fragment.append(tonedHangulNode(unit.text, tone, markVaries(varies, unit.end)));
         index = unit.end + 1;
       } else {
         fragment.append(displayTextNode(unit.text));
@@ -1276,7 +1283,7 @@ const TangliengimImeCore = (() => {
       const unit = readingUnitAt(reading, 0);
       const mark = unit?.canCarryTone ? HANGUL_TONE_MARKS[reading[unit.end]] : "";
       if (!mark) continue;
-      spans.push({ start, end, hangul, mark });
+      spans.push({ start, end, hangul, mark, varies: Boolean(span.varies) });
       cursor = end;
     }
 
@@ -1292,7 +1299,7 @@ const TangliengimImeCore = (() => {
         anchor.style.top = `${position.top}px`;
       }
       const annotation = document.createElement("span");
-      annotation.className = "tone-overlay-mark";
+      annotation.className = span.varies ? `tone-overlay-mark ${VARIES_CLASS}` : "tone-overlay-mark";
       annotation.textContent = span.mark;
       anchor.append(annotation);
       fragment.append(anchor);
@@ -1342,7 +1349,8 @@ const TangliengimImeCore = (() => {
     return fragment;
   }
 
-  function renderInlineUpperToneReading(reading) {
+  // varies: optional Set of the indexes (in reading) of tone marks that differ by sandhi.
+  function renderInlineUpperToneReading(reading, varies = null) {
     const fragment = document.createDocumentFragment();
     const text = normalizeApostrophes(reading);
     let index = 0;
@@ -1364,7 +1372,7 @@ const TangliengimImeCore = (() => {
         const mark = UPPER_HANGUL_TONE_MARKS[tone] || "";
         if (mark) {
           const toneNode = document.createElement("span");
-          toneNode.className = "inline-upper-tone";
+          toneNode.className = markVaries(varies, unit.end) ? `inline-upper-tone ${VARIES_CLASS}` : "inline-upper-tone";
           toneNode.textContent = mark;
           fragment.append(toneNode);
         }

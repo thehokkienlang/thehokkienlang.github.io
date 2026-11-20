@@ -33,7 +33,11 @@ function element() {
     dataset: {}, matches: () => true, querySelector: () => element(), hasAttribute: () => false,
     removeAttribute() {}, contains: () => false, closest: () => null,
     setSelectionRange(start, end) { this.selectionStart = start; this.selectionEnd = end; },
-    replaceChildren(...items) { this.children = items; },
+    // Like the DOM, replacing the children also replaces the text.
+    replaceChildren(...items) {
+      this.children = items;
+      this.textContent = items.map(item => (typeof item === 'string' ? item : item?.textContent || '')).join('');
+    },
     append(...items) { this.children.push(...items); },
   };
 }
@@ -138,7 +142,7 @@ async function loadApp(route, script) {
     const marks = [];
     let duplicatedReadingText = false;
     const visit = node => {
-      if (node?.className === 'tone-overlay-mark') marks.push(node.textContent);
+      if (String(node?.className || '').split(' ').includes('tone-overlay-mark')) marks.push(node.textContent);
       if (node?.textContent === '칟' || node?.textContent === '토') duplicatedReadingText = true;
       for (const child of node?.children || []) visit(child);
     };
@@ -552,11 +556,19 @@ async function loadApp(route, script) {
   );
   assert.ok(
     vm.runInContext(`(() => {
+      // The default depends on the machine's region (a Singapore time zone means Singapore).
+      TliSandhiPreference.set('taipei');
       const citation = lomariRenderer.resolvedHangulToneSpans('릐');
       const sandhi = lomariRenderer.resolvedHangulToneSpans('릐뎋');
-      return citation[0]?.reading === '릐2' && sandhi[0]?.reading === '릐1';
+      // Singapore shows the same sandhi tone 1 as 4; the final citation tone is unchanged.
+      TliSandhiPreference.set('singapore');
+      const singapore = lomariRenderer.resolvedHangulToneSpans('릐뎋');
+      const singaporeCitation = lomariRenderer.resolvedHangulToneSpans('릐');
+      TliSandhiPreference.set('taipei');
+      return citation[0]?.reading === '릐2' && sandhi[0]?.reading === '릐1'
+        && singapore[0]?.reading === '릐4' && singaporeCitation[0]?.reading === '릐2';
     })()`, context),
-    'Floating Hangul tones must follow the same resolved citation/sandhi state as Lomari'
+    'Floating Hangul tones must follow the same resolved citation/sandhi state as Lomari, in both sandhi modes'
   );
   assert.ok(
     vm.runInContext(`(() => {
@@ -1018,10 +1030,14 @@ async function loadApp(route, script) {
     vm.runInContext(`imeText.value = ${JSON.stringify(input)}; updateLomariPreview()`, context);
     assert.equal(elements.get('#lomariPreview').textContent, expected, `Lomari preview: ${input}`);
   }
+  // The Lomari preview follows the preference (Haru, 2026-11-20): Singapore shows a joined open
+  // sandhi tone 1 as 4; the typed text is unchanged.
   vm.runInContext(`imeText.value = '米粉粿'; setSandhiMode('taipei')`, context);
-  const taipeiLomari = elements.get('#lomariPreview').textContent;
+  assert.equal(elements.get('#lomariPreview').textContent.normalize('NFC'), 'mi-hûn-kuè'.normalize('NFC'), 'Taipei Lomari preview: 米粉粿');
   vm.runInContext(`setSandhiMode('singapore')`, context);
-  assert.equal(elements.get('#lomariPreview').textContent, taipeiLomari, 'Singapore must not alter the Lomari preview');
+  assert.equal(elements.get('#lomariPreview').textContent.normalize('NFC'), 'mi-hún-kuè'.normalize('NFC'), 'Singapore Lomari preview: 米粉粿');
+  assert.equal(vm.runInContext('imeText.value', context), '米粉粿', 'Singapore must not change the typed text');
+  vm.runInContext(`setSandhiMode('taipei')`, context);
   vm.runInContext('imeController.clear()', context);
   assert.equal(elements.get('#lomariPreview').textContent, '', 'Clear must empty the Lomari preview');
   for (const [input, tones] of [['ㅏ', '1'], ['ㄱ', '5,1'], ['시', '3'], ['是', '5'], ['시4', '4']]) {

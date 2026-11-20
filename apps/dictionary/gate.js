@@ -5,6 +5,7 @@
     "/shared/web-hangul-ime.js",
     "/shared/web-ime-core.js",
     "/shared/web-phonetic-output.js",
+    "/shared/web-sandhi-display.js",
     "/shared/web-audio-player.js",
     "/shared/web-search-box.js",
     "app.js",

@@ -70,7 +70,9 @@
     window.addEventListener('pagehide', destroy);
     return { time: () => ready ? player.getCurrentTime() : null,
       duration: () => ready ? player.getDuration() : null,
-      seek, destroy };
+      seek, destroy,
+      // Through the API: once a player is connected, YouTube ignores raw postMessage commands.
+      pause: () => { if (ready && !destroyed) player.pauseVideo(); } };
   }
   const exports = { cueAt, connect };
   if (typeof module !== 'undefined') module.exports = exports;
