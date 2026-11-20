@@ -7,7 +7,8 @@ Build and validation scripts for the dictionary and web IME.
 `build_dictionary_json.py` converts the canonical TSV into shared web JSON: a core file every app loads, a `-runtime` sidecar (audio/Lomari maps) that only the IME and translator load, and a build-only `-indexes` sidecar for checks. `dictionary_data.py` / `dictionary_data.cjs` reassemble the full document for checks.
 
 The authoritative current contract is [`docs/dictionary-tsv-schema.md`](../docs/dictionary-tsv-schema.md).
-Use `python tools/check_release.py` as the normal build-and-release gate; it
+Use `python tools/check_release.py --changed` to select website or dictionary checks automatically.
+Use `--website` for the website suite. With no flags the full release gate
 validates source data, builds the site, and runs the production regression suite.
 `--source-only` rebuilds JSON and runs portable checks without building `_site`.
 

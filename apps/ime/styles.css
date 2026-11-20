@@ -5,11 +5,11 @@
   --panel: #ffffff;
   --text: #19272a;
   --muted: #5d6c70;
-  --line: #ccd9d7;
-  --accent: #08756b;
-  --accent-strong: #07594f;
-  --accent-soft: #e8f2ef;
-  --blue: #08756b;
+  --line: #ccdae0;
+  --accent: #0a7180;
+  --accent-strong: #085764;
+  --accent-soft: #e7f4f6;
+  --blue: #0a7180;
 }
 
 /* Mirror the Local IME's per-script font tags inside the plain textarea. */
@@ -284,8 +284,8 @@ h1 {
 
 .tool-button:hover,
 .tool-button:focus-visible {
-  border-color: #b8d8d3;
-  background: #e8f2ef;
+  border-color: #b8d7de;
+  background: #e7f4f6;
   outline: none;
 }
 
@@ -344,8 +344,8 @@ h1 {
 }
 
 .sandhi-button.active {
-  border-color: #b8d8d3;
-  background: #e8f2ef;
+  border-color: #b8d7de;
+  background: #e7f4f6;
   color: var(--blue);
 }
 
@@ -390,7 +390,7 @@ h1 {
 .keyboard-guide-button:focus-visible,
 .keyboard-guide-button[aria-expanded="true"] {
   border-color: rgba(8, 117, 107, 0.45);
-  background: #e8f2ef;
+  background: #e7f4f6;
   color: var(--blue);
   outline: none;
 }

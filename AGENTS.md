@@ -68,20 +68,17 @@ python -X utf8 tools/check_release.py
 
 ## Release gate routine
 
-GitHub is the full release gate: `.github/workflows/pages.yml` runs every check
-before it deploys, and nothing is published unless they all pass. Locally, run
-only what the change can affect, then push and let GitHub run the rest. (Haru's
-decision, 2026-11-16: option B in `docs/release-gate-optimisation-plan.md`.)
+Use `python -X utf8 tools/check_release.py --changed --quiet` for local edits.
+Pushes and pull requests use the same two profiles for the complete change.
+CI builds and validates the published site after the selected source checks pass.
 
-- **Dictionary changes** (TSVs, dictionary tools, `public/data/`): always run
-  the full source gate locally, following the Dictionary Update SOP below.
-- **Documentation only** (`docs/`, `README.md`, `AGENTS.md`, `CLAUDE.md`): no
-  checks are needed.
-- **Everything else:** run `python -X utf8 tools/check_release.py --changed --quiet`.
-  It lists the changed files (staged, unstaged, untracked, and commits not yet
-  on `origin/main`), runs only the sections they can affect, and falls back to
-  the full gate for any path it doesn't recognise. `--quiet` prints one line
-  per passing section and the full output of a failing one.
+- **Website edits** such as pages, songs, navigation, styling in the content app,
+  and article images run website checks. Use `--website` to select them manually.
+- **Dictionary-sensitive edits** including data, ranking, shared engines, and
+  changes with unknown impact run the full checks. Mixed edits use this profile.
+  Follow the Dictionary Update SOP for dictionary data.
+- Markdown documentation under `docs/` and root project notes skip checks.
+  Manual workflow runs and the weekly source regression use full source checks.
 - After a failure, fix it, then restart at the failed section with
   `--from "<section label>"` (an unknown label lists the valid ones).
 - Other flags: `--serial` (one section at a time, for debugging), `--jobs N`,

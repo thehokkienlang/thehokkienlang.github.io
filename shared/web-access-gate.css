@@ -16,7 +16,7 @@
 
 .lock-panel {
   padding: clamp(24px, 6vw, 38px);
-  border: 1px solid #ccd9d7;
+  border: 1px solid #ccdae0;
   border-radius: 8px;
   background: #ffffff;
   box-shadow: 0 8px 30px rgba(25, 39, 42, 0.07);
@@ -78,16 +78,16 @@
   width: 16px;
   height: 16px;
   margin: 0;
-  accent-color: #08756b;
+  accent-color: #0a7180;
   cursor: pointer;
 }
 
 .access-form button {
   min-height: 44px;
   margin-top: 4px;
-  border: 1px solid #08756b;
+  border: 1px solid #0a7180;
   border-radius: 7px;
-  background: #08756b;
+  background: #0a7180;
   color: #ffffff;
   cursor: pointer;
   font: inherit;
@@ -96,7 +96,7 @@
 
 .access-form button:hover,
 .access-form button:focus-visible {
-  background: #07594f;
+  background: #085764;
   outline: none;
 }
 
@@ -130,7 +130,7 @@
 .access-lock-button:hover,
 .access-lock-button:focus-visible {
   border-bottom-color: currentColor;
-  color: #07594f;
+  color: #085764;
   outline: none;
 }
 

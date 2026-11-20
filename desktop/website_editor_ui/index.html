@@ -87,9 +87,8 @@
       <section id="screen-validation" class="screen">
         <div class="section-heading"><div><p class="eyebrow">Existing repository checks</p><h2>Validation</h2></div></div>
         <div class="validation-options">
-          <article><span>Fast</span><h3>Dictionary schema</h3><p>Validate the canonical dictionary TSV and stable IDs.</p><button data-validation="dictionary">Run dictionary check</button></article>
-          <article><span>Recommended</span><h3>Complete website</h3><p>Build the real site and run the full release gate, including rendered-site checks.</p><button class="primary" data-validation="site">Build and validate</button></article>
-          <article><span>Portable</span><h3>Source release checks</h3><p>Run source, dictionary, ranking, IME, and desktop checks without the final public-site validation.</p><button data-validation="source">Run source checks</button></article>
+          <article><h3>Website edits</h3><p>Build the site and check pages, songs, routes, and web apps.</p><button class="primary" data-validation="site">Check website</button></article>
+          <article><h3>Dictionary and website edits</h3><p>Also check dictionary data, identity, ranking, audio, and the shared IME engines.</p><button data-validation="full">Run full checks</button></article>
         </div>
         <section class="validation-log"><div class="panel-bar"><strong id="validationStatus">No validation run in this session</strong><span id="jobSpinner" class="spinner" hidden></span></div><pre id="validationLog">Choose a validation suite above.</pre></section>
       </section>

@@ -1,6 +1,6 @@
 @import url("/shared/web-punctuation.css");
 @import url("/shared/web-hangul-font.css");
-:root { --ink:#17252b; --muted:#647278; --line:#d6e1df; --paper:#fff; --accent:#08756b; --accent-dark:#07594f; --accent-soft:#dff1ed; --red:#b33b46; }
+:root { --ink:#17252b; --muted:#647278; --line:#d6e1e8; --paper:#fff; --accent:#0a7180; --accent-dark:#085764; --accent-soft:#def2f5; --red:#b33b46; }
 * { box-sizing:border-box; }
 [hidden] { display:none !important; }
 #lockTranslatorButton { float:right; }
@@ -27,7 +27,7 @@ button { color:inherit; }
 .icon-button { width:38px; height:38px; border-radius:4px; color:var(--accent); }.icon-button:hover,.icon-button:focus-visible { outline:0; background:var(--accent-soft); }
 .icon-button svg,.swap-button svg { width:22px; height:22px; fill:none; stroke:currentColor; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
 .icon-button .stop-icon { display:none; }.icon-button.playing .listen-icon { display:none; }.icon-button.playing .stop-icon { display:block; }
-.swap-button { position:absolute; z-index:8; top:58px; left:50%; width:44px; height:44px; transform:translate(-50%,-50%); border:1px solid #b9d8d2; border-radius:50%; color:var(--accent); background:#fff; box-shadow:0 6px 18px rgb(23 37 43 / 12%); }
+.swap-button { position:absolute; z-index:8; top:58px; left:50%; width:44px; height:44px; transform:translate(-50%,-50%); border:1px solid #b8d7de; border-radius:50%; color:var(--accent); background:#fff; box-shadow:0 6px 18px rgb(23 37 43 / 12%); }
 .swap-button:hover,.swap-button:focus-visible { outline:0; color:#fff; background:var(--accent); }
 .translation-text,.tone-overlay { width:100%; min-height:310px; padding:24px 24px 18px; border:0; outline:0; resize:vertical; color:var(--ink); background:transparent; font-size:24px; line-height:1.55; letter-spacing:0; }
 .translation-text { display:block; caret-color:var(--accent); }.english-pane .translation-text { font-family:"TLI Noto Sans","Segoe UI",sans-serif; }

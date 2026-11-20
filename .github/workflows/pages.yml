@@ -35,13 +35,16 @@ concurrency:
 
 jobs:
   regression:
-    name: Desktop and shared-engine regression (Windows)
+    name: Change-aware release checks (Windows)
     # The weekly scheduled run only exercises the Linux side check below; it
     # builds and deploys nothing, because build and deploy wait on this job.
     if: github.event_name != 'schedule'
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+          filter: blob:none
       - uses: actions/setup-python@v6
         with:
           python-version: "3.13"
@@ -52,8 +55,16 @@ jobs:
           node-version: "24"
       - name: Install Python test dependencies
         run: python -m pip install -r requirements-dev.txt
-      - name: Run portable source release gate
-        run: python -X utf8 tools/check_release.py --source-only
+      - name: Run source checks for this change
+        shell: pwsh
+        env:
+          BASE_COMMIT: ${{ github.event.pull_request.base.sha || github.event.before }}
+        run: |
+          if ($env:BASE_COMMIT) {
+            python -X utf8 tools/check_release.py --source-only --quiet --base $env:BASE_COMMIT
+          } else {
+            python -X utf8 tools/check_release.py --source-only --quiet
+          }
 
   # The same gate on Linux, as a side check that runs weekly (Mondays 03:00 UTC)
   # and on "Run workflow", not on pushes or pull requests: nothing waits for it,

@@ -339,11 +339,11 @@ def learn_next_link(route, language, records):
 # The sandhi setting in the header's language menu (docs/sandhi-toggle-plan.md). The same words are in
 # shared/web-sandhi-preference.js; a test checks the two agree.
 SANDHI_NAV_LABELS = {
-    "en": {"sandhi": "Sandhi", "change": "(change)", "term": "tone sandhi", "taipei": "Taipei", "singapore": "Singapore",
+    "en": {"sandhi": "Tone pattern", "change": "", "term": "tone sandhi", "taipei": "Taipei", "singapore": "Singapore",
            "note": "Changes how {term} sounds and is marked."},
-    "zh-Hant": {"sandhi": "變調", "change": "（切換）", "term": "變調", "taipei": "臺北", "singapore": "新加坡",
+    "zh-Hant": {"sandhi": "聲調形式", "change": "", "term": "變調", "taipei": "臺北", "singapore": "新加坡",
                 "note": "改變{term}的讀音與標示方式。"},
-    "zh-Hans": {"sandhi": "变调", "change": "（切换）", "term": "变调", "taipei": "台北", "singapore": "新加坡",
+    "zh-Hans": {"sandhi": "声调形式", "change": "", "term": "变调", "taipei": "台北", "singapore": "新加坡",
                 "note": "改变{term}的读音与标示方式。"},
 }
 
@@ -354,7 +354,7 @@ def sandhi_setting(language):
     term = f'<a class="site-sandhi-guide" href="{guide}">{words["term"]}</a>'
     note = words["note"].format(term=term)
     return ('<div class="site-sandhi" role="group" aria-label="' + words["sandhi"] + '">'
-            f'<span class="site-sandhi-label">{words["sandhi"]} {words["change"]}</span>'
+            f'<span class="site-sandhi-label">{(words["sandhi"] + " " + words["change"]).strip()}</span>'
             '<span class="site-sandhi-choices">'
             f'<button type="button" class="site-sandhi-choice" data-sandhi-choice="taipei" aria-pressed="false">{words["taipei"]}</button>'
             f'<button type="button" class="site-sandhi-choice" data-sandhi-choice="singapore" aria-pressed="false">{words["singapore"]}</button>'

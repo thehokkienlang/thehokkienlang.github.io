@@ -1325,7 +1325,8 @@ class WebsiteEditorService:
         python = str(Path(sys.executable).with_name("python.exe") if Path(sys.executable).name.lower() == "pythonw.exe" else sys.executable)
         commands = {
             "dictionary": [python, "-X", "utf8", "tools/validate_dictionary_tsv.py"],
-            "site": [python, "-X", "utf8", "tools/check_release.py"],
+            "site": [python, "-X", "utf8", "tools/check_release.py", "--website"],
+            "full": [python, "-X", "utf8", "tools/check_release.py"],
             "source": [python, "-X", "utf8", "tools/check_release.py", "--source-only"],
         }
         if kind not in commands:

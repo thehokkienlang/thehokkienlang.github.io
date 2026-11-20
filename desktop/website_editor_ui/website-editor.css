@@ -92,7 +92,7 @@ h3 { margin:0 0 10px; font-size:17px; }
 .diff-view pre,.validation-log pre { height:510px; margin:0; padding:18px; overflow:auto; color:#dfe9e8; background:#17252b; font:13px/1.55 Consolas,monospace; white-space:pre-wrap; }
 .commit-bar { display:flex; align-items:flex-end; gap:10px; margin-top:18px; padding:16px; border-top:3px solid var(--ink); background:#fff; }
 .commit-bar label { flex:1; font-size:13px; font-weight:700; }
-.validation-options { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+.validation-options { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
 .validation-options article { display:flex; min-height:210px; flex-direction:column; padding:22px; border-top:4px solid var(--teal); background:#fff; }
 .validation-options article:nth-child(2) { border-color:var(--red); }
 .validation-options article>span { color:var(--red); font-size:11px; font-weight:700; text-transform:uppercase; }

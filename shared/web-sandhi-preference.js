@@ -15,11 +15,11 @@
   // The labels, in the three site languages. The header menu is written by tools/build_content.py
   // from its own copy; tests/check_sandhi_preference.cjs checks the two agree.
   const LABELS = Object.freeze({
-    en: {sandhi: 'Sandhi', change: '(change)', term: 'tone sandhi', taipei: 'Taipei', singapore: 'Singapore',
+    en: {sandhi: 'Tone pattern', change: '', term: 'tone sandhi', taipei: 'Taipei', singapore: 'Singapore',
       note: 'Changes how tone sandhi sounds and is marked.'},
-    'zh-Hant': {sandhi: '變調', change: '（切換）', term: '變調', taipei: '臺北', singapore: '新加坡',
+    'zh-Hant': {sandhi: '聲調形式', change: '', term: '變調', taipei: '臺北', singapore: '新加坡',
       note: '改變變調的讀音與標示方式。'},
-    'zh-Hans': {sandhi: '变调', change: '（切换）', term: '变调', taipei: '台北', singapore: '新加坡',
+    'zh-Hans': {sandhi: '声调形式', change: '', term: '变调', taipei: '台北', singapore: '新加坡',
       note: '改变变调的读音与标示方式。'},
   });
 

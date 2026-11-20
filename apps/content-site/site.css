@@ -26,9 +26,9 @@
 }
 .lyric-sync-controls[hidden] { display:none; }
 .lyric-sync-controls label { display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
-.lyric-sync-controls input { appearance:none; position:relative; flex:0 0 40px; width:40px; height:24px; margin:0; border:1px solid #aebfbd; border-radius:999px; background:#c7d3d1; cursor:pointer; transition:background-color .15s ease; }
+.lyric-sync-controls input { appearance:none; position:relative; flex:0 0 40px; width:40px; height:24px; margin:0; border:1px solid #afbfcb; border-radius:999px; background:#c7d4df; cursor:pointer; transition:background-color .15s ease; }
 .lyric-sync-controls input::before { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s ease; }
-.lyric-sync-controls input:checked { background:#08756b; border-color:#08756b; }
+.lyric-sync-controls input:checked { background:#0a7180; border-color:#0a7180; }
 .lyric-sync-controls input:checked::before { transform:translateX(16px); }
 .lyric-sync-controls input:focus-visible { outline:2px solid #2563eb; outline-offset:3px; }
 @media (prefers-reduced-motion:reduce) { .lyric-sync-controls input, .lyric-sync-controls input::before { transition:none; } }
@@ -39,8 +39,8 @@
 .imported-content [data-lyric-seek] .lyric-seek-base { cursor:text; }
 .imported-content [data-lyric-seek] :is(rt, rp, .tli-rt, .tone-mark) { cursor:default; }
 .imported-content [data-lyric-seek]:focus-visible { outline:2px solid var(--accent); outline-offset:4px; }
-.imported-content p[data-lyric-id].lyric-active { background-color:#e0f1ed; box-shadow:0 -.45em 0 #e0f1ed; }
-.imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.45em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#08756b; border-radius:2px; }
+.imported-content p[data-lyric-id].lyric-active { background-color:#dff1f5; box-shadow:0 -.45em 0 #dff1f5; }
+.imported-content p[data-lyric-id].lyric-active::before { content:""; position:absolute; inset-block-start:-.45em; inset-block-end:0; inset-inline-start:-.4em; width:3px; background:#0a7180; border-radius:2px; }
 @media(hover:hover) { .imported-content p[data-lyric-seek]:not(.lyric-active):hover { background-color:#e8eff6; box-shadow:0 -.45em 0 #e8eff6; } }
 @media(prefers-reduced-motion:reduce) { .imported-content p[data-lyric-id] { transition:none; } }
 @font-face { font-family: "TLI Hanri"; src: url("/assets/fonts/tli-content-tc-400-v1.woff2") format("woff2"); font-weight:400; font-display:swap; unicode-range: U+3400-4DBF, U+4E00-9FFF, U+20000-2EBEF; }
@@ -59,11 +59,11 @@
 @font-face { font-family: "Tangliengim Nasal Latin"; src: url("/assets/fonts/tangliengim-nasal-latin-v1.woff2") format("woff2"); font-style: normal; font-weight: 100 900; font-display: swap; }
 .nasal-grapheme { font-family: "TLI Noto Sans", sans-serif; font-style: normal; font-feature-settings: "mark", "mkmk"; font-kerning: normal; letter-spacing: 0; }
 .imported-content .tli-reading-ruby.tli-bopomofo-reading { --tli-ruby-size: 0.4em; }
-:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #08756b; --wp--preset--color--primary: #08756b; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
+:root { color-scheme: light; --ink: #17252b; --muted: #617079; --line: #dce4e7; --accent: #0a7180; --wp--preset--color--primary: #0a7180; --wp--preset--color--contrast: #17252b; --wp--preset--color--base: #fff; font-family: "TLI Western Punctuation", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", Calibri, "Segoe UI", sans-serif; }
 * { box-sizing: border-box; }
 body { margin: 0; color: var(--ink); background: var(--site-background, #f6f8fb); line-height: 1.8; }
 a { color: var(--accent); text-underline-offset: .18em; }
-a:hover { color: #07594f; }
+a:hover { color: #085764; }
 a:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
 .site-header { max-width: 1200px; margin: 0 auto; padding: 20px 28px; display: flex; align-items: center; justify-content: space-between; gap: 20px; border-bottom: 1px solid var(--line); }
 .site-brand { display: flex; align-items: center; gap: 12px; color: var(--ink); text-decoration: none; font-size: 20px; font-weight: 700; }
@@ -181,8 +181,8 @@ body[data-site-section="learn"] .imported-content table:has(colgroup > col:first
 .imported-content h2 { padding-top: .7em; padding-bottom: 8px; border-bottom: 1px solid var(--line); color: var(--ink); }
 .imported-content h3 { color: var(--ink); }
 .imported-content h2::before { content: ""; display: block; width: 36px; margin-bottom: 12px; border-top: 3px solid var(--accent); }
-.imported-content th { background: #e8f2ef; }
-.imported-content blockquote { margin-left: 0; padding: 16px 24px; border-color: var(--accent); background: #e8f2ef; }
+.imported-content th { background: #e7f4f6; }
+.imported-content blockquote { margin-left: 0; padding: 16px 24px; border-color: var(--accent); background: #e7f4f6; }
 .imported-content blockquote > :first-child { margin-top: 0; }
 .imported-content blockquote > :last-child { margin-bottom: 0; }
 .content-stories, .content-literature { max-width: 860px; }
@@ -317,7 +317,7 @@ html[lang="en"] [data-content-lang="en"], html[lang="zh-Hant"] [data-content-lan
 .imported-content details.letter-order { max-width: 760px; margin: 0 0 28px; padding: 0 18px; border: 1px solid var(--line); border-radius: 8px; background: #fff; }
 .imported-content details.letter-order > summary { padding: 12px 0; color: var(--accent); cursor: pointer; font-weight: 700; }
 .imported-content details.letter-order > p { margin: 0 0 14px; }
-.imported-content .guide-audience { max-width: 760px; margin: 0 0 20px; padding: 10px 14px; border-left: 3px solid var(--accent); background: #e8f2ef; color: var(--ink); }
+.imported-content .guide-audience { max-width: 760px; margin: 0 0 20px; padding: 10px 14px; border-left: 3px solid var(--accent); background: #e7f4f6; color: var(--ink); }
 /* Learn landing page: a numbered path to read in order, then reference guides. */
 .learn-track { max-width: 760px; margin: 0 0 44px; }
 .learn-track h2 { margin: 0 0 4px; font-size: 22px; }
@@ -424,7 +424,7 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .song-entry-match-lomari { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 13px; line-height: 1.35; }
 .song-list .hangul-tone { line-height: inherit; }
 .song-list .hangul-tone > .tone-mark { display: block; }
-.article-contents { max-width: 780px; margin: 0 0 32px; padding: 14px 20px; border-left: 3px solid var(--accent); background: #e8f2ef; }
+.article-contents { max-width: 780px; margin: 0 0 32px; padding: 14px 20px; border-left: 3px solid var(--accent); background: #e7f4f6; }
 .article-contents summary { cursor: pointer; color: var(--accent); font-weight: 700; }
 .article-contents ol { margin: 12px 0 0; padding-left: 24px; columns: 2; column-gap: 32px; }
 .article-contents li { break-inside: avoid; padding: 3px 0; }
@@ -440,14 +440,14 @@ body[data-site-section="home"] .imported-content { max-width: 100%; margin-top: 
 body[data-site-section="home"] .imported-content > .wp-block-buttons:first-child { display: none; }
 .home-kicker { margin: 0 0 12px; color: var(--accent); font-size: 13px; font-weight: 700; text-transform: uppercase; }
 .home-launch { position: relative; margin-top: 68px; }
-.home-specimen { --tli-ruby-size: 0.26em; display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
-.home-specimen :is(ruby, .tli-ruby) { width: max-content; margin-top: 14px; font-size: 76px; }
-.home-specimen rt { position: relative; left: 0.18em; color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 26%; }
+.home-specimen { --tli-ruby-size: 0.35em; display: flex; width: 100%; box-sizing: border-box; flex-direction: column; align-items: flex-start; padding: 24px 30px 26px; border: 1px solid var(--line); border-left: 4px solid var(--site-voice, #b33b46); border-radius: 10px; background: #fff; box-shadow: 0 12px 30px rgb(23 37 43 / 7%); }
+.home-specimen :is(ruby, .tli-ruby) { width: max-content; margin-top: 14px; font-size: 68px; }
+.home-specimen rt { position: relative; left: 0.18em; color: var(--ink); font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", sans-serif; font-size: 35%; }
 .home-specimen-lomari { margin-top: 8px; color: var(--accent); font-size: 23px; font-family: "TLI Noto Sans", sans-serif; font-feature-settings: "mark", "mkmk"; }
 .home-specimen-meaning { color: var(--muted); font-size: 15px; }
 .home-specimen .tli-listen { margin-top: 14px; }
 .tli-listen { display: inline-flex; align-items: center; gap: 9px; min-height: 44px; padding: 0 20px; border: 1px solid var(--accent); border-radius: 999px; color: #fff; background: var(--accent); cursor: pointer; font: inherit; font-size: 15px; font-weight: 700; }
-.tli-listen:hover { background: #07594f; }
+.tli-listen:hover { background: #085764; }
 .tli-listen:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .tli-listen-icon { width: 0; height: 0; border-top: 6px solid transparent; border-bottom: 6px solid transparent; border-left: 10px solid currentColor; }
 .tli-listen.is-playing .tli-listen-icon { width: 11px; height: 11px; border: 0; background: currentColor; }
@@ -458,7 +458,7 @@ body[data-site-section="home"] .imported-content .home-compare-heading h2::befor
 .imported-content .home-compare-heading p { margin: 0; color: var(--muted); font-size: 18px; }
 .home-compare-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
 .home-compare-card { display: flex; min-width: 0; flex-direction: column; align-items: flex-start; padding: 26px 32px 30px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-.home-compare-hokkien { border-color: var(--accent); background: #e8f4f1; }
+.home-compare-hokkien { border-color: var(--accent); background: #e8f5f7; }
 .imported-content .home-compare-card h3 { margin: 0; color: var(--muted); font-size: 15px; font-weight: 700; line-height: 1.4; }
 .home-compare-word { --tli-ruby-size: 0.45em; margin-top: 50px; color: var(--ink); font-size: 64px; font-weight: 700; line-height: 1.2; }
 .imported-content .home-compare-lomari { margin: 8px 0 0; color: var(--accent); font-family: "TLI Noto Sans", sans-serif; font-size: 22px; font-feature-settings: "mark", "mkmk"; }
@@ -492,7 +492,7 @@ body[data-site-section="home"] .imported-content .home-compare-heading h2::befor
 .home-path h2 { margin: 10px 0 8px; color: var(--ink); font-size: 24px; line-height: 1.35; }
 .home-path p { min-height: 58px; margin: 0 0 20px; color: var(--muted); line-height: 1.55; }
 .home-path a { display: flex; justify-content: space-between; gap: 16px; color: var(--accent); text-decoration: none; font-weight: 700; }
-.home-path a:hover { color: #07594f; }
+.home-path a:hover { color: #085764; }
 .home-tools { display: flex; align-items: baseline; justify-content: space-between; gap: 28px; padding: 30px 0; border-bottom: 1px solid var(--line); }
 .home-tools h2 { margin: 0; color: var(--ink); font-size: 18px; }
 .home-tools div { display: flex; gap: 28px; }
@@ -558,7 +558,7 @@ body[data-site-section="home"] .home-feature h2::before { display: none; }
   body[data-site-section="home"] .content-shell > h1 { font-size: 42px; }
   body[data-site-section="home"] .site-introduction { font-size: 18px; }
   .home-launch { margin-top: 30px; }
-  .home-specimen :is(ruby, .tli-ruby) { font-size: 68px; }
+  .home-specimen :is(ruby, .tli-ruby) { font-size: 62px; }
   .home-compare-cards { grid-template-columns: 1fr; }
   .home-compare-card { padding: 22px 24px 26px; }
   .home-compare-word { font-size: 54px; }

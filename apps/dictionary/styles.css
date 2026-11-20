@@ -9,12 +9,12 @@
   color-scheme: light;
   --bg: #f5f8f7;
   --surface: #ffffff;
-  --surface-soft: #eef7f6;
+  --surface-soft: #eef8fa;
   --text: #19272a;
   --muted: #5d6c70;
-  --line: #ccd9d7;
-  --accent: #08756b;
-  --accent-strong: #07594f;
+  --line: #ccdae0;
+  --accent: #0a7180;
+  --accent-strong: #085764;
   --focus: #2563eb;
   --warning: #a85518;
   font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans", Arial, sans-serif;
@@ -201,7 +201,7 @@ h1 {
 .category-button:focus-visible,
 .category-button[aria-pressed="true"] {
   border-color: rgba(15, 118, 110, 0.55);
-  background: #eef7f6;
+  background: #eef8fa;
   color: var(--accent-strong);
   outline: none;
 }
@@ -244,7 +244,7 @@ h1 {
 .page-button:hover:not(:disabled),
 .page-button.current {
   border-color: rgba(15, 118, 110, 0.55);
-  background: #eef7f6;
+  background: #eef8fa;
   color: var(--accent-strong);
 }
 
