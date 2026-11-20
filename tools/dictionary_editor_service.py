@@ -20,6 +20,7 @@ from dictionary_schema import (
     is_comment_record, resolve_dictionary_record, inherited_storage,
 )
 from simplified_lookup import contains_hanri, simplified_headword
+from typed_sandhi import typed_sandhi_to_taipei
 from sort_dictionary_tsv import sort_tsv
 from validate_dictionary_tsv import validate
 from dictionary_ranking import lookup_key, reading_groups, headword_entries, load_priority, rank_entries
@@ -231,6 +232,11 @@ class DictionaryEditorService:
         result['entry_type'] = DictionaryEditorService.detected_type(result, previous)
         if not result['entry_type']:
             raise EditorError('Use a Hanri or Hangul headword, or a numeric input with a corrected reading.')
+        # Stored readings keep Taipei sandhi digits: a typed non-final open 4 (Singapore) is stored as 1.
+        # A correction alias is a mistyped form and a numeric input is not a reading, so both stay as typed.
+        if result['entry_type'] in ('lexical', 'hangul_override'):
+            result['reading'] = typed_sandhi_to_taipei(result['reading'])
+        result['corrected'] = typed_sandhi_to_taipei(result['corrected'])
         # Simplified Hokkien is script conversion; English/Mandarin are never guessed.
         if not result["simplified"]:
             result["simplified"] = inherited_storage(simplified_headword(result["hanri"]), result["hanri"])

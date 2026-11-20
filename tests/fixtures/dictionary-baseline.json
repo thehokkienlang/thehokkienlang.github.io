@@ -1,20 +1,20 @@
 {
   "formatVersion": 6,
   "provenance": {
-    "sourceSha256": "094f1dccd814fa11a7204ab6e6f0ede0ba5d94f4554cacc144aecaffe8b2d445",
+    "sourceSha256": "8f33e0aae21f3f29f54226bb76f4c378de5e41c00e5b2b4447a43c1196614354",
     "categorySourceSha256": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
     "entryCount": 5864
   },
   "jsonSections": {
-    "entries": "b4d78af9f20c6ef93e44f24e34a9c9a8bc2b2f3708fc271717e85588ab83b839",
+    "entries": "e9fbf24aec9a3e9f2eb95b2b8dfc62d9251908be67adcc18a45693b09730b0a6",
     "entryIdentity": "f36d76eda0780e73a47fa22891dc0df54491bb60bc13ea13bf6c5506e1040bb7",
-    "indexes": "53887fc39f253f0268f75c74fe11a9b25807c66d019854ae44ee4076efc3e0bd",
+    "indexes": "5250a4a86c5f0d11094fd61a67369725a3531a3adb733e93b7db0ddd33b9d2bb",
     "categories": "7fd5b43386d71c0b8f5c4f8955bf187e8a0655544aec5e03d5515116d9b1f38b",
     "runtime": "a467a2b1de4088c5c7f6dd0c07b540c50ae4c5a93b480d480066ebf7fefaf6c2",
     "counts": "0f13bb6511d283fd341aee35d0a68a1070e5bd2f6079628d4db295c49089dc35",
     "skippedRows": "8193a693a69089950d03b72bfcc75bd17d1c36cf708e1770cf6854a81624964d",
     "lookupMetadata": "eb2c01d97b3fb71e468af51e3c0ddff99259e01458c0d93aae632e0b5628aba0",
-    "staticRanking": "8b19a4746451649db944ffaca511a3d36a5a97e5ed242fef41eca95bec759d17"
+    "staticRanking": "72589385014329b110de3bf34e479caf668aca454e55030a95021afa9a0d11ff"
   },
   "candidateOrder": [
     [
@@ -42033,7 +42033,7 @@
         [
           3655,
           "溫存",
-          "운1준4"
+          "운5준4"
         ],
         [
           "fallback",

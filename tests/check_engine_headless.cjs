@@ -71,4 +71,18 @@ assert.equal(engine.citationReadingToTaipeiSandhi('짇구'), '짇구2',
 assert.equal(core.citationReadingToTaipeiSandhi('졍4'), '졍',
   'Browser and headless contextual-reading conversion must match');
 
+// A typed non-final open 4 reads as Taipei's 1 (docs/sandhi-toggle-plan.md, step 7); the same cases are
+// in tests/test_typed_sandhi.py for the Python engine.
+for (const [typed, expected] of [
+  ['정4래5', '정1래5'], ['삐4훈4궤2', '삐1훈1궤2'],
+  ['정ˊ래ˉ', '정ˆ래ˉ'], ['정ˏ래ˍ', '정ꞈ래ˍ'], ['정4래ˉ', '정1래ˉ'],
+  ['정4', '정4'], ['심5래5', '심5래5'], ['정4 래5', '정4 래5'], ['정4,래5', '정4,래5'],
+  ['정4’래5', '정4’래5'], ['정4-래5', '정4-래5'], ['정4*', '정4*'], ['', ''],
+  ['뎍4호1', '뎍4호1'], ['뎓4호1', '뎓4호1'], ['뎝4호1', '뎝4호1'], ['뎧4호1', '뎧4호1'], ['뎛4호1', '뎛4호1'],
+  ['정1래5정2래3', '정1래5정2래3'], ['歹勢 4', '歹勢 4'], ['정4래5정4래5', '정1래5정1래5'],
+]) {
+  assert.equal(engine.typedSandhiToTaipei(typed), expected, `typed sandhi: ${typed}`);
+  assert.equal(core.typedSandhiToTaipei(typed), expected, `typed sandhi (browser core): ${typed}`);
+}
+
 console.log(`OK: the TLI engine runs with no browser; ${headless.candidatesByReading.size} reading keys match the browser core.`);

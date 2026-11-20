@@ -556,6 +556,33 @@ def lookup_key(text: str) -> str:
     return remove_apostrophes_for_lookup(normalize_tone_symbols_to_digits(text))
 
 
+_TYPED_TONE4_ALIASES = {'dictionary': None, 'forms': ()}
+
+
+def typed_tone4_alias_forms() -> tuple:
+    """Stored mistyped forms (correction aliases such as 먀4재*) with a non-final open tone 4.
+
+    They are matched as typed, so typed_lookup_text() leaves them alone.
+    """
+    if _TYPED_TONE4_ALIASES['dictionary'] is not HANRI_DICT:
+        forms = {normalize_tone_symbols_to_digits(entry['reading'])
+                 for entries in HANRI_DICT.values() for entry in entries if entry.get('nonstandard')}
+        _TYPED_TONE4_ALIASES.update(
+            dictionary=HANRI_DICT, forms=tuple(form for form in forms if typed_sandhi_to_taipei(form) != form))
+    return _TYPED_TONE4_ALIASES['forms']
+
+
+def typed_lookup_text(text: str) -> str:
+    """Typed text as digits, reading a non-final open tone 4 as Taipei's 1 (docs/sandhi-toggle-plan.md).
+
+    Text that ends in a stored correction alias keeps its 4, because the alias is that exact typing.
+    """
+    digits = normalize_tone_symbols_to_digits(text)
+    if any(digits.endswith(form) for form in typed_tone4_alias_forms()):
+        return digits
+    return normalize_tone_symbols_to_digits(typed_sandhi_to_taipei(text))
+
+
 def is_toned_output_different(text: str) -> bool:
     """True if visible tone formatting changes this text."""
     return format_text_tones_for_output(text, True) != format_text_tones_for_output(text, False)
@@ -6667,8 +6694,9 @@ class HokkienIMEPad:
         if not before_cursor:
             return None
 
-        # Candidate lookup treats typed tone symbols as equivalent to tone digits.
-        before_lookup = normalize_tone_symbols_to_digits(before_cursor)
+        # Candidate lookup treats typed tone symbols as equivalent to tone digits,
+        # and a typed non-final open 4 (Singapore) as Taipei's 1.
+        before_lookup = typed_lookup_text(before_cursor)
         before_loose_lookup = remove_apostrophes_for_lookup(before_lookup)
 
         if self.current_hanri_candidate_is_suppressed():
@@ -7051,7 +7079,7 @@ class HokkienIMEPad:
         raw = before[len(candidate.get('prefix', '')):]
         if self.input_mode.get() == 'lomari' and self.lomari_raw:
             raw = 'lomari:' + self.lomari_raw
-        key = api.lookup_key(normalize_tone_symbols_to_digits(raw))
+        key = api.lookup_key(typed_lookup_text(raw))
         sources = candidate.get('choice_entries', [None] * len(candidate['choices']))
         items = [{'entry': source or {'generatedCandidate': True}, 'index': index}
                  for index, source in enumerate(sources)]

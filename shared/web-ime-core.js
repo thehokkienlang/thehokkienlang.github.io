@@ -275,17 +275,39 @@ const TangliengimEngine = (() => {
     return CHECKED_FINAL_JAMO.has(hangulFinalJamo(unit));
   }
 
-  function singaporeTone1AudioReplacement(nextUnit, nextTone, nextIsCitationFinal = false) {
-    if (nextIsCitationFinal) return "4";
-    const tone = String(nextTone || "3");
-    if (isCheckedFinalUnit(nextUnit)) {
-      if (tone === "1") return "4";
-      if (tone === "3") return "5";
-      return "1";
+  // Singapore sandhi is regular: 1 -> 5 -> 3 -> 2 -> 4 -> 3. It differs from Taipei (2 -> 1)
+  // in one step, so an open sandhi tone 1 linked to the next syllable is always tone 4.
+  // Mirrors singapore_tone1_audio_replacement() in desktop/tangliengim_engine.py; the
+  // arguments are kept for existing callers.
+  function singaporeTone1AudioReplacement(_nextUnit, _nextTone, _nextIsCitationFinal = false) {
+    return "4";
+  }
+
+  // A Singapore speaker types tone 4 where Taipei has 1 on an open syllable that is joined to the
+  // next one (정4래5 for 정1래5). Stored readings never hold that form, so lookup reads a typed
+  // non-final open 4 as 1 (docs/sandhi-toggle-plan.md, step 7). A syllable before a space,
+  // separator or the end is a citation syllable, where 4 is correct, and checked syllables keep
+  // theirs. Mirrors typed_sandhi_to_taipei() in desktop/tangliengim_engine.py.
+  const TYPED_TONE4_TO_TAIPEI = Object.freeze({ 4: "1", "ˊ": "ˆ", "ˏ": "ꞈ" });
+
+  function typedSandhiToTaipei(text) {
+    const source = String(text ?? "");
+    let output = "";
+    let index = 0;
+    while (index < source.length) {
+      const unit = readingUnitAt(source, index);
+      if (!unit) break;
+      const next = Math.max(unit.end, index + 1);
+      if (!unit.canCarryTone || !(source[unit.end] in TYPED_TONE4_TO_TAIPEI)) {
+        output += source.slice(index, next);
+        index = next;
+        continue;
+      }
+      const joined = readingUnitAt(source, unit.end + 1)?.canCarryTone;
+      output += unit.text + (joined && !isCheckedFinalUnit(unit.text) ? TYPED_TONE4_TO_TAIPEI[source[unit.end]] : source[unit.end]);
+      index = unit.end + 1;
     }
-    if (["3", "5"].includes(tone)) return "4";
-    if (["1", "2", "4"].includes(tone)) return "5";
-    return "1";
+    return output + source.slice(index);
   }
 
   function codePointAtInfo(text, index) {
@@ -982,7 +1004,7 @@ const TangliengimEngine = (() => {
     }
 
     function findReadingEntry(reading) {
-      const exactKey = TangliengimHangulIme.normalizeReadingToneKey(reading);
+      const exactKey = typedSandhiToTaipei(TangliengimHangulIme.normalizeReadingToneKey(reading));
       if (/[1245]/u.test(exactKey)) {
         const exact = exactReadingEntries.get(exactKey)?.[0];
         if (exact) return exact;
@@ -1033,7 +1055,7 @@ const TangliengimEngine = (() => {
     searchableEntry, stripLegacyInlineToneMarks, isToneMark, inputToneDigit, isPrecomposedHangul,
     isInitialJamo, isVowelJamo, isFinalJamo, hangulFinalJamo, citationToTaipeiSandhiTone,
     citationReadingToTaipeiSandhi, isCheckedFinalUnit,
-    singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
+    singaporeTone1AudioReplacement, typedSandhiToTaipei, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
     readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalValue, compareCanonicalEntries,
     rankingLookupKey, sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT,
     PREFERENCE_STORAGE_KEY, adaptiveLookupKey, adaptiveScore, sanitizeCandidatePreferences,
@@ -1053,7 +1075,7 @@ const TangliengimImeCore = (() => {
     normalizeEnglishSearch, normalizeLomariSearchAliases, queryVariants, searchableEntry,
     stripLegacyInlineToneMarks, isToneMark, inputToneDigit, citationToTaipeiSandhiTone,
     citationReadingToTaipeiSandhi, isCheckedFinalUnit,
-    singaporeTone1AudioReplacement, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
+    singaporeTone1AudioReplacement, typedSandhiToTaipei, codePointAtInfo, isHanriChar, readingUnitAt, headwordUnitAt,
     readingUnitToneEnd, toneOverlaySpansFromReading, compareCanonicalEntries, rankingLookupKey,
     sourceEntryId, sameCandidateRecord, rankEntries, MAX_SELECTION_COUNT, PREFERENCE_STORAGE_KEY,
     adaptiveLookupKey, adaptiveScore, sanitizeCandidatePreferences, createCandidatePreferences,
@@ -2359,9 +2381,10 @@ const TangliengimImeCore = (() => {
         const entries = this.candidatesByReading.get(key);
         if (!entries?.length) continue;
         const start = starts[index];
-        const typedForm = TangliengimHangulIme.normalizeNativeCandidateInput(
+        // A typed non-final open 4 is Singapore's form of Taipei's 1; lookup reads it as 1.
+        const typedForm = typedSandhiToTaipei(TangliengimHangulIme.normalizeNativeCandidateInput(
           this.typedCandidateForm(start, range.end)
-        );
+        ));
         const filteredEntries = filterCandidateEntries(typedForm, entries);
         const exactHangulOverride = filteredEntries.some(
           (entry) => entry.kind === "hangul_override" &&
@@ -2374,7 +2397,7 @@ const TangliengimImeCore = (() => {
             : entry.hanri;
           found.push({
             entry,
-            lookupKey: adaptiveLookupKey(this.typedCandidateForm(start, range.end)),
+            lookupKey: adaptiveLookupKey(typedSandhiToTaipei(this.typedCandidateForm(start, range.end))),
             start: candidateReplacementStart(range.text, start, replacement),
             end: range.end,
             length: suffix.length,
@@ -2625,6 +2648,7 @@ const TangliengimImeCore = (() => {
     stripLegacyInlineToneMarks,
     singaporeTone1AudioReplacement,
     tonesByBasePosition,
+    typedSandhiToTaipei,
     typedTonesAreCompatibleWithEntry,
   };
 })();

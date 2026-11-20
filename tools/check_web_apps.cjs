@@ -1137,6 +1137,22 @@ async function loadApp(route, script) {
     })()`, context));
     assert.deepEqual(actual, fixture.expected, `Legacy candidate parity: ${fixture.reading}`);
   }
+  // A Singapore speaker types 4 where Taipei has 1 on an open syllable joined to the next one: 歹勢
+  // (stored 팰1세) is found from 팰4세.
+  const candidatesFor = reading => JSON.parse(vm.runInContext(`(() => {
+      const reading = ${JSON.stringify(reading)};
+      imeText.value = reading;
+      imeText.selectionStart = reading.length;
+      imeText.selectionEnd = reading.length;
+      imeController.onUpdate = () => {};
+      imeController.handleInput({ inputType: 'insertText' });
+      return JSON.stringify(imeController.activeCandidates
+        .filter(({ entry }) => entry.kind !== 'hangul_plain')
+        .map(({ entry }) => ({ hanri: entry.hanri, reading: entry.reading })));
+    })()`, context));
+  const typedTaipei = candidatesFor('팰1세');
+  assert.ok(typedTaipei.some(item => item.hanri === '歹勢' && item.reading === '팰1세'), '歹勢 must be found from 팰1세');
+  assert.deepEqual(candidatesFor('팰4세'), typedTaipei, 'A typed non-final open 4 must find what the Taipei 1 finds');
   for (const mode of ['taipei', 'singapore']) {
     for (const phrase of ['시뎋哭', '릐 시뎋哭', '死死人', '릐호人']) {
       const plan = vm.runInContext(

@@ -714,6 +714,32 @@ def is_checked_final_before_tone(reading: str, tone_index: int) -> bool:
     return final in CHECKED_FINALS_FOR_SANDHI
 
 
+def typed_sandhi_to_taipei(text: str) -> str:
+    """Read a typed non-final open tone 4 as Taipei's tone 1.
+
+    A Singapore speaker types 4 where Taipei has 1 on an open syllable that is
+    joined to the next one (정4래5 for 정1래5).  Stored readings never hold that
+    form, so lookup and the editors read it as 1 (docs/sandhi-toggle-plan.md,
+    step 7).  A syllable before a space, separator or the end is a citation
+    syllable, where 4 is correct, and checked syllables keep theirs.  Only the
+    tone changes: a digit stays a digit and a mark stays a mark (ˊ becomes ˆ,
+    ˏ becomes ꞈ), and every other character is unchanged.  Callers that want
+    digits pass the result to normalize_tone_symbols_to_digits().
+    """
+    source = str(text or '')
+    digits = normalize_tone_symbols_to_digits(source)  # same length, so indexes agree
+    replacement = {'4': '1', 'ˊ': 'ˆ', 'ˏ': 'ꞈ'}
+    result = list(source)
+    for index, char in enumerate(digits):
+        if char != '4' or source[index] not in replacement or index == 0 or index + 1 >= len(digits):
+            continue
+        if not is_hangulish_for_tone(digits[index - 1]) or not is_hangulish_for_tone(digits[index + 1]):
+            continue
+        if not is_checked_final_before_tone(digits, index):
+            result[index] = replacement[source[index]]
+    return ''.join(result)
+
+
 def final_hangul_unit_needs_implicit_tone(reading: str) -> tuple[int, str] | None:
     """Return (tone_insert_index, implicit_reading) if final unit has no tone.
 
@@ -1739,52 +1765,18 @@ def singapore_tone1_audio_replacement(
     next_tone: str,
     next_has_explicit_separator_after: bool = False,
 ) -> str:
-    """Return Singapore-mode replacement for non-final non-checked tone 1 audio.
+    """Return the Singapore audio tone for an open sandhi tone 1.
 
-    This affects audio-file selection only.  A current tone 1 syllable is
-    replaced only if the current syllable itself is NOT checked-final and is
-    directly connected to the following syllable with no intervening separator.
+    Singapore sandhi is regular: 1 -> 5 -> 3 -> 2 -> 4 -> 3 (Haru, 2026-11-19).
+    It differs from Taipei (2 -> 1) in one step only, so a sandhi tone 1 on an
+    open syllable directly connected to the next syllable is always tone 4,
+    whatever follows.  Checked syllables (1 <-> 3) are never passed here.  The
+    arguments are kept so existing callers stay valid.
 
-    If the following syllable is citation-final, Singapore mode now uses rising
-    tone 4 consistently, regardless of that final syllable's tone/final class.
-    Inside a consecutive sandhi chain, the existing dynamic rule still applies
-    right-to-left, so a changed tone can compound into the syllable before it.
-
-    If the following syllable itself is immediately followed by an explicit
-    separator such as a space, apostrophe, comma, period, bracket, slash, etc.,
-    that following syllable is treated as citation-final for this decision.
-    Example: 總統 and 總督 both use 정4 before the final syllable, while
-    米粉粿 remains 삐5훈4궤2.
-
-        next citation-final any tone/final    -> tone 4 audio
-        next dynamic normal tone 3/5          -> tone 4 audio
-        next dynamic normal tone 1/2/4        -> tone 5 audio
-        next checked tone 1                   -> tone 4 audio
-        next checked tone 3                   -> tone 5 audio
-
-    Checked means pronounced with final ㄱ/ㄷ/ㅀ/ㅂ/ㅎ.
-    Pronunciation-equivalent finals are handled through audio_unit_has_short_overlap_final(),
-    so ㅈ behaves like ㄷ and ㅊ behaves like ㅎ for this decision.
-    If the following category is outside the specified set, keep tone 1.
+    This affects audio-file selection only; the IME text, TSV and romanisation
+    preview are not rewritten.
     """
-    next_tone = str(next_tone or '3')
-    if next_has_explicit_separator_after:
-        return '4'
-
-    next_is_checked = audio_unit_has_short_overlap_final(next_unit)
-
-    if next_is_checked:
-        if next_tone == '1':
-            return '4'
-        if next_tone == '3':
-            return '5'
-        return '1'
-
-    if next_tone in {'3', '5'}:
-        return '4'
-    if next_tone in {'1', '2', '4'}:
-        return '5'
-    return '1'
+    return '4'
 
 
 def entry_audio_reading(entry: dict, base_reading: str = '') -> str:
@@ -2847,21 +2839,10 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
                 and not protect_sandhi
                 and not force_citation
             ):
-                # In Singapore audio mode, normal/open tone 1 has its own
-                # context-dependent audio mapping.  Leave open tone 1 here so
-                # flush_phrase() can inspect the following directly connected
-                # unit; spaces and punctuation block that mapping.  Checked-final
-                # tone 1 is NOT eligible for the Singapore special rule, so it
-                # must still receive ordinary Taipei checked sandhi here (1 -> 3).
-                # Other tones receive ordinary Taipei sandhi first.  If open
-                # tone 2 becomes tone 1, that tone 1 remains as-is in Singapore.
-                if not (
-                    audio_mode == AUDIO_MODE_SINGAPORE
-                    and str(tone) == '1'
-                    and not audio_unit_has_short_overlap_final(unit)
-                    and not tsv_final_citation_unit
-                ):
-                    unit, tone = audio_sandhi_unit(unit, tone)
+                # Ordinary sandhi first, in both modes (1 -> 5 -> 3 -> 2 -> 1,
+                # checked 1 <-> 3).  Singapore differs in one step only, open
+                # 2 -> 4 instead of 2 -> 1, which flush_phrase() applies below.
+                unit, tone = audio_sandhi_unit(unit, tone)
             # Singapore tone-1 replacement applies only when the next
             # syllable is directly connected with no intervening space or
             # punctuation.  The last unit of every flushed run therefore cannot
@@ -2871,10 +2852,20 @@ def visible_text_to_audio_segments(text: str, audio_mode: str = AUDIO_MODE_TAIPE
             # citation-final for the dynamic Singapore decision.
             singapore_link_to_next = idx < len(flattened) - 1
             separator_after_unit = bool(explicit_separator_after and idx == len(flattened) - 1)
+            # A sandhi tone 1 on an open syllable is Taipei's form of citation
+            # tone 2: either written so inside a TSV word (팰1세) or produced
+            # here by 2 -> 1 (歹 + 人).  Singapore says it as tone 4.  A TSV
+            # word's own final citation tone 1 (真) is not a sandhi tone.
             singapore_tone1_eligible = bool(
-                original_tone == '1'
-                and not tsv_final_citation_unit
-                and not (from_tsv and original_unit == '가')
+                str(tone) == '1'
+                and (
+                    original_tone == '2'
+                    or (
+                        original_tone == '1'
+                        and not tsv_final_citation_unit
+                        and not (from_tsv and original_unit == '가')
+                    )
+                )
             )
             phrase_units.append((unit, tone, singapore_link_to_next, separator_after_unit, singapore_tone1_eligible))
         run_parts = []
@@ -4173,5 +4164,6 @@ ENGINE_NAMES = (
     'static_audio_hanri_match',
     'strip_nonstandard_reading_mark',
     'strip_reading_tones',
+    'typed_sandhi_to_taipei',
     'visible_text_to_audio_segments',
 )
