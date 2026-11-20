@@ -97,13 +97,14 @@
   :root[data-theme="dark"] .imported-content p[data-lyric-seek]:not(.lyric-active):hover { background-color: #1a272b; box-shadow: 0 -.45em 0 #1a272b; }
 }
 :root[data-theme="dark"] .imported-content p.is-search-target { background-color: #3a3418; box-shadow: 0 -.45em 0 #3a3418; }
-:root[data-theme="dark"] .imported-content :is(th, blockquote, .guide-audience) { background: #163238; }
+:root[data-theme="dark"] .imported-content :is(th:not([class*="cell-"]), blockquote, .guide-audience) { background: #163238; }
 :root[data-theme="dark"] .article-contents { background: #163238; }
-:root[data-theme="dark"] :where(.song-tone-guide, .imported-content details.letter-order, .learn-next a, .home-compare-card) { background: #172225; }
+:root[data-theme="dark"] :is(.song-tone-guide, .learn-next a, .home-compare-card) { background: #172225; }
+:root[data-theme="dark"] .imported-content details.letter-order { background: #172225; }
 /* :where() keeps these at plain class weight, so their selected states below still win. */
 :root[data-theme="dark"] :where(.song-filter-chip, .song-filter-clear, .song-version-tablist button) { background: #172225; }
 :root[data-theme="dark"] .home-compare-hokkien { background: #163238; }
-:root[data-theme="dark"] .home-compare-korean .tli-listen { border-color: #4a5b60; background: #4a5b60; }
+:root[data-theme="dark"] .home-compare-korean .tli-listen { border-color: #4a5b60; background: #4a5b60; color: #e3ecee; }
 :root[data-theme="dark"] .tli-listen { color: #0f1719; }
 :root[data-theme="dark"] .tli-listen:hover { background: #7ad5de; }
 :root[data-theme="dark"] .song-language-tabs button[aria-pressed="true"],
@@ -130,17 +131,34 @@
 :root[data-theme="dark"] .song-filter-chip[aria-pressed="true"] { border-color: var(--category-accent); background: color-mix(in srgb, var(--category-accent) 55%, white); color: #0f1719; }
 :root[data-theme="dark"] .song-filter-chip:hover { color: color-mix(in srgb, var(--category-accent) 55%, white); }
 
-/* Imported page content: white boxes become dark panels; coloured teaching tiles keep their
-   colours, with dark text so they stay readable. */
-:root[data-theme="dark"] .imported-content :is([style*="background-color:#ffffff"], [style*="background-color: #ffffff"], [style*="background-color:#fff;"], [style*="background-color:#f3f7f8"], [style*="background-color: #f3f7f8"], .cell-white, .ruby-box-white) { background-color: #172225 !important; border-color: #2c3d41 !important; }
-/* Dark and grey text written inline (#111111, #444444, #555555, black, gray), outside the coloured
-   tiles, which keep dark text on their light colours. */
-:root[data-theme="dark"] .imported-content :is([style*="color:black"], [style*="color: black"], [style*="color:#111"], [style*="color: #111"]):not([style*="background"] *, [class*="cell-"] *, .ruby-box-lavender *) { color: #e3ecee !important; }
-:root[data-theme="dark"] .imported-content :is([style*="color:gray"], [style*="color: gray"], [style*="color:#555"], [style*="color: #555"], [style*="color:#444"], [style*="color: #444"]):not([style*="background"] *, [class*="cell-"] *, .ruby-box-lavender *) { color: #9db0b5 !important; }
-:root[data-theme="dark"] .imported-content :is(.cell-lavender, .cell-rose, .cell-peach, .cell-sand, .cell-cream, .ruby-box-lavender,
-  [style*="background:#caedfb"], [style*="background:#ffc6c6"], [style*="background: #caedfb"], [style*="background: #ffc6c6"],
-  [style*="background:#d6c9fe"], [style*="background-color:#d6c9fe"], [style*="background:#fadbd8"], [style*="background:#fef5e7"]) { color: #17252b; }
-:root[data-theme="dark"] .imported-content :is(.cell-lavender, .cell-rose, .cell-peach, .cell-sand, .cell-cream, .ruby-box-lavender) :is(a, rt, .tli-rt, .tone-mark) { color: #17252b; }
+/* Imported page content: the guides' coloured boxes, tiles and cells.
+   In dark mode they keep the same colour scheme, muted: pink -> muted red, blue -> muted steel blue,
+   lavender -> muted violet, grey -> slate, with light text. White (tones 1 and 2 in the tone table,
+   the white reading boxes) stays an off-white with dark text, and the navy cells keep their own
+   colours. The split tiles colour their tone-mark strip with a gradient, recoloured the same way. */
+:root[data-theme="dark"] .imported-content :is([style*="background:#ffc6c6"], [style*="background: #ffc6c6"], [style*="background-color:#ffc6c6"], [style*="background-color: #ffc6c6"], [style*="background:#fadbd8"], [style*="background: #fadbd8"], [style*="background-color:#fadbd8"], [style*="background-color: #fadbd8"]) { background-color: #6e3a42 !important; }
+:root[data-theme="dark"] .imported-content :is([style*="background:#caedfb"], [style*="background: #caedfb"], [style*="background-color:#caedfb"], [style*="background-color: #caedfb"]) { background-color: #2c5a6e !important; }
+:root[data-theme="dark"] .imported-content :is(.cell-lavender, .ruby-box-lavender, [style*="background:#d6c9fe"], [style*="background: #d6c9fe"], [style*="background-color:#d6c9fe"], [style*="background-color: #d6c9fe"]) { background-color: #4a3f7a !important; }
+:root[data-theme="dark"] .imported-content :is([style*="background:#e6e6e6"], [style*="background: #e6e6e6"], [style*="background-color:#e6e6e6"], [style*="background-color: #e6e6e6"]) { background-color: #4a5458 !important; }
+:root[data-theme="dark"] .imported-content [style*="linear-gradient"]:is([style*="#ffc6c6"], [style*="#fadbd8"]) { background-image: linear-gradient(to bottom, transparent 0 44%, #6e3a42 44% 100%) !important; }
+:root[data-theme="dark"] .imported-content [style*="linear-gradient"][style*="#caedfb"] { background-image: linear-gradient(to bottom, transparent 0 44%, #2c5a6e 44% 100%) !important; }
+:root[data-theme="dark"] .imported-content [style*="linear-gradient"][style*="#d6c9fe"] { background-image: linear-gradient(to bottom, transparent 0 44%, #4a3f7a 44% 100%) !important; }
+:root[data-theme="dark"] .imported-content [style*="linear-gradient"][style*="#e6e6e6"] { background-image: linear-gradient(to bottom, transparent 0 44%, #4a5458 44% 100%) !important; }
+:root[data-theme="dark"] .imported-content :is([style*="background:#ffc6c6"], [style*="background: #ffc6c6"], [style*="background-color:#ffc6c6"], [style*="background-color: #ffc6c6"], [style*="background:#fadbd8"], [style*="background: #fadbd8"], [style*="background-color:#fadbd8"], [style*="background-color: #fadbd8"], [style*="background:#caedfb"], [style*="background: #caedfb"], [style*="background-color:#caedfb"], [style*="background-color: #caedfb"], .cell-lavender, .ruby-box-lavender, [style*="background:#d6c9fe"], [style*="background: #d6c9fe"], [style*="background-color:#d6c9fe"], [style*="background-color: #d6c9fe"], [style*="background:#e6e6e6"], [style*="background: #e6e6e6"], [style*="background-color:#e6e6e6"], [style*="background-color: #e6e6e6"]), :root[data-theme="dark"] .imported-content :is([style*="background:#ffc6c6"], [style*="background: #ffc6c6"], [style*="background-color:#ffc6c6"], [style*="background-color: #ffc6c6"], [style*="background:#fadbd8"], [style*="background: #fadbd8"], [style*="background-color:#fadbd8"], [style*="background-color: #fadbd8"], [style*="background:#caedfb"], [style*="background: #caedfb"], [style*="background-color:#caedfb"], [style*="background-color: #caedfb"], .cell-lavender, .ruby-box-lavender, [style*="background:#d6c9fe"], [style*="background: #d6c9fe"], [style*="background-color:#d6c9fe"], [style*="background-color: #d6c9fe"], [style*="background:#e6e6e6"], [style*="background: #e6e6e6"], [style*="background-color:#e6e6e6"], [style*="background-color: #e6e6e6"]) :not(.tli-sandhi-varies) { color: #f1f5f6 !important; }
+:root[data-theme="dark"] .imported-content [style*="linear-gradient"] { color: #f1f5f6 !important; }
+:root[data-theme="dark"] .imported-content :is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]) { background-color: #d3dadc !important; }
+:root[data-theme="dark"] .imported-content :is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]), :root[data-theme="dark"] .imported-content :is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]) :not(.tli-sandhi-varies) { color: #17252b !important; }
+:root[data-theme="dark"] .imported-content :is([style*="background:#f3f7f8"], [style*="background: #f3f7f8"], [style*="background-color:#f3f7f8"], [style*="background-color: #f3f7f8"]) { background-color: #1d2b2f !important; }
+/* Dark and grey text written inline (#111111, #444444, #555555, black, gray) outside the white
+   boxes is lightened for the dark background. */
+:root[data-theme="dark"] .imported-content :is([style*="color:black"], [style*="color: black"], [style*="color:#111"], [style*="color: #111"]):not(:is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]), :is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]) *) { color: #e3ecee !important; }
+:root[data-theme="dark"] .imported-content :is([style*="color:gray"], [style*="color: gray"], [style*="color:#555"], [style*="color: #555"], [style*="color:#444"], [style*="color: #444"]):not(:is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]), :is(.cell-white, .ruby-box-white, [style*="background:#ffffff"], [style*="background: #ffffff"], [style*="background-color:#ffffff"], [style*="background-color: #ffffff"]) *) { color: #9db0b5 !important; }
+/* The decorative table colours (rose, peach, cream, sand) are muted, with light text. */
+:root[data-theme="dark"] .imported-content .cell-rose { background-color: #3b2528 !important; }
+:root[data-theme="dark"] .imported-content .cell-peach { background-color: #3a2b22 !important; }
+:root[data-theme="dark"] .imported-content .cell-cream { background-color: #34301f !important; }
+:root[data-theme="dark"] .imported-content .cell-sand { background-color: #383022 !important; }
+:root[data-theme="dark"] .imported-content :is(.cell-rose, .cell-peach, .cell-cream, .cell-sand) { color: #e3ecee; }
 :root[data-theme="dark"] .diagram-text-version p { color: #9db0b5; }
 
 /* ---- IME Pad ---------------------------------------------------------------------------- */
@@ -195,6 +213,7 @@
 :root[data-theme="dark"] .swap-button:is(:hover, :focus-visible) { color: #0f1719; background: var(--accent); }
 :root[data-theme="dark"] :is(.sandhi-control select, .alternative) { background: #172225; color: var(--ink); }
 :root[data-theme="dark"] .language-pane { box-shadow: 0 16px 38px #0006; }
+:root[data-theme="dark"] .preview-note { background: #172225; color: #b7c6ca; }
 
 /* ---- Site search ------------------------------------------------------------------------ */
 :root[data-theme="dark"] .site-search-form { background: #172225; }

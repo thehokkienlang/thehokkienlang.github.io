@@ -18,7 +18,7 @@ console.log('PASS: lyric boundaries, gaps, repeats and backward seeks.');
 const vm = require('node:vm');
 const fs = require('node:fs');
 const source = fs.readFileSync(require.resolve('../shared/web-lyric-sync.js'), 'utf8');
-function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading = true) {
+function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading = true, hidden = false) {
   const makeLine = () => {
     const line = { active:false, current:false, scrolled:0, attributes:{}, listeners:{},
     classList:{ add() { this.owner.active = true; }, remove() { this.owner.active = false; } },
@@ -45,11 +45,11 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
     closest() { return wrapped ? figure : null; },
     insertAdjacentElement(position) { placement = 'iframe:' + position; },
     cloneNode() { return {...this}; }, replaceWith() { replacements++; }};
-  const label = {textContent:''}, follow = {checked:false};
+  const label = {textContent:''}, follow = {checked:false, addEventListener(name, handler) { this[name] = handler; }};
   const toggleButton = {clicks:0, attributes:{}, listeners:{}, addEventListener(name, handler) { this.listeners[name] = handler; }, setAttribute(name, value) { this.attributes[name] = value; }};
   const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : selector === '[data-lyric-toggle]' ? toggleButton : label};
   const documentListeners = {};
-  const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
+  const document = {hidden, getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
     createElement: () => makeLine(), addEventListener: (name, handler) => { documentListeners[name] = handler; },
     createTreeWalker: main => { let index = -1; return {get currentNode() { return main.childNodes[index]; }, nextNode() { return ++index < main.childNodes.length; }}; },
     querySelectorAll: () => [frame],
@@ -65,6 +65,7 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
     select:(value, outside = false) => { selection = value; selectionNode = outside ? {} : lines.first; }, tick:(time,state=1) => callback(time,state)};
 }
 assert.equal(fixture('draft').connected, true);
+assert.equal(fixture('reviewed', true, true, true, true).connected, true, 'Background song tabs initialize their clock');
 const ui = fixture();
 assert.equal(ui.placement, 'heading:afterend');
 assert.equal(fixture('draft', true, true, false).placement, 'figure:afterend');
@@ -82,6 +83,9 @@ assert.equal(desktop.follow.checked, false);
 desktop.tick(10);
 assert.equal(desktop.lines.first.scrolled, 0);
 desktop.follow.checked = true;
+desktop.follow.change();
+assert.equal(desktop.lines.first.scrolled, 1, 'Enabling follow centers the current lyric immediately');
+assert.equal(desktop.connections, 1);
 desktop.tick(20);
 assert.equal(desktop.lines.repeat.active, true);
 assert.equal(desktop.lines.repeat.scrolled, 1);
@@ -142,11 +146,12 @@ Promise.resolve().then(async () => {
   const calls = [];
   const fakePlayer = {seekTo:(...args) => calls.push(['seek', ...args]), playVideo:() => calls.push(['play']),
     getCurrentTime:() => 20, getPlayerState:() => 1, destroy() {}};
+  let pageHide, readyTimeout;
   const window = {YT:{Player:function(frame, options) { events = options.events; return fakePlayer; }},
-    addEventListener() {}, removeEventListener() {}};
+    addEventListener(name, handler) { if (name === 'pagehide') pageHide = handler; }, removeEventListener() {}};
   const context = {window, URL, location:{href:'https://example.com/songs/', origin:'https://example.com'},
     document:{hidden:false, addEventListener() {}, removeEventListener() {}},
-    setInterval:() => 1, clearInterval() {}};
+    setTimeout(fn) { readyTimeout = fn; return 2; }, clearTimeout() {}, setInterval:() => 1, clearInterval() {}};
   vm.runInNewContext(fs.readFileSync(require.resolve('../shared/web-lyric-player.js'), 'utf8'), context);
   const frame = {src:'https://www.youtube.com/embed/HNYkSBkQ33Y'};
   const controller = await window.TliLyricPlayer.connect(frame, () => {});
@@ -165,6 +170,16 @@ Promise.resolve().then(async () => {
   fakePlayer.getPlayerState = () => 2;
   controller.toggle();
   assert.deepEqual(calls.slice(5), [['play']]);
-  controller.destroy();
+  pageHide({persisted:true});
+  assert.equal(controller.time(), 20, 'Back/forward cache preserves the player');
+  pageHide({persisted:false});
+  assert.equal(controller.time(), null);
+  let failure;
+  const stalled = await window.TliLyricPlayer.connect(frame, () => {}, error => { failure = error; });
+  readyTimeout();
+  assert.match(failure.message, /retry/i);
+  events.onReady();
+  assert.equal(stalled.time(), null);
+  stalled.destroy();
   console.log('PASS: clicks before API/player readiness are queued; latest seek wins.');
 }).catch(error => { console.error(error); process.exitCode = 1; });

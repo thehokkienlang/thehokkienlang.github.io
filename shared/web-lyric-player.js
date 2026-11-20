@@ -33,7 +33,7 @@
     src.searchParams.set('origin', location.origin);
     src.searchParams.set('playsinline', '1');
     iframe.loading = 'eager';
-    iframe.src = src.href;
+    if (iframe.src !== src.href) iframe.src = src.href;
     let player, timer, pendingSeek = null, pendingPlay = false, ready = false, destroyed = false, failed = false;
     function seek(time, play = false) {
       if (destroyed || failed || !Number.isFinite(time)) return;
@@ -45,9 +45,17 @@
     function tick() {
       if (ready && !document.hidden) onTime(player.getCurrentTime(), player.getPlayerState());
     }
+    let readyTimeout;
+    function fail(error) {
+      if (failed || destroyed) return;
+      failed = true; ready = false;
+      clearTimeout(readyTimeout); clearInterval(timer);
+      onError(error);
+    }
     player = new YT.Player(iframe, { events: {
       onReady() {
         if (failed || destroyed) return;
+        clearTimeout(readyTimeout);
         ready = true;
         if (pendingSeek) { const request = pendingSeek; pendingSeek = null; seek(request.time, request.play); }
         else if (pendingPlay) player.playVideo();
@@ -56,20 +64,24 @@
       },
       onStateChange: tick,
       onError(event) {
-        failed = true; ready = false; clearInterval(timer);
         const reasons = {100:'The video is unavailable or private.', 101:'The owner does not allow embedded playback.',
           150:'The owner does not allow embedded playback.', 153:'YouTube did not receive a valid player referrer.'};
-        onError(new Error((reasons[event.data] || 'This YouTube video cannot be played here.') + ` (YouTube ${event.data})`));
+        fail(new Error((reasons[event.data] || 'This YouTube video cannot be played here.') + ` (YouTube ${event.data})`));
       },
     } });
+    readyTimeout = setTimeout(() => {
+      if (!ready) fail(new Error('YouTube did not respond. Press Play to retry.'));
+    }, 20000);
     const visibility = () => tick();
+    // A cached page resumes this same player and its clock when navigating Back.
+    const pageHide = event => { if (!event.persisted) destroy(); };
     document.addEventListener('visibilitychange', visibility);
     const destroy = () => {
       if (destroyed) return;
-      destroyed = true; clearInterval(timer); document.removeEventListener('visibilitychange', visibility);
-      window.removeEventListener('pagehide', destroy); player.destroy();
+      destroyed = true; ready = false; clearTimeout(readyTimeout); clearInterval(timer); document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('pagehide', pageHide); player.destroy();
     };
-    window.addEventListener('pagehide', destroy);
+    window.addEventListener('pagehide', pageHide);
     return { time: () => ready ? player.getCurrentTime() : null,
       duration: () => ready ? player.getDuration() : null,
       seek, destroy,

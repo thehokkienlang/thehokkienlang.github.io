@@ -97,7 +97,25 @@
     root.querySelectorAll("[data-singer-traditional]").forEach(node => {
       node.textContent = simplified ? node.dataset.singerSimplified : node.dataset.singerTraditional;
     });
-    root.querySelectorAll("[data-site-text]").forEach(node => { node.textContent = text(node.dataset.siteText); });
+    root.querySelectorAll("[data-site-text]").forEach(node => {
+      node.textContent = text(node.dataset.siteText);
+      // A narrow screen breaks "Hanri-Hangul mixed script" between its two halves, never inside one.
+      if (node.matches(".song-script-heading")) {
+        const halves = node.textContent.match(/^(\S+)\s+(.+)$/u);
+        if (halves) {
+          const [, first, rest] = halves;
+          // One wrapper, because the heading is a flex row on narrow screens.
+          const wrapper = document.createElement("span");
+          wrapper.append(...[first, rest].flatMap((part, index) => {
+            const half = document.createElement("span");
+            half.className = "heading-half";
+            half.textContent = part;
+            return index ? [document.createTextNode(" "), half] : [half];
+          }));
+          node.replaceChildren(wrapper);
+        }
+      }
+    });
     const labels = {
       ".site-app-header h1": location.pathname.startsWith("/dictionary/") ? "Dictionary" : "IME Pad",
       ".search-label": "Search", ".toggle-label": "Enable Hangul keyboard", ".category-title": "Browse:",

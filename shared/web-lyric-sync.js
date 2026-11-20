@@ -67,6 +67,7 @@
     playerFailed = true;
     releasePlayer(controller); controller = null;
     active?.classList.remove('lyric-active'); active?.removeAttribute('aria-current'); active = null;
+    showPlaying(false);
     status.textContent = error.message;
   };
   const seekLine = time => {
@@ -115,8 +116,16 @@
       seekLine(cue.start);
     });
   }
+  function followActiveLine() {
+    if (follow.checked && active && !document.hidden && (scope === document || !scope.hidden)) {
+      active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    }
+  }
+  follow.addEventListener('change', () => {
+    if (follow.checked) { connectPlayer(); followActiveLine(); }
+  });
   function connectPlayer() {
-    if (connecting) return;
+    if (connecting || controller) return;
     connecting = true; playerFailed = false;
     TliLyricPlayer.connect(iframe, (time, state) => {
     status.textContent = '';
@@ -129,7 +138,7 @@
     active = next;
     if (!active) return;
     active.classList.add('lyric-active'); active.setAttribute('aria-current', 'true');
-    if (follow.checked) active.scrollIntoView({ block: 'center', behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
+    followActiveLine();
   }, fail).then(player => {
     if (playerFailed) { releasePlayer(player); return; }
     controller = player;
@@ -142,7 +151,7 @@
   // Switching to another version's tab pauses this one's video.
   scope.addEventListener?.('song-version-hidden', () => controller?.pause?.());
   // A hidden tab's player connects when that tab is first shown.
-  if (scope.hidden) scope.addEventListener('song-version-shown', connectPlayer, { once: true });
-  else connectPlayer();
+  if (scope !== document) scope.addEventListener('song-version-shown', connectPlayer);
+  if (scope === document || !scope.hidden) connectPlayer();
   }
 })();
