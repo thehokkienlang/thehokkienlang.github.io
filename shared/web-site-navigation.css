@@ -225,6 +225,15 @@
   -webkit-mask: url("/assets/icons/search.svg") center / contain no-repeat;
   mask: url("/assets/icons/search.svg") center / contain no-repeat;
 }
+/* Light/dark toggle, after the search icon (added by shared/web-theme.js). */
+.site-theme-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 4px;
+  color: inherit; background: transparent; cursor: pointer;
+}
+.site-theme-toggle:hover { color: var(--site-accent); }
+.site-theme-toggle:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
+.site-theme-toggle svg { width: 19px; height: 19px; fill: currentColor; }
 .site-footer { background: transparent; border-top-color: var(--site-line); color: var(--site-muted); }
 body[data-site-section="songs"] .site-header nav [aria-current],
 body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site-voice); border-bottom-color: var(--site-voice); }

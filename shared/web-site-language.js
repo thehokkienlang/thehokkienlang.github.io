@@ -74,7 +74,7 @@
     const variant = nav.querySelector(`template[data-navigation-language="${language}"]`);
     if (variant) nav.replaceChildren(variant.content.cloneNode(true));
     window.TliSandhiPreference?.syncControls?.(); // the language variant just replaced the buttons
-    window.TliTheme?.mount?.(); // and the theme setting, which is added to the menu by script
+    window.TliTheme?.mount?.(); // and the light/dark toggle, which is added to the header by script
     nav.querySelectorAll("[data-language-choice]").forEach(link => {
       const target = new URL(link.href);
       if (target.pathname === location.pathname) {

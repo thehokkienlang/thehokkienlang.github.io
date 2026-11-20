@@ -1,5 +1,5 @@
-/* Dark mode for the whole site. shared/web-theme.js sets <html data-theme="dark"> from the
-   visitor's choice (Auto follows the device, or Light, or Dark), so every rule here is scoped to
+/* Dark mode for the whole site (the default). shared/web-theme.js sets <html data-theme="dark">
+   unless the visitor switches to light with the header toggle, so every rule here is scoped to
    it. This file is loaded after each page's own stylesheets. Most colours come from the variables
    below; the rest override light surfaces that are written as fixed colours.
    Palette: background #0f1719, panels #172225, raised #1d2b2f, text #e3ecee, muted #9db0b5,

@@ -1,94 +1,84 @@
 (function (root) {
   'use strict';
-  // Light or dark colours for the whole site. A visitor picks Auto (follow the device), Light or
-  // Dark in the header menu; the choice is kept in localStorage ('tli-theme', read inside
-  // try/catch). <html data-theme="light|dark"> carries the theme in use, and
-  // shared/web-dark-theme.css draws dark mode from it. This script is loaded in <head> without
+  // Dark or light colours for the whole site. Dark is the default; a toggle in the header (beside
+  // the search icon) switches between the two, and the choice is kept per visitor in localStorage
+  // ('tli-theme', read inside try/catch). <html data-theme="dark|light"> carries the theme in use,
+  // and shared/web-dark-theme.css draws dark mode from it. This script is loaded in <head> without
   // defer, so the page is never drawn in the wrong colours first.
 
   const STORAGE_KEY = 'tli-theme';
-  const CHOICES = Object.freeze(['auto', 'light', 'dark']);
+  const THEMES = Object.freeze(['dark', 'light']);
+  const DEFAULT = 'dark';
+  // Each label says what pressing the toggle does.
   const LABELS = Object.freeze({
-    en: {theme: 'Theme', auto: 'Auto', light: 'Light', dark: 'Dark'},
-    'zh-Hant': {theme: '外觀', auto: '自動', light: '淺色', dark: '深色'},
-    'zh-Hans': {theme: '外观', auto: '自动', light: '浅色', dark: '深色'},
+    en: {toLight: 'Switch to light mode', toDark: 'Switch to dark mode'},
+    'zh-Hant': {toLight: '切換為淺色模式', toDark: '切換為深色模式'},
+    'zh-Hans': {toLight: '切换为浅色模式', toDark: '切换为深色模式'},
   });
+  // Sun (shown in dark mode: press for light) and moon (shown in light mode: press for dark).
+  const SUN = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M2.5 12h2.6M18.9 12h2.6M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+  const MOON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.2 14.6A8.4 8.4 0 0 1 9.4 3.8a8.4 8.4 0 1 0 10.8 10.8z"/></svg>';
 
   function stored() {
     try {
       const value = root.localStorage?.getItem(STORAGE_KEY);
-      return CHOICES.includes(value) ? value : 'auto';
-    } catch (_error) { return 'auto'; }
+      return THEMES.includes(value) ? value : DEFAULT; // an older 'auto' choice reads as the default
+    } catch (_error) { return DEFAULT; }
   }
-  let choice = stored();
-  const media = root.matchMedia ? root.matchMedia('(prefers-color-scheme: dark)') : null;
-  const effective = () => choice === 'auto' ? (media?.matches ? 'dark' : 'light') : choice;
+  let theme = stored();
+
+  function language() {
+    const lang = root.document?.documentElement.lang;
+    return lang === 'zh-Hant' || lang === 'zh-Hans' ? lang : 'en';
+  }
 
   function apply() {
-    const html = root.document?.documentElement;
+    const doc = root.document;
+    const html = doc?.documentElement;
     if (!html) return;
-    const theme = effective();
     html.dataset.theme = theme;
     html.style.colorScheme = theme;
-    root.document.querySelectorAll?.('[data-theme-choice]').forEach(button => {
-      const active = button.dataset.themeChoice === choice;
-      button.setAttribute('aria-pressed', String(active));
-      button.classList.toggle('active', active);
+    const words = LABELS[language()];
+    doc.querySelectorAll?.('.site-theme-toggle').forEach(button => {
+      const label = theme === 'dark' ? words.toLight : words.toDark;
+      button.innerHTML = theme === 'dark' ? SUN : MOON;
+      button.setAttribute('aria-label', label);
+      button.title = label;
+      button.setAttribute('aria-pressed', String(theme === 'dark'));
     });
   }
 
   function set(next) {
-    if (!CHOICES.includes(next)) return;
-    choice = next;
+    if (!THEMES.includes(next)) return;
+    theme = next;
     try { root.localStorage?.setItem(STORAGE_KEY, next); } catch (_error) { /* kept for this page */ }
     apply();
   }
+  const toggle = () => set(theme === 'dark' ? 'light' : 'dark');
 
-  // The setting in the header's language menu, beside Sandhi, in the page's language. The menu is
+  // The toggle goes in the header, right after the search icon. The header's navigation is
   // replaced when the page language is applied (shared/web-site-language.js), which calls mount().
   function mount() {
     const doc = root.document;
-    // Only the language menu's panel, which holds the Sandhi setting.
-    doc?.querySelectorAll?.('.site-nav-panel:has(.site-sandhi)').forEach(panel => {
-      if (panel.querySelector('.site-theme')) return;
-      const lang = doc.documentElement.lang === 'zh-Hant' || doc.documentElement.lang === 'zh-Hans'
-        ? doc.documentElement.lang : 'en';
-      const words = LABELS[lang];
-      const group = doc.createElement('div');
-      group.className = 'site-sandhi site-theme';
-      group.setAttribute('role', 'group');
-      group.setAttribute('aria-label', words.theme);
-      const label = doc.createElement('span');
-      label.className = 'site-sandhi-label';
-      label.textContent = words.theme;
-      const choices = doc.createElement('span');
-      choices.className = 'site-sandhi-choices';
-      for (const value of CHOICES) {
-        const button = doc.createElement('button');
-        button.type = 'button';
-        button.className = 'site-sandhi-choice';
-        button.dataset.themeChoice = value;
-        button.textContent = words[value];
-        choices.append(button);
-      }
-      group.append(label, choices);
-      const sandhi = panel.querySelector('.site-sandhi:not(.site-theme)');
-      sandhi.after(group);
+    doc?.querySelectorAll?.('.site-search-link').forEach(search => {
+      if (search.nextElementSibling?.classList.contains('site-theme-toggle')) return;
+      const button = doc.createElement('button');
+      button.type = 'button';
+      button.className = 'site-theme-toggle';
+      search.after(button);
     });
     apply();
   }
 
-  root.TliTheme = {STORAGE_KEY, CHOICES, get: () => choice, effective, set, mount};
+  root.TliTheme = {STORAGE_KEY, THEMES, DEFAULT, get: () => theme, set, toggle, mount};
   apply();
-  media?.addEventListener?.('change', () => { if (choice === 'auto') apply(); });
   root.addEventListener?.('storage', event => {
     if (event.key !== STORAGE_KEY && event.key !== null) return;
-    choice = stored();
+    theme = stored();
     apply();
   });
   root.document?.addEventListener('click', event => {
-    const button = event.target.closest?.('[data-theme-choice]');
-    if (button) set(button.dataset.themeChoice);
+    if (event.target.closest?.('.site-theme-toggle')) toggle();
   });
   if (root.document?.readyState === 'loading') root.document.addEventListener('DOMContentLoaded', mount);
   else mount();
