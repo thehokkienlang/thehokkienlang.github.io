@@ -1,7 +1,8 @@
 (() => {
   "use strict";
   const readings = "rt, .tli-rt, .entry-headword-reading";
-  const annotations = `${readings}, rp`;
+  // Left out of a copy, like ruby readings: tone marks drawn over bare Hangul (titles, headwords).
+  const annotations = `${readings}, rp, .tone-mark, .inline-upper-tone`;
   const elementAt = node => node?.nodeType === Node.ELEMENT_NODE ? node : node?.parentElement;
   const readingAt = node => elementAt(node)?.closest(readings);
 
