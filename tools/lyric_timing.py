@@ -191,6 +191,8 @@ def decorate_lyrics(root, record, body):
         # Add an attribute rather than a wrapper so paragraph/ruby layout is unchanged.
         body = body[:pos] + body[pos:].replace('<p', f'<p data-lyric-id="{line["id"]}"', 1)
     payload = json.dumps(data, ensure_ascii=False).replace('<', '\\u003c')
-    return ('<div class="lyric-sync-controls" hidden><label><input type="checkbox" role="switch" data-follow-lyrics> '
+    return ('<div class="lyric-sync-controls" hidden><button type="button" class="lyric-play-toggle" data-lyric-toggle aria-label="Play" title="Play (space)">'
+            '<svg class="icon-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>'
+            '<svg class="icon-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button><label><input type="checkbox" role="switch" data-follow-lyrics> '
             '<span data-site-text="Follow lyrics">Follow lyrics</span></label><span data-lyric-status role="status"></span></div>' + body +
             f'<script type="application/json" id="lyric-timing-data">{payload}</script>')

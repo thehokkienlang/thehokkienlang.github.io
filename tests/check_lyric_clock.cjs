@@ -46,19 +46,21 @@ function fixture(status = 'reviewed', mobile = true, wrapped = true, hasHeading 
     insertAdjacentElement(position) { placement = 'iframe:' + position; },
     cloneNode() { return {...this}; }, replaceWith() { replacements++; }};
   const label = {textContent:''}, follow = {checked:false};
-  const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : label};
+  const toggleButton = {clicks:0, attributes:{}, listeners:{}, addEventListener(name, handler) { this.listeners[name] = handler; }, setAttribute(name, value) { this.attributes[name] = value; }};
+  const controls = {hidden:true, querySelector: selector => selector === 'input' ? follow : selector === '[data-lyric-toggle]' ? toggleButton : label};
+  const documentListeners = {};
   const document = {getElementById: () => ({textContent:JSON.stringify({status,videoId:'HNYkSBkQ33Y',cues})}),
-    createElement: () => makeLine(),
+    createElement: () => makeLine(), addEventListener: (name, handler) => { documentListeners[name] = handler; },
     createTreeWalker: main => { let index = -1; return {get currentNode() { return main.childNodes[index]; }, nextNode() { return ++index < main.childNodes.length; }}; },
     querySelectorAll: () => [frame],
     querySelector: selector => selector === '.lyric-sync-controls' ? controls : selector === '.song-tone-guide' ? null : selector === '.song-script-heading' ? (hasHeading ? heading : null) : lines[selector.match(/"(.*?)"/)[1]]};
-  const seeks = [];
+  const seeks = [], toggles = [];
   let selection = '', selectionNode;
-  const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), destroy() {}}); }};
+  const player = {cueAt, connect: (frame, cb, fail) => { connected = true; connections++; callback = cb; errorCallback = fail; return Promise.resolve({seek:(...args) => seeks.push(args), toggle:() => toggles.push('toggle'), destroy() {}}); }};
   vm.runInNewContext(source, {document, NodeFilter:{SHOW_TEXT:4, FILTER_REJECT:2, FILTER_ACCEPT:1}, window:{TliLyricPlayer:player, getSelection:() => ({toString:() => selection, anchorNode:selectionNode, focusNode:selectionNode})}, TliLyricPlayer:player, URL, URLSearchParams,
     location:{hostname:'example.com', search:''},
     matchMedia: query => ({matches:query === '(max-width: 700px)' ? mobile : true})});
-  return {lines, controls, follow, label, connected, seeks, placement, get connections() { return connections; }, get replacements() { return replacements; },
+  return {lines, controls, follow, label, toggleButton, documentListeners, toggles, connected, seeks, placement, get connections() { return connections; }, get replacements() { return replacements; },
     fail:() => errorCallback(new Error('Temporary player error')),
     select:(value, outside = false) => { selection = value; selectionNode = outside ? {} : lines.first; }, tick:(time,state=1) => callback(time,state)};
 }
@@ -120,6 +122,22 @@ Promise.resolve().then(async () => {
   assert.equal(ui.replacements, 1);
   assert.deepEqual(ui.seeks.at(-1), [10, true]);
   console.log('PASS: click/keyboard seeking, nested links and text selection.');
+  // The play/pause button, and Space outside controls and text fields.
+  const bar = fixture();
+  assert.equal(bar.toggleButton.attributes['data-state'], 'paused');
+  bar.tick(10, 1); assert.equal(bar.toggleButton.attributes['data-state'], 'playing');
+  bar.tick(10, 2); assert.equal(bar.toggleButton.attributes['data-state'], 'paused');
+  await new Promise(resolve => setImmediate(resolve));
+  bar.toggleButton.listeners.click();
+  assert.deepEqual(bar.toggles, ['toggle']);
+  const space = (target, extra = {}) => { const event = {key:' ', code:'Space', target, defaultPrevented:false, prevented:false, preventDefault() { this.prevented = true; }, ...extra}; bar.documentListeners.keydown(event); return event; };
+  const plain = {closest: () => null};
+  assert.equal(space(plain).prevented, true, 'Space on the page plays or pauses');
+  assert.equal(bar.toggles.length, 2);
+  for (const extra of [{ctrlKey:true}, {shiftKey:true}, {repeat:true}]) assert.equal(space(plain, extra).prevented, false);
+  assert.equal(space({closest: () => ({})}).prevented, false, 'Space in a field or on a control keeps its own job');
+  assert.equal(bar.toggles.length, 2);
+  console.log('PASS: play/pause button state and Space.');
   let events;
   const calls = [];
   const fakePlayer = {seekTo:(...args) => calls.push(['seek', ...args]), playVideo:() => calls.push(['play']),
@@ -140,6 +158,13 @@ Promise.resolve().then(async () => {
   assert.equal(frame.loading, 'eager');
   controller.seek(10, true);
   assert.deepEqual(calls.slice(2), [['seek', 10, true], ['play']]);
+  // toggle(): pause while playing, play otherwise, and play once ready if asked early.
+  fakePlayer.pauseVideo = () => calls.push(['pause']);
+  controller.toggle(); // getPlayerState() is 1 (playing)
+  assert.deepEqual(calls.slice(4), [['pause']]);
+  fakePlayer.getPlayerState = () => 2;
+  controller.toggle();
+  assert.deepEqual(calls.slice(5), [['play']]);
   controller.destroy();
   console.log('PASS: clicks before API/player readiness are queued; latest seek wins.');
 }).catch(error => { console.error(error); process.exitCode = 1; });

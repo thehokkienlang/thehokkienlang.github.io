@@ -22,12 +22,40 @@
   const controls = scope.querySelector('.lyric-sync-controls');
   const status = controls.querySelector('[data-lyric-status]');
   const follow = controls.querySelector('input');
+  const toggle = controls.querySelector('[data-lyric-toggle]');
   (scope.querySelector('.song-tone-guide') || scope.querySelector('.song-script-heading') || iframe.closest('figure') || iframe).insertAdjacentElement('afterend', controls);
   controls.insertAdjacentElement?.('afterend', status);
   follow.checked = matchMedia('(max-width: 700px)').matches;
   controls.hidden = false;
   let active = null;
-  let controller = null, pendingSeek = null, connecting = false, playerFailed = false;
+  let controller = null, pendingSeek = null, pendingPlay = false, connecting = false, playerFailed = false;
+  const label = (key) => window.TliSiteLanguage?.text ? window.TliSiteLanguage.text(key) : key;
+  // The button shows what pressing it does: Pause while the video plays (or buffers), else Play.
+  function showPlaying(playing) {
+    const action = playing ? 'Pause' : 'Play';
+    toggle.setAttribute('data-state', playing ? 'playing' : 'paused');
+    toggle.setAttribute('aria-label', label(action));
+    toggle.setAttribute('title', label(action + ' (space)'));
+  }
+  function togglePlayback() {
+    if (controller) controller.toggle();
+    else {
+      pendingPlay = true;
+      if (!connecting) connectPlayer();
+    }
+  }
+  toggle.addEventListener('click', togglePlayback);
+  showPlaying(false);
+  // Space plays or pauses instead of scrolling the page, unless it is typing text or pressing a control.
+  document.addEventListener('keydown', event => {
+    if ((event.key !== ' ' && event.code !== 'Space') || event.defaultPrevented || event.repeat ||
+      event.ctrlKey || event.metaKey || event.altKey || event.shiftKey) return;
+    if (scope !== document && scope.hidden) return; // another version's tab is showing
+    const target = event.target;
+    if (target?.closest?.('input, textarea, select, button, a, summary, [contenteditable], [role="button"], [role="switch"], [role="tab"], [role="menuitem"], [role="link"]')) return;
+    event.preventDefault();
+    togglePlayback();
+  });
   function releasePlayer(player) {
     if (!player?.destroy) return;
     const replacement = iframe.cloneNode(false);
@@ -92,6 +120,7 @@
     connecting = true; playerFailed = false;
     TliLyricPlayer.connect(iframe, (time, state) => {
     status.textContent = '';
+    showPlaying(state === 1 || state === 3);
     const cue = state === 0 ? null : TliLyricPlayer.cueAt(timing.cues, time);
     const next = cue ? scope.querySelector(`[data-lyric-id="${cue.id}"]`) : null;
     if (next === active) return;
@@ -106,6 +135,8 @@
     controller = player;
     if (iframe.dataset) iframe.dataset.lyricPlayer = ''; // site.js leaves pausing this video to the player
     if (pendingSeek !== null) { controller.seek(pendingSeek, true); pendingSeek = null; }
+    else if (pendingPlay) controller.toggle();
+    pendingPlay = false;
   }).catch(fail).finally(() => { connecting = false; });
   }
   // Switching to another version's tab pauses this one's video.

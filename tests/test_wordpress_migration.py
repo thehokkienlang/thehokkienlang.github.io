@@ -64,7 +64,7 @@ class SongLinks(HTMLParser):
         self.href = None
         self.parts = []
         self.in_reading = False
-        self.in_lomari = False
+        self.in_row_metadata = False
 
     def handle_starttag(self, tag, attrs):
         if tag == "a":
@@ -72,20 +72,20 @@ class SongLinks(HTMLParser):
             self.parts = []
         elif tag == "rt":
             self.in_reading = True
-        elif tag == "span" and "song-entry-lomari" in dict(attrs).get("class", "").split():
-            self.in_lomari = True
+        elif tag == "span" and {"song-entry-lomari", "song-entry-singer"}.intersection(dict(attrs).get("class", "").split()):
+            self.in_row_metadata = True
 
     def handle_endtag(self, tag):
         if tag == "rt":
             self.in_reading = False
-        elif tag == "span" and self.in_lomari:
-            self.in_lomari = False
+        elif tag == "span" and self.in_row_metadata:
+            self.in_row_metadata = False
         elif tag == "a" and self.href is not None:
             self.links[self.href] = "".join(self.parts)
             self.href = None
 
     def handle_data(self, text):
-        if self.href is not None and not self.in_reading and not self.in_lomari:
+        if self.href is not None and not self.in_reading and not self.in_row_metadata:
             self.parts.append(text)
 
 

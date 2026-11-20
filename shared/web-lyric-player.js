@@ -34,7 +34,7 @@
     src.searchParams.set('playsinline', '1');
     iframe.loading = 'eager';
     iframe.src = src.href;
-    let player, timer, pendingSeek = null, ready = false, destroyed = false, failed = false;
+    let player, timer, pendingSeek = null, pendingPlay = false, ready = false, destroyed = false, failed = false;
     function seek(time, play = false) {
       if (destroyed || failed || !Number.isFinite(time)) return;
       if (!ready) { pendingSeek = { time, play }; return; }
@@ -50,6 +50,8 @@
         if (failed || destroyed) return;
         ready = true;
         if (pendingSeek) { const request = pendingSeek; pendingSeek = null; seek(request.time, request.play); }
+        else if (pendingPlay) player.playVideo();
+        pendingPlay = false;
         tick(); timer = setInterval(tick, 200);
       },
       onStateChange: tick,
@@ -71,6 +73,12 @@
     return { time: () => ready ? player.getCurrentTime() : null,
       duration: () => ready ? player.getDuration() : null,
       seek, destroy,
+      // Play when paused or ended, pause when playing. Before the player is ready, play once it is.
+      toggle() {
+        if (destroyed || failed) return;
+        if (!ready) { pendingPlay = true; return; }
+        if (player.getPlayerState() === 1) player.pauseVideo(); else player.playVideo();
+      },
       // Through the API: once a player is connected, YouTube ignores raw postMessage commands.
       pause: () => { if (ready && !destroyed) player.pauseVideo(); } };
   }

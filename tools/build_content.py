@@ -1157,8 +1157,8 @@ def build_content(root: Path, output: Path):
                     '<span class="song-entry-match" hidden>'
                     '<span class="song-entry-match-main"></span>'
                     '<span class="song-entry-match-lomari"></span></span>'
-                    '</a>'
-                    f'<div class="song-entry-tags">{singer}{mood_buttons}{badge_markup}</div></li>'
+                    f'{singer}</a>'
+                    f'<div class="song-entry-tags">{mood_buttons}{badge_markup}</div></li>'
                 )
             title = label_of(sound, language)
             sections.append(

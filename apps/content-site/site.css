@@ -25,6 +25,12 @@
   backdrop-filter:blur(8px);
 }
 .lyric-sync-controls[hidden] { display:none; }
+.lyric-play-toggle { display:inline-grid; flex:0 0 32px; place-items:center; width:32px; height:32px; margin:-2px 0; padding:0; border:0; border-radius:50%; color:#fff; background:#0a7180; cursor:pointer; }
+.lyric-play-toggle svg { width:18px; height:18px; fill:currentColor; }
+.lyric-play-toggle .icon-pause, .lyric-play-toggle[data-state="playing"] .icon-play { display:none; }
+.lyric-play-toggle[data-state="playing"] .icon-pause { display:block; }
+.lyric-play-toggle:hover { background:#085a66; }
+.lyric-play-toggle:focus-visible { outline:2px solid #2563eb; outline-offset:3px; }
 .lyric-sync-controls label { display:inline-flex; align-items:center; gap:8px; cursor:pointer; }
 .lyric-sync-controls input { appearance:none; position:relative; flex:0 0 40px; width:40px; height:24px; margin:0; border:1px solid #afbfcb; border-radius:999px; background:#c7d4df; cursor:pointer; transition:background-color .15s ease; }
 .lyric-sync-controls input::before { content:""; position:absolute; top:2px; left:2px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px #0003; transition:transform .15s ease; }
@@ -389,9 +395,9 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .song-list li > .song-entry { display: grid; grid-template-rows: minmax(58px, auto) auto auto; align-content: start; flex: 1 1 auto; min-height: 0; box-sizing: border-box; padding: 16px 20px 25px 58px; color: var(--ink); background: linear-gradient(120deg, rgb(255 255 255 / 92%) 20%, var(--category-tint-end)); transition: filter 150ms ease, box-shadow 150ms ease; }
 .song-list li > .song-entry:hover, .song-list li > .song-entry:focus-visible { color: var(--category-accent); }
 .song-list li:has(> .song-entry:hover, > .song-entry:focus-visible) { filter: saturate(1.22); box-shadow: inset 4px 0 0 var(--category-accent); }
-/* The whole row is the link, singer included; the mood chips and dialect badge stay above it. */
+/* Extend the song link to the whole row while keeping the mood buttons independently tappable. */
 .song-list li > .song-entry::after { content: ""; position: absolute; inset: 0; }
-.song-list li .song-entry-tags :is(.song-row-mood, .song-dialect-badge) { position: relative; z-index: 1; }
+.song-list li .song-entry-tags .song-row-mood { position: relative; z-index: 1; }
 /* Under a song's title: the singer, the mood chips (links to /songs/?mood=) and the dialect badge, on
    the lyrics column. A song with versions repeats this inside each tab, with that version's singer. */
 .content-songs :is(.imported-content, .song-version-panel) > .song-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; box-sizing: border-box; width: var(--song-column); margin: 14px auto 18px; }
@@ -401,8 +407,12 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .song-meta .song-dialect-badge { font-size: 13px; }
 /* A song row: the link, then the mood chips and dialect badge under it. */
 .song-list li { display: flex; flex-direction: column; background: linear-gradient(120deg, rgb(255 255 255 / 92%) 20%, var(--category-tint-end)); }
-.song-list li > .song-entry { padding-bottom: 8px; background: none; }
-.song-entry-singer { flex: 0 0 100%; margin-bottom: 4px; color: var(--ink); font-family: "TLI Western Punctuation", "TLI Noto Sans", "Noto Sans TC", sans-serif; font-size: 14px; line-height: 1.35; }
+.song-list li > .song-entry { padding-bottom: 8px; background: none; -webkit-tap-highlight-color: transparent; }
+.song-list li:has(> .song-entry:active) {
+  background: color-mix(in srgb, var(--category-tint) 72%, white);
+  box-shadow: inset 4px 0 0 var(--category-accent);
+}
+.song-entry-singer { margin-top: 6px; color: var(--ink); font-family: "TLI Western Punctuation", "TLI Noto Sans", "Noto Sans TC", sans-serif; font-size: 14px; line-height: 1.35; }
 .song-entry-tags { display: flex; flex-wrap: wrap; gap: 6px; min-height: 24px; padding: 14px 20px 16px 58px; }
 .song-entry-tags:empty { display: none; }
 .song-row-mood, .song-dialect-badge { padding: 2px 10px; border: 1px solid var(--category-accent); border-radius: 999px; color: var(--category-accent); background: var(--category-tint); font: inherit; font-size: 12px; line-height: 1.5; }
