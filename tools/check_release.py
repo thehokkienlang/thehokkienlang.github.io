@@ -27,6 +27,7 @@ JAVASCRIPT_FILES = (
     "shared/web-site-navigation.js",
     "shared/web-sandhi-preference.js",
     "shared/web-sandhi-display.js",
+    "shared/web-theme.js",
     "desktop/desktop_restart.js",
     "desktop/editor_lifetime.js",
     "desktop/dictionary_editor_ui/editor.js",

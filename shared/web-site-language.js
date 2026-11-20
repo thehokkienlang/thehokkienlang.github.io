@@ -6,6 +6,8 @@
   const simplified = language === "zh-Hans";
   const messages = {
     "Follow lyrics": ["提詞", "提词"],
+    "Play": ["播放", "播放"], "Pause": ["暫停", "暂停"], "Play (space)": ["播放（空白鍵）", "播放（空格键）"],
+    "Pause (space)": ["暫停（空白鍵）", "暂停（空格键）"],
     "Original version": ["原版", "原版"],
     "Fong Fei-fei version": ["鳳飛飛版", "凤飞飞版"],
     "Wu Bai version": ["伍佰版", "伍佰版"],
@@ -72,6 +74,7 @@
     const variant = nav.querySelector(`template[data-navigation-language="${language}"]`);
     if (variant) nav.replaceChildren(variant.content.cloneNode(true));
     window.TliSandhiPreference?.syncControls?.(); // the language variant just replaced the buttons
+    window.TliTheme?.mount?.(); // and the theme setting, which is added to the menu by script
     nav.querySelectorAll("[data-language-choice]").forEach(link => {
       const target = new URL(link.href);
       if (target.pathname === location.pathname) {

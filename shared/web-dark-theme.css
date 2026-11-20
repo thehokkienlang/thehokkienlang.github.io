@@ -1,0 +1,203 @@
+/* Dark mode for the whole site. shared/web-theme.js sets <html data-theme="dark"> from the
+   visitor's choice (Auto follows the device, or Light, or Dark), so every rule here is scoped to
+   it. This file is loaded after each page's own stylesheets. Most colours come from the variables
+   below; the rest override light surfaces that are written as fixed colours.
+   Palette: background #0f1719, panels #172225, raised #1d2b2f, text #e3ecee, muted #9db0b5,
+   lines #2c3d41, teal accent #4cc0cc, red #e2737d. */
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  /* Content site (apps/content-site/site.css) */
+  --ink: #e3ecee;
+  --muted: #9db0b5;
+  --line: #2c3d41;
+  --accent: #4cc0cc;
+  --wp--preset--color--primary: #4cc0cc;
+  --wp--preset--color--contrast: #e3ecee;
+  --wp--preset--color--base: #172225;
+  /* Header and menus (shared/web-site-navigation.css) */
+  --site-background: #0f1719;
+  --site-ink: #e3ecee;
+  --site-muted: #9db0b5;
+  --site-line: #2c3d41;
+  --site-accent: #4cc0cc;
+  --site-accent-strong: #7ad5de;
+  --site-accent-soft: #163238;
+  --site-voice: #e2737d;
+  /* IME Pad, Dictionary and Translator */
+  --bg: #0f1719;
+  --panel: #172225;
+  --surface: #172225;
+  --surface-soft: #163238;
+  --text: #e3ecee;
+  --accent-strong: #7ad5de;
+  --accent-soft: #163238;
+  --blue: #4cc0cc;
+  --focus: #60a5fa;
+  --warning: #f0a35c;
+  --paper: #172225;
+  --accent-dark: #7ad5de;
+  --red: #e2737d;
+  /* Tones that differ between Taipei and Singapore (shared/web-site-navigation.css) */
+  --tli-sandhi-varies: #e2737d;
+}
+:root[data-theme="dark"][data-sandhi="taipei"] { --tli-sandhi-varies: #38c3e0; }
+
+:root[data-theme="dark"] body { background: #0f1719; color: var(--ink); }
+:root[data-theme="dark"] a:hover { color: #7ad5de; }
+:root[data-theme="dark"] :is(a, button, input, select, textarea, summary, [tabindex]):focus-visible { outline-color: #60a5fa; }
+:root[data-theme="dark"] :is(input, select, textarea) { color-scheme: dark; }
+:root[data-theme="dark"] img:not([src$=".svg"]) { filter: brightness(.92); }
+
+/* ---- Header, menus, search box ---------------------------------------------------------- */
+:root[data-theme="dark"] :is(.site-header, .site-app-header) { background: #121c1f; }
+:root[data-theme="dark"] .site-nav-panel { background: #172225; box-shadow: 0 8px 22px #0008; }
+:root[data-theme="dark"] .site-sandhi-choice { background: #172225; color: var(--site-ink); }
+:root[data-theme="dark"] .site-sandhi-choice[aria-pressed="true"] { border-color: var(--site-accent); background: var(--site-accent); color: #0f1719; }
+:root[data-theme="dark"] .site-sandhi-choice[data-sandhi-choice="singapore"][aria-pressed="true"] { border-color: var(--site-voice); background: var(--site-voice); color: #0f1719; }
+:root[data-theme="dark"] .skip-link { background: #172225; }
+:root[data-theme="dark"] .hangul-keyboard-hint { border-color: #2c3d41 !important; background: #172225 !important; color: #e3ecee !important; }
+:root[data-theme="dark"] .hangul-keyboard-hint::before { color: #9db0b5; }
+:root[data-theme="dark"] .tli-search-input { background: #172225; }
+:root[data-theme="dark"] .tli-search-input::placeholder { color: #7f9297; }
+:root[data-theme="dark"] .tli-search .toggle-switch { background: #3a4c51; }
+:root[data-theme="dark"] .tli-search .toggle-knob { background: #e3ecee; }
+:root[data-theme="dark"] .tli-search-dropdown { background: #172225; box-shadow: 0 14px 34px #0009; }
+:root[data-theme="dark"] .hanri-candidate-menu { border-color: #3a4c51; background: #172225; box-shadow: 0 8px 22px #0009; }
+:root[data-theme="dark"] .hanri-candidate-menu .ime-candidate { background: #172225; color: #e3ecee; }
+:root[data-theme="dark"] .hanri-candidate-menu .ime-candidate.selected { background: #1f6f9a; color: #fff; }
+:root[data-theme="dark"] .hanri-candidate-menu .candidate-reading { color: #9db0b5; }
+:root[data-theme="dark"] .hanri-candidate-menu .ime-candidate.selected .candidate-reading { color: #fff; }
+
+/* ---- Password gate (Dictionary, Translator) --------------------------------------------- */
+:root[data-theme="dark"] .access-locked { background: #0f1719; }
+:root[data-theme="dark"] .lock-screen { color: #e3ecee; }
+:root[data-theme="dark"] .lock-panel { border-color: #2c3d41; background: #172225; box-shadow: 0 8px 30px #0006; }
+:root[data-theme="dark"] :is(.lock-note, .access-form .access-show, .access-lock-button) { color: #9db0b5; }
+:root[data-theme="dark"] .access-form label { color: #c3d0d4; }
+:root[data-theme="dark"] .access-form input { border-color: #3a4c51; background: #0f1719; color: #e3ecee; }
+:root[data-theme="dark"] .access-form button { border-color: #4cc0cc; background: #4cc0cc; color: #0f1719; }
+:root[data-theme="dark"] .access-form button:hover, :root[data-theme="dark"] .access-form button:focus-visible { background: #7ad5de; }
+:root[data-theme="dark"] .access-error { color: #f0a35c; }
+:root[data-theme="dark"] .access-lock-button:focus-visible { color: #7ad5de; }
+
+/* ---- Content pages: songs, stories, guides, home ---------------------------------------- */
+:root[data-theme="dark"] .lyric-sync-controls { background: color-mix(in srgb, #0f1719 94%, transparent); box-shadow: 0 4px 14px #0006; }
+:root[data-theme="dark"] .lyric-sync-controls input { border-color: #3a4c51; background: #2c3d41; }
+:root[data-theme="dark"] .lyric-sync-controls input::before { background: #e3ecee; }
+:root[data-theme="dark"] .lyric-sync-controls input:checked { background: #4cc0cc; border-color: #4cc0cc; }
+:root[data-theme="dark"] .lyric-play-toggle { background: #4cc0cc; color: #0f1719; }
+:root[data-theme="dark"] .lyric-play-toggle:hover { background: #7ad5de; }
+:root[data-theme="dark"] .lyric-play-toggle { color: #0f1719; background: #4cc0cc; }
+:root[data-theme="dark"] .lyric-play-toggle:hover { background: #7ad3dc; }
+:root[data-theme="dark"] [data-lyric-status] { color: #9db0b5; }
+:root[data-theme="dark"] .imported-content p[data-lyric-id].lyric-active { background-color: #163238; box-shadow: 0 -.45em 0 #163238; }
+:root[data-theme="dark"] .imported-content p[data-lyric-id].lyric-active::before { background: #4cc0cc; }
+@media (hover: hover) {
+  :root[data-theme="dark"] .imported-content p[data-lyric-seek]:not(.lyric-active):hover { background-color: #1a272b; box-shadow: 0 -.45em 0 #1a272b; }
+}
+:root[data-theme="dark"] .imported-content p.is-search-target { background-color: #3a3418; box-shadow: 0 -.45em 0 #3a3418; }
+:root[data-theme="dark"] .imported-content :is(th, blockquote, .guide-audience) { background: #163238; }
+:root[data-theme="dark"] .article-contents { background: #163238; }
+:root[data-theme="dark"] :where(.song-tone-guide, .imported-content details.letter-order, .learn-next a, .home-compare-card) { background: #172225; }
+/* :where() keeps these at plain class weight, so their selected states below still win. */
+:root[data-theme="dark"] :where(.song-filter-chip, .song-filter-clear, .song-version-tablist button) { background: #172225; }
+:root[data-theme="dark"] .home-compare-hokkien { background: #163238; }
+:root[data-theme="dark"] .home-compare-korean .tli-listen { border-color: #4a5b60; background: #4a5b60; }
+:root[data-theme="dark"] .tli-listen { color: #0f1719; }
+:root[data-theme="dark"] .tli-listen:hover { background: #7ad5de; }
+:root[data-theme="dark"] .song-language-tabs button[aria-pressed="true"],
+:root[data-theme="dark"] .song-version-tablist button[aria-selected="true"],
+:root[data-theme="dark"] ol.learn-path > li::before { color: #0f1719; }
+:root[data-theme="dark"] .songs-subheader { background: #121c1f; }
+:root[data-theme="dark"] .songs-breadcrumb-sep { color: #5d7177; }
+:root[data-theme="dark"] .home-feature-songs { background: #22191b; }
+:root[data-theme="dark"] :is(.home-songbook-label, .home-songbook :is(a:not(.song-base-link), .home-songbook-item)) { border-bottom-color: #3a4c51; }
+:root[data-theme="dark"] .home-specimen { background: #172225; }
+:root[data-theme="dark"] .content-songs :is(.imported-content, .song-version-panel) > figure.wp-block-embed iframe { box-shadow: 0 10px 28px #0008; }
+
+/* Song categories and rows: each category's own tint and accent, darkened to suit. */
+:root[data-theme="dark"] .song-category { box-shadow: 0 12px 30px #0006; }
+:root[data-theme="dark"] .song-category-heading { background: linear-gradient(105deg, color-mix(in srgb, var(--category-tint) 16%, #172225), color-mix(in srgb, var(--category-tint-end, var(--category-tint)) 10%, #172225)); }
+:root[data-theme="dark"] .song-category-heading > span { color: color-mix(in srgb, var(--category-accent, #4cc0cc) 62%, white); }
+:root[data-theme="dark"] :is(.song-mood, .song-row-mood, .song-dialect-badge) { border-color: color-mix(in srgb, var(--category-accent, #4cc0cc) 70%, #172225); color: color-mix(in srgb, var(--category-accent, #4cc0cc) 55%, white); }
+:root[data-theme="dark"] .song-list li { background: linear-gradient(120deg, #172225 20%, color-mix(in srgb, var(--category-tint-end, var(--category-tint, #172225)) 12%, #172225)); }
+:root[data-theme="dark"] .song-list li:has(> .song-entry:active) { background: color-mix(in srgb, var(--category-tint, #4cc0cc) 18%, #172225); }
+:root[data-theme="dark"] .song-list li > .song-entry:hover,
+:root[data-theme="dark"] .song-list li > .song-entry:focus-visible { color: color-mix(in srgb, var(--category-accent, #4cc0cc) 62%, white); }
+:root[data-theme="dark"] :is(.song-mood, .song-row-mood, .song-dialect-badge) { background: color-mix(in srgb, var(--category-tint, #163238) 14%, #172225); }
+:root[data-theme="dark"] :is(.song-mood, .song-row-mood):is(:hover, :focus-visible) { color: #0f1719; background: color-mix(in srgb, var(--category-accent, #4cc0cc) 55%, white); }
+:root[data-theme="dark"] .song-filter-chip[aria-pressed="true"] { border-color: var(--category-accent); background: color-mix(in srgb, var(--category-accent) 55%, white); color: #0f1719; }
+:root[data-theme="dark"] .song-filter-chip:hover { color: color-mix(in srgb, var(--category-accent) 55%, white); }
+
+/* Imported page content: white boxes become dark panels; coloured teaching tiles keep their
+   colours, with dark text so they stay readable. */
+:root[data-theme="dark"] .imported-content :is([style*="background-color:#ffffff"], [style*="background-color: #ffffff"], [style*="background-color:#fff;"], [style*="background-color:#f3f7f8"], [style*="background-color: #f3f7f8"], .cell-white, .ruby-box-white) { background-color: #172225 !important; border-color: #2c3d41 !important; }
+/* Dark and grey text written inline (#111111, #444444, #555555, black, gray), outside the coloured
+   tiles, which keep dark text on their light colours. */
+:root[data-theme="dark"] .imported-content :is([style*="color:black"], [style*="color: black"], [style*="color:#111"], [style*="color: #111"]):not([style*="background"] *, [class*="cell-"] *, .ruby-box-lavender *) { color: #e3ecee !important; }
+:root[data-theme="dark"] .imported-content :is([style*="color:gray"], [style*="color: gray"], [style*="color:#555"], [style*="color: #555"], [style*="color:#444"], [style*="color: #444"]):not([style*="background"] *, [class*="cell-"] *, .ruby-box-lavender *) { color: #9db0b5 !important; }
+:root[data-theme="dark"] .imported-content :is(.cell-lavender, .cell-rose, .cell-peach, .cell-sand, .cell-cream, .ruby-box-lavender,
+  [style*="background:#caedfb"], [style*="background:#ffc6c6"], [style*="background: #caedfb"], [style*="background: #ffc6c6"],
+  [style*="background:#d6c9fe"], [style*="background-color:#d6c9fe"], [style*="background:#fadbd8"], [style*="background:#fef5e7"]) { color: #17252b; }
+:root[data-theme="dark"] .imported-content :is(.cell-lavender, .cell-rose, .cell-peach, .cell-sand, .cell-cream, .ruby-box-lavender) :is(a, rt, .tli-rt, .tone-mark) { color: #17252b; }
+:root[data-theme="dark"] .diagram-text-version p { color: #9db0b5; }
+
+/* ---- IME Pad ---------------------------------------------------------------------------- */
+:root[data-theme="dark"] .brand-mark { border-color: #2c3d41; background: #172225; color: #e3ecee; box-shadow: none; }
+:root[data-theme="dark"] .pad { box-shadow: none; }
+:root[data-theme="dark"] :is(.pad-label, .normalization-suggestions, .sandhi-label, .keyboard-guide-options) { color: #9db0b5; }
+:root[data-theme="dark"] :is(.text-wrap, .normalization-suggestions, .keyboard-guide) { border-top-color: #2c3d41; }
+:root[data-theme="dark"] .ime-text { caret-color: #4cc0cc; }
+:root[data-theme="dark"] .ime-text::placeholder { color: #6f8186; -webkit-text-fill-color: #6f8186; }
+:root[data-theme="dark"] .clear-button { color: #9db0b5; }
+:root[data-theme="dark"] .clear-button:hover { background: #1d2b2f; color: #e3ecee; }
+:root[data-theme="dark"] .lomari-preview { border-color: #2c3d41; background: #131d20; color: #b7c6ca; }
+:root[data-theme="dark"] .tool-button:focus-visible { border-color: #2f5a62; background: #163238; }
+:root[data-theme="dark"] .audio-tool.playing { color: #f28b9a; }
+:root[data-theme="dark"] :is(.sandhi-button, .keyboard-guide-button) { border-color: #3a4c51; background: #172225; color: #c3d0d4; }
+:root[data-theme="dark"] :is(.sandhi-button.active, .keyboard-guide-button[aria-expanded="true"]) { border-color: #2f5a62; background: #163238; color: #7ad5de; }
+:root[data-theme="dark"] .sandhi-button.active[data-sandhi-choice="singapore"] { border-color: #6a3a40; background: #2a1c1f; color: #e2737d; }
+:root[data-theme="dark"] .guide-chevron { color: #9db0b5; }
+:root[data-theme="dark"] .keyboard-guide { background: #131d20; }
+:root[data-theme="dark"] .keyboard-key { border-color: #3a4c51; background: #1d2b2f; color: #e3ecee; }
+:root[data-theme="dark"] .keyboard-key:focus-visible { border-color: #5a8fb0; background: #213238; }
+:root[data-theme="dark"] .keyboard-key.modifier-active { background: #1f4a6e; }
+:root[data-theme="dark"] .key-input { color: #9db0b5; }
+:root[data-theme="dark"] :is(.keyboard-key:not(.tone-key) .key-input, .tone-key .key-input) { color: #6f8186; }
+:root[data-theme="dark"] .guide-mode-switch { background: #3a4c51; }
+:root[data-theme="dark"] .guide-mode-switch::after { background: #e3ecee; }
+:root[data-theme="dark"] :is(.romanisation-hints .key-romanisation) { color: #e3ecee; }
+:root[data-theme="dark"] :is(.romanisation-hints .keyboard-key:not(.tone-key) .key-output, .control-key) { color: #b7c6ca; }
+:root[data-theme="dark"] :is(.hangul-tone .tone-mark, .tone-overlay-mark) { color: #e3ecee; }
+:root[data-theme="dark"] .toast { background: #e3ecee; color: #0f1719; }
+
+/* ---- Dictionary ------------------------------------------------------------------------- */
+:root[data-theme="dark"] .construction-notice { border-color: #5a4320; background: #2a2114; color: #f0c48a; }
+:root[data-theme="dark"] .search-panel .tli-search-input { border-color: #3a4c51; background: #172225; }
+:root[data-theme="dark"] .search-panel .tli-search-input.hangul-ime-active::placeholder { color: #7f9297; }
+:root[data-theme="dark"] .search-panel .tli-search-clear:hover { background: #1d2b2f; }
+:root[data-theme="dark"] .search-panel .hangul-keyboard-toggle { color: #b7c6ca; }
+:root[data-theme="dark"] :is(.category-button, .page-button, .copy-reading, .audio-reading) { border-color: #3a4c51; background: #172225; color: #c3d0d4; }
+:root[data-theme="dark"] :is(.category-button[aria-pressed="true"], .page-button.current) { background: #163238; color: #7ad5de; }
+:root[data-theme="dark"] :is(.page-button:disabled, .audio-reading:disabled) { color: #5d7177; border-color: #2c3d41; }
+:root[data-theme="dark"] .entry-headword-ruby .entry-headword-reading { color: #c3d0d4; }
+:root[data-theme="dark"] .reading { background: #131d20; }
+:root[data-theme="dark"] .field-label { color: #8a9da2; }
+:root[data-theme="dark"] :is(.lomari, .english-gloss) { color: #c3d0d4; }
+:root[data-theme="dark"] :is(.empty-state, .dictionary-shell .toast) { background: #172225; }
+
+/* ---- Translator ------------------------------------------------------------------------- */
+:root[data-theme="dark"] .language-pane.is-output .translation-text { background: #131d20; }
+:root[data-theme="dark"] .translation-text::placeholder { color: #6f8186; }
+:root[data-theme="dark"] .toggle-track { background: #3a4c51; }
+:root[data-theme="dark"] .swap-button { border-color: #2f5a62; background: #172225; box-shadow: 0 6px 18px #0008; }
+:root[data-theme="dark"] .swap-button:is(:hover, :focus-visible) { color: #0f1719; background: var(--accent); }
+:root[data-theme="dark"] :is(.sandhi-control select, .alternative) { background: #172225; color: var(--ink); }
+:root[data-theme="dark"] .language-pane { box-shadow: 0 16px 38px #0006; }
+
+/* ---- Site search ------------------------------------------------------------------------ */
+:root[data-theme="dark"] .site-search-form { background: #172225; }
+:root[data-theme="dark"] .site-search .tli-search-input { border-color: #3a4c51; background: #0f1719; }
+:root[data-theme="dark"] .site-search-result mark { background: #5a4a17; color: #fff3cf; }
+:root[data-theme="dark"] .site-search-pagination button { background: #172225; }
