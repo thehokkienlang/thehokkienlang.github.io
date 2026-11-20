@@ -41,7 +41,9 @@
 .lyric-annotation-overlay { position:absolute; top:0; left:0; z-index:2; overflow:hidden; pointer-events:none; user-select:none; -webkit-user-select:none; }
 .lyric-annotation-overlay .tone-overlay-anchor { position:absolute; width:0; height:0; }
 .lyric-annotation-overlay .tone-overlay-mark { position:absolute; left:1px; width:max-content; transform:translateX(-50%); color:#1f2937; font-family:"TLI Western Punctuation",Calibri,"Tangliengim Hangul","Noto Sans KR",sans-serif; font-weight:700; line-height:1; white-space:nowrap; }
-.lyric-annotation-overlay .tone-overlay-mark { top:calc(-0.72em - 1px); font-size:1em; }
+/* The lower marks (ꞈ ˎ ˏ ˍ), as the website shows over pure Hangul, are drawn from the baseline down,
+   about 0.85em below the top of their box. -0.97em puts them about 1.5px above the 17px Hangul. */
+.lyric-annotation-overlay .tone-overlay-mark { top:-0.97em; font-size:1em; }
 .line-tools { display:flex; gap:4px; }
 .line-options { display:grid; gap:7px; align-items:center; }
 .lyric-reading-mode { width:100%; min-width:156px; font-size:12px; }
