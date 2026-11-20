@@ -15,12 +15,12 @@
   // The labels, in the three site languages. The header menu is written by tools/build_content.py
   // from its own copy; tests/check_sandhi_preference.cjs checks the two agree.
   const LABELS = Object.freeze({
-    en: {sandhi: 'Sandhi', taipei: 'Taipei', singapore: 'Singapore',
-      note: 'Changes how tone sandhi sounds and is marked. Stored readings use Taipei.'},
-    'zh-Hant': {sandhi: '變調', taipei: '臺北', singapore: '新加坡',
-      note: '改變變調的讀音與標示方式；儲存的讀音以臺北為準。'},
-    'zh-Hans': {sandhi: '变调', taipei: '台北', singapore: '新加坡',
-      note: '改变变调的读音与标示方式；存储的读音以台北为准。'},
+    en: {sandhi: 'Sandhi', change: '(change)', term: 'tone sandhi', taipei: 'Taipei', singapore: 'Singapore',
+      note: 'Changes how tone sandhi sounds and is marked.'},
+    'zh-Hant': {sandhi: '變調', change: '（切換）', term: '變調', taipei: '臺北', singapore: '新加坡',
+      note: '改變變調的讀音與標示方式。'},
+    'zh-Hans': {sandhi: '变调', change: '（切换）', term: '变调', taipei: '台北', singapore: '新加坡',
+      note: '改变变调的读音与标示方式。'},
   });
 
   // The one place that decides "in Singapore": a language tag with region SG (en-SG, zh-SG,

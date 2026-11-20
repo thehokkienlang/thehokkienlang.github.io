@@ -174,13 +174,15 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertEqual(nav.count("data-sandhi-choice="), 2, language)
             self.assertIn('data-sandhi-choice="taipei"', nav)
             self.assertIn('data-sandhi-choice="singapore"', nav)
-            self.assertIn(f'<span class="site-sandhi-label">{words["sandhi"]}</span>', nav)
-            self.assertIn(words["note"], nav)
+            self.assertIn(f'<span class="site-sandhi-label">{words["sandhi"]} {words["change"]}</span>', nav)
+            guide = language_url("/learn/tone-sandhi/", language)
+            term = f'<a class="site-sandhi-guide" href="{guide}">{words["term"]}</a>'
+            self.assertIn(words["note"].format(term=term), nav)
             # The setting sits in the language menu, after the language choices.
             self.assertLess(nav.index("data-language-choice"), nav.index("data-sandhi-choice"))
             # The words in the page header and the ones in the script are the same.
             for word in words.values():
-                self.assertIn(word, script, f"{language}: {word!r} is missing from web-sandhi-preference.js")
+                self.assertIn(word.format(term=words["term"]), script, f"{language}: {word!r} is missing from web-sandhi-preference.js")
         # The choices come in the Traditional and Simplified variants of the header too.
         with_variants = navigation_links("/", "en")
         self.assertEqual(with_variants.count("data-sandhi-choice="), 2 * 3)
