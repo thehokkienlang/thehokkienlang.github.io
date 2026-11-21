@@ -133,6 +133,11 @@ body.composing #buffer {
   padding-top: 13px;
 }
 
+/* Hangul standing in for a rare Hanri: the Hangul font joins old-style jamo clusters. */
+#candidates .written-hangul {
+  font-family: "TLI Western Punctuation", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif;
+}
+
 #candidates .hangul-tone {
   position: relative;
   display: inline-block;

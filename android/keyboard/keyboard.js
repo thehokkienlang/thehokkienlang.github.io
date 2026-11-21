@@ -17,12 +17,15 @@
   const candidates = document.querySelector("#candidates");
   const keys = document.querySelector("#keys");
 
+  // TLI writes the apostrophe as part of its spelling (食飽’쀄), so it has its own key at the end
+  // of the home row, where ' sits on a physical QWERTY keyboard.
+  const APOSTROPHE = "’";
   // The bottom row and the symbol pages follow Gboard's English layout.
   const BOTTOM = [",", "Emoji", "Space", ".", "Enter"];
   const LAYERS = {
     tli: [
       [..."qwertyuiop"],
-      [..."asdfghjkl"],
+      [..."asdfghjkl", APOSTROPHE],
       ["Shift", ..."zxcvbnm", "Backspace"],
       ["Symbols", ...BOTTOM],
     ],
@@ -78,10 +81,11 @@
     if (!fontSupport.has(char)) fontSupport.set(char, drawn(char) !== missingGlyph);
     return fontSupport.get(char);
   }
-  // 到𦤾 becomes 到달: each unsupported character is replaced by its own syllable.
-  function writtenForm(entry) {
+  // 到𦤾 becomes 到달: each unsupported character is replaced by its own syllable. Returns the
+  // pieces, each marked as Hanri or Hangul, or null when every character is widely supported.
+  function writtenParts(entry) {
     const chars = [...entry.hanri];
-    if (chars.every(widelySupported)) return entry.hanri;
+    if (chars.every(widelySupported)) return null;
     const base = entry.readingBase || hangul.normalizeReadingBase(entry.reading || "");
     const units = [];
     for (let index = 0; index < base.length;) {
@@ -90,21 +94,40 @@
       units.push(unit.text);
       index = unit.end;
     }
-    if (units.length !== chars.length) return base || entry.hanri;
-    return chars.map((char, index) => (widelySupported(char) ? char : units[index])).join("");
+    if (units.length !== chars.length) return base ? [{ text: base, hangul: true }] : null;
+    return chars.map((char, index) => (widelySupported(char)
+      ? { text: char, hangul: false }
+      : { text: units[index], hangul: true }));
   }
-  function defaultRareHanriToHangul() {
+  // A Hanri this phone may draw as an empty box keeps its candidate, and a second candidate
+  // right after it offers the same word with those characters in Hangul (到𦤾, then 到달).
+  // The user picks whichever reads correctly on their screen.
+  function offerHangulForRareHanri() {
     [...candidates.querySelectorAll(".ime-candidate")].forEach((button, index) => {
       const candidate = controller.activeCandidates[index];
       if (!candidate || ["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) return;
-      const written = writtenForm(candidate.entry);
-      if (written === candidate.entry.hanri) return;
-      button.dataset.start = candidate.start;
-      button.dataset.hanri = candidate.entry.hanri;
-      button.dataset.written = written;
-      button.querySelector(".candidate-hanri").textContent = written;
-      // Entirely Hangul now: the plain Hangul candidate already offers it.
-      if (![...written].some(char => HAN.test(char))) button.hidden = true;
+      const parts = writtenParts(candidate.entry);
+      if (!parts) return;
+      const written = parts.map(part => part.text).join("");
+      const option = button.cloneNode(true);
+      option.classList.remove("selected");
+      option.classList.add("candidate-written");
+      option.setAttribute("aria-selected", "false");
+      option.dataset.start = candidate.start;
+      option.dataset.hanri = candidate.entry.hanri;
+      option.dataset.written = written;
+      // The Hangul goes in the Hangul font, which joins old-style jamo such as ᄁᅷ into one
+      // syllable; the Hanri font beside it would draw them as loose letters.
+      option.querySelector(".candidate-hanri").replaceChildren(...parts.map(part => {
+        if (!part.hangul) return part.text;
+        const span = document.createElement("span");
+        span.className = "written-hangul";
+        span.textContent = part.text;
+        return span;
+      }));
+      // The IME applies the candidate (its tones and learning); the click below swaps the text.
+      option.addEventListener("click", () => controller.applyCandidate(candidate, true));
+      button.after(option);
     });
   }
 
@@ -113,7 +136,7 @@
     candidateContainer: candidates,
     enabled: () => true,
     onUpdate: sync,
-    onCandidatesChanged: () => { defaultRareHanriToHangul(); candidates.scrollLeft = 0; },
+    onCandidatesChanged: () => { offerHangulForRareHanri(); candidates.scrollLeft = 0; },
     enterBehavior: "none",
     candidateLimit: 24,
   });
@@ -148,10 +171,24 @@
   }
 
   // Tones have no row of their own. Shift (or a hold) on ㅛ ㅕ ㅑ ㅐ types tones 1 2 4 5: none of
-  // those keys has a shifted Hangul that TLI uses. Shift (or a hold) on the comma types the apostrophe.
+  // those keys has a shifted Hangul that TLI uses.
   const TONE_KEYS = { y: "1", u: "2", i: "4", o: "5" };
-  const APOSTROPHE = "’";
   const toneLabel = key => upperTone(hangul.keyboardGuideOutput(TONE_KEYS[key]));
+
+  // Send key input to the IME. A tone after a syllable stays hidden in the text and only picks
+  // the candidates, which show its mark (가ꞈ). With no syllable before it, the IME would type
+  // the digit instead, so the mark itself is typed.
+  function insertInput(input) {
+    if (Object.values(TONE_KEYS).includes(input)) {
+      const cursor = buffer.selectionStart ?? buffer.value.length;
+      if (!controller.previousHangulUnit(buffer.value, cursor)) {
+        commitBuffer();
+        host.commit(hangul.keyboardGuideOutput(input));
+        return;
+      }
+    }
+    controller.insertText(input);
+  }
 
   function inputFor(key) {
     if (!shifted) return key;
@@ -182,9 +219,9 @@
         if (!commitBuffer()) host.enter();
         return;
     }
-    if (layer === "tli" && key === "," && shifted) {
+    if (layer === "tli" && key === APOSTROPHE) {
       controller.insertText(APOSTROPHE);
-      setShift(false);
+      if (shifted) setShift(false);
       return;
     }
     if (layer !== "tli" || key === "," || key === ".") {
@@ -192,7 +229,7 @@
       host.commit(key);
       return;
     }
-    controller.insertText(inputFor(key));
+    insertInput(inputFor(key));
     if (shifted) setShift(false);
   }
 
@@ -205,7 +242,7 @@
       button.classList.add("control", "key-" + key.toLowerCase());
       button.textContent = CONTROL_LABELS[key];
       if (key === "Shift") button.classList.toggle("active", shifted);
-    } else if (layer === "tli" && key !== "," && key !== ".") {
+    } else if (layer === "tli" && /^[a-z]$/.test(key)) {
       const output = document.createElement("span");
       output.className = "key-output";
       output.textContent = upperTone(hangul.keyboardGuideOutput(inputFor(key)) || key);
@@ -219,17 +256,6 @@
       }
       button.append(output);
       if (!(TONE_KEYS[key] && shifted)) button.append(input);
-    } else if (layer === "tli" && key === ",") {
-      const output = document.createElement("span");
-      output.className = "key-output";
-      output.textContent = shifted ? APOSTROPHE : key;
-      button.append(output);
-      if (!shifted) {
-        const hint = document.createElement("span");
-        hint.className = "key-input";
-        hint.textContent = APOSTROPHE;
-        button.append(hint);
-      }
     } else {
       button.textContent = key;
     }
@@ -290,7 +316,6 @@
       }
       return [...alternates, ...text(LETTER_SYMBOLS[key] || "")];
     }
-    if (layer === "tli" && key === "," && !shifted) return [{ label: APOSTROPHE, input: APOSTROPHE }];
     if (layer === "tli" && key !== ".") return [];
     return text(SYMBOL_ALTERNATES[key] || "");
   }
@@ -338,7 +363,7 @@
 
   function typeAlternate(alternate) {
     if (alternate.input) {
-      controller.insertText(alternate.input);
+      insertInput(alternate.input);
     } else {
       commitBuffer();
       host.commit(alternate.text);
