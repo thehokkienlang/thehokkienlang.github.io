@@ -13,7 +13,7 @@ def main():
     parser.add_argument('--menu-source', type=Path)
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    text = ''.join(path.read_text(encoding='utf-8') for path in (root/'content').rglob('*.json'))
+    text = ''.join(path.read_text(encoding='utf-8') for pattern in ('*.json', '*.story.html') for path in (root/'content').rglob(pattern))
     points = {ord(char) for char in text if 0x3400 <= ord(char) <= 0x9FFF or 0x20000 <= ord(char) <= 0x2EBEF}
     with TTFont(args.source) as font:
         points &= font.getBestCmap().keys()

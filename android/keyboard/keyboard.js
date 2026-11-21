@@ -9,7 +9,7 @@
     commit: text => console.log("commit:", JSON.stringify(text)),
     deleteBackward: () => console.log("delete"),
     enter: () => console.log("enter"),
-    switchKeyboard: () => console.log("switch keyboard"),
+    showKeyboardPicker: () => console.log("keyboard picker"),
   };
   const core = window.TangliengimImeCore;
   const hangul = window.TangliengimHangulIme;
@@ -386,9 +386,9 @@
     finishPending();
     button.classList.add("pressed");
     if (key === "Space") {
-      // As on Gboard: a tap types, holding the space bar switches keyboards.
+      // A tap types a space; holding the space bar opens the system keyboard picker.
       spaceHeld = false;
-      repeatTimer = setTimeout(() => { spaceHeld = true; commitBuffer(); host.switchKeyboard(); }, 500);
+      repeatTimer = setTimeout(() => { spaceHeld = true; commitBuffer(); host.showKeyboardPicker(); }, 500);
       return;
     }
     if (key in CONTROL_LABELS) {

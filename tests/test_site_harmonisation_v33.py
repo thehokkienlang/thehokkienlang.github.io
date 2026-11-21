@@ -1,5 +1,6 @@
 """Protect the reviewed v3.3 Hanri assignments and their authored readings."""
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -9,6 +10,12 @@ sys.path.insert(0, str(ROOT / "tools"))
 from content_harmonisation import apply_edits, atoms_for, digest
 from dictionary_editor_service import read_table
 from harmonise_content_v33 import now_edits, propose, restore
+from story_presentations import assemble_story
+
+
+def plain_ruby(text):
+    """The hand-positioned WordPress ruby and the plain ruby carry the same Hanri and reading."""
+    return re.sub(r'<ruby style="[^"]*">(.*?)<rt style="[^"]*">', lambda m: "<ruby>" + m.group(1) + "<rt>", text)
 
 
 def record(body):
@@ -35,7 +42,7 @@ class V33Tests(unittest.TestCase):
         ledger = json.loads((ROOT / "docs/history/harmonisation-3.3-audit.json").read_text(encoding="utf-8"))
         for file, entry in ledger["records"].items():
             with self.subTest(file=file):
-                current = json.loads((ROOT / file).read_text(encoding="utf-8"))
+                current = assemble_story(json.loads((ROOT / file).read_text(encoding="utf-8")), ROOT)
                 self.assertEqual(current["route"], entry["route"])
                 # A page still exactly as audited can be reversed. One changed since (re-authored in
                 # the Song Editor, or given newer page markup) cannot, so it is checked for what the
@@ -45,7 +52,7 @@ class V33Tests(unittest.TestCase):
                     self.assertEqual(restore(current["body"], entry) != current["body"], bool(entry["edits"]))
                 elif current.get("orthography", {}).get("review") != "structured-song-editor":
                     for edit in entry["edits"]:
-                        self.assertIn(edit["after"], current["body"])
+                        self.assertIn(plain_ruby(edit["after"]), plain_ruby(current["body"]))
                 self.assertFalse(propose(current))
                 self.assertFalse(now_edits(current["body"]))
 

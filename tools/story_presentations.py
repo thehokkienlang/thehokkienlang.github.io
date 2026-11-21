@@ -9,6 +9,22 @@ from song_title_readings import song_title
 
 EGG_ROUTE = '/read/stories/the-egg/'
 
+# The Hokkien story text is stored once and shared by every language record. Each record keeps its own
+# header and footnotes and marks the place of the story with this comment.
+STORY_MARKER = '<!-- story:the-egg -->'
+SHARED_STORY_FILE = 'content/stories/the-egg.story.html'
+
+
+def assemble_story(record, root):
+    """The record with its story marker replaced by the shared story; other records are unchanged."""
+    body = record.get('body')
+    if not isinstance(body, str) or STORY_MARKER not in body:
+        return record
+    if body.count(STORY_MARKER) != 1:
+        raise ValueError(f"{record.get('route')}: the story marker must appear exactly once")
+    story = (root / SHARED_STORY_FILE).read_text(encoding='utf-8').rstrip()
+    return {**record, 'body': body.replace(STORY_MARKER, story)}
+
 
 class SoundCloudPlayer(HTMLParser):
     def __init__(self, source):

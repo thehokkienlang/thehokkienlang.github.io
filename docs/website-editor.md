@@ -67,3 +67,20 @@ These are deliberately separate operations:
   and refuses unsafe overwrites rather than trying to merge authored HTML.
 - Image and audio asset upload/management is deferred. Existing asset paths can
   still be used in page HTML.
+
+## The Egg: one shared Hokkien story
+
+The Hokkien text of The Egg (the 68 paragraphs and the three dotted breaks) is
+stored once, in `content/stories/the-egg.story.html`. The English and
+Traditional Chinese records (`content/stories/the-egg.json`,
+`content/zh-hant/stories/the-egg.json`) keep only their own header, recording
+and footnotes, and mark the story's place with `<!-- story:the-egg -->`.
+
+- The build replaces the marker with the shared file (`assemble_story` in
+  `tools/story_presentations.py`) before the Simplified page is derived and
+  before search indexing, so every published page and the search index see the
+  full story.
+- The Website Editor lists only `*.json` files, so it shows the marker, not the
+  story. Edit the story in `the-egg.story.html` directly; one edit changes all
+  three languages.
+- Keep the marker exactly once in each record. A test enforces this.

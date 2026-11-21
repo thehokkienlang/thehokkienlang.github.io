@@ -16,7 +16,7 @@ from import_wordpress import ImportedHTML, source_key
 from site_languages import LANGUAGES, LANGUAGE_NAMES, PREFIXES, base_route, language_for_route, language_url, text
 from site_search import document as search_document, hanri_fold_map, lyric_lines
 from simplified_lookup import simplified_headword
-from story_presentations import EGG_ROUTE, egg_presentation, simplified_egg, soundcloud_source
+from story_presentations import EGG_ROUTE, assemble_story, egg_presentation, simplified_egg, soundcloud_source
 from lyric_timing import decorate_lyrics
 from image_descriptions import describe_images
 from page_meta import description as page_description, meta_tags
@@ -921,7 +921,7 @@ def build_content(root: Path, output: Path):
     unpublished_routes = {"/songs/translation-notes/", "/read/literature/lychee-mirror/"}
     manifest = json.loads((root / "migration/wordpress-map.json").read_text(encoding="utf-8"))
     records = [
-        json.loads((root / item["file"]).read_text(encoding="utf-8"))
+        assemble_story(json.loads((root / item["file"]).read_text(encoding="utf-8")), root)
         for item in manifest["records"]
         if base_route(item["route"]) not in unpublished_routes
     ]

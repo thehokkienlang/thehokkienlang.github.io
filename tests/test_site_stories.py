@@ -1,19 +1,22 @@
 """The Egg's title, shared recording and source-derived Simplified presentation."""
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
-from story_presentations import SimplifiedHTML, egg_presentation, shared_soundcloud, simplified_egg, soundcloud_source
+from story_presentations import STORY_MARKER, SimplifiedHTML, assemble_story, egg_presentation, shared_soundcloud, simplified_egg, soundcloud_source
 
 
 class StoryPresentationTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.traditional = json.loads((ROOT / 'content/zh-hant/stories/the-egg.json').read_text(encoding='utf-8'))
-        cls.english = json.loads((ROOT / 'content/stories/the-egg.json').read_text(encoding='utf-8'))
+        cls.traditional_source = json.loads((ROOT / 'content/zh-hant/stories/the-egg.json').read_text(encoding='utf-8'))
+        cls.english_source = json.loads((ROOT / 'content/stories/the-egg.json').read_text(encoding='utf-8'))
+        cls.traditional = assemble_story(cls.traditional_source, ROOT)
+        cls.english = assemble_story(cls.english_source, ROOT)
 
     def test_all_presentations_reuse_the_working_recording_and_promote_title(self):
         src = soundcloud_source(self.traditional['body'])
@@ -72,6 +75,26 @@ class StoryPresentationTests(unittest.TestCase):
             soundcloud_source('<p>No player</p>')
         with self.assertRaises(ValueError):
             shared_soundcloud('<iframe src="https://w.soundcloud.com/player/"></iframe>' * 2, 'https://w.soundcloud.com/player/')
+
+    def test_the_story_is_stored_once_and_shared_by_both_languages(self):
+        for source in (self.traditional_source, self.english_source):
+            self.assertEqual(source['body'].count(STORY_MARKER), 1)
+            self.assertNotIn('indent-2em', source['body'])
+
+        def story(record):
+            body = record['body']
+            return body[body.index('<hr'):body.rindex('<hr')]
+        self.assertEqual(story(self.traditional), story(self.english))
+        for record in (self.traditional, self.english):
+            self.assertNotIn(STORY_MARKER, record['body'])
+            self.assertEqual(len(re.findall(r'<p class="indent-2em">', record['body'])), 68)
+            self.assertEqual(record['body'].count('is-style-dots'), 3)
+
+    def test_records_without_the_marker_are_unchanged(self):
+        record = {'route': '/x/', 'body': '<p>Plain</p>'}
+        self.assertIs(assemble_story(record, ROOT), record)
+        with self.assertRaises(ValueError):
+            assemble_story({'route': '/x/', 'body': STORY_MARKER * 2}, ROOT)
 
 
 if __name__ == '__main__':

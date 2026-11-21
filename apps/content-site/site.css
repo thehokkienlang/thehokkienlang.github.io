@@ -278,6 +278,23 @@ html[data-sandhi="singapore"] [data-sandhi-show="singapore"] { display: block; }
 .content-songs .table-scroll:has(a[id^="_ftn"]) td { padding: 6px 1.25em 6px 0 !important; vertical-align: baseline !important; color: var(--muted); }
 .content-songs .table-scroll:has(a[id^="_ftn"]) td:first-child { width: 1%; min-width: 0 !important; white-space: nowrap; color: var(--ink); }
 .content-songs .table-scroll:has(a[id^="_ftn"]) a[id^="_ftn"] { margin-right: .35em; color: var(--accent); text-decoration: none; }
+/* Story pages (The Egg): the same quiet notes block as songs, on the story column. */
+.content-stories .table-scroll:has(a[id^="_ftn"]) {
+  box-sizing: border-box; width: 100%; margin: 36px 0 0; padding: 18px 0 0;
+  border-top: 1px solid var(--line); overflow-x: auto; clear: both;
+}
+.content-stories .table-scroll:has(a[id^="_ftn"]) table { float: none; width: 100%; margin: 0; border-collapse: collapse; border: 0; font-size: 16px; line-height: 1.6; }
+.content-stories .table-scroll:has(a[id^="_ftn"]) td { padding: 6px 1.25em 6px 0; border: 0; vertical-align: baseline; color: var(--muted); }
+.content-stories .table-scroll:has(a[id^="_ftn"]) td:first-child { width: 1%; min-width: 0; white-space: nowrap; color: var(--ink); }
+.content-stories .table-scroll:has(a[id^="_ftn"]) a[id^="_ftn"] { margin-right: .35em; color: var(--accent); text-decoration: none; }
+/* Footnote markers in the text: small, raised, accent-coloured, no underline. */
+.imported-content a[id^="_ftnref"] { color: var(--accent); font-size: .6em; line-height: 0; text-decoration: none; vertical-align: super; }
+/* Story header: credits beside the floated cover image; first letter of the story. */
+.imported-content .story-credits { margin: 0 0 16px; font-size: 80%; }
+.imported-content .story-initial { font-size: 150%; }
+/* Scene breaks inside a story: three centred dots instead of a solid rule. */
+.imported-content hr.is-style-dots { height: auto; border: 0; margin: 36px 0; text-align: center; color: var(--muted); }
+.imported-content hr.is-style-dots::before { content: "· · ·"; font-size: 1.4em; letter-spacing: .6em; padding-left: .6em; line-height: 1; }
 /* About the size of the Lomari under each lyric line, rather than the 24px lyric text. */
 .imported-content .song-tone-guide summary { font-size: 17px; }
 .imported-content .song-tone-guide :is(blockquote, blockquote p) { font-size: 17px; line-height: 1.6; }

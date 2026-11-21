@@ -259,6 +259,11 @@ body.composing #buffer {
   font-weight: 500;
 }
 
+/* Declared after .key-space, whose own background would otherwise hide the press. */
+.key.key-space.pressed {
+  background: #d3dae4;
+}
+
 .key.key-emoji {
   font-size: 22px;
 }

@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.KeyEvent;
@@ -226,9 +225,8 @@ public class TliKeyboardService extends InputMethodService {
         }
 
         @JavascriptInterface
-        public void switchKeyboard() {
+        public void showKeyboardPicker() {
             main.post(() -> {
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P && switchToNextInputMethod(false)) return;
                 InputMethodManager manager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                 if (manager != null) manager.showInputMethodPicker();
             });
