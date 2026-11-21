@@ -1,4 +1,6 @@
-// Capture or check dictionary behaviour without depending on row-derived IDs.
+// Capture or check dictionary behaviour. Entries are named by their stable entry IDs
+// (U+XXXX_NN, plus -sandhi for generated views), never by their position in the
+// generated list: adding or sorting rows must not renumber unrelated candidates.
 const assert = require('node:assert/strict');
 const crypto = require('node:crypto');
 const fs = require('node:fs');
@@ -41,18 +43,13 @@ function stableEntry(entry) {
 }
 
 function snapshot(data) {
-  const position = new Map(data.entries.map((entry, index) => [entry.id, index]));
-  assert.equal(position.size, data.entries.length, 'Generated entry IDs must be unique');
-  const indexesByPosition = Object.fromEntries(Object.entries(data.indexes).map(([name, index]) => [
-    name,
-    Object.fromEntries(Object.entries(index).map(([key, ids]) => [
-      key,
-      ids.map(id => {
-        assert.ok(position.has(id), `Unknown entry ID in ${name}: ${id}`);
-        return position.get(id);
-      }),
-    ])),
-  ]));
+  const known = new Set(data.entries.map(entry => entry.id));
+  assert.equal(known.size, data.entries.length, 'Generated entry IDs must be unique');
+  for (const [name, index] of Object.entries(data.indexes)) {
+    for (const ids of Object.values(index)) {
+      for (const id of ids) assert.ok(known.has(id), `Unknown entry ID in ${name}: ${id}`);
+    }
+  }
 
   const context = vm.createContext({ document: { addEventListener() {} } });
   context.window = context;
@@ -71,20 +68,20 @@ function snapshot(data) {
   const candidateOrder = [];
   const visibleMenuOrder = [];
   for (const [key, candidates] of index.candidatesByReading) {
-    candidateOrder.push([key, candidates.map(entry => position.get(entry.id))]);
+    candidateOrder.push([key, candidates.map(entry => entry.id)]);
     control.value = key;
     control.selectionStart = key.length;
     control.selectionEnd = key.length;
     const menu = controller.findCandidates().map(({ entry }) => (
       entry.generatedCandidate
         ? ['fallback', entry.hanri, entry.reading]
-        : [position.get(entry.id), entry.hanri, entry.reading]
+        : [entry.id, entry.hanri, entry.reading]
     ));
     visibleMenuOrder.push([key, menu]);
   }
 
   return {
-    formatVersion: 6,
+    formatVersion: 7,
     provenance: {
       sourceSha256: data.sourceSha256,
       categorySourceSha256: data.categorySourceSha256,
@@ -98,7 +95,7 @@ function snapshot(data) {
         sourceEntryId: entry.raw.entry_id,
         autoSandhi: Boolean(entry.autoSandhi),
       }))),
-      indexes: objectDigest(indexesByPosition),
+      indexes: objectDigest(data.indexes),
       categories: objectDigest(data.categories),
       runtime: objectDigest(data.runtime),
       counts: objectDigest(data.counts),
@@ -122,6 +119,24 @@ function firstDifference(expected, actual) {
     }
   }
   return '';
+}
+
+// The reading keys that were added, removed or changed, so a failure names exactly
+// what an edit affected.
+function keyedDifferences(expected, actual, limit = 20) {
+  const before = new Map(expected.map(([key, value]) => [key, JSON.stringify(value)]));
+  const after = new Map(actual.map(([key, value]) => [key, JSON.stringify(value)]));
+  const lines = [];
+  for (const [key, value] of after) {
+    if (!before.has(key)) lines.push(`+ ${JSON.stringify(key)} ${value}`);
+    else if (before.get(key) !== value) lines.push(`~ ${JSON.stringify(key)}\n    expected ${before.get(key)}\n    actual   ${value}`);
+  }
+  for (const [key, value] of before) {
+    if (!after.has(key)) lines.push(`- ${JSON.stringify(key)} ${value}`);
+  }
+  if (!lines.length) return '';
+  const shown = lines.slice(0, limit).join('\n');
+  return lines.length > limit ? `${shown}\n… and ${lines.length - limit} more keys` : shown;
 }
 
 function main() {
@@ -154,10 +169,13 @@ function main() {
         assert.deepEqual(data.indexes[name], index, `Existing lookup index changed: ${name}`);
       }
     }
-    for (const [i, entry] of before.entries.entries()) {
-      assert.equal(data.entries[i].simplified, entry.simplified, 'Hokkien Simplified changed');
+    const current = new Map(data.entries.map(entry => [entry.id, entry]));
+    for (const entry of before.entries) {
+      const now = current.get(entry.id);
+      assert.ok(now, `Entry disappeared: ${entry.id}`);
+      assert.equal(now.simplified, entry.simplified, `Hokkien Simplified changed: ${entry.id}`);
       for (const name of ['mandarin_trad', 'mandarin_simp']) {
-        if (entry[name]) assert.equal(data.entries[i][name], entry[name], `Populated Mandarin value changed: ${entry.id}`);
+        if (entry[name]) assert.equal(now[name], entry[name], `Populated Mandarin value changed: ${entry.id}`);
       }
     }
     assert.equal(firstDifference(previous.candidateOrder, actual.candidateOrder), '', 'Candidate order changed');
@@ -172,21 +190,14 @@ function main() {
   }
 
   const expected = JSON.parse(fs.readFileSync(fixturePath, 'utf8'));
-  if (expected.formatVersion < actual.formatVersion) {
-    for (const [name, digestValue] of Object.entries(expected.jsonSections)) {
-      if (name === 'entryIdentity') continue;
-      assert.equal(actual.jsonSections[name], digestValue, `Behavior section changed during stable-ID migration: ${name}`);
-    }
-  } else {
-    assert.equal(actual.formatVersion, expected.formatVersion, 'Baseline format changed');
-    assert.deepEqual(actual.jsonSections, expected.jsonSections, 'Semantic JSON changed');
+  assert.equal(expected.formatVersion, actual.formatVersion,
+    'Baseline format changed; verify the migration before capturing a new baseline');
+  for (const [name, digestValue] of Object.entries(expected.jsonSections)) {
+    assert.equal(actual.jsonSections[name], digestValue, `Semantic JSON changed: ${name}`);
   }
   for (const section of ['candidateOrder', 'visibleMenuOrder']) {
-    const difference = firstDifference(expected[section], actual[section]);
-    assert.equal(difference, '', `${section} changed ${difference}`);
-  }
-  if (expected.formatVersion !== actual.formatVersion) {
-    throw new Error('Baseline schema changed; verify the migration before capturing the new metadata baseline');
+    const difference = keyedDifferences(expected[section], actual[section]);
+    assert.equal(difference, '', `${section} changed\n${difference}`);
   }
   console.log(`Baseline matched: ${actual.candidateOrder.length} candidate keys, ${data.entries.length} JSON entries.`);
 }

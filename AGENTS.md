@@ -160,6 +160,10 @@ generated dictionary or one of the three reviewed snapshots is stale. It does
 expectation only after confirming that the observed lexical, identity and
 candidate-order changes are intended.
 
+The dictionary baseline names entries by their stable entry IDs, not by row
+position. Adding or sorting rows changes only the reading keys and menus that
+involve the edited entries. A failure lists those keys; review exactly them.
+
 ## Local editors
 
 - `npm run editor` or `Open Website Editor.cmd` opens the editor hub on a
