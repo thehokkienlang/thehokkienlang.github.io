@@ -1,53 +1,34 @@
-# The Egg: formatting plan
+# The Egg: open work
 
-Routes: `/read/stories/the-egg/`, `/zh-hant/read/stories/the-egg/`, and
-`/zh-hans/…`. The zh-hans page is generated from zh-hant.
+**Pages:**
 
-## Done (commits af829c6 and e0b9843, 2026-11-21)
+- `/read/stories/the-egg/`
+- `/zh-hant/read/stories/the-egg/`
+- `/zh-hans/…`, which is generated from zh-hant
 
-- **Shared story.** The Hokkien story is stored once, in
-  `content/stories/the-egg.story.html`.
-  - The language files `content/stories/the-egg.json` and
-    `content/zh-hant/stories/the-egg.json` hold only their header (title,
-    image, credits, player) and their footnotes.
-  - Each language file marks where the story goes with
-    `<!-- story:the-egg -->`.
-  - `tools/story_presentations.py` (`STORY_MARKER`) fills in the story.
-  - Editing is described in `docs/website-editor.md`. Edit the story in the
-    `.story.html` file.
-- **Header.** It is the same in both languages: the image, then
-  `p.story-credits`. Neither language has a disclaimer (Haru's decision).
-- **Cleanup.** Removed:
-  - empty paragraphs
-  - the WordPress language buttons and the image's `data-*` attributes
-  - inline font styles, `color: black` (now `.story-initial`), and the inline
-    Noto Sans SC span around 㩼
-  - the three hand-positioned rubies
-- **Lomari.** The single Lomari line in paragraph 1 was removed, so the story
-  has no Lomari.
-- **Scene breaks.** `hr.is-style-dots` now renders as centred dots.
-- **Footnotes.** Inline styles are removed and the markers are small and
-  raised (`site.css` around lines 291–297). Footnote 2's label is now
-  `<ruby>揆一<rt>귀읻</rt></ruby>`.
-- **Rubies.** The nine bare Hanzi now have ruby: 但 ×2, 行, 用, 所以, 家己,
-  來 ×2 and 一个.
+**Where the content is:**
 
-## Still open (discuss with Haru first)
+- The Hokkien story is stored once, in `content/stories/the-egg.story.html`.
+- The language files `content/stories/the-egg.json` and
+  `content/zh-hant/stories/the-egg.json` hold only the header and footnotes.
+- Editing the story is described in `docs/website-editor.md`.
 
-- **11. Gloss links.** Should gloss links point to the site's own dictionary
-  or to Wiktionary? After that:
-  - 36 links lack `gloss-link-nowrap`
-  - repeated words are linked unevenly
+The formatting clean-up and the dictionary audit are done. All 268 linked words
+and 77 unlinked ruby words are in the dictionary (commits af829c6, e0b9843,
+1128ddf).
 
-  Before pointing links at the site's dictionary, the linked terms must be
-  added to it. `docs/the-egg-dictionary-audit.md` lists them: 107 of 268
-  linked words are missing, and 4 have a different reading.
+## Open (discuss with Haru first)
+
+- **11. Gloss links.**
+  - Point the 371 links at the site's own dictionary instead of Wiktionary,
+    sutian and Wikipedia? Every linked term is now in the dictionary.
+  - 36 links lack `gloss-link-nowrap`.
+  - Repeated words are linked unevenly.
 - **12. Line-break spans.** 19 hand-placed
   `<span style="text-indent:0;display:inline-block">` spans stop punctuation
-  wrapping onto a new line. Keep them, or replace them with a CSS rule? This
-  is a typographic choice.
-- **Lomari for the whole story.** Add Lomari under every paragraph (possibly
-  with a show/hide toggle), or leave the story without it.
+  wrapping onto a new line. Keep them, or replace them with a CSS rule?
+- **Lomari.** Add Lomari under every paragraph (possibly with a show/hide
+  toggle), or leave the story without it.
 
 ## Proposed feature: highlight the text as the audio plays
 
@@ -55,21 +36,17 @@ Highlight the story as the recording plays, as lyrics do on song pages
 (`docs/lyric-timing.md`). Song timing uses YouTube, but The Egg uses
 SoundCloud. Decide:
 
-- **Clock.** Read the play position from the SoundCloud Widget API
-  (`getPosition`, `seekTo`, play/pause events), or move the recording to
-  self-hosted `<audio>`. Self-hosting also fixes the white player box; see
-  `docs/site-display-fixes-plan.md`, item 2.
+- **Clock.** The SoundCloud Widget API (`getPosition`, `seekTo`, play/pause
+  events), or self-hosted `<audio>`. Self-hosting also fixes the white player
+  box (`docs/site-display-fixes-plan.md`, item 2).
 - **Unit.** Paragraph or sentence. Sentences need sentence markup in
   `the-egg.story.html`.
 - **Timing tool.** The Website Editor's Lyric timing screen handles only songs
-  on YouTube. It needs stories and a SoundCloud or audio clock.
-- **One timing file.** The story is shared and all three pages play the
-  zh-hant recording, so one timing sidecar can serve every language.
-- **Reading UX.**
-  - auto-scroll for long prose
-  - click a sentence to seek
-  - how the highlight looks with ruby
+  on YouTube.
+- **One timing file.** All three pages share the story and the zh-hant
+  recording, so one sidecar can serve every language.
+- **Reading UX.** Auto-scroll, click a sentence to seek, and how the highlight
+  looks with ruby.
 
-## Site-level problems found in the review
-
-These are planned in `docs/site-display-fixes-plan.md`.
+Site-level problems found in the review are in
+`docs/site-display-fixes-plan.md`.
