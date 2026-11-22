@@ -16,6 +16,12 @@ for (const char of ['𣍐', '𤆬', '𨑨', '𨘗']) {
   assert.equal(rendered.children[0].children.length, 1);
   assert.equal(rendered.children[0].children[0].text, char);
 }
+{
+  const unit = core.readingUnitAt('嚉', 0);
+  assert.equal(unit.text, '嚉');
+  assert.equal(unit.end, 1);
+  assert.equal(core.renderToneMarkedReading('嚉').children[0].children[0].text, '嚉');
+}
 assert.equal(core.readingUnitAt('가1', 0).end, 1);
 assert.equal(core.readingUnitAt('가1', 0).canCarryTone, true);
 console.log('PASS: supplementary Hanri remain whole text nodes; Hangul tone boundaries unchanged.');

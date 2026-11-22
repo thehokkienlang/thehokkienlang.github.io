@@ -16,7 +16,7 @@ present in `content/`, generated from the installed `NotoSansTC-VF.ttf` with
 copyright and OFL metadata; the family names are changed to TLI Content TC.
 The source is covered by the included SIL OFL license. This prevents Android
 device locale from selecting SC/Korean outlines for ordinary content Hanri.
-Existing rare-character, custom U+28617 and U+3A7C exceptions take precedence.
+Existing rare-character and U+3A7C exceptions take precedence.
 Regenerate these subsets when adding content characters not already covered.
 
 `tli-menu-hanri-v1.{woff2,ttf}` is one extended TC face for Web and classic
@@ -26,18 +26,19 @@ including U+23350. It is renamed TLI Menu Hanri; common TC outlines are retained
 Generate it with the same script and `--menu-source PlangothicP1-Regular.ttf`.
 This is a combined font, not a claim that Noto's upstream font includes U+23350.
 
-## Custom U+28617 Hanri glyph
+## Retired: custom U+28617 Hanri glyph
 
-`tli-u28617-{400,700}-v1.woff2` contains the approved custom 𨘗 glyph,
-scoped to U+28617 on website content, dictionary and IME surfaces. Its one-dot,
-four-stroke walking radical comes from 透 in Noto Sans TC; its fitted 對
-component also comes from Noto Sans TC. The regular and bold components use
-Noto variable weights 520 and 850 respectively to compensate for narrowing;
-their radicals use weights 400 and 700. The source was the installed
-`NotoSansTC-VF.ttf`, SHA-256
-`c6481c5d93420aeac11087367dae56ae7492eb1989ce42f4ca5d5aa5e2db3116`.
-The modified font is renamed TLI Hanri Custom Prototype and distributed under
-SIL OFL 1.1; original copyright records and `OFL-NotoSansKR.txt` are retained.
+Motion tuì/uì is now written 嚉 (U+5689), which ordinary fonts cover, so the
+custom 𨘗 (U+28617) glyph is no longer used. The `@font-face` rules were removed
+from `apps/content-site/site.css` and `shared/web-ime-menu.css`, and `TLI Menu
+Hanri` once again covers all of U+20000-2EBEF. `tli-u28617-{400,700}-v1.woff2`
+stay in this directory as an unused archived prototype: a one-dot, four-stroke
+walking radical from 透 with a fitted 對 component, both from the installed
+`NotoSansTC-VF.ttf` (SHA-256
+`c6481c5d93420aeac11087367dae56ae7492eb1989ce42f4ca5d5aa5e2db3116`), renamed TLI
+Hanri Custom Prototype under SIL OFL 1.1 with original copyright records and
+`OFL-NotoSansKR.txt` retained. The glyph in `tangliengim-content-hanri-v2.woff2`
+is left in place for old typed text.
 
 ## v3.2.1 Hanri glyph additions
 
@@ -156,7 +157,8 @@ font selection remain unchanged. Attributes and source JSON are unchanged.
 - License: unchanged `OFL-NotoSans.txt` (SIL OFL 1.1).
 
 `tangliengim-content-hanri-v2.woff2` supplies `𣍐`, `𤺪`, `𠢕`, `𨑨`, `𨘗`, and
-`𬦰` to the content site. Harmonisation 3.2 adds the last four glyphs for
+`𬦰` to the content site. Its 𨘗 glyph is kept only for old typed text; new
+content writes motion tuì/uì as 嚉. Harmonisation 3.2 adds the last four glyphs for
 cross-platform rendering without relying on device fonts. It is derived from the
 same Plangothic P1 V2.9.5795 release and license documented above, renamed
 **Tangliengim Content Hanri v2**, and restricted to those characters by CSS.

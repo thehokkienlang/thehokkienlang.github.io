@@ -267,12 +267,11 @@ def propose(record):
         elif atom.base == "위":
             if following.startswith("什物"):
                 assigned[index] = ("為", "4.1/semantic-purpose")
-            elif previous.endswith("欲"):
-                assigned[index] = ("對", "user:2026-10-25-destination")
             else:
-                assigned[index] = ("𨘗", "4.5/57")
+                # Motion tuì/uì (source, route, direction, goal), including 欲 + 위.
+                assigned[index] = ("嚉", "user:2026-11-21-motion-tui")
         elif atom.base == "뒤" and (following.startswith("少年") or following.startswith("底來")):
-            assigned[index] = ("𨘗", "4.5/57-source-reading-tui")
+            assigned[index] = ("嚉", "user:2026-11-21-motion-tui")
         elif atom.base == "매" and previous.endswith("看"):
             assigned[index] = ("覓", "4.1/semantic-try")
         elif atom.base == "짇" and following.startswith(("一切", "細粒子", "烏暗", "繁華", "４８年", "兩世人", "規个")):

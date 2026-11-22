@@ -49,7 +49,7 @@ def load_headword_aliases(tsv_path, records):
             if not target or not alias or alias in aliases or alias in headwords:
                 raise ValueError(f'Invalid or ambiguous headword alias: {alias!r}')
             # Existing segmentation consumers advance by the canonical length.
-            if len(alias) != len(target['hanri']) or not all('\u3400' <= c <= '\u9fff' for c in alias):
+            if len(alias) != len(target['hanri']) or not all('\u3400' <= c <= '\u9fff' or '\U00020000' <= c <= '\U0002ebef' for c in alias):
                 raise ValueError(f'Headword alias must be equal-length Hanri: {alias!r}')
             aliases[alias] = target_id
     return aliases

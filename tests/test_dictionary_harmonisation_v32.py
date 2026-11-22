@@ -53,7 +53,7 @@ class DictionaryHarmonisationTests(unittest.TestCase):
 
     def test_approved_variants_do_not_replace_existing_readings(self):
         values = {(row['hanri'], row['reading']) for row in self.rows.values()}
-        self.assertTrue({('就', '쥬5'), ('就', '됴5'), ('底', '도2'), ('𨘗', '위'), ('𨘗', '뒤'), ('對', '위')} <= values)
+        self.assertTrue({('就', '쥬5'), ('就', '됴5'), ('底', '도2'), ('嚉', '위'), ('嚉', '뒤')} <= values)
         self.assertNotIn(('就', '도2'), values)
 
     def test_python_hanri_recognition_includes_extension_e(self):

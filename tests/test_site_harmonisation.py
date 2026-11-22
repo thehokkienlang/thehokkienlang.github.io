@@ -70,8 +70,9 @@ class HarmonisationTests(unittest.TestCase):
     def test_source_and_destination_are_not_confused(self):
         result = self.convert('<p>위什物 위一个所在 欲위底去 뒤少年</p>')
         self.assertIn('>為<', result)
-        self.assertIn('>𨘗<', result)
-        self.assertIn('>對<', result)
+        self.assertIn('>嚉<', result)
+        self.assertNotIn('>對<', result)
+        self.assertNotIn('>𨘗<', result)
 
     def test_which_is_not_regional_then(self):
         result = self.convert('<p>應該是도ˋ 一个小學’에 老師</p>')

@@ -1,20 +1,20 @@
 {
   "formatVersion": 7,
   "provenance": {
-    "sourceSha256": "d6d4eeaa316f89ae3d688925b292d47da1b92d7454b11c734fb7082192a64436",
+    "sourceSha256": "e630f2df67b9c8a1771faecb2df15a4cd686d20dbf5102a41e35ade0d0a91eec",
     "categorySourceSha256": "c12d85d87365aba5bb3b36019d4fea0d14773dcd38ac7956d8e8e788271bf13c",
-    "entryCount": 6096
+    "entryCount": 6094
   },
   "jsonSections": {
-    "entries": "5151833f86d8e6c7f56306f73e8c09f7f93b12cf13c027f3a2355826295d63f5",
-    "entryIdentity": "bebe4adb5439098ff91e4eff0820199cc76d24c1eede71ea81c80eed88c118f9",
-    "indexes": "8a9563177c52e563d34c6c4941ca0cb4be2acbf5ab6adda15e8c2951e50f77ad",
+    "entries": "2090de97126a7a43dd4821a66ace8be6e0e1cf22d9943cf0f4c23ec55039d926",
+    "entryIdentity": "11aa9ba861c4e76d841d73ea1dc7976b0bc7139c19c760da0fba3c294a3ec1f6",
+    "indexes": "e3aed7ac343a12364c6a466aca4864686ebebb4fb7298b255799306aff523c12",
     "categories": "7fd5b43386d71c0b8f5c4f8955bf187e8a0655544aec5e03d5515116d9b1f38b",
     "runtime": "6a367774fc2e36b414d34d7144ba4f0e7758562b34af4a11d68b3f651d2ae309",
-    "counts": "3c6c4ca156c2b8dd63f66d0a8cfd3fcacb3630a37a5f225312054dc60eed149a",
+    "counts": "ca89c8b3ad8b6146fd208d102b0596f9c98ef483fc8f56cb40d6e6e4550cdf1d",
     "skippedRows": "8193a693a69089950d03b72bfcc75bd17d1c36cf708e1770cf6854a81624964d",
-    "lookupMetadata": "6c7e5ad36d389f1edd7989213cf39d5c5675c815ded18106b082a0896a4b1fe8",
-    "staticRanking": "a27f90a66f7e62b1ea55a040f22a12387bc37637cd09a2aa01158bbd4aedb740"
+    "lookupMetadata": "339fe08729e1b11576f32581676e40b7ffa44d6fd55832484bb0a31d36bf4070",
+    "staticRanking": "139a87a689b46ab00362275fc96722132267a7018cb54bf1588d1b3179d5bff9"
   },
   "candidateOrder": [
     [
@@ -4238,12 +4238,18 @@
     [
       "뒤",
       [
-        "U+8FFD_00",
-        "U+8FFD_00-sandhi",
         "U+5C0D_00",
         "U+5C0D_00-sandhi",
-        "U+28617_01",
-        "U+28617_01-sandhi"
+        "U+8FFD_00",
+        "U+8FFD_00-sandhi",
+        "U+5689_00",
+        "U+5689_00-sandhi"
+      ]
+    ],
+    [
+      "𨘗",
+      [
+        "U+5689_00"
       ]
     ],
     [
@@ -11652,10 +11658,8 @@
     [
       "위",
       [
-        "U+5C0D_01",
-        "U+5C0D_01-sandhi",
-        "U+28617_00",
-        "U+28617_00-sandhi",
+        "U+5689_01",
+        "U+5689_01-sandhi",
         "U+4F4D_00",
         "U+4F4D_00-sandhi",
         "U+70BA_00",
@@ -27814,18 +27818,18 @@
       "뒤",
       [
         [
-          "U+8FFD_00",
-          "追",
-          "뒤1"
-        ],
-        [
           "U+5C0D_00",
           "對",
           "뒤"
         ],
         [
-          "U+28617_01",
-          "𨘗",
+          "U+8FFD_00",
+          "追",
+          "뒤1"
+        ],
+        [
+          "U+5689_00",
+          "嚉",
           "뒤"
         ],
         [
@@ -27834,6 +27838,10 @@
           "뒤"
         ]
       ]
+    ],
+    [
+      "𨘗",
+      []
     ],
     [
       "뒤롷",
@@ -43802,13 +43810,8 @@
       "위",
       [
         [
-          "U+5C0D_01",
-          "對",
-          "위"
-        ],
-        [
-          "U+28617_00",
-          "𨘗",
+          "U+5689_01",
+          "嚉",
           "위"
         ],
         [

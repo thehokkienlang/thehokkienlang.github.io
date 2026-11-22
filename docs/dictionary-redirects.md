@@ -9,6 +9,7 @@ Sorted by the original reading using the existing Tangliengim jamo collation (sy
 | 능잡1 | 능잡1 | 二十 | 띠잡1 | reading | Existing nonstandard reading correction; original rationale not recorded. | data/hokkien_hanri_dict.tsv | unknown | U+4E8C_U+5341_00 |
 | 능잡커1 | 능잡커1 | 二十箍 | 띠잡커1 | reading | Existing nonstandard reading correction; original rationale not recorded. | data/hokkien_hanri_dict.tsv | unknown | U+4E8C_U+5341_U+7B8D_00 |
 | 능쳰5커1 | 능쳰5커1 | 兩千箍 | 능촁5커1 | reading | Existing nonstandard reading correction; original rationale not recorded. | data/hokkien_hanri_dict.tsv | unknown | U+5169_U+5343_U+7B8D_00 |
+| 𨘗 | 뒤 | 嚉 | 뒤 | headword | Motion tuì/uì now written 嚉 (renders in standard fonts; 𨘗 is an Ext-B Nôm character). | docs/tui-motion-hanri-plan.md | 2026-11-22 | U+5689_00 |
 | 먀4재 | 먀4재 | 明仔載 | 삔아1재 | reading | Existing nonstandard reading correction; original rationale not recorded. | data/hokkien_hanri_dict.tsv | unknown | U+660E_U+4ED4_U+8F09_00 |
 | 米粉粿 | 삐1훈1궤2 | 麵粉粿 | 미훈1궤2 | headword | Wheat-flour dish: 麵粉粿, not rice-flour 米粉粿. | https://en.wiktionary.org/wiki/麵粉粿 https://www.zaobao.com.sg/lifestyle/food/story20240216-1468240 | 2026-10-14 | U+9EB5_U+7C89_U+7CBF_00 |
 | 삐1훈1궤2 | 삐1훈1궤2 | 麵粉粿 | 미훈1궤2 | reading | Preserve old bi-hun-kue input; correct to mi-hun-kue. | https://en.wiktionary.org/wiki/麵粉粿 https://www.zaobao.com.sg/lifestyle/food/story20240216-1468240 | 2026-10-14 | U+9EB5_U+7C89_U+7CBF_00 |

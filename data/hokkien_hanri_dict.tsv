@@ -702,8 +702,8 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 綴	缀	뒈	跟隨; 連接	跟随; 连接	follow; attach		lexical	U+7DB4_00
 綴人走	缀人走	뒈2랑ᄌᅷ2	跟人走	〃	follow someone away		lexical	U+7DB4_U+4EBA_U+8D70_00
 追	〃	뒤1	〃	〃	chase; pursue		lexical	U+8FFD_00
-對	对	뒤	〃	对	correct; toward; pair		lexical	U+5C0D_00
-𨘗	〃	뒤	從	从	from; source or origin (tui reading)		lexical	U+28617_01
+嚉	〃	뒤	從; 經; 往	从; 经; 往	from; via, along; towards, to (of movement)		lexical	U+5689_00
+對	对	뒤	〃	对	correct; pair; facing; to (someone); regarding		lexical	U+5C0D_00
 墜落	坠落	뒤롷1	〃	坠落	fall; drop		lexical	U+589C_U+843D_00
 對面	对面	뒤2삔5	〃	对面	opposite side		lexical	U+5C0D_U+9762_00
 稻草	〃	듀ᄎᅷ2	〃	〃	straw		lexical	U+7A3B_U+8349_00
@@ -1915,8 +1915,7 @@ hanri	simplified	reading	mandarin_trad	mandarin_simp	english	corrected	entry_typ
 鬱卒	郁卒	욷1줃	鬱悶	郁闷	depressed; frustrated		lexical	U+9B31_U+5352_00
 話	话	웨5	〃	话	speech; words		lexical	U+8A71_00
 劃	划	윃1	〃	划	mark; plan		lexical	U+5283_00
-對	对	위	向; 對	向; 对	toward; to (regional ui reading)		lexical	U+5C0D_01
-𨘗	〃	위	從	从	from; source or origin		lexical	U+28617_00
+嚉	〃	위	從; 經; 往	从; 经; 往	from; via, along; towards, to (of movement; ui variant)		lexical	U+5689_01
 位	〃	위5	〃	〃	place; position		lexical	U+4F4D_00
 為	为	위5	〃	为	for; because of		lexical	U+70BA_00
 畏寒	畏寒	위2괄4	怕冷	怕冷	feeling empty and lonely; scared of coldness		lexical	U+754F_U+5BD2_00

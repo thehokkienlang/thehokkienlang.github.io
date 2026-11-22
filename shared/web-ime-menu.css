@@ -54,20 +54,6 @@
   font-display: block;
   unicode-range: U+20895, U+23350, U+2C9B0;
 }
-@font-face {
-  font-family: "Tangliengim Hanri Fallback";
-  src: url("/assets/fonts/tli-u28617-400-v1.woff2") format("woff2");
-  font-weight: 400;
-  font-display: swap;
-  unicode-range: U+28617;
-}
-@font-face {
-  font-family: "Tangliengim Hanri Fallback";
-  src: url("/assets/fonts/tli-u28617-700-v1.woff2") format("woff2");
-  font-weight: 700;
-  font-display: swap;
-  unicode-range: U+28617;
-}
 
 .hanri-candidate-menu {
   position: absolute;
