@@ -4,7 +4,7 @@
   font-family: "TLI Menu Hanri";
   src: url("/assets/fonts/tli-menu-hanri-v1.woff2") format("woff2");
   font-display: block;
-  unicode-range: U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-28616, U+28618-2EBEF;
+  unicode-range: U+3400-3A7B, U+3A7D-4DBF, U+4E00-9FFF, U+20000-2EBEF;
 }
 /* Rare-Hanri fallbacks are scoped to the explicitly listed glyphs. */
 /* A one-family, one-weight face so the browser can embolden it in bold menus. */
