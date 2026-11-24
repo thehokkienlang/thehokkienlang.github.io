@@ -57,8 +57,8 @@ pattern diagrams (`assets/content/wordpress/singapore-sandhi*.png`).
     slow the first page and send the visitor's address to a third party.
   - The rule lives in one function, so it can change later.
 - **Labels:** "Taipei / 臺北 / 台北" and "Singapore / 新加坡 / 新加坡", plus a
-  one-line note in all three languages: "Changes how tone sandhi sounds and is
-  marked. Stored readings use Taipei."
+  one-line note in all three languages: "Changes how tone sandhi is marked.
+  Stored readings use Taipei."
 
 ## Behaviour per place
 

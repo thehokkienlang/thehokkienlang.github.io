@@ -340,11 +340,11 @@ def learn_next_link(route, language, records):
 # shared/web-sandhi-preference.js; a test checks the two agree.
 SANDHI_NAV_LABELS = {
     "en": {"sandhi": "Tone pattern", "change": "", "term": "tone sandhi", "taipei": "Taipei", "singapore": "Singapore",
-           "note": "Changes how {term} sounds and is marked."},
+           "note": "Changes how tone sandhi is marked."},
     "zh-Hant": {"sandhi": "聲調形式", "change": "", "term": "變調", "taipei": "臺北", "singapore": "新加坡",
-                "note": "改變{term}的讀音與標示方式。"},
+                "note": "調整變調的標示方式。"},
     "zh-Hans": {"sandhi": "声调形式", "change": "", "term": "变调", "taipei": "台北", "singapore": "新加坡",
-                "note": "改变{term}的读音与标示方式。"},
+                "note": "调整变调的标示方式。"},
 }
 
 
