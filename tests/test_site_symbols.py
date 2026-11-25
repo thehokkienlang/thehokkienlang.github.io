@@ -40,7 +40,7 @@ class SiteSymbolsTests(unittest.TestCase):
         self.assertIn("U+A788", css)
         for weight in ("regular", "bold"):
             for family in ("sans", "symbols"):
-                filename = f"tli-noto-{family}-{weight}-v{3 if family == 'sans' else 5}.woff2"
+                filename = f"tli-noto-{family}-{weight}-v{3 if family == 'sans' else 6}.woff2"
                 self.assertIn(filename, css)
                 self.assertTrue((ROOT / "assets/fonts" / filename).read_bytes().startswith(b"wOF2"))
         self.assertNotIn("font-weight: 100 500", css)
@@ -52,13 +52,21 @@ class SiteSymbolsTests(unittest.TestCase):
         from fontTools.ttLib import TTFont
 
         for weight in ("regular", "bold"):
-            font = TTFont(ROOT / f"assets/fonts/tli-noto-symbols-{weight}-v5.woff2")
-            glyf = font["glyf"]
-            glyph = glyf[font.getBestCmap()[0x02CA]]
-            points = glyph.getCoordinates(glyf)[0]
-            width_at = lambda y: max(x for x, py in points if py == y) - min(x for x, py in points if py == y)
-            with self.subTest(weight=weight):
-                self.assertGreater(width_at(min(y for _x, y in points)), width_at(max(y for _x, y in points)))
+            with TTFont(ROOT / f"assets/fonts/tli-noto-symbols-{weight}-v6.woff2") as font:
+                glyf = font["glyf"]
+                cmap = font.getBestCmap()
+                for code in (0x02CA, 0x02CF):  # Upper ruby mark and standalone Hangul mark.
+                    points = glyf[cmap[code]].getCoordinates(glyf)[0]
+                    def width_at(y):
+                        xs = [x for x, point_y in points if point_y == y]
+                        return max(xs) - min(xs)
+                    with self.subTest(weight=weight, mark=chr(code)):
+                        self.assertGreater(width_at(min(y for _, y in points)), width_at(max(y for _, y in points)))
+                upper = glyf[cmap[0x02CA]].getCoordinates(glyf)[0]
+                lower = glyf[cmap[0x02CF]].getCoordinates(glyf)[0]
+                offset = lower[0][1] - upper[0][1]
+                self.assertLess(offset, 0)
+                self.assertEqual(list(lower), [(x, y + offset) for x, y in upper])
 
     def test_tone_renderer_uses_positionable_spans_not_ruby_internals(self):
         core = (ROOT / "shared/web-ime-core.js").read_text(encoding="utf-8")

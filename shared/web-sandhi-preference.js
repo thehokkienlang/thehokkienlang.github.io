@@ -5,8 +5,7 @@
   //
   // Stored per visitor in localStorage ('tli-sandhi'), read inside try/catch so a blocked store falls
   // back to the default. It is not put in the URL, so a shared link doesn't force a dialect on the
-  // person opening it. Until the visitor picks, the default is Singapore when the browser reports
-  // Singapore and Taipei otherwise. Nothing is fetched: both signals are already in the browser.
+  // person opening it. Visitors without a saved choice default to Taipei.
 
   const STORAGE_KEY = 'tli-sandhi';
   const MODES = Object.freeze(['taipei', 'singapore']);
@@ -23,32 +22,12 @@
       note: '调整变调的标示方式。'},
   });
 
-  // The one place that decides "in Singapore": a language tag with region SG (en-SG, zh-SG,
-  // ms-SG, ta-SG) or the Asia/Singapore time zone. env is {languages: [], timeZone: ''}.
-  function inSingapore(env) {
-    const languages = Array.isArray(env?.languages) ? env.languages : [];
-    if (languages.some(tag => /^[a-z]{2,3}(?:-[A-Za-z]{4})?-SG(?:-|$)/i.test(String(tag)))) return true;
-    return env?.timeZone === 'Asia/Singapore';
-  }
-
-  function defaultMode(env) {
-    return inSingapore(env) ? 'singapore' : 'taipei';
-  }
-
-  function browserEnvironment() {
-    let languages = [];
-    let timeZone = '';
-    try { languages = Array.from(root.navigator?.languages?.length ? root.navigator.languages : [root.navigator?.language].filter(Boolean)); } catch (_error) { /* default */ }
-    try { timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (_error) { /* default */ }
-    return {languages, timeZone};
-  }
-
   function browserStorage() {
     try { return root.localStorage; } catch (_error) { return null; }
   }
 
-  // storage, env and target are injectable so the rules can be tested without a browser.
-  function createPreference({storage = browserStorage(), env = browserEnvironment(), target = root} = {}) {
+  // storage and target are injectable so the rules can be tested without a browser.
+  function createPreference({storage = browserStorage(), target = root} = {}) {
     const listeners = new Set();
     let chosen = null; // a mode picked in this page, kept even when the store refuses to save it
 
@@ -58,7 +37,7 @@
         return MODES.includes(value) ? value : null;
       } catch (_error) { return null; }
     }
-    const get = () => chosen || stored() || defaultMode(env);
+    const get = () => chosen || stored() || 'taipei';
     let known = get(); // the mode this page last showed, to tell a real change from a repeat
 
     function announce(mode) {
@@ -94,10 +73,10 @@
       }
     }
 
-    return {get, set, onChange, receiveStorageEvent, defaultMode: () => defaultMode(env)};
+    return {get, set, onChange, receiveStorageEvent};
   }
 
-  const api = {STORAGE_KEY, MODES, CHANGE_EVENT, LABELS, inSingapore, defaultMode, createPreference};
+  const api = {STORAGE_KEY, MODES, CHANGE_EVENT, LABELS, createPreference};
 
   if (typeof module !== 'undefined' && module.exports) {
     module.exports = api;

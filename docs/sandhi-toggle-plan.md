@@ -46,16 +46,8 @@ pattern diagrams (`assets/content/wordpress/singapore-sandhi*.png`).
 - **Stored per visitor** in `localStorage` (`tli-sandhi`), read inside
   try/catch so a blocked store falls back to the default. It is not put in the
   URL, so shared links don't force a dialect on the person opening them.
-- **Default (Haru, 2026-11-19):** Singapore for visitors in Singapore, and
-  Taipei for everyone else. It applies only on a first visit, when no choice
-  is stored yet; once a visitor picks, their choice wins.
-  - **"In Singapore"** means the browser reports it: a language tag with region
-    `SG` (`en-SG`, `zh-SG`, `ms-SG`, `ta-SG`) in `navigator.languages`, or the
-    time zone `Asia/Singapore` from `Intl.DateTimeFormat().resolvedOptions()`.
-  - **This adds no delay.** Both values are already in the browser and are read
-    once, with no network request. No IP or location lookup is used: one would
-    slow the first page and send the visitor's address to a third party.
-  - The rule lives in one function, so it can change later.
+- **Default:** Taipei for visitors without a saved choice. Selecting Singapore
+  or Taipei saves that preference for future visits.
 - **Labels:** "Taipei / 臺北 / 台北" and "Singapore / 新加坡 / 新加坡", plus a
   one-line note in all three languages: "Changes how tone sandhi is marked.
   Stored readings use Taipei."

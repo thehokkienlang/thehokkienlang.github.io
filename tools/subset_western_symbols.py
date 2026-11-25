@@ -6,9 +6,10 @@ from pathlib import Path
 from subset_content_fallbacks import subset_font
 
 TONE_2, TONE_4 = 0x02CB, 0x02CA  # ˋ, ˊ
-# Version of each output family; the symbols font is v5: tone 4 is redrawn. Tone 1 keeps its own position there;
+LOWER_TONE_2, LOWER_TONE_4 = 0x02CE, 0x02CF  # ˎ, ˏ
+# The symbols font redraws both forms of tone 4. Tone 1 keeps its own position there;
 # the 0.5px-left tone 1 lives in a small font used only for lyric readings (see build_lyric_marks).
-VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v5"}
+VERSIONS = {"tli-noto-sans": "v2", "tli-noto-symbols": "v6"}
 TONE_1 = 0x02C6  # ˆ
 # 0.5px at the usual lyric reading size (about 13px) is 38 of the font's 1000 units. Used only for
 # lyric readings: at title and song-list sizes the same fraction would be too far.
@@ -20,7 +21,8 @@ TONE_1_SHIFT_LEFT = 38
 TONE_4_WEIGHT = {"bottom": 1.0, "top": 1.0}  # 1.0 keeps tone 2's own stroke, simply flipped
 
 
-def tone_4_from_tone_2(font, bottom=TONE_4_WEIGHT["bottom"], top=TONE_4_WEIGHT["top"]):
+def tone_4_from_tone_2(font, tone_2_code, tone_4_code,
+                       bottom=TONE_4_WEIGHT["bottom"], top=TONE_4_WEIGHT["top"]):
     """Redraw the tone 4 mark from tone 2: mirrored left to right, turned 180°, ink settled low.
 
     Mirroring and turning flip ˋ upside down within its own box, so tone 4 rises ↗ with tone 2's
@@ -32,7 +34,7 @@ def tone_4_from_tone_2(font, bottom=TONE_4_WEIGHT["bottom"], top=TONE_4_WEIGHT["
     from fontTools.pens.ttGlyphPen import TTGlyphPen
 
     cmap = font.getBestCmap()
-    tone_2, tone_4 = cmap[TONE_2], cmap[TONE_4]
+    tone_2, tone_4 = cmap[tone_2_code], cmap[tone_4_code]
     glyph = font["glyf"][tone_2]
     glyph.recalcBounds(font["glyf"])
     y_min, y_max = glyph.yMin, glyph.yMax
@@ -100,7 +102,8 @@ def main():
                     if record.nameID in names:
                         record.string = names[record.nameID].encode(record.getEncoding())
                 if filename == "tli-noto-symbols":
-                    tone_4_from_tone_2(font)
+                    tone_4_from_tone_2(font, TONE_2, TONE_4)
+                    tone_4_from_tone_2(font, LOWER_TONE_2, LOWER_TONE_4)
                 font.save(output)
                 if filename == "tli-noto-symbols":
                     build_lyric_marks(output, args.output_dir / f"tli-lyric-marks-{weight}-v2.woff2", style)
