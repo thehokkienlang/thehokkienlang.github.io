@@ -121,7 +121,7 @@
     }
     return {text, hanri, hangul};
   }
-  function setLyricControllerSource(controller, source) {
+  function setLyricControllerSource(controller, source, {resolvedHanri = false} = {}) {
     const parsed = sourceToLyricPresentation(source);
     controller.rememberedHanriReadings = [];
     controller.rememberedHangulReadings = [];
@@ -133,7 +133,7 @@
     controller.rememberedTextSnapshot = parsed.text;
     parsed.hanri.forEach(span => controller.rememberHanriReading(span.start, {
       hanri: span.hanri, reading: span.reading, readingBase: span.reading,
-      kind: 'lexical', generatedCandidate: true,
+      kind: 'lexical', generatedCandidate: true, autoSandhi: resolvedHanri,
     }, parsed.text));
     parsed.hangul.forEach(span => controller.rememberHangulReading(
       span.start, span.end, span.reading, null, parsed.text, true
@@ -198,7 +198,8 @@
       if (span.start < cursor || span.end <= span.start || text.slice(span.start, span.end) !== span.hanri) continue;
       value += plain(cursor, span.start);
       const start = value.length;
-      value += toneMarksForDisplay(resolveSandhi && hasFollowingLyricUnit(text, span.end)
+      const preserveTone = controller === state.titleController && span.autoSandhi;
+      value += toneMarksForDisplay(resolveSandhi && !preserveTone && hasFollowingLyricUnit(text, span.end)
         ? resolvedRubyReading(span.reading)
         : span.reading);
       segments.push({start, end: value.length, span});
@@ -230,14 +231,12 @@
       const characters = [...span.hanri];
       const units = hangulReadingUnits(span.reading);
       if (units.length !== characters.length) return '';
-      let offset = span.start;
-      units.forEach((reading, index) => {
-        offset += characters[index].length;
-        const takesSandhi = index < units.length - 1 || hasFollowingLyricUnit(text, offset);
-        readings.push(toneMarksForDisplay(resolveSandhi && takesSandhi
-          ? resolvedRubyReading(reading)
-          : reading));
-      });
+      // Dictionary words already carry their internal sandhi. Only their final syllable
+      // can take sandhi when the next unit is joined to the word.
+      if (resolveSandhi && !span.autoSandhi && hasFollowingLyricUnit(text, span.end)) {
+        units[units.length - 1] = resolvedRubyReading(units.at(-1));
+      }
+      readings.push(...units.map(toneMarksForDisplay));
     }
     return readings.join(' ');
   }
@@ -298,7 +297,7 @@
     const rubyInput = controller.control.closest('.lyric-input-wrap')?.querySelector('.lyric-ruby-input');
     if (!rubyInput) return;
     const presentation = lyricRubyPresentation(controller, {
-      resolveSandhi: document.activeElement !== rubyInput,
+      resolveSandhi: controller === state.titleController || document.activeElement !== rubyInput,
     });
     rubyInput.value = presentation.value;
     rubyInput.rubyPresentation = presentation;
@@ -342,6 +341,7 @@
         readingBase: nextReading,
         kind: segment.span.entry?.kind || 'lexical',
         generatedCandidate: true,
+        autoSandhi: controller === state.titleController || segment.span.autoSandhi,
       }, text);
     } else {
       controller.rememberedHanriReadings = controller.rememberedHanriReadings.filter(item =>
@@ -815,7 +815,8 @@
     $('songMandarinSimplifiedTitle').value = draft.mandarinSimplifiedTitle || '';
     $('songMandarinAlternativeTitle').value = draft.mandarinAlternativeTitle || '';
     $('songMandarinAlternativeSimplifiedTitle').value = draft.mandarinAlternativeSimplifiedTitle || '';
-    setLyricControllerSource(state.titleController, draft.titleSource || draft.title || '');
+    // The saved title source stores the tones shown in the title, not citation tones.
+    setLyricControllerSource(state.titleController, draft.titleSource || draft.title || '', {resolvedHanri: true});
     $('songTitleTliRuby').value = draft.titleTliRuby || titleRubyFromController(
       state.titleController, {resolveSandhi: false}
     );

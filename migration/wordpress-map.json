@@ -625,6 +625,12 @@
       "sourceId": 11545,
       "route": "/songs/릐講’에話/",
       "file": "content/songs/song-11545.json"
+    },
+    {
+      "sourceUrl": "https://thehokkienlang.github.io/songs/心肝寶貝/",
+      "sourceId": 11546,
+      "route": "/songs/心肝寶貝/",
+      "file": "content/songs/song-11546.json"
     }
   ],
   "deferred": {
