@@ -126,6 +126,7 @@
 :root[data-theme="dark"] .song-list li:has(> .song-entry:active) { background: color-mix(in srgb, var(--category-tint, #4cc0cc) 18%, #172225); }
 :root[data-theme="dark"] .song-list li > .song-entry:hover,
 :root[data-theme="dark"] .song-list li > .song-entry:focus-visible { color: color-mix(in srgb, var(--category-accent, #4cc0cc) 62%, white); }
+:root[data-theme="dark"] :is(.song-entry-match-main, .song-entry-match-main .tli-ruby-base) { color: var(--muted); }
 :root[data-theme="dark"] :is(.song-mood, .song-row-mood, .song-dialect-badge) { background: color-mix(in srgb, var(--category-tint, #163238) 14%, #172225); }
 :root[data-theme="dark"] :is(.song-mood, .song-row-mood):is(:hover, :focus-visible) { color: #0f1719; background: color-mix(in srgb, var(--category-accent, #4cc0cc) 55%, white); }
 :root[data-theme="dark"] .song-filter-chip[aria-pressed="true"] { border-color: var(--category-accent); background: color-mix(in srgb, var(--category-accent) 55%, white); color: #0f1719; }
