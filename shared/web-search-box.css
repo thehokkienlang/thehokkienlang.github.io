@@ -6,7 +6,7 @@
 .tli-search-input-wrap { position: relative; width: 100%; }
 .tli-search-input { box-sizing: border-box; width: 100%; padding: 11px 46px 11px 14px; border: 1px solid var(--line, #dce4e7); border-radius: 6px; color: var(--ink, var(--text, #17252b)); background: #fff; font: inherit; font-size: 16px; }
 .tli-search-input:focus-visible { outline: 2px solid var(--accent, #0a7180); outline-offset: 1px; border-color: var(--accent, #0a7180); }
-.tli-search-input::placeholder { color: #7b898d; font-style: italic; }
+.tli-search-input::placeholder { color: var(--tli-search-placeholder, #66777e); font-style: normal; opacity: 1; }
 .tli-search-clear { position: absolute; top: 50%; right: 6px; width: 34px; height: 34px; transform: translateY(-50%); border: 0; border-radius: 4px; background: transparent; color: var(--muted, #617079); cursor: pointer; font: inherit; font-size: 24px; line-height: 1; }
 .tli-search-clear:hover, .tli-search-clear:focus-visible { background: var(--site-accent-soft, #e7f4f6); color: var(--accent, #0a7180); outline: 2px solid transparent; }
 .tli-search .hangul-keyboard-toggle { display: inline-flex; align-items: center; gap: 10px; min-height: 34px; padding: 0; border: 0; background: transparent; color: var(--muted, #617079); cursor: pointer; font: inherit; font-size: 14px; font-weight: 700; outline: none; }

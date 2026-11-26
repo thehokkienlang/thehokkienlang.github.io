@@ -86,33 +86,38 @@ SEARCH_TEXT = {
     # The dictionary's box (its page is one page shown in three languages, switched when it loads).
     "dictionary": {
         "en": {"label": "Search", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
-               "candidates": "Hanri candidates", "placeholder": "Type 漢字, 한글, Lomari, or English..."},
+               "candidates": "Hanri candidates", "placeholder": "Type 漢字, 한글, Lomari, or English"},
         "zh-Hant": {"label": "搜尋", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
-                    "candidates": "漢字候選詞", "placeholder": "輸入漢字、諺文、羅馬字或英文…"},
+                    "candidates": "漢字候選詞", "placeholder": "輸入漢字、諺文、羅馬字或英文"},
         "zh-Hans": {"label": "搜索", "keyboard": "启用谚文键盘", "clear": "清除搜索",
-                    "candidates": "汉字候选词", "placeholder": "输入汉字、谚文、罗马字或英文…"},
+                    "candidates": "汉字候选词", "placeholder": "输入汉字、谚文、罗马字或英文"},
     },
     # The /search/ page's box.
     "site": {
         "en": {"label": "Search the website", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
-               "candidates": "Hanri candidates", "placeholder": "Search pages, songs, and stories..."},
+               "candidates": "Hanri candidates", "placeholder": "Search pages, songs, and stories"},
         "zh-Hant": {"label": "搜尋網站", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
-                    "candidates": "漢字候選詞", "placeholder": "搜尋頁面、歌曲與故事…"},
+                    "candidates": "漢字候選詞", "placeholder": "搜尋頁面、歌曲與故事"},
         "zh-Hans": {"label": "搜索网站", "keyboard": "启用谚文键盘", "clear": "清除搜索",
-                    "candidates": "汉字候选词", "placeholder": "搜索页面、歌曲与故事…"},
+                    "candidates": "汉字候选词", "placeholder": "搜索页面、歌曲与故事"},
     },
     "songs": {
         "en": {"label": "Search songs", "keyboard": "Enable Hangul keyboard", "clear": "Clear search",
-               "candidates": "Hanri candidates", "placeholder": "Search songs…",
+               "candidates": "Hanri candidates", "placeholder": "Search songs",
                "more": "See all {n} results", "empty": "No songs found."},
         "zh-Hant": {"label": "搜尋歌曲", "keyboard": "啟用諺文鍵盤", "clear": "清除搜尋",
-                    "candidates": "漢字候選詞", "placeholder": "搜尋歌曲…",
+                    "candidates": "漢字候選詞", "placeholder": "搜尋歌曲",
                     "more": "查看全部 {n} 筆結果", "empty": "找不到歌曲。"},
         "zh-Hans": {"label": "搜索歌曲", "keyboard": "启用谚文键盘", "clear": "清除搜索",
-                    "candidates": "汉字候选词", "placeholder": "搜索歌曲…",
+                    "candidates": "汉字候选词", "placeholder": "搜索歌曲",
                     "more": "查看全部 {n} 条结果", "empty": "找不到歌曲。"},
     },
 }
+
+
+# The header uses a shorter prompt than the dedicated search page.
+SEARCH_TEXT["header"] = {language: {**words, "placeholder": text("Search", language)}
+                         for language, words in SEARCH_TEXT["site"].items()}
 
 
 def search_box_html(box_id, language, variant, labels, results="none", more_href="", ids=None, autofocus=False,
@@ -376,7 +381,7 @@ def navigation_links(route, language=None, variants=True):
             box_id = {"en": "headerSearchEn", "zh-Hant": "headerSearchZhHant", "zh-Hans": "headerSearchZhHans"}[language]
             return (
                 f'<form class="site-header-search" role="search" action="{html.escape(destination, quote=True)}" method="get">'
-                + search_box_html(box_id, language, "compact", "site", input_name="q")
+                + search_box_html(box_id, language, "compact", "header", input_name="q")
                 + f'<button class="site-header-search-submit" type="submit" title="{accessible_label}" aria-label="{accessible_label}">'
                 '<span class="site-search-icon" aria-hidden="true"></span></button></form>'
             )

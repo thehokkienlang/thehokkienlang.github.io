@@ -7,6 +7,7 @@
 
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --tli-search-placeholder: #9aabb2;
   /* Content site (apps/content-site/site.css) */
   --ink: #e3ecee;
   --muted: #9db0b5;
@@ -59,7 +60,6 @@
 :root[data-theme="dark"] .hangul-keyboard-hint { border-color: #2c3d41 !important; background: #172225 !important; color: #e3ecee !important; }
 :root[data-theme="dark"] .hangul-keyboard-hint::before { color: #9db0b5; }
 :root[data-theme="dark"] .tli-search-input { background: #172225; }
-:root[data-theme="dark"] .tli-search-input::placeholder { color: #7f9297; }
 :root[data-theme="dark"] .tli-search .toggle-switch { background: #3a4c51; }
 :root[data-theme="dark"] .tli-search .toggle-knob { background: #e3ecee; }
 :root[data-theme="dark"] .tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-switch { background: #0a7180; }
@@ -197,7 +197,6 @@
 /* ---- Dictionary ------------------------------------------------------------------------- */
 :root[data-theme="dark"] .construction-notice { border-color: #5a4320; background: #2a2114; color: #f0c48a; }
 :root[data-theme="dark"] .search-panel .tli-search-input { border-color: #3a4c51; background: #172225; }
-:root[data-theme="dark"] .search-panel .tli-search-input.hangul-ime-active::placeholder { color: #7f9297; }
 :root[data-theme="dark"] .search-panel .tli-search-clear:hover { background: #1d2b2f; }
 :root[data-theme="dark"] .search-panel .hangul-keyboard-toggle { color: #b7c6ca; }
 :root[data-theme="dark"] :is(.category-button, .page-button, .copy-reading, .audio-reading) { border-color: #3a4c51; background: #172225; color: #c3d0d4; }

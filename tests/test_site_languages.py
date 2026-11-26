@@ -150,7 +150,10 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('class="site-header-search" role="search" action="/zh-hant/search/" method="get"', nav)
         self.assertIn('id="headerSearchZhHantInput" class="tli-search-input" type="text" name="q"', nav)
         self.assertIn('class="hangul-keyboard-toggle" type="button" aria-pressed="false"', nav)
-        self.assertIn('placeholder="搜尋頁面、歌曲與故事…"', nav)
+        for language, prompt in zip(LANGUAGES, ("Search", "搜尋", "搜索")):
+            with self.subTest(header_language=language):
+                header = navigation_links("/learn/spelling/", language=language, variants=False)
+                self.assertRegex(header, rf'class="tli-search-input"[^>]*placeholder="{prompt}"')
         self.assertIn('>學習</summary>', nav)
         # Songs and Read are links of their own between Learn and Tools; there is no Explore menu.
         self.assertNotIn('>探索</summary>', nav)
@@ -358,7 +361,7 @@ class SiteLanguageTests(unittest.TestCase):
             versions_page = (output / "songs/世界第一等/index.html").read_text(encoding="utf-8")
             self.assertRegex(versions_page, '<span class="song-singer"[^>]*>劉德華</span>')
             self.assertRegex(versions_page, '<span class="song-singer"[^>]*>伍佰</span>')
-            for label in ("Search songs…", "搜尋歌曲…", "搜索歌曲…", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):
+            for label in ("Search songs", "搜尋歌曲", "搜索歌曲", "查看全部 {n} 筆結果", "查看全部 {n} 条结果"):
                 self.assertIn(label, song_page)
             for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
                 self.assertIn(f'/shared/{script}.js', song_page)

@@ -232,7 +232,6 @@
   line-height: 1;
   appearance: none;
 }
-.site-header-search .tli-search-input::placeholder { color: var(--site-muted); font-style: normal; opacity: 1; }
 .site-header-search .tli-search-input:hover { border-color: var(--site-accent); }
 .site-header-search .tli-search-input:focus-visible { border-color: var(--site-accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 18%, transparent); }
 .site-header-search .tli-search-clear { right: 76px; width: 28px; height: 28px; }

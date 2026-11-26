@@ -29,8 +29,8 @@
     "That password is not correct.": ["密碼不正確。", "密码不正确。"],
     "The dictionary could not be opened. Please try again.": ["無法開啟詞典，請重試。", "无法打开词典，请重试。"],
     "This website is still under construction. Entries, translations, and features are being actively refined.": ["本網站仍在建置中，詞條、翻譯與功能將持續完善。", "本网站仍在建设中，词条、翻译与功能将持续完善。"],
-    "Search Hanri, Hangul, Lomari, or English...": ["搜尋漢字、諺文、羅馬字或英文…", "搜索汉字、谚文、罗马字或英文…"],
-    "Type 漢字, 한글, Lomari, or English...": ["輸入漢字、諺文、羅馬字或英文…", "输入汉字、谚文、罗马字或英文…"],
+    "Search Hanri, Hangul, Lomari, or English": ["搜尋漢字、諺文、羅馬字或英文", "搜索汉字、谚文、罗马字或英文"],
+    "Type 漢字, 한글, Lomari, or English": ["輸入漢字、諺文、羅馬字或英文", "输入汉字、谚文、罗马字或英文"],
     "Clear search": ["清除搜尋", "清除搜索"], "Clear text": ["清除文字", "清除文字"],
     "Hanri + Hangul": ["漢字＋諺文", "汉字＋谚文"], "Type here...": ["在此輸入…", "在此输入…"],
     "Sandhi:": ["變調：", "变调："], "Taipei": ["臺北", "台北"], "Singapore": ["新加坡", "新加坡"],
@@ -131,7 +131,7 @@
     };
     for (const [selector, label] of Object.entries(labels)) root.querySelectorAll(selector).forEach(node => { node.textContent = text(label); });
     for (const [selector, attribute, label] of [
-      ["#searchInput", "placeholder", "Type 漢字, 한글, Lomari, or English..."],
+      ["#searchInput", "placeholder", "Type 漢字, 한글, Lomari, or English"],
       ["#imeText", "placeholder", "Type here..."], ["#clearButton", "aria-label", location.pathname.startsWith("/dictionary/") ? "Clear search" : "Clear text"],
       ["#copyButton", "title", "Copy text"], ["#copyButton", "aria-label", "Copy text"],
       ["#audioButton", "title", "Listen"], ["#audioButton", "aria-label", "Play audio"],

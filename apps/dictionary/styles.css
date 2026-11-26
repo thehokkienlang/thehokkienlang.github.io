@@ -131,14 +131,6 @@ h1 {
   outline: none;
 }
 
-.search-panel .tli-search-input::placeholder,
-.search-panel .tli-search-input.hangul-ime-active::placeholder {
-  color: #8390a2;
-  font-family: "TLI Western Punctuation", "Segoe UI", Arial, sans-serif;
-  font-size: 1.08rem;
-  font-style: italic;
-}
-
 .search-panel .tli-search-clear {
   top: 7px;
   right: 7px;
