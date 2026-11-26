@@ -447,7 +447,9 @@ ul.learn-path > li::before { content: "·"; font-size: 24px; }
 .song-entry-match { position: relative; display: grid; gap: 2px; margin-top: 10px; padding: calc(9px + var(--tli-ruby-block-space)) 11px 9px 28px; border-left: 3px solid var(--category-accent); border-radius: 0 4px 4px 0; background: color-mix(in srgb, var(--category-tint) 68%, white); }
 .song-entry-match[hidden] { display: none; }
 .song-entry-match::before { content: "“"; position: absolute; top: 2px; left: 8px; color: var(--category-accent); font-family: "TLI Western Punctuation", "TLI Noto Sans", sans-serif; font-size: 25px; line-height: 1; }
-.song-entry-match-main, .song-entry-match-main .tli-ruby-base { color: var(--ink); font-family: "TLI Western Punctuation", "TLI Menu Hanri", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans KR", sans-serif; font-size: 16px; line-height: 1.4; }
+.song-entry-match-main, .song-entry-match-main .tli-ruby-base { color: var(--ink); font-family: "TLI Western Punctuation", "TLI Menu Hanri", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans TC", "Noto Sans KR", sans-serif; font-size: 16px; }
+.song-entry-match-main { line-height: calc(1.4em + var(--tli-ruby-block-space)); }
+.song-entry-match-main .tli-ruby-base { line-height: 1; }
 .song-entry-match-main .tli-rt { font-family: "TLI Western Punctuation", "TLI Noto Sans", "Tangliengim Hangul", "Noto Sans KR", sans-serif !important; }
 .song-entry-match-lomari { color: var(--muted); font-family: "TLI Noto Sans", sans-serif; font-size: 13px; line-height: 1.35; }
 .song-list .hangul-tone { line-height: inherit; }
