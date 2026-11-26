@@ -57,16 +57,21 @@
   }
   const toggle = () => set(theme === 'dark' ? 'light' : 'dark');
 
-  // The toggle goes in the header, right after the search field. The header's navigation is
-  // replaced when the page language is applied (shared/web-site-language.js), which calls mount().
+  // The toggle goes after the header search field, or before the language menu on /search/ where
+  // the redundant header search is intentionally absent. The header's navigation is replaced when
+  // the page language is applied (shared/web-site-language.js), which calls mount().
   function mount() {
     const doc = root.document;
-    doc?.querySelectorAll?.('.site-header-search').forEach(search => {
-      if (search.nextElementSibling?.classList.contains('site-theme-toggle')) return;
+    doc?.querySelectorAll?.('nav[aria-label="Main navigation"]').forEach(nav => {
+      if (nav.querySelector(':scope > .site-theme-toggle')) return;
+      const search = nav.querySelector(':scope > .site-header-search');
+      const languageMenu = nav.querySelector(':scope > .site-language-dropdown');
       const button = doc.createElement('button');
       button.type = 'button';
       button.className = 'site-theme-toggle';
-      search.after(button);
+      if (search) search.after(button);
+      else if (languageMenu) languageMenu.before(button);
+      else nav.append(button);
     });
     apply();
   }
