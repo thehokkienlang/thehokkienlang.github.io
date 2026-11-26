@@ -333,7 +333,7 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
   .site-footer-controls { gap: 8px; }
   .site-footer-control,
   .site-footer .site-language-dropdown > .site-nav-trigger { padding-inline: 11px; }
-  .site-back-to-top { width: 44px; padding: 0; }
+  .site-back-to-top { justify-content: center; width: 44px; padding: 0; }
   .site-back-to-top > span:last-child { display: none; }
 }
 .hangul-keyboard-hint::before {
