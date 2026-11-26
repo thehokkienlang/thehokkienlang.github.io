@@ -11,6 +11,36 @@
     'zh-Hans': '谚文键盘已开启',
   };
 
+  const KEYBOARD_PREFERENCE_KEY = 'tli-search-hangul';
+  const mountedKeyboards = new Map();
+  let storage;
+  let preferredKeyboard = false;
+  try {
+    storage = root.localStorage;
+    preferredKeyboard = storage?.getItem(KEYBOARD_PREFERENCE_KEY) === 'on';
+  }
+  catch { /* Use the page default when storage is unavailable. */ }
+
+  function syncKeyboardPreference(enabled) {
+    preferredKeyboard = enabled;
+    for (const [box, apply] of mountedKeyboards) {
+      if (box.isConnected === false) mountedKeyboards.delete(box);
+      else apply(enabled);
+    }
+  }
+
+  function saveKeyboardPreference(enabled) {
+    try { storage?.setItem(KEYBOARD_PREFERENCE_KEY, enabled ? 'on' : 'off'); }
+    catch { /* The choice still applies to this page. */ }
+    syncKeyboardPreference(enabled);
+  }
+
+  root.addEventListener?.('storage', event => {
+    if (event.storageArea === storage && (event.key === KEYBOARD_PREFERENCE_KEY || event.key === null)) {
+      syncKeyboardPreference(event.newValue === 'on');
+    }
+  });
+
   const loadScript = src => new Promise((resolve, reject) => {
     const existing = [...document.scripts].find(script => script.src && new URL(script.src, location.href).pathname === src);
     if (existing) {
@@ -205,14 +235,20 @@
     // ranks its results by it).
     let enabled = false;
     const setEnabled = (value) => {
-      enabled = Boolean(value);
+      if (value === enabled) return;
+      enabled = value;
+      if (!enabled) {
+        clearTimeout(keyboardHintTimer);
+        keyboardHint?.classList.remove('is-visible');
+      }
       toggle.setAttribute('aria-pressed', String(enabled));
       input.classList.toggle('hangul-ime-active', enabled);
       controller?.setEnabled();
+      if (enabled && document.activeElement === input) start();
       if (options.keyboardMode === 'modes') options.onModeChange?.(enabled ? 'hanri-hangul' : 'lomari');
     };
     toggle.addEventListener('click', () => {
-      setEnabled(!enabled);
+      saveKeyboardPreference(!enabled);
       clearTimeout(keyboardHintTimer);
       keyboardHint?.classList.remove('is-visible');
       if (enabled && keyboardHint) {
@@ -235,7 +271,7 @@
       clear() { api.setValue(''); },
       focus() { input.focus(); },
       mode: () => (enabled ? 'hanri-hangul' : 'lomari'),
-      setMode(mode) { setEnabled(mode === 'hanri-hangul'); },
+      setMode(mode) { saveKeyboardPreference(mode === 'hanri-hangul'); },
       renderCandidates() { controller?.renderCandidates?.(); },
       get controller() { return controller; },
       // Resolves to the IME controller once the keyboard is ready; the box works as a plain search
@@ -278,8 +314,11 @@
       return controller;
     };
     const start = () => startKeyboard().catch(error => console.error('The search keyboard could not load', error));
+    mountedKeyboards.set(box, setEnabled);
+    setEnabled(preferredKeyboard);
     if (options.deferKeyboard) {
-      toggle.addEventListener('click', start, {once: true});
+      input.addEventListener('focus', () => { if (enabled) start(); });
+      toggle.addEventListener('click', () => { if (enabled) start(); });
     } else if (list && !input.value) {
       input.addEventListener('focus', start, {once: true});
       toggle.addEventListener('click', start, {once: true});
