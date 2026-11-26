@@ -130,6 +130,13 @@ async function loadApp(route, script) {
       && state.entries.find(entry => entry.id === 'U+5E95_01')?.reading === '도2'
       && state.entries.find(entry => entry.id === 'U+54EA_U+88E1_00')?.english === 'where';
   })()`, context), `${route} must consume the approved v3.1 forms and active IDs`);
+  if (route === 'dictionary') {
+    assert.ok(vm.runInContext(`(() => {
+      searchInput.value = '駕驶';
+      const result = searchGroups();
+      return result.shown.some(group => group.hanri === '駕駛');
+    })()`, context), 'Dictionary search must accept mixed Traditional and Simplified queries');
+  }
   assert.ok(vm.runInContext(`(() => {
     const index = TangliengimImeCore.createDictionaryIndex(state.entries);
     const entry = index.findHanriEntry('𤺪', 0);

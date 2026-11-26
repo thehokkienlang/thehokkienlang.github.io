@@ -170,6 +170,22 @@ function scoreField(value, query, boost) {
   return 0;
 }
 
+function scoreMixedScriptPair(traditional, simplified, query, boost) {
+  const traditionalChars = [...String(traditional || "")];
+  const simplifiedChars = [...String(simplified || "")];
+  const queryChars = [...String(query || "")];
+  if (!queryChars.length || traditionalChars.length !== simplifiedChars.length || queryChars.length > traditionalChars.length) return 0;
+  const matchesAt = start => queryChars.every((char, offset) =>
+    char === traditionalChars[start + offset] || char === simplifiedChars[start + offset]
+  );
+  if (queryChars.length === traditionalChars.length && matchesAt(0)) return 100 + boost;
+  if (matchesAt(0)) return 80 + boost;
+  for (let start = 1; start <= traditionalChars.length - queryChars.length; start += 1) {
+    if (matchesAt(start)) return 55 + boost;
+  }
+  return 0;
+}
+
 function scoreGroup(group, queries, mode) {
   if (!queries.length) {
     return 0;
@@ -190,6 +206,10 @@ function scoreGroup(group, queries, mode) {
 
   let best = 0;
   for (const query of queries) {
+    best = Math.max(best,
+      scoreMixedScriptPair(group.search.hanri, group.search.simplified, query, mode === "hanri-hangul" ? 6 : 0),
+      scoreMixedScriptPair(group.search.mandarinTrad, group.search.mandarinSimp, query, 0)
+    );
     for (const field of fields) {
       const value = field.name === "lomari"
         ? `${group.search.lomari || ""} ${group.search.lomariAliases || ""}`.trim()
