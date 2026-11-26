@@ -91,7 +91,7 @@ body[data-site-section="home"] .imported-content,
 body[data-site-section="learn"] .imported-content { font-size: 20px; }
 /* Code examples also need a font that shapes archaic conjoining jamo. */
 .imported-content code { font-family: "Tangliengim Hangul", monospace; }
-.imported-content .intro-vowel-letter { font-family: "Tangliengim Hangul", sans-serif; font-weight: 700; white-space: nowrap; }
+.imported-content .intro-vowel-letter { font-family: "Tangliengim Hangul", sans-serif; font-size: 190%; font-weight: 700; white-space: nowrap; }
 .imported-content p { margin-top: 1.3em; margin-bottom: 1.3em; }
 :is(.content-songs, .content-stories) .imported-content { font-size: 24px; }
 .imported-content :is(rt, .tli-rt, .tone-mark) { font-family: "TLI Western Punctuation", "TLI Noto Sans", "TLI Extended Hanri", "TLI Rare Hanri", "TLI Hanri SC", "TLI Hanri", "Tangliengim Hangul", "Noto Sans KR", "Noto Sans CJK KR", sans-serif !important; }
