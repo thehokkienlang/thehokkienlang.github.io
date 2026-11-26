@@ -60,7 +60,9 @@
       keyboardHint.setAttribute('role', 'status');
       keyboardHint.setAttribute('aria-live', 'polite');
       keyboardHint.textContent = KEYBOARD_ON_LABELS[document.documentElement.lang] || KEYBOARD_ON_LABELS.en;
-      box.append(keyboardHint);
+      // Keep the bubble inside its compact pill so its position follows that exact control.
+      // Compact pills have an aria-label, so this status text does not alter their accessible name.
+      toggle.append(keyboardHint);
     }
     let keyboardHintTimer;
     // Show the labels in the page's language (a song page is switched to it after it is built).
@@ -214,10 +216,6 @@
       clearTimeout(keyboardHintTimer);
       keyboardHint?.classList.remove('is-visible');
       if (enabled && keyboardHint) {
-        const boxRect = box.getBoundingClientRect();
-        const toggleRect = toggle.getBoundingClientRect();
-        keyboardHint.style.left = `${toggleRect.left - boxRect.left + toggleRect.width / 2}px`;
-        keyboardHint.style.top = `${toggleRect.top - boxRect.top}px`;
         keyboardHint.classList.add('is-visible');
         keyboardHintTimer = setTimeout(() => keyboardHint.classList.remove('is-visible'), 1800);
       }
