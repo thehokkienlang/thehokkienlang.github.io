@@ -76,9 +76,8 @@
   function mountFooters(root = document) {
     root.querySelectorAll(".site-footer:not([data-controls-mounted])").forEach(footer => {
       const headerNav = document.querySelector('nav[aria-label="Main navigation"]');
-      const search = headerNav?.querySelector(":scope > .site-search-link");
       const languageMenu = headerNav?.querySelector(":scope > .site-language-dropdown");
-      if (!search || !languageMenu) return;
+      if (!languageMenu) return;
 
       const meta = document.createElement("div");
       meta.className = "site-footer-meta";
@@ -87,12 +86,6 @@
       const controls = document.createElement("nav");
       controls.className = "site-footer-controls";
       controls.setAttribute("aria-label", FOOTER_LABELS[language()].controls);
-
-      const footerSearch = search.cloneNode(true);
-      footerSearch.classList.add("site-footer-control");
-      footerSearch.removeAttribute("aria-current");
-      const searchLabel = footerSearch.querySelector(".visually-hidden");
-      if (searchLabel) searchLabel.className = "site-footer-control-label";
 
       const theme = document.createElement("button");
       theme.type = "button";
@@ -112,7 +105,7 @@
         });
       });
 
-      controls.append(footerSearch, theme, footerLanguage);
+      controls.append(theme, footerLanguage);
       footer.replaceChildren(controls, meta);
       footer.dataset.controlsMounted = "true";
       window.TliTheme?.mount?.();

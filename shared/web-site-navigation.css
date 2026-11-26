@@ -212,11 +212,47 @@
 .site-nav-dropdown .site-nav-panel a:focus-visible,
 .site-nav-dropdown .site-nav-panel a[aria-current] { background: var(--site-accent-soft); }
 .site-nav-trigger, .site-header nav > a, .site-app-nav > a { min-height: 40px; display: inline-flex; align-items: center; }
-.site-header nav > .site-search-link, .site-app-nav > .site-search-link {
+.site-header-search {
+  position: relative;
+  flex: 0 1 210px;
+  min-width: 150px;
+  height: 40px;
+}
+.site-header-search-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 42px 0 13px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--site-ink);
+  background: transparent;
+  font: inherit;
+  line-height: 1;
+  appearance: none;
+}
+.site-header-search-input::placeholder { color: var(--site-muted); opacity: 1; }
+.site-header-search-input::-webkit-search-cancel-button { display: none; }
+.site-header-search-input:hover { border-color: var(--site-accent); }
+.site-header-search-input:focus { border-color: var(--site-accent); outline: none; box-shadow: 0 0 0 3px color-mix(in srgb, var(--site-accent) 18%, transparent); }
+.site-header-search-submit {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
   justify-content: center;
   width: 40px;
+  height: 40px;
   padding: 0;
+  border: 0;
+  border-radius: 50%;
+  color: var(--site-ink);
+  background: transparent;
+  cursor: pointer;
 }
+.site-header-search-submit:hover { color: var(--site-accent); }
+.site-header-search-submit:focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.site-header-search-submit:active { transform: scale(.96); }
 .site-search-icon {
   display: block;
   width: 19px;
@@ -225,7 +261,7 @@
   -webkit-mask: url("/assets/icons/search.svg") center / contain no-repeat;
   mask: url("/assets/icons/search.svg") center / contain no-repeat;
 }
-/* Light/dark toggle, after the search icon (added by shared/web-theme.js). */
+/* Light/dark toggle, after the search field (added by shared/web-theme.js). */
 .site-theme-toggle {
   display: inline-flex; align-items: center; justify-content: center;
   width: 40px; min-height: 40px; padding: 0; border: 0; border-radius: 4px;
@@ -284,7 +320,6 @@
   outline-offset: 3px;
 }
 .site-footer .site-theme-toggle { width: auto; padding: 8px 13px; }
-.site-footer .site-search-icon,
 .site-footer .site-theme-toggle svg,
 .site-footer .site-language-icon { width: 18px; height: 18px; }
 .site-footer-language .site-nav-panel { top: auto; bottom: calc(100% + 8px); }
@@ -321,10 +356,10 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
   .site-header, .site-app-header { padding: 16px 20px; gap: 12px; }
   .site-header nav, .site-app-nav { gap: 4px 16px; width: 100%; }
 }
-/* On a phone the search, light/dark and language controls lead the navigation, so they sit on its first
+/* On a phone the search field, light/dark and language controls lead the navigation, so they sit on its first
    row in every language (a longer English menu used to push the light/dark toggle onto a second row). */
 @media (max-width: 640px) {
-  :is(.site-header nav, .site-app-nav) > .site-search-link { order: -3; }
+  :is(.site-header nav, .site-app-nav) > .site-header-search { order: -3; flex: 1 1 120px; min-width: 110px; }
   :is(.site-header nav, .site-app-nav) > .site-theme-toggle { order: -2; }
   :is(.site-header nav, .site-app-nav) > .site-language-dropdown { order: -1; }
   /* A full-width empty item (order 0, ahead of the links) ends that first row. */

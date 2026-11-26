@@ -370,10 +370,11 @@ def navigation_links(route, language=None, variants=True):
         if href == "/search/":
             accessible_label = html.escape(text(label, language), quote=True)
             return (
-                f'<a class="site-search-link" href="{html.escape(destination, quote=True)}" '
-                f'title="{accessible_label}" aria-label="{accessible_label}"{current}>'
-                '<span class="site-search-icon" aria-hidden="true"></span>'
-                f'<span class="visually-hidden">{accessible_label}</span></a>'
+                f'<form class="site-header-search" role="search" action="{html.escape(destination, quote=True)}" method="get">'
+                f'<input class="site-header-search-input" type="search" name="q" '
+                f'placeholder="{accessible_label}" aria-label="{accessible_label}" autocomplete="off">'
+                f'<button class="site-header-search-submit" type="submit" title="{accessible_label}" aria-label="{accessible_label}">'
+                '<span class="site-search-icon" aria-hidden="true"></span></button></form>'
             )
         return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}{invite_only_note(href, language)}</a>'
 

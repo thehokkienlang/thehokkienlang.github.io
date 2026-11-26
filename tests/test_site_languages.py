@@ -147,8 +147,9 @@ class SiteLanguageTests(unittest.TestCase):
         nav = navigation_links("/zh-hant/learn/spelling/", variants=False)
         self.assertIn('href="/zh-hant/learn/spelling/" aria-current="page"', nav)
         self.assertIn('href="/dictionary/?lang=zh-Hant"', nav)
-        self.assertIn('class="site-search-link" href="/zh-hant/search/"', nav)
-        self.assertIn('aria-label="搜尋"', nav)
+        self.assertIn('class="site-header-search" role="search" action="/zh-hant/search/" method="get"', nav)
+        self.assertIn('class="site-header-search-input" type="search" name="q"', nav)
+        self.assertIn('placeholder="搜尋" aria-label="搜尋"', nav)
         self.assertIn('>學習</summary>', nav)
         # Songs and Read are links of their own between Learn and Tools; there is no Explore menu.
         self.assertNotIn('>探索</summary>', nav)

@@ -57,11 +57,11 @@
   }
   const toggle = () => set(theme === 'dark' ? 'light' : 'dark');
 
-  // The toggle goes in the header, right after the search icon. The header's navigation is
+  // The toggle goes in the header, right after the search field. The header's navigation is
   // replaced when the page language is applied (shared/web-site-language.js), which calls mount().
   function mount() {
     const doc = root.document;
-    doc?.querySelectorAll?.('.site-search-link').forEach(search => {
+    doc?.querySelectorAll?.('.site-header-search').forEach(search => {
       if (search.nextElementSibling?.classList.contains('site-theme-toggle')) return;
       const button = doc.createElement('button');
       button.type = 'button';
