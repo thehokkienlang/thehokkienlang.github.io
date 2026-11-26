@@ -41,7 +41,8 @@
     const words = LABELS[language()];
     doc.querySelectorAll?.('.site-theme-toggle').forEach(button => {
       const label = theme === 'dark' ? words.toLight : words.toDark;
-      button.innerHTML = theme === 'dark' ? SUN : MOON;
+      button.innerHTML = (theme === 'dark' ? SUN : MOON)
+        + (button.classList.contains('site-footer-control') ? `<span>${label}</span>` : '');
       button.setAttribute('aria-label', label);
       button.title = label;
       button.setAttribute('aria-pressed', String(theme === 'dark'));

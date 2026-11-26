@@ -146,7 +146,8 @@ def main():
     assert "/shared/web-hangul-ime.js" not in dictionary_html
     assert "/shared/web-ime-core.js" not in dictionary_html
     assert "dictionary-view.html" not in dictionary_html, "Dictionary view loads before unlocking"
-    assert "searchInput" in dictionary_view and "lockDictionaryButton" in dictionary_view
+    assert "searchInput" in dictionary_view and "lockDictionaryButton" in dictionary_html
+    assert "lockDictionaryButton" not in dictionary_view
     # The dictionary's box is the shared one (search_box_html), with its existing ids.
     assert "__SEARCH_BOX__" not in dictionary_view and dictionary_view.count("data-tli-search") == 1
     assert dictionary_view.index('class="tli-search-input-wrap"') < dictionary_view.index('id="imeCandidates"')

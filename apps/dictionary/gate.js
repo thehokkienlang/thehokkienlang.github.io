@@ -35,16 +35,20 @@
       if (!response.ok) throw new Error(`Dictionary view returned ${response.status}`);
       dictionaryRoot.innerHTML = await response.text();
       window.TliSiteLanguage?.apply(dictionaryRoot);
+      window.TliSiteNavigation?.mountFooters(dictionaryRoot);
       dictionaryRoot.hidden = false;
       lockScreen.hidden = true;
       document.body.classList.remove("access-locked");
-      document.querySelector("#lockDictionaryButton").addEventListener("click", TliAccessGate.lock);
+      const lockButton = document.querySelector("#lockDictionaryButton");
+      lockButton.hidden = false;
+      lockButton.addEventListener("click", TliAccessGate.lock);
       for (const source of APP_SCRIPTS) await loadScript(source);
     } catch (error) {
       dictionaryRoot.replaceChildren();
       dictionaryRoot.hidden = true;
       lockScreen.hidden = false;
       document.body.classList.add("access-locked");
+      document.querySelector("#lockDictionaryButton").hidden = true;
       throw error;
     }
   }

@@ -234,7 +234,83 @@
 .site-theme-toggle:hover { color: var(--site-accent); }
 .site-theme-toggle:focus-visible { outline: 2px solid #2563eb; outline-offset: 4px; }
 .site-theme-toggle svg { width: 19px; height: 19px; fill: currentColor; }
-.site-footer { background: transparent; border-top-color: var(--site-line); color: var(--site-muted); }
+.site-footer {
+  position: static;
+  display: grid;
+  gap: 18px;
+  width: 100%;
+  margin: 0;
+  padding: 24px max(24px, calc((100% - 1144px) / 2));
+  background: transparent;
+  border-top: 1px solid var(--site-line);
+  color: var(--site-muted);
+  font-size: 14px;
+  text-align: center;
+}
+.site-footer-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-family: "TLI Western Punctuation", "Noto Sans KR", Calibri, sans-serif;
+  font-size: 15px;
+}
+.site-footer-control,
+.site-footer .site-language-dropdown > .site-nav-trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-height: 44px;
+  padding: 8px 13px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--site-ink);
+  background: transparent;
+  font: inherit;
+  line-height: 1.3;
+  text-decoration: none;
+}
+.site-footer-control:hover,
+.site-footer .site-language-dropdown > .site-nav-trigger:hover {
+  border-color: var(--site-accent);
+  color: var(--site-accent);
+}
+.site-footer-control:focus-visible,
+.site-footer .site-language-dropdown > .site-nav-trigger:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+.site-footer .site-theme-toggle { width: auto; padding: 8px 13px; }
+.site-footer .site-search-icon,
+.site-footer .site-theme-toggle svg,
+.site-footer .site-language-icon { width: 18px; height: 18px; }
+.site-footer-language .site-nav-panel { top: auto; bottom: calc(100% + 8px); }
+.site-footer-meta { color: var(--site-muted); }
+.site-back-to-top {
+  position: fixed;
+  z-index: 40;
+  right: max(16px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 44px;
+  padding: 9px 14px;
+  border: 1px solid var(--site-line);
+  border-radius: 999px;
+  color: var(--site-ink);
+  background: color-mix(in srgb, var(--site-background) 92%, transparent);
+  box-shadow: 0 6px 20px #17252b26;
+  font: 600 14px/1.2 "TLI Western Punctuation", "Noto Sans KR", Calibri, sans-serif;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+}
+.site-back-to-top[hidden] { display: none; }
+.site-back-to-top:hover { border-color: var(--site-accent); color: var(--site-accent); }
+.site-back-to-top:focus-visible { outline: 2px solid #2563eb; outline-offset: 3px; }
 body[data-site-section="songs"] .site-header nav [aria-current],
 body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site-voice); border-bottom-color: var(--site-voice); }
 @media (max-width: 980px) {
@@ -253,6 +329,12 @@ body[data-site-section="songs"] .site-app-nav [aria-current] { color: var(--site
   :is(.site-header nav, .site-app-nav) > .site-language-dropdown { order: -1; }
   /* A full-width empty item (order 0, ahead of the links) ends that first row. */
   :is(.site-header nav, .site-app-nav)::before { content: ""; flex: 0 0 100%; height: 0; }
+  .site-footer { gap: 14px; }
+  .site-footer-controls { gap: 8px; }
+  .site-footer-control,
+  .site-footer .site-language-dropdown > .site-nav-trigger { padding-inline: 11px; }
+  .site-back-to-top { width: 44px; padding: 0; }
+  .site-back-to-top > span:last-child { display: none; }
 }
 .hangul-keyboard-hint::before {
   content: "ⓘ";

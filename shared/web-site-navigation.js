@@ -1,6 +1,19 @@
 (() => {
   const hoverPointer = window.matchMedia("(hover: hover) and (pointer: fine)");
-  document.querySelectorAll('nav[aria-label="Main navigation"]').forEach(nav => {
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const FOOTER_LABELS = {
+    en: {controls: "Footer controls", top: "Back to top"},
+    "zh-Hant": {controls: "頁尾功能", top: "返回頁首"},
+    "zh-Hans": {controls: "页尾功能", top: "返回页首"},
+  };
+
+  function language() {
+    return ["zh-Hant", "zh-Hans"].includes(document.documentElement.lang)
+      ? document.documentElement.lang : "en";
+  }
+
+  function prepareDropdowns(root = document) {
+    root.querySelectorAll('nav[aria-label="Main navigation"], .site-footer-controls').forEach(nav => {
     const dropdowns = [...nav.querySelectorAll(".site-nav-dropdown")];
     const closeOthers = current => dropdowns.forEach(dropdown => {
       if (dropdown !== current) dropdown.open = false;
@@ -58,4 +71,89 @@
       });
     });
   });
+  }
+
+  function mountFooters(root = document) {
+    root.querySelectorAll(".site-footer:not([data-controls-mounted])").forEach(footer => {
+      const headerNav = document.querySelector('nav[aria-label="Main navigation"]');
+      const search = headerNav?.querySelector(":scope > .site-search-link");
+      const languageMenu = headerNav?.querySelector(":scope > .site-language-dropdown");
+      if (!search || !languageMenu) return;
+
+      const meta = document.createElement("div");
+      meta.className = "site-footer-meta";
+      meta.append(...footer.childNodes);
+
+      const controls = document.createElement("nav");
+      controls.className = "site-footer-controls";
+      controls.setAttribute("aria-label", FOOTER_LABELS[language()].controls);
+
+      const footerSearch = search.cloneNode(true);
+      footerSearch.classList.add("site-footer-control");
+      footerSearch.removeAttribute("aria-current");
+      const searchLabel = footerSearch.querySelector(".visually-hidden");
+      if (searchLabel) searchLabel.className = "site-footer-control-label";
+
+      const theme = document.createElement("button");
+      theme.type = "button";
+      theme.className = "site-theme-toggle site-footer-control";
+
+      const footerLanguage = languageMenu.cloneNode(true);
+      footerLanguage.classList.add("site-footer-language");
+      footerLanguage.removeAttribute("name");
+      footerLanguage.querySelector(".site-sandhi")?.remove();
+      footerLanguage.querySelectorAll("[data-language-choice]").forEach(link => {
+        link.addEventListener("click", () => {
+          const input = document.querySelector(location.pathname.startsWith("/dictionary/") ? "#searchInput" : "#imeText");
+          if (!input) return;
+          const destination = new URL(link.href);
+          destination.searchParams.set(location.pathname.startsWith("/dictionary/") ? "q" : "text", input.value);
+          link.href = destination.pathname + destination.search + destination.hash;
+        });
+      });
+
+      controls.append(footerSearch, theme, footerLanguage);
+      footer.replaceChildren(controls, meta);
+      footer.dataset.controlsMounted = "true";
+      window.TliTheme?.mount?.();
+      prepareDropdowns(footer);
+    });
+  }
+
+  function mountBackToTop() {
+    if (document.querySelector(".site-back-to-top")) return;
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "site-back-to-top";
+    button.hidden = true;
+    button.innerHTML = '<span aria-hidden="true">↑</span><span>' + FOOTER_LABELS[language()].top + "</span>";
+    button.setAttribute("aria-label", FOOTER_LABELS[language()].top);
+    button.addEventListener("click", () => window.scrollTo({
+      top: 0,
+      behavior: reducedMotion.matches ? "auto" : "smooth",
+    }));
+    document.body.append(button);
+
+    let scheduled = false;
+    const update = () => {
+      scheduled = false;
+      button.hidden = window.scrollY < 480;
+    };
+    window.addEventListener("scroll", () => {
+      if (scheduled) return;
+      scheduled = true;
+      window.requestAnimationFrame(update);
+    }, {passive: true});
+    update();
+  }
+
+  function mount(root = document) {
+    prepareDropdowns(root);
+    mountFooters(root);
+    mountBackToTop();
+  }
+
+  window.TliSiteNavigation = {mount, mountFooters};
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", () => mount());
+  else mount();
 })();
