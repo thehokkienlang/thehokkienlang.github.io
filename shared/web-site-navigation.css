@@ -260,8 +260,8 @@
 .site-header-keyboard-hint {
   position: absolute;
   z-index: 70;
-  right: 38px;
-  bottom: calc(100% + 6px);
+  right: 60px;
+  bottom: calc(100% + 7px);
   width: max-content;
   max-width: 180px;
   padding: 4px 8px;
@@ -275,10 +275,30 @@
   line-height: 1.3;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(3px);
+  transform: translate(50%, 2px);
   transition: opacity 120ms ease, transform 120ms ease;
 }
-.site-header-keyboard-hint.is-visible { opacity: 1; transform: translateY(0); }
+.site-header-keyboard-hint::before,
+.site-header-keyboard-hint::after {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  content: "";
+  transform: translateX(-50%);
+}
+.site-header-keyboard-hint::before {
+  bottom: -7px;
+  border-width: 7px 6px 0;
+  border-color: var(--site-line) transparent transparent;
+}
+.site-header-keyboard-hint::after {
+  bottom: -5px;
+  border-width: 6px 5px 0;
+  border-color: var(--site-background) transparent transparent;
+}
+.site-header-keyboard-hint.is-visible { opacity: 1; transform: translate(50%, 0); }
 .site-search-icon {
   display: block;
   width: 19px;
