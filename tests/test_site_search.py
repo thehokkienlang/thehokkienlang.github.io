@@ -68,7 +68,9 @@ class SiteSearchTests(unittest.TestCase):
                 self.assertIn('id="siteSearchInput"', source)
                 self.assertIn('id="hangulKeyboardToggle"', source)
                 self.assertIn('id="siteSearchCandidates"', source)
-                self.assertEqual(source.count('data-tli-search'), 4)
+                # The dedicated search page has only its full, visibly labelled search control;
+                # it does not repeat the compact header search.
+                self.assertEqual(source.count('data-tli-search'), 1)
                 self.assertIn('id="siteSearchClear" class="tli-search-clear"', source)
                 self.assertIn('/shared/web-search-box.js', source)
                 self.assertNotIn('site-search-input', source)

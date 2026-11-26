@@ -375,6 +375,10 @@ class SiteLanguageTests(unittest.TestCase):
                 self.assertNotIn("songSearchInput", header)
             for other in ("about/index.html", "learn/spelling/index.html", "search/index.html"):
                 self.assertNotIn("songs-subheader", (output / other).read_text(encoding="utf-8"), other)
+            search_page = (output / "search/index.html").read_text(encoding="utf-8")
+            search_header = search_page.split("</header>", 1)[0]
+            self.assertNotIn('class="site-header-search"', search_header)
+            self.assertIn('id="siteSearchForm"', search_page)
             songs = (output / "songs/index.html").read_text(encoding="utf-8")
             self.assertIn('class="song-entry-mandarin-match" hidden', songs)
             self.assertIn('class="song-entry-match" hidden', songs)

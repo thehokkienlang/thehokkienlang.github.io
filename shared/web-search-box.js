@@ -5,6 +5,12 @@
   // the TLI input controller, plus ?q= in the address bar. Each page decides what to do with the
   // query through options.onChange.
 
+  const KEYBOARD_ON_LABELS = {
+    en: 'Hangul key on',
+    'zh-Hant': '諺文鍵盤已開啟',
+    'zh-Hans': '谚文键盘已开启',
+  };
+
   const loadScript = src => new Promise((resolve, reject) => {
     const existing = [...document.scripts].find(script => script.src && new URL(script.src, location.href).pathname === src);
     if (existing) {
@@ -48,6 +54,15 @@
     const toggle = box.querySelector('.hangul-keyboard-toggle');
     const candidates = box.querySelector('.hanri-candidate-menu');
     const wrap = box.querySelector('.tli-search-input-wrap');
+    const keyboardHint = toggle.hasAttribute('aria-label') ? document.createElement('span') : null;
+    if (keyboardHint) {
+      keyboardHint.className = 'tli-keyboard-on-hint';
+      keyboardHint.setAttribute('role', 'status');
+      keyboardHint.setAttribute('aria-live', 'polite');
+      keyboardHint.textContent = KEYBOARD_ON_LABELS[document.documentElement.lang] || KEYBOARD_ON_LABELS.en;
+      box.append(keyboardHint);
+    }
+    let keyboardHintTimer;
     // Show the labels in the page's language (a song page is switched to it after it is built).
     const table = JSON.parse(box.dataset.labels || '{}')[document.documentElement.lang];
     if (table) {
@@ -194,7 +209,20 @@
       controller?.setEnabled();
       if (options.keyboardMode === 'modes') options.onModeChange?.(enabled ? 'hanri-hangul' : 'lomari');
     };
-    toggle.addEventListener('click', () => { setEnabled(!enabled); input.focus(); });
+    toggle.addEventListener('click', () => {
+      setEnabled(!enabled);
+      clearTimeout(keyboardHintTimer);
+      keyboardHint?.classList.remove('is-visible');
+      if (enabled && keyboardHint) {
+        const boxRect = box.getBoundingClientRect();
+        const toggleRect = toggle.getBoundingClientRect();
+        keyboardHint.style.left = `${toggleRect.left - boxRect.left + toggleRect.width / 2}px`;
+        keyboardHint.style.top = `${toggleRect.top - boxRect.top}px`;
+        keyboardHint.classList.add('is-visible');
+        keyboardHintTimer = setTimeout(() => keyboardHint.classList.remove('is-visible'), 1800);
+      }
+      input.focus();
+    });
 
     const api = {
       input,

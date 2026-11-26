@@ -6,12 +6,6 @@
     "zh-Hant": {controls: "頁尾功能", top: "返回頁首"},
     "zh-Hans": {controls: "页尾功能", top: "返回页首"},
   };
-  const HANGUL_ON_LABELS = {
-    en: "Hangul key on",
-    "zh-Hant": "諺文鍵盤已開啟",
-    "zh-Hans": "谚文键盘已开启",
-  };
-
   function language() {
     return ["zh-Hant", "zh-Hans"].includes(document.documentElement.lang)
       ? document.documentElement.lang : "en";
@@ -53,6 +47,12 @@
         const target = event.key === "ArrowDown" ? links[0] : links[links.length - 1];
         target?.focus();
       });
+      // A mouse may open the menu on pointerenter before its click lands. Keep that click from
+      // immediately applying the native <details> toggle and closing the menu again. Touch taps
+      // and keyboard activation retain the normal open/close behaviour.
+      trigger.addEventListener("click", event => {
+        if (event.detail > 0 && hoverPointer.matches && dropdown.open) event.preventDefault();
+      });
       dropdown.addEventListener("keydown", event => {
         if (event.key !== "Escape" || !dropdown.open) return;
         event.preventDefault();
@@ -83,23 +83,6 @@
       if (!window.TliSearchBox) return;
       window.TliSearchBox.mount(form, {deferKeyboard: true});
       form.dataset.searchMounted = "true";
-      const toggle = form.querySelector(".hangul-keyboard-toggle");
-      const hint = document.createElement("span");
-      hint.className = "site-header-keyboard-hint";
-      hint.setAttribute("role", "status");
-      hint.setAttribute("aria-live", "polite");
-      hint.textContent = HANGUL_ON_LABELS[language()];
-      form.append(hint);
-      let hintTimer;
-      toggle.addEventListener("click", () => {
-        clearTimeout(hintTimer);
-        if (toggle.getAttribute("aria-pressed") !== "true") {
-          hint.classList.remove("is-visible");
-          return;
-        }
-        hint.classList.add("is-visible");
-        hintTimer = setTimeout(() => hint.classList.remove("is-visible"), 1800);
-      });
     });
   }
 

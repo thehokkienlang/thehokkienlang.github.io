@@ -1,6 +1,6 @@
 /* The shared search box (search_box_html in tools/build_content.py; behaviour in web-search-box.js).
    The same markup and styles wherever a box appears; a page adjusts only what it must. */
-.tli-search { display: grid; gap: 9px; width: 100%; }
+.tli-search { position: relative; display: grid; gap: 9px; width: 100%; }
 .tli-search-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px 20px; width: 100%; }
 .tli-search-heading > label { color: var(--muted, #617079); font-size: 14px; font-weight: 700; }
 .tli-search-input-wrap { position: relative; width: 100%; }
@@ -17,6 +17,46 @@
 .tli-search .toggle-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgb(15 23 42 / 28%); transition: transform 140ms ease; }
 .tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-switch { background: var(--accent, #0a7180); }
 .tli-search .hangul-keyboard-toggle[aria-pressed="true"] .toggle-knob { transform: translateX(20px); }
+.tli-keyboard-on-hint {
+  position: absolute;
+  z-index: 70;
+  width: max-content;
+  max-width: 180px;
+  padding: 4px 8px;
+  border: 1px solid var(--site-line, #ccdae0);
+  border-radius: 5px;
+  color: var(--site-ink, #19272a);
+  background: var(--site-background, #f5f8f7);
+  box-shadow: 0 4px 12px #17252b26;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.3;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, calc(-100% - 5px));
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.tli-keyboard-on-hint::before,
+.tli-keyboard-on-hint::after {
+  position: absolute;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  content: "";
+  transform: translateX(-50%);
+}
+.tli-keyboard-on-hint::before {
+  bottom: -7px;
+  border-width: 7px 6px 0;
+  border-color: var(--site-line, #ccdae0) transparent transparent;
+}
+.tli-keyboard-on-hint::after {
+  bottom: -5px;
+  border-width: 6px 5px 0;
+  border-color: var(--site-background, #f5f8f7) transparent transparent;
+}
+.tli-keyboard-on-hint.is-visible { opacity: 1; transform: translate(-50%, calc(-100% - 7px)); }
 .tli-search .hanri-candidate-menu { width: 100%; max-width: 100%; }
 .tli-search [hidden] { display: none !important; }
 /* Compact variant: a header box. The label is for screen readers; the keyboard switch sits inside the input. */

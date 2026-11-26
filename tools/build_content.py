@@ -370,6 +370,8 @@ def navigation_links(route, language=None, variants=True):
         destination = language_url(href, language) or language_url(href, "zh-Hant")
         current = ' aria-current="page"' if base_route(route) == href or href != "/" and base_route(route).startswith(href) else ""
         if href == "/search/":
+            if base_route(route) == "/search/":
+                return ""
             accessible_label = html.escape(text(label, language), quote=True)
             box_id = {"en": "headerSearchEn", "zh-Hant": "headerSearchZhHant", "zh-Hans": "headerSearchZhHans"}[language]
             return (
