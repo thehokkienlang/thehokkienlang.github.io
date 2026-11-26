@@ -149,7 +149,7 @@
     let keyboardHintTimer;
     document.addEventListener("click", event => {
       const toggle = event.target.closest?.(".hangul-keyboard-toggle, .search-keyboard-toggle, #hangulKeyboardToggle");
-      if (!toggle) return;
+      if (!toggle || toggle.closest(".site-header-search")) return;
       clearTimeout(keyboardHintTimer);
       keyboardHint?.remove();
       keyboardHint = document.createElement("div");

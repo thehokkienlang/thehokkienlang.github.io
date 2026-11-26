@@ -152,7 +152,8 @@ def main():
     assert "__SEARCH_BOX__" not in dictionary_view and dictionary_view.count("data-tli-search") == 1
     assert dictionary_view.index('class="tli-search-input-wrap"') < dictionary_view.index('id="imeCandidates"')
     assert 'id="clearButton"' in dictionary_view and 'id="hangulKeyboardToggle"' in dictionary_view
-    assert "/shared/web-search-box.js" in local_file("/dictionary/gate.js").read_text(encoding="utf-8")
+    assert "/shared/web-search-box.js" in dictionary_html
+    assert "/shared/web-search-box.js" not in local_file("/dictionary/gate.js").read_text(encoding="utf-8")
     assert 'id="keyboardGuideButton"' in ime_html and 'id="keyboardLayout"' in ime_html
     assert 'id="imeToneOverlay"' in ime_html and 'aria-hidden="true"' in ime_html
     assert ime_html.index('class="text-wrap"') < ime_html.index('id="candidateBar"')

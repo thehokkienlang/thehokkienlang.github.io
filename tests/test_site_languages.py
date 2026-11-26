@@ -148,8 +148,9 @@ class SiteLanguageTests(unittest.TestCase):
         self.assertIn('href="/zh-hant/learn/spelling/" aria-current="page"', nav)
         self.assertIn('href="/dictionary/?lang=zh-Hant"', nav)
         self.assertIn('class="site-header-search" role="search" action="/zh-hant/search/" method="get"', nav)
-        self.assertIn('class="site-header-search-input" type="search" name="q"', nav)
-        self.assertIn('placeholder="搜尋" aria-label="搜尋"', nav)
+        self.assertIn('id="headerSearchZhHantInput" class="tli-search-input" type="text" name="q"', nav)
+        self.assertIn('class="hangul-keyboard-toggle" type="button" aria-pressed="false"', nav)
+        self.assertIn('placeholder="搜尋頁面、歌曲與故事…"', nav)
         self.assertIn('>學習</summary>', nav)
         # Songs and Read are links of their own between Learn and Tools; there is no Explore menu.
         self.assertNotIn('>探索</summary>', nav)
@@ -295,9 +296,9 @@ class SiteLanguageTests(unittest.TestCase):
                     self.assertRegex(songs, rf'<span class="song-entry-singer"[^>]*>{band_name}</span>')
                     # The box is the shared one, and the page carries no search data of its own:
                     # the Hanri table and the lyrics come from public/data and are cached there.
-                    self.assertEqual(songs.count('data-tli-search'), 1)
+                    self.assertEqual(songs.count('data-tli-search'), 4)
                     self.assertEqual(songs.count('id="songFilterInput"'), 1)
-                    self.assertEqual(songs.count('class="tli-search-clear"'), 1)
+                    self.assertEqual(songs.count('class="tli-search-clear"'), 4)
                     self.assertNotIn('data-song-hanri-fold', songs)
                     self.assertNotIn('data-song-lines', songs)
                     self.assertLess(len(songs), 120_000)
@@ -339,7 +340,7 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertLess(song_page.index("</header>"), song_page.index('class="songs-subheader"'))
             self.assertLess(song_page.index('class="songs-subheader"'), song_page.index("<main"))
             self.assertEqual(song_page.count('id="songSearchInput"'), 1)
-            self.assertEqual(song_page.count('tli-search--compact'), 1)
+            self.assertEqual(song_page.count('tli-search--compact'), 4)
             self.assertIn('id="songSearchResults" class="tli-search-dropdown"', song_page)
             self.assertIn('data-more-href="/songs/"', song_page)
             crumb = song_page.split('<div class="songs-breadcrumb"', 1)[1].split("</div>", 1)[0]
@@ -362,7 +363,7 @@ class SiteLanguageTests(unittest.TestCase):
             for script in ("web-site-search-variants", "web-search-box", "web-song-search"):
                 self.assertIn(f'/shared/{script}.js', song_page)
             # /songs/ has the same bar with just "Songs", and its box drives the page's filter. The
-            # main header is unchanged: no other page, and no header, carries a song search.
+            # The main header has the site-wide search, never a second song-search box.
             for folder in ("", "zh-hant/", "zh-hans/"):
                 index_page = (output / folder / "songs/index.html").read_text(encoding="utf-8")
                 self.assertEqual(index_page.count('class="songs-subheader"'), 1)
@@ -370,7 +371,8 @@ class SiteLanguageTests(unittest.TestCase):
                 self.assertNotIn("songs-breadcrumb-root", index_page)
                 self.assertNotIn("songSearchInput", index_page)
                 header = index_page.split("</header>", 1)[0]
-                self.assertNotIn("tli-search", header)
+                self.assertEqual(header.count('class="site-header-search"'), 3)
+                self.assertNotIn("songSearchInput", header)
             for other in ("about/index.html", "learn/spelling/index.html", "search/index.html"):
                 self.assertNotIn("songs-subheader", (output / other).read_text(encoding="utf-8"), other)
             songs = (output / "songs/index.html").read_text(encoding="utf-8")

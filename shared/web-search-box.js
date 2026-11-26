@@ -252,7 +252,9 @@
       return controller;
     };
     const start = () => startKeyboard().catch(error => console.error('The search keyboard could not load', error));
-    if (list && !input.value) {
+    if (options.deferKeyboard) {
+      toggle.addEventListener('click', start, {once: true});
+    } else if (list && !input.value) {
       input.addEventListener('focus', start, {once: true});
       toggle.addEventListener('click', start, {once: true});
     } else start();

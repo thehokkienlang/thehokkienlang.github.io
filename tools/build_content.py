@@ -33,7 +33,6 @@ IME_SCRIPTS = ('<script src="/shared/web-hangul-ime.js" defer></script>'
                '<script src="/shared/web-ime-core.js" defer></script>')
 # The shared search box, song matcher and matching rule; they run before site.js, which wires the filter.
 SONG_SEARCH_SCRIPTS = ('<script src="/shared/web-site-search-variants.js" defer></script>'
-                       '<script src="/shared/web-search-box.js" defer></script>'
                        '<script src="/shared/web-song-search.js" defer></script>')
 LYRIC_SCRIPTS = ('<script src="/shared/web-lyric-player.js" defer></script>'
                  '<script src="/shared/web-lyric-sync.js" defer></script>')
@@ -116,7 +115,8 @@ SEARCH_TEXT = {
 }
 
 
-def search_box_html(box_id, language, variant, labels, results="none", more_href="", ids=None, autofocus=False):
+def search_box_html(box_id, language, variant, labels, results="none", more_href="", ids=None, autofocus=False,
+                    input_name=""):
     """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
 
     The input is `<box_id>Input`, its clear button `<box_id>Clear` and its candidate menu
@@ -153,7 +153,9 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
         + heading +
         '<div class="tli-search-input-wrap">'
         + (label if variant == "compact" else "") +
-        f'<input id="{ids["input"]}" class="tli-search-input" type="text" inputmode="search" enterkeyhint="search" '
+        f'<input id="{ids["input"]}" class="tli-search-input" type="text"'
+        + (f' name="{html.escape(input_name, quote=True)}"' if input_name else "")
+        + ' inputmode="search" enterkeyhint="search" '
         f'autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="{words["placeholder"]}"'
         + (" autofocus" if autofocus else "")
         + (f' role="combobox" aria-expanded="false" aria-controls="{box_id}Results" aria-autocomplete="list"'
@@ -369,11 +371,11 @@ def navigation_links(route, language=None, variants=True):
         current = ' aria-current="page"' if base_route(route) == href or href != "/" and base_route(route).startswith(href) else ""
         if href == "/search/":
             accessible_label = html.escape(text(label, language), quote=True)
+            box_id = {"en": "headerSearchEn", "zh-Hant": "headerSearchZhHant", "zh-Hans": "headerSearchZhHans"}[language]
             return (
                 f'<form class="site-header-search" role="search" action="{html.escape(destination, quote=True)}" method="get">'
-                f'<input class="site-header-search-input" type="search" name="q" '
-                f'placeholder="{accessible_label}" aria-label="{accessible_label}" autocomplete="off">'
-                f'<button class="site-header-search-submit" type="submit" title="{accessible_label}" aria-label="{accessible_label}">'
+                + search_box_html(box_id, language, "compact", "site", input_name="q")
+                + f'<button class="site-header-search-submit" type="submit" title="{accessible_label}" aria-label="{accessible_label}">'
                 '<span class="site-search-icon" aria-hidden="true"></span></button></form>'
             )
         return f'<a href="{html.escape(destination, quote=True)}"{current}>{html.escape(text(label, language))}{invite_only_note(href, language)}</a>'
@@ -883,7 +885,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
     is_search = base_route(route) == "/search/"
     heading_markup = (heading_html if heading_html is not None else
                       home_heading_markup[language] if base_route(route) == "/" else html.escape(heading))
-    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_markup, "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/shared/web-search-box.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" or "data-tli-audio=" in body else "")}
+    values = {"LANG": language, "HOME": PREFIXES[language] + "/", "SKIP": text("Skip to content", language), "ALTERNATES": alternates, "TITLE": html.escape(title), "HEADING": heading_markup, "INTRODUCTION": introduction, "EYEBROW": eyebrow, "ROUTE": html.escape(route, quote=True), "NAV": navigation, "BODY": body, "TYPE": content_type, "SECTION": html.escape(section), "LAUNCH": home_launch(language, listen_button(root, language, "聲音", "샬5임1")) if section == "home" else "", "PAGESTYLES": '<link rel="stylesheet" href="/shared/web-ime-menu.css"><link rel="stylesheet" href="/assets/search/styles.css">' if is_search else "", "PAGESCRIPTS": '<script src="/shared/web-site-search-variants.js" defer></script><script src="/assets/search/search.js" defer></script>' if is_search else ('<script src="/shared/web-audio-player.js" defer></script>' if section == "home" or "data-tli-audio=" in body else "")}
     # Audit A5: each page loads only the scripts it uses. The IME scripts draw tone marks in
     # Hangul titles (site.js) and run the search box; the lyric scripts run on song pages.
     launch = values["LAUNCH"]
