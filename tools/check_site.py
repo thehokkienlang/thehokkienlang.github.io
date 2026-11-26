@@ -260,7 +260,9 @@ def main():
             continue
         text = page.read_text(encoding="utf-8")
         boxes = text.count("data-tli-search")
-        for part in ("hanri-candidate-menu", "hangul-keyboard-toggle", "tli-search-input\""):
+        expected_toggles = boxes - text.count("tli-search--no-toggle")
+        assert text.count("hangul-keyboard-toggle") == expected_toggles, f"{page.relative_to(SITE)}: unexpected keyboard toggle count"
+        for part in ("hanri-candidate-menu", "tli-search-input\""):
             assert text.count(part) == boxes, f"{page.relative_to(SITE)}: a search box is not from search_box_html ({part})"
     for source in (ROOT / "apps").rglob("*.html"):
         if source.relative_to(ROOT / "apps").parts[0] in typing_tools or source.name == "song-url-form.html":  # the latter is a local migration form, never published

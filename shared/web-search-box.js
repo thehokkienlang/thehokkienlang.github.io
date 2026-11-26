@@ -84,7 +84,7 @@
     const toggle = box.querySelector('.hangul-keyboard-toggle');
     const candidates = box.querySelector('.hanri-candidate-menu');
     const wrap = box.querySelector('.tli-search-input-wrap');
-    const keyboardHint = toggle.hasAttribute('aria-label') ? document.createElement('span') : null;
+    const keyboardHint = toggle?.hasAttribute('aria-label') ? document.createElement('span') : null;
     if (keyboardHint) {
       keyboardHint.className = 'tli-keyboard-on-hint';
       keyboardHint.setAttribute('role', 'status');
@@ -101,8 +101,10 @@
       box.querySelector('label').textContent = table.label;
       input.placeholder = table.placeholder;
       clearButton.setAttribute('aria-label', table.clear);
-      toggle.querySelector('.toggle-label').textContent = table.keyboard;
-      if (toggle.hasAttribute('aria-label')) { toggle.setAttribute('aria-label', table.keyboard); toggle.setAttribute('title', table.keyboard); }
+      if (toggle) {
+        toggle.querySelector('.toggle-label').textContent = table.keyboard;
+        if (toggle.hasAttribute('aria-label')) { toggle.setAttribute('aria-label', table.keyboard); toggle.setAttribute('title', table.keyboard); }
+      }
       candidates.setAttribute('aria-label', table.candidates);
       if (table.more) { box.dataset.moreLabel = table.more; box.dataset.emptyLabel = table.empty; }
       box.querySelector('.tli-search-dropdown')?.setAttribute('aria-label', table.label);
@@ -241,13 +243,13 @@
         clearTimeout(keyboardHintTimer);
         keyboardHint?.classList.remove('is-visible');
       }
-      toggle.setAttribute('aria-pressed', String(enabled));
+      toggle?.setAttribute('aria-pressed', String(enabled));
       input.classList.toggle('hangul-ime-active', enabled);
       controller?.setEnabled();
       if (enabled && document.activeElement === input) start();
       if (options.keyboardMode === 'modes') options.onModeChange?.(enabled ? 'hanri-hangul' : 'lomari');
     };
-    toggle.addEventListener('click', () => {
+    toggle?.addEventListener('click', () => {
       saveKeyboardPreference(!enabled);
       clearTimeout(keyboardHintTimer);
       keyboardHint?.classList.remove('is-visible');
@@ -318,10 +320,10 @@
     setEnabled(preferredKeyboard);
     if (options.deferKeyboard) {
       input.addEventListener('focus', () => { if (enabled) start(); });
-      toggle.addEventListener('click', () => { if (enabled) start(); });
+      toggle?.addEventListener('click', () => { if (enabled) start(); });
     } else if (list && !input.value) {
       input.addEventListener('focus', start, {once: true});
-      toggle.addEventListener('click', start, {once: true});
+      toggle?.addEventListener('click', start, {once: true});
     } else start();
 
     // A page opened with ?q= filters straight away.

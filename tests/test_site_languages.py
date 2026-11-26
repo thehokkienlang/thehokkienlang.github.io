@@ -301,6 +301,8 @@ class SiteLanguageTests(unittest.TestCase):
                     # the Hanri table and the lyrics come from public/data and are cached there.
                     self.assertEqual(songs.count('data-tli-search'), 4)
                     self.assertEqual(songs.count('id="songFilterInput"'), 1)
+                    self.assertEqual(songs.count('tli-search--no-toggle'), 1)
+                    self.assertEqual(songs.count('class="hangul-keyboard-toggle"'), 3)
                     self.assertEqual(songs.count('class="tli-search-clear"'), 4)
                     self.assertNotIn('data-song-hanri-fold', songs)
                     self.assertNotIn('data-song-lines', songs)

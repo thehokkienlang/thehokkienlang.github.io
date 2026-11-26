@@ -65,6 +65,8 @@
 .tli-search--compact { position: relative; display: block; }
 .tli-search--compact .tli-search-input { padding: 8px 96px 8px 14px; border-radius: 999px; font-size: 15px; }
 .tli-search--compact .tli-search-clear { right: 52px; width: 28px; height: 28px; font-size: 20px; }
+.tli-search--compact.tli-search--no-toggle .tli-search-input { padding-right: 46px; }
+.tli-search--compact.tli-search--no-toggle .tli-search-clear { right: 8px; }
 .tli-search--compact .hangul-keyboard-toggle { position: absolute; top: 50%; right: 10px; transform: translateY(-50%); min-height: 0; }
 .tli-search--compact .toggle-switch { width: 34px; height: 20px; }
 .tli-search--compact .toggle-knob { top: 2px; left: 2px; width: 16px; height: 16px; }

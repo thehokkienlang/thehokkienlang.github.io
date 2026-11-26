@@ -121,7 +121,7 @@ SEARCH_TEXT["header"] = {language: {**words, "placeholder": text("Search", langu
 
 
 def search_box_html(box_id, language, variant, labels, results="none", more_href="", ids=None, autofocus=False,
-                    input_name=""):
+                    input_name="", show_toggle=True):
     """The markup of every public search box; TliSearchBox (shared/web-search-box.js) attaches to it.
 
     The input is `<box_id>Input`, its clear button `<box_id>Clear` and its candidate menu
@@ -138,6 +138,8 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
         f'<span class="toggle-label{" visually-hidden" if variant == "compact" else ""}">{words["keyboard"]}</span>'
         '<span class="toggle-switch" aria-hidden="true"><span class="toggle-knob"></span></span></button>'
     )
+    if not show_toggle:
+        toggle = ""
     hidden_class = ' class="visually-hidden"' if variant == "compact" else ""
     label = f'<label for="{ids["input"]}"{hidden_class}>{words["label"]}</label>'
     # A song page is one page shown in three languages, switched when it loads, so the box carries
@@ -154,7 +156,7 @@ def search_box_html(box_id, language, variant, labels, results="none", more_href
     # box; elsewhere the label and the switch head the box.
     heading = "" if variant == "compact" else f'<div class="tli-search-heading">{label}{toggle}</div>'
     return (
-        f'<div class="tli-search tli-search--{variant}" data-tli-search{attributes}>'
+        f'<div class="tli-search tli-search--{variant}{"" if show_toggle else " tli-search--no-toggle"}" data-tli-search{attributes}>'
         + heading +
         '<div class="tli-search-input-wrap">'
         + (label if variant == "compact" else "") +
@@ -857,7 +859,7 @@ def songs_subheader(root, route, language):
                       f'<a class="songs-breadcrumb-category" href="/songs/?sound={html.escape(sound["id"], quote=True)}">'
                       f'{named(sound["labels"])}</a>')
     box = search_box_html("songFilter" if on_index else "songSearch", language, "compact", "songs",
-                          results="none" if on_index else "dropdown", more_href="/songs/")
+                          results="none" if on_index else "dropdown", more_href="/songs/", show_toggle=False)
     return (f'<div class="songs-subheader"><div class="songs-breadcrumb" role="navigation" aria-label="Breadcrumb">{crumb}</div>'
             f'{box}</div>')
 
