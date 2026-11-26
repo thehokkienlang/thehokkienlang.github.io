@@ -534,7 +534,7 @@ def home_launch(language, listen=""):
 def home_showcase(language, song_records=()):
     labels = {
         "en": {
-            "label": "Explore TheHokkienLang",
+            "label": "Explore HokkienLang",
             "tone_meta": "Listen closely",
             "tone_title": "Guide to Hokkien tone sandhi",
             "tone_copy": "Follow the sound changes that give a Hokkien phrase its rhythm, and see how TLI records what is heard.",
@@ -555,7 +555,7 @@ def home_showcase(language, song_records=()):
             "selection": "From the songbook",
         },
         "zh-Hant": {
-            "label": "探索 TheHokkienLang",
+            "label": "探索 HokkienLang",
             "tone_meta": "細聽",
             "tone_title": "閩南語變調解析",
             "tone_copy": "了解變調如何構成閩南語詞句的節奏，以及東寧音如何記錄實際讀音。",
@@ -576,7 +576,7 @@ def home_showcase(language, song_records=()):
             "selection": "歌單精選",
         },
         "zh-Hans": {
-            "label": "探索 TheHokkienLang",
+            "label": "探索 HokkienLang",
             "tone_meta": "细听",
             "tone_title": "闽南语变调解析",
             "tone_copy": "了解变调如何构成闽南语词句的节奏，以及东宁音如何记录实际读音。",
@@ -976,7 +976,6 @@ def build_content(root: Path, output: Path):
             return result
 
         def handle_data(self, data):
-            data = re.sub(r"(?<!The)\bHokkienLang\b", "TheHokkienLang", data)
             if self.language == "en" and "Tangliengim" in data and not self.keeps_full_name:
                 if self.tli_introduced:
                     data = data.replace("Tangliengim", "TLI")

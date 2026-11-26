@@ -22,11 +22,7 @@ from content_harmonisation import restore_body
 
 # Approved source edits are scoped to specific pages and ruby indices.
 APPROVED_COPY_EDITS = {
-    3082: (
-        ("HokkienLang is a space", "TheHokkienLang is a space"),
-        (" (pronounced Tung-LEE-eng-im)", ""),
-    ),
-    1258: (("welcome to HokkienLang.", "welcome to TheHokkienLang."),),
+    3082: ((" (pronounced Tung-LEE-eng-im)", ""),),
     6645: (("당ˉ롕임ˆ-", "당ˉ롕임ˆ"),),
 }
 APPROVED_RUBY_EDITS = {6645: {2: ("당ˉ롕임ˆ-", "당ˉ롕임ˆ")}}

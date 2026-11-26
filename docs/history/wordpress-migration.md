@@ -90,10 +90,9 @@ revision/hash, orthography review status, and HTML body. Original public HTML
 snapshots are retained under `migration/wordpress-source/`. The final batch
 was fetched fresh from WordPress after the user confirmed it was ready.
 
-The Home (3082) and About (1258) page copy uses the approved site name
-`TheHokkienLang` in place of `HokkienLang`. Preservation checks allow only
-those two specific copy edits; all other text, readings, media counts and
-original source hashes still match the unchanged WordPress snapshots.
+The Home (3082) and About (1258) page copy now uses the site name
+`HokkienLang`. The original WordPress snapshots remain unchanged; the copy
+checks continue to account for the approved differences.
 The approved Traditional Chinese Home correction removes the trailing hyphen
 from `당ˉ롕임ˆ-` in the paragraph beginning with the system name and
 `以諺文為基礎`. The preservation check records that exact ruby edit; the source

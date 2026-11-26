@@ -13,7 +13,7 @@ import re
 from xml.sax.saxutils import escape as xml_escape
 
 SITE = "https://thehokkienlang.github.io"
-SITE_NAME = "TheHokkienLang"
+SITE_NAME = "HokkienLang"
 SHARE_IMAGE = SITE + "/assets/tangliengim-hokkienlang-logo.png"
 LOCALES = {"en": "en", "zh-Hant": "zh_TW", "zh-Hans": "zh_CN"}
 MAX_LENGTH = {"en": 160, "zh-Hant": 80, "zh-Hans": 80}
@@ -40,9 +40,9 @@ INDEX_DESCRIPTIONS = {
         "zh-Hans": "Andy Weir《The Egg》的闽南语翻译，以东宁音书写。",
     },
     "/search/": {
-        "en": "Search the guides, songs and stories on TheHokkienLang.",
-        "zh-Hant": "搜尋 TheHokkienLang 的指南、歌曲與故事。",
-        "zh-Hans": "搜索 TheHokkienLang 的指南、歌曲与故事。",
+        "en": "Search the guides, songs and stories on HokkienLang.",
+        "zh-Hant": "搜尋 HokkienLang 的指南、歌曲與故事。",
+        "zh-Hans": "搜索 HokkienLang 的指南、歌曲与故事。",
     },
 }
 SONG_DESCRIPTION = {
@@ -118,7 +118,7 @@ NOT_FOUND_BODY = (
     '<p>This page doesn’t exist, or it has moved.</p>'
     '<p>此頁不存在，或已搬移。<br>此页不存在，或已搬移。</p>'
     '<ul class="page-list">'
-    '<li><a href="/">TheHokkienLang home</a> · <a href="/zh-hant/">主頁</a> · <a href="/zh-hans/">主页</a></li>'
+    '<li><a href="/">HokkienLang home</a> · <a href="/zh-hant/">主頁</a> · <a href="/zh-hans/">主页</a></li>'
     '<li><a href="/search/">Search the site</a> · <a href="/zh-hant/search/">搜尋</a> · <a href="/zh-hans/search/">搜索</a></li>'
     '<li><a href="/songs/">Songs</a> · <a href="/learn/introduction/">Introduction to TLI</a></li>'
     "</ul>"

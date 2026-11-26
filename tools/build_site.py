@@ -38,7 +38,7 @@ def android_keyboard_version() -> str:
 
 def app_meta(page: str, app: str) -> str:
     """Description and share tags for an app page (audit A8)."""
-    title = re.search(r"<title>(.*?) · TheHokkienLang</title>", page).group(1)
+    title = re.search(r"<title>(.*?) · HokkienLang</title>", page).group(1)
     page = re.sub(r'\s*<meta\s[^>]*\bname="description"[^>]*>', "", page)
     tags = meta_tags(title, f"/{app}/", APP_DESCRIPTIONS[app], "en").replace("\n  ", "\n    ")
     return page.replace("</title>", "</title>\n    " + tags, 1)
