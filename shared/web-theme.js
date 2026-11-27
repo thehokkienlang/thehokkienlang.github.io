@@ -1,14 +1,14 @@
 (function (root) {
   'use strict';
-  // Dark or light colours for the whole site. Dark is the default; a toggle in the header (beside
-  // the search icon) switches between the two, and the choice is kept per visitor in localStorage
-  // ('tli-theme', read inside try/catch). <html data-theme="dark|light"> carries the theme in use,
+  // Dark or light colours for the whole site. Follow the browser until the visitor picks a theme.
+  // Manual choices are kept per visitor in localStorage ('tli-theme', read inside try/catch).
+  // <html data-theme="dark|light"> carries the theme in use,
   // and shared/web-dark-theme.css draws dark mode from it. This script is loaded in <head> without
   // defer, so the page is never drawn in the wrong colours first.
 
   const STORAGE_KEY = 'tli-theme';
   const THEMES = Object.freeze(['dark', 'light']);
-  const DEFAULT = 'dark';
+  const browserTheme = root.matchMedia?.('(prefers-color-scheme: dark)');
   // Each label says what pressing the toggle does.
   const LABELS = Object.freeze({
     en: {toLight: 'Switch to light mode', toDark: 'Switch to dark mode'},
@@ -22,10 +22,11 @@
   function stored() {
     try {
       const value = root.localStorage?.getItem(STORAGE_KEY);
-      return THEMES.includes(value) ? value : DEFAULT; // an older 'auto' choice reads as the default
-    } catch (_error) { return DEFAULT; }
+      return THEMES.includes(value) ? value : null;
+    } catch (_error) { return null; }
   }
-  let theme = stored();
+  let choice = stored();
+  const get = () => choice ?? (browserTheme?.matches ? 'dark' : 'light');
 
   function language() {
     const lang = root.document?.documentElement.lang;
@@ -36,6 +37,7 @@
     const doc = root.document;
     const html = doc?.documentElement;
     if (!html) return;
+    const theme = get();
     html.dataset.theme = theme;
     html.style.colorScheme = theme;
     const words = LABELS[language()];
@@ -51,11 +53,11 @@
 
   function set(next) {
     if (!THEMES.includes(next)) return;
-    theme = next;
+    choice = next;
     try { root.localStorage?.setItem(STORAGE_KEY, next); } catch (_error) { /* kept for this page */ }
     apply();
   }
-  const toggle = () => set(theme === 'dark' ? 'light' : 'dark');
+  const toggle = () => set(get() === 'dark' ? 'light' : 'dark');
 
   // The toggle goes after the header search field, or before the language menu on /search/ where
   // the redundant header search is intentionally absent. The header's navigation is replaced when
@@ -76,11 +78,14 @@
     apply();
   }
 
-  root.TliTheme = {STORAGE_KEY, THEMES, DEFAULT, get: () => theme, set, toggle, mount};
+  root.TliTheme = {STORAGE_KEY, THEMES, get, set, toggle, mount};
   apply();
+  const browserThemeChanged = () => { if (choice === null) apply(); };
+  if (browserTheme?.addEventListener) browserTheme.addEventListener('change', browserThemeChanged);
+  else browserTheme?.addListener?.(browserThemeChanged);
   root.addEventListener?.('storage', event => {
     if (event.key !== STORAGE_KEY && event.key !== null) return;
-    theme = stored();
+    choice = stored();
     apply();
   });
   root.document?.addEventListener('click', event => {
