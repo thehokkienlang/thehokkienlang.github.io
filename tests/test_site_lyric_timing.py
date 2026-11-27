@@ -1,5 +1,6 @@
 """Cue boundaries, lyric identity, safe local saves and build-only annotations."""
 import copy
+import io
 import json
 import math
 import re
@@ -7,11 +8,13 @@ import sys
 import tempfile
 import subprocess
 import unittest
+from contextlib import redirect_stdout
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'tools'))
 from lyric_timing import blank_timing, decorate_lyrics, reconcile_timing, song_lines, timing_path, validate_timing
+from check_lyric_timings import main as check_lyric_timings, timing_problems
 from website_editor_service import WebsiteEditorError, WebsiteEditorService
 from node_runtime import node_environment
 
@@ -208,6 +211,37 @@ class LyricTimingTests(unittest.TestCase):
                     with self.assertWarnsRegex(UserWarning, 'synchronized lyrics omitted'):
                         rendered = decorate_lyrics(ROOT, source, source['body'])
                     self.assertEqual(rendered, source['body'])
+
+    def test_release_check_fails_on_timing_the_build_would_drop(self):
+        record = song()
+        data = blank_timing(record)
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            page = root/'content/songs/song-test.json'; page.parent.mkdir(parents=True)
+            sidecar = timing_path(root, record); sidecar.parent.mkdir(parents=True)
+            page.write_text(json.dumps(record), encoding='utf-8')
+            sidecar.write_text(json.dumps(data), encoding='utf-8')
+            self.assertEqual(timing_problems(root), [])
+            with redirect_stdout(io.StringIO()):
+                self.assertEqual(check_lyric_timings(root), 0)
+
+            stale = copy.deepcopy(data); stale['cues'][1]['fingerprint'] = '0' * 64
+            sidecar.write_text(json.dumps(stale), encoding='utf-8')
+            output = io.StringIO()
+            with redirect_stdout(output):
+                self.assertEqual(check_lyric_timings(root), 1)
+            for expected in ('Song (content/songs/song-test.json)', 'first mismatched line: line-002', 'Save timings locally'):
+                self.assertIn(expected, output.getvalue())
+
+            for broken, expected in (
+                    ({**data, 'cues': data['cues'][:1]}, 'first mismatched line: line-002'),
+                    ({**data, 'videoId': 'xxxxxxxxxxx'}, 'does not match this song/video')):
+                sidecar.write_text(json.dumps(broken), encoding='utf-8')
+                self.assertIn(expected, timing_problems(root)[0])
+            sidecar.write_text('{', encoding='utf-8')
+            self.assertEqual(len(timing_problems(root)), 1)
+            sidecar.rename(sidecar.with_name('song-gone.json'))
+            self.assertIn('no song page has the ID "song-gone"', timing_problems(root)[0])
 
 
 if __name__ == '__main__': unittest.main()

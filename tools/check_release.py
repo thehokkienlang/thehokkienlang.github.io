@@ -66,6 +66,7 @@ PYTHON_FILES = (
     "tools/dictionary_editor_service.py",
     "tools/website_editor_service.py",
     "tools/lyric_timing.py",
+    "tools/check_lyric_timings.py",
     "tools/check_compound_glosses.py",
     "tools/check_stored_sandhi_tones.py",
     "tools/compressed_audio.py",
@@ -163,6 +164,7 @@ def build_sections(source_only: bool, website: bool = False) -> list[Section]:
 
     add("Release gate scope tests", *py, "-m", "unittest", "discover", "-s", "tests",
         "-p", "test_check_release_scope.py", stage=0)
+    add("Lyric timings match song lyrics", *py, "tools/check_lyric_timings.py", stage=0)
     add("Dictionary TSV schema", *py, "tools/validate_dictionary_tsv.py", stage=0)
     add("Canonical source order (read-only)", *py, "tools/sort_dictionary_tsv.py", "--check", stage=0)
     add("Redirect log coverage and jamo order", *py, "tools/build_redirect_log.py", "--check", stage=0)
@@ -229,6 +231,7 @@ def website_path(path: str) -> bool:
             or path in {"shared/site-brand.html", "shared/web-title-reading.css",
                         "docs/lomari-review.json", "favicon.ico", "tools/build_content.py",
                         "tools/site_languages.py", "tools/site_search.py", "tools/lyric_timing.py",
+                        "tools/check_lyric_timings.py",
                         "tools/song_title_readings.py", "tools/lomari_sync.py", "tools/check_site.py",
                         "tests/test_wordpress_migration.py", "tests/test_song_title_readings.py"}
             or (path.startswith("tests/test_site_") and path.endswith(".py")))
@@ -250,6 +253,7 @@ WEBSITE_SECTIONS = {
     "Python syntax", "Release gate scope tests", "Build published site", "Validate published site",
     "Stored readings keep Taipei sandhi digits", "Lomari follows the Hokkien text",
     "Sandhi display on song pages", "Site, migration and song-title tests",
+    "Lyric timings match song lyrics",
     "Song-title reading tests", "Site tests", "Validate built Web applications",
 }
 

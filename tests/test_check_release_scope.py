@@ -45,6 +45,9 @@ class ScopeTests(unittest.TestCase):
             self.assertIn("Stored readings keep Taipei sandhi digits", selected)
             self.assertIn("Website font coverage", selected)
             self.assertIn("Lomari follows the Hokkien text", selected)
+            self.assertIn("Lyric timings match song lyrics", selected)
+            self.assertIn("Lyric timings match song lyrics",
+                          {s.label for s in gate.build_sections(source_only)})
             self.assertIn("JavaScript syntax: apps/content-site/site.js", selected)
             self.assertEqual("Validate published site" in selected, not source_only)
             self.assertNotIn("Build runtime dictionary data", selected)

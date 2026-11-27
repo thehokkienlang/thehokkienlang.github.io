@@ -59,6 +59,21 @@ The timing UI uses the existing localhost-only, token-protected CMS API and is
 excluded from public builds. Review changes, validate, and commit/push separately
 in the CMS after approving the recording alignment and visual preview.
 
+## Keeping timings matched to lyrics
+
+Each cue carries a fingerprint of its whole lyric paragraph, Lomari included.
+Any edit to that text, even a hyphen or tone mark, makes the timing file stale.
+Saving a song does not update its timing file, and neither does
+`lomari_sync.py --fix`. The build then leaves the player out of that page with
+only a warning, so the release gate runs this check in every profile:
+
+`python -X utf8 tools/check_lyric_timings.py`
+
+To repair a reported song, open **Lyric timing** for it. The editor carries the
+saved times over to the current lines. Review them, then choose
+**Save timings locally**. Take particular care if lines or the video were added,
+removed, reordered or replaced, because a time can land on the wrong line.
+
 ## Checks
 
 ### Future detector-generated timing
