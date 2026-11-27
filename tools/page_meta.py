@@ -12,7 +12,7 @@ import html
 import re
 from xml.sax.saxutils import escape as xml_escape
 
-SITE = "https://thehokkienlang.github.io"
+SITE = "https://hokkienlang.org"
 SITE_NAME = "HokkienLang"
 SHARE_IMAGE = SITE + "/assets/tangliengim-hokkienlang-logo.png"
 LOCALES = {"en": "en", "zh-Hant": "zh_TW", "zh-Hans": "zh_CN"}

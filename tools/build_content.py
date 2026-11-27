@@ -884,7 +884,7 @@ def document(root, title, route, body, content_type="index", source_url=None, he
         heading = introduce_tli(heading)
     introduction = f'<p class="site-introduction">{home_introductions[language]}</p>' if base_route(route) == "/" else ""
     eyebrow = f'<p class="home-kicker">{home_kickers[language]}</p>' if base_route(route) == "/" else ""
-    alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://thehokkienlang.github.io{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
+    alternates = "".join(f'<link rel="alternate" hreflang="{code}" href="https://hokkienlang.org{html.escape(destination, quote=True)}">' for code in LANGUAGES if (destination := language_url(route, code)) is not None)
     # A ?lang= address is the same page with a translated interface, and its canonical is
     # the English URL, so it is not an alternate version for search engines.
     if any("?" in (language_url(route, code) or "") for code in LANGUAGES):

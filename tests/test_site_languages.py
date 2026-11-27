@@ -396,7 +396,7 @@ class SiteLanguageTests(unittest.TestCase):
             self.assertNotIn(alternate, song_page)
             about_page = (output / "about/index.html").read_text(encoding="utf-8")
             self.assertEqual(about_page.count(alternate), 3)
-            self.assertIn('hreflang="zh-Hant" href="https://thehokkienlang.github.io/zh-hant/about/"', about_page)
+            self.assertIn('hreflang="zh-Hant" href="https://hokkienlang.org/zh-hant/about/"', about_page)
             # Audit A5: each page loads only the scripts it uses.
             def scripts(relative):
                 page = (output / relative / "index.html").read_text(encoding="utf-8")
