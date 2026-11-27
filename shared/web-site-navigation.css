@@ -3,6 +3,7 @@
   --site-ink: #19272a;
   --site-muted: #5d6c70;
   --site-line: #ccdae0;
+  --site-header-background: #f2f8fc;
   --site-accent: #0a7180;
   --site-accent-strong: #085764;
   --site-accent-soft: #e7f4f6;
@@ -200,7 +201,7 @@
   width: 100%;
   max-width: none;
   padding: 20px max(24px, calc((100% - 1144px) / 2));
-  background: #fff;
+  background: var(--site-header-background);
   border-bottom: 1px solid var(--site-line);
 }
 .site-header nav, .site-app-nav { align-items: center; gap: 10px 18px; }
@@ -227,7 +228,7 @@
   border: 1px solid var(--site-line);
   border-radius: 999px;
   color: var(--site-ink);
-  background: transparent;
+  background: #fff;
   font: inherit;
   line-height: 1;
   appearance: none;
