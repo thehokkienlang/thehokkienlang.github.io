@@ -26,7 +26,7 @@ NAV_GROUPS = (
     ("Learn", (("/learn/introduction/", "Introduction"), ("/learn/tone-sandhi/", "Tone sandhi"), ("/learn/spelling/", "Spelling"), ("/learn/romanisation/", "Romanisation"))),
     ("/songs/", "Songs"),
     ("/read/", "Read"),
-    ("Tools", (("/dictionary/", "Dictionary"), ("/ime/", "Hokkien IME"), ("/translate/", "Translator"))),
+    ("Tools", (("/ime/", "Type Hokkien (IME)"), ("/dictionary/", "Dictionary"), ("/translate/", "Translator"))),
 )
 NAV = (("/about/", "About"), ("/search/", "Search"))
 IME_SCRIPTS = ('<script src="/shared/web-hangul-ime.js" defer></script>'
