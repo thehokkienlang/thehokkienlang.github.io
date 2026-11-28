@@ -166,6 +166,14 @@ Expected menus after the change:
 This also fixes phrase conversion. The phrase lattice takes each span's first
 entry, so without these pins 킈쟣븡 would give **’킈食飯**.
 
+**Found while executing: pins also reach Hangul default readings.** The web
+engine picks one Hangul-only entry per apostrophe-free key to give written
+Hangul its tones, Lomari and audio, and that choice read the same pins. 이 (이5)
+and ’이 share a key, so the 이 pin alone would have made written ’이 read as
+이5. `defaultHangulOverride()` in `shared/web-ime-core.js` now keeps the
+dictionary's canonical order for such a pair, so pins order menus only. All
+default lookups match the build without the pins. No other pin was affected.
+
 ### 3.4 Learned preferences
 
 A pin changes the static order only. A device that has learned ’꽈 keeps

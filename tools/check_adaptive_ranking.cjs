@@ -44,12 +44,26 @@ function show(ime, text) {
 }
 const signature = list => Array.from(list, c => [c.entry.id || null, c.entry.hanri, c.entry.reading, c.start, c.end]);
 const menus = [];
+// Apostrophe guard (docs/ime-phrase-conversion-plan.md, 3.5): a headword starting with ’ is
+// never first in a fresh menu unless a priority row ranks it first.
+const apostropheFirst = new Set();
+function checkFirst(text, [first]) {
+  if (!first || !core.normalizeApostrophes(first.entry.hanri).startsWith('’')) return;
+  const typed = text.slice(first.start, first.end).replace(/[12345ˆˋ`ˊˉꞈˎˏˍ]/gu, '');
+  if (first.entry.staticRanks?.[core.rankingLookupKey(typed)] !== 1) {
+    apostropheFirst.add(`${typed.normalize('NFC')}: ${first.entry.hanri} (${first.entry.raw?.entry_id})`);
+  }
+}
 const ime = controller();
 for (const [key, entries] of index.candidatesByReading) {
   for (const text of new Set([key, ...entries.map(e => e.reading)])) {
-    menus.push([text, signature(show(ime, text))]);
+    const shown = show(ime, text);
+    checkFirst(text, shown);
+    menus.push([text, signature(shown)]);
   }
 }
+assert.deepEqual([...apostropheFirst], [],
+  'An apostrophe form is first in a fresh menu; pin it to rank 2 in data/dictionary_priority.tsv');
 const snapshot = {menus: menus.length,
   sha256: crypto.createHash('sha256').update(JSON.stringify(menus)).digest('hex')};
 const baseline = path.join(root, 'tests/fixtures/adaptive-static-menu-baseline.json');

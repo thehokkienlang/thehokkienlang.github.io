@@ -906,6 +906,15 @@ const TangliengimEngine = (() => {
       exactReadingEntries.get(normalized).push(entry);
     }
 
+    // This default supplies the tones, Lomari and audio of written Hangul. 이 and ’이 share one
+    // slot, because the lookup key drops the apostrophe. A priority pin that moves a ’ form down
+    // orders the candidate menus only, so such a pair keeps the dictionary's canonical order.
+    function defaultHangulOverride(previous, entry, key) {
+      const apostrophe = item => normalizeApostrophes(item.hanri).startsWith("’");
+      if (apostrophe(previous) === apostrophe(entry)) return rankEntries([previous, entry], key)[0];
+      return compareCanonicalEntries(entry, previous) < 0 ? entry : previous;
+    }
+
     for (const entry of activeEntries) {
       addExactReading(entry.reading, entry);
       addExactReading(entry.raw?.reading, entry);
@@ -914,7 +923,7 @@ const TangliengimEngine = (() => {
       const key = normalizeText(visibleKey);
       if (key) {
         const previous = hangulOverrides.get(key);
-        hangulOverrides.set(key, previous ? rankEntries([previous, entry], visibleKey)[0] : entry);
+        hangulOverrides.set(key, previous ? defaultHangulOverride(previous, entry, visibleKey) : entry);
         if (!previous) hangulOverrideKeys.push(visibleKey);
       }
     }
