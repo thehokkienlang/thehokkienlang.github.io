@@ -1,7 +1,14 @@
 # Plan: phrase conversion in the IME, and apostrophe forms in menus
 
 Drafted 2026-11-28 against commit `50cb543` (main). All decisions answered by Haru
-on 2026-11-28 (section 9). **Not executed.**
+on 2026-11-28 (section 9).
+
+**Status (2026-11-28):** steps 1–6 of section 7 are written and committed on the
+local branch `ime-phrase-conversion`; nothing is pushed. **Waiting for Haru:**
+the step 6 review ([sample report](ime-phrase-conversion-review.md)) and the
+change to D5 and D8 for typed apostrophes (end of section 5.4). The release
+steps in section 8 (push, Android 0.6, Windows build) are **not done**. Notes
+headed "executing" or "executed" record what differs from the draft.
 
 Two changes, released together:
 
@@ -469,6 +476,9 @@ Each step is a separate commit, so it can be reviewed and reverted on its own.
    stories. A small script strips the Hanri from lyric lines, re-types the
    readings and compares the phrase with the original. This also measures how
    often phrase conversion picks the right Hanri.
+
+   **As executed:** `tools/sample_phrase_conversion.py` wrote
+   [ime-phrase-conversion-review.md](ime-phrase-conversion-review.md).
 
 ## 8. Checks and release
 
