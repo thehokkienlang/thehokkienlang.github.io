@@ -53,13 +53,14 @@ class EngineCases(unittest.TestCase):
     def test_shared_cases(self):
         for case in FIXTURE['cases']:
             with self.subTest(case['name']):
-                # The engine splits only what follows the last apostrophe, as the menu does.
+                # The engine splits only what follows the last apostrophe, as the menu does,
+                # and offers no phrase for text a typed apostrophe attaches.
                 typed = units(case['typed'].split('’')[-1])
                 lookup = PAD.phrase_span_lookup(INDEX, typed)
                 suffix = next((length for length in range(len(typed), 0, -1)
                                if lookup(len(typed) - length, len(typed))), 0)
                 result = None
-                if not PAD.is_apostrophe_joined_word(INDEX, case['typed']):
+                if not PAD.follows_apostrophe(case['typed']):
                     result = PAD.phrase_for_run(typed, lookup, suffix)
                 found = result and [
                     [part['start_unit'], part['end_unit'], part['entry']['entry_id'] if part['entry'] else None]
@@ -151,8 +152,30 @@ class PadMenu(unittest.TestCase):
                 self.assertEqual([part['entry'] and part['entry']['entry_id'] for part in menu['phrase']['segments']],
                                  [identity for _start, _end, identity in case['phrase']])
                 self.assertEqual(len(menu['choices']), len(menu['labels']))
+                # The label is a number, the phrase and its reading; neither of those has a space.
+                self.assertEqual(len(menu['labels'][0].split()), 3, menu['labels'][0])
                 self.assertEqual(menu['choices'].count(case['text']), 1)
         self.assertFalse(self.preferences.exists(), 'Showing menus must not learn')
+
+    def test_no_choice_writes_hanri_after_a_typed_apostrophe(self):
+        for typed, _written in FIXTURE['afterApostrophe']:
+            with self.subTest(typed):
+                self.pad.chosen_hangul_prefixes = []
+                self.pad.suppressed_hanri_contexts = set()
+                menu = self.open_menu(typed)
+                if not menu:
+                    continue
+                self.assertFalse(menu.get('phrase'))
+                self.assertEqual(len(menu['choices']), len(menu['labels']))
+                for choice in menu['choices']:
+                    written = menu['prefix'] + choice
+                    self.assertGreaterEqual(written.count('’'), typed.count('’'), written)
+                    self.assertFalse(PAD.field_has_hanri(written.rpartition('’')[2]), written)
+
+    def test_a_space_ends_the_apostrophe_attachment(self):
+        self.assertEqual(self.open_menu('꽈’에 킈쟣븡')['choices'][0], '去食飯')
+        self.pad.suppressed_hanri_contexts = set()
+        self.assertIn('去', self.open_menu('킈')['choices'], 'without ’, Hanri are offered')
 
     def test_word_menu_is_unchanged_below_the_phrase(self):
         text = '킈쟣븡'
@@ -160,7 +183,7 @@ class PadMenu(unittest.TestCase):
         self.pad.composer = PAD.Composer(output=text, cursor_pos=len(text))
         words = self.pad.adapt_candidate_menu(self.pad.find_word_candidate())
         self.assertEqual(menu['choices'], ['去食飯', *words['choices']])
-        self.assertEqual(menu['labels'][0], '1  去食飯  킈 쟣븡ˉ')
+        self.assertEqual(menu['labels'][0], '1  去食飯  킈쟣븡ˉ')
 
     def test_the_hangul_tones_setting_adds_no_marks_to_a_hangul_word(self):
         self.pad.output_tones_on = SimpleNamespace(get=lambda: True)  # the Pad's default
@@ -190,7 +213,7 @@ class PadMenu(unittest.TestCase):
         self.assertFalse(self.preferences.exists())
 
     def test_shared_space_cases(self):
-        for typed, written in FIXTURE['space']:
+        for typed, written in [*FIXTURE['space'], *FIXTURE['afterApostrophe']]:
             with self.subTest(typed):
                 self.pad.chosen_hangul_prefixes = []
                 self.pad.suppressed_hanri_contexts = set()

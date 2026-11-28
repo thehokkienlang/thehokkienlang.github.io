@@ -10,7 +10,7 @@ const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const { loadDictionaryData } = require('../tools/dictionary_data.cjs');
 const data = loadDictionaryData(path.join(root, 'public/data/hokkien-hanri-dict.json'));
-const { cases } = JSON.parse(read('tests/fixtures/phrase-conversion-cases.json'));
+const { cases, afterApostrophe } = JSON.parse(read('tests/fixtures/phrase-conversion-cases.json'));
 
 function element() {
   const listeners = {};
@@ -60,14 +60,15 @@ function units(typed) {
 
 // 1. The shared cases, against the pure engine functions and through the controller's menu.
 for (const testCase of cases) {
-  // The engine splits only what follows the last apostrophe, as the menu does.
+  // The engine splits only what follows the last apostrophe, as the menu does, and offers no
+  // phrase for text a typed apostrophe attaches.
   const typedUnits = units(testCase.typed.split('’').at(-1));
   const lookup = core.phraseSpanLookup(index.candidatesByReading, typedUnits);
   let suffix = 0;
   for (let length = typedUnits.length; length > 0 && !suffix; length -= 1) {
     if (lookup(typedUnits.length - length, typedUnits.length).length) suffix = length;
   }
-  const result = core.isApostropheJoinedWord(index.candidatesByReading, testCase.typed)
+  const result = core.followsApostrophe(testCase.typed, testCase.typed.length)
     ? null : core.phraseForRun(typedUnits, lookup, suffix);
   const segments = result && Array.from(result.segments, s => [s.startUnit, s.endUnit, s.entry?.id || null]);
   assert.deepEqual(plain(segments), testCase.phrase, `engine: ${testCase.name}`);
@@ -81,6 +82,7 @@ for (const testCase of cases) {
     assert.deepEqual(plain(Array.from(list[0].segments, s => s.entry?.id || null)),
       testCase.phrase.map(([, , id]) => id), `menu words: ${testCase.name}`);
     assert.equal(list[0].entry.hanri, testCase.text, `menu text: ${testCase.name}`);
+    assert.doesNotMatch(list[0].entry.hanri + list[0].entry.reading, /\s/u, `no added space: ${testCase.name}`);
     ime.applyCandidate(list[0]);
     const head = testCase.typed.slice(0, testCase.typed.lastIndexOf('’') + 1);
     assert.equal(ime.control.value, head.replace(/[1-5]/g, '') + testCase.text, `written: ${testCase.name}`);
@@ -96,11 +98,51 @@ for (const testCase of cases) {
 }
 assert.deepEqual(plain(controller().preferences.snapshot().selections), {}, 'Showing menus must not learn');
 
+// After a typed apostrophe the menu offers only Hangul, whichever way a choice is made.
+const isHangul = candidate => ['hangul_override', 'hangul_plain'].includes(candidate.entry.kind);
+for (const [typed, written] of afterApostrophe) {
+  const list = type(controller(), typed);
+  assert.ok(list.length, `a menu is still offered: ${typed}`);
+  assert.deepEqual(Array.from(list.filter(c => !isHangul(c)), c => c.entry.hanri), [], `no Hanri: ${typed}`);
+  for (let position = 0; position < list.length; position += 1) {
+    const ime = controller();
+    ime.applyCandidate(type(ime, typed)[position]);
+    assert.doesNotMatch(ime.control.value.slice(ime.control.value.lastIndexOf('’')), /\p{Script=Han}/u,
+      `choice ${position + 1} writes Hangul: ${typed}`);
+    assert.ok(ime.control.value.includes('’'), `the typed apostrophe stays: ${typed}`);
+    if (!position) assert.equal(ime.control.value, written, `first choice: ${typed}`);
+  }
+}
+// Directly after ’ the apostrophe form comes first, with its own reading: ’이 is not 이5.
+{
+  const ime = controller();
+  const list = type(ime, '’이');
+  assert.equal(list[0].entry.id, 'U+2019_U+C774_00');
+  ime.applyCandidate(list[0]);
+  assert.deepEqual(plain(ime.getRememberedHangulReadings().map(s => [s.hangul, s.reading])), [['’이', '’이']]);
+}
+// Without a typed apostrophe nothing changes, and choices made after ’ are learned apart.
+{
+  const first = typed => type(controller(), typed)[0].entry.hanri;
+  assert.deepEqual([first('에'), first('킈')], ['會', '去']);
+  const ime = controller();
+  for (let times = 0; times < 5; times += 1) {
+    ime.clear();
+    type(ime, '꽈’에');
+    ime.candidateContainer.children[0].listeners.click();
+  }
+  assert.deepEqual(Object.keys(ime.preferences.snapshot().selections), ['’에']);
+  assert.equal(first('에'), '會', 'Choosing ’에 after an apostrophe does not move it above 會');
+  ime.preferences.reset();
+}
+// A space ends the attachment: what follows converts again.
+assert.equal(type(controller(), '꽈’에 킈쟣븡')[0].entry.hanri, '去食飯');
+
 // 2. The plan's headline menu: the whole phrase first, the word it used to offer still below.
 {
   const list = type(controller(), '킈쟣븡');
   assert.deepEqual(Array.from(list.slice(0, 3), c => c.entry.hanri), ['去食飯', '食飯', '쟣븡']);
-  assert.equal(list[0].entry.reading, '킈 쟣븡5', 'The reading line separates the words');
+  assert.equal(list[0].entry.reading, '킈쟣븡5', 'The reading line adds no space between the words');
   assert.equal(list[1].start, 1, '食飯 still replaces only 쟣븡');
 }
 
@@ -206,6 +248,6 @@ assert.deepEqual(plain(controller().preferences.snapshot().selections), {}, 'Sho
 }
 
 // 10. The reading shown for an unknown syllable is what was typed.
-assert.equal(type(controller(), '킈뷁쟣븡')[0].entry.reading, '킈 뷁 쟣븡5');
+assert.equal(type(controller(), '킈뷁쟣븡')[0].entry.reading, '킈뷁쟣븡5');
 
 console.log(`OK: phrase conversion; ${cases.length} shared cases, tie-breaks and controller commits.`);

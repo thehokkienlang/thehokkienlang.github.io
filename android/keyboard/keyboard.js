@@ -174,7 +174,7 @@
   // Space and Enter first convert to the strip's first candidate, as if it had been taken
   // without choosing it, so nothing is learned. To keep Hangul, tap the Hangul candidate.
   function convertFirst() {
-    const first = controller.passiveCandidate();
+    const [first] = controller.activeCandidates;
     if (first) controller.applyCandidate(first, false);
   }
 

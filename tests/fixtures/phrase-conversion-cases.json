@@ -1,5 +1,17 @@
 {
-  "about": "Shared by tests/check_phrase_conversion.cjs (web, Android) and tests/test_phrase_conversion.py (desktop). 'typed' is the run as typed, with tone digits. 'phrase' is null when no phrase is offered, otherwise one [first syllable, end syllable, entry ID or null] per segment; null leaves the syllable as typed. 'text' is what accepting the phrase writes. 'space' lists what Space leaves before its space on Android and the desktop Pad, with tone digits dropped: the first candidate, except that text a typed apostrophe attaches is kept. See docs/ime-phrase-conversion-plan.md, sections 4 and 5.",
+  "about": "Shared by tests/check_phrase_conversion.cjs (web, Android) and tests/test_phrase_conversion.py (desktop). 'typed' is the run as typed, with tone digits. 'phrase' is null when no phrase is offered, otherwise one [first syllable, end syllable, entry ID or null] per segment; null leaves the syllable as typed. 'text' is what accepting the phrase writes. 'space' lists what Space leaves before its space on Android and the desktop Pad, with tone digits dropped: the first candidate. 'afterApostrophe' lists typed runs where no web menu choice writes Hanri, with what the first choice writes. See docs/ime-phrase-conversion-plan.md, sections 4 and 5.",
+  "afterApostrophe": [
+    ["’킈", "’킈"],
+    ["꽈’에", "꽈’에"],
+    ["’에", "’에"],
+    ["’이", "’이"],
+    ["’래", "’래"],
+    ["’꽈", "’꽈"],
+    ["쟣바’ᄅᆤ", "쟣바’ᄅᆤ"],
+    ["림1’롷킈", "림’롷킈"],
+    ["감샤’킈쟣븡", "감샤’킈쟣븡"],
+    ["감샤’감샤", "감샤’감샤"]
+  ],
   "space": [
     ["킈쟣븡", "去食飯"],
     ["킈쟣븡5", "去食飯"],
@@ -100,10 +112,9 @@
       "phrase": null
     },
     {
-      "name": "an apostrophe after other text does not stop a phrase",
+      "name": "text after a typed apostrophe stays Hangul, so it gets no phrase",
       "typed": "감샤’킈쟣븡",
-      "phrase": [[0, 1, "U+53BB_00"], [1, 3, "U+98DF_U+98EF_00"]],
-      "text": "去食飯"
+      "phrase": null
     },
     {
       "name": "one syllable offers no phrase",

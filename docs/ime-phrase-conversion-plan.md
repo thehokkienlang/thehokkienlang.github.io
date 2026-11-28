@@ -5,8 +5,8 @@ on 2026-11-28 (section 9).
 
 **Status (2026-11-28):** steps 1–6 of section 7 are written and committed on the
 local branch `ime-phrase-conversion`; nothing is pushed. **Waiting for Haru:**
-the step 6 review ([sample report](ime-phrase-conversion-review.md)) and the
-change to D5 and D8 for typed apostrophes (end of section 5.4). The release
+the step 6 review ([sample report](ime-phrase-conversion-review.md)). The rule
+for typed apostrophes (section 2.3) was added after review. The release
 steps in section 8 (push, Android 0.6, Windows build) are **not done**. Notes
 headed "executing" or "executed" record what differs from the draft.
 
@@ -83,7 +83,29 @@ first and the Hanri after it. For 킈 it shows `킈, 去`.
 
 An apostrophe form (a headword starting with ’) is never the first candidate in
 a fresh menu. It takes the second slot, directly after the first plain choice.
-See section 3.
+See section 3. This is about text typed **without** an apostrophe.
+
+### 2.3 After a typed apostrophe: Hangul only
+
+**Added after review.** The draft did not cover text typed after ’, and would
+have turned 꽈’에 into 꽈’會 and ’킈 into ’去. Both stay pure Hangul. This
+replaces the draft wherever they differ.
+
+- After an apostrophe the user typed, up to the next space, punctuation or
+  Hanri, every menu offers **Hangul only**: no Hanri and no phrase. This
+  applies to the web IME, the translator, the Android keyboard and the Pad, by
+  Enter, a tap or Space.
+- Directly after ’, the apostrophe form comes first, in place of the plain
+  Hangul word spelled alike, so ’이 keeps its own reading and not 이5.
+- A choice made there is learned apart from the same syllables typed without ’,
+  so picking ’에 never moves it above 會 for a bare 에.
+- A space ends the attachment: 꽈’에 킈쟣븡 offers 去食飯.
+- A whole dictionary word typed without ’ is unaffected, as are Pad choices that
+  keep everything after ’ in Hangul (食飽’ᄅᆤ).
+
+The content agrees: of 1,511 stretches written after an apostrophe, 1,510 are
+all Hangul. The exception is a 淡薄 in The Egg, which now needs a space before
+it to be offered in Hanri.
 
 ## 3. Apostrophe forms: push down, do not remove
 
@@ -200,7 +222,8 @@ The plan includes option 1, as a small separate commit.
 Add a release check: in every fresh web menu, no candidate whose headword
 starts with ’ is first, unless a priority row puts it there deliberately. Add it
 to `tools/check_adaptive_ranking.cjs`, which already builds every fresh menu. A
-new ’ entry added later then fails the gate until it gets a pin.
+new ’ entry added later then fails the gate until it gets a pin. Menus for text
+typed after ’ are exempt (2.3): there the apostrophe form is meant to be first.
 
 ## 4. The phrase algorithm
 
@@ -272,13 +295,11 @@ all, not only that no entry passes the typed tones. The two differ only for
 correction aliases: 능잡3 (stored as 능잡1*, 二十) had no tone-compatible entry,
 so 兩十 was offered above 二十. The static desktop snapshot caught this.
 
-**Added while executing: words joined by an apostrophe.** A menu reads only
-what follows the last apostrophe, so typing 림1’롷킈 (飲’롷킈, "drink") made
-롷킈 look like a run of its own and offered 落去. The static web snapshot caught
-this for 飲’롷킈 and 跳’롷킈. No phrase is now offered when the text joined
-across the apostrophe is itself a dictionary reading
-(`isApostropheJoinedWord`), which is D1 applied to the whole typed word. Both
-static snapshots stay unchanged by phrase conversion.
+**After a typed apostrophe** (2.3) no phrase is offered, and the other
+candidates are limited to Hangul (`followsApostrophe`,
+`hangulEntriesAfterApostrophe`). This changes the static menus typed with ’: 24
+on the web and 2 on the Pad, each reviewed and now offering Hangul only. No menu
+typed without an apostrophe changed.
 
 ### 4.5 One definition for both engines
 
@@ -314,7 +335,7 @@ Export it and add it to the engine's return list. It is browser-free, so
     {
       entry: {
         hanri: "去食飯",          // segment outputs joined
-        reading: "킈 쟣븡5",      // segment readings, space-separated, for the menu's reading line
+        reading: "킈쟣븡5",       // segment readings joined, for the menu's reading line
         kind: "phrase",
         generatedCandidate: true,
       },
@@ -333,7 +354,9 @@ Export it and add it to the engine's return list. It is browser-free, so
     the same arguments as the single-word branches;
   - do **not** call `preferences.record` for the phrase or its words (D4).
 - In `renderCandidates()` (around line 2529), show the phrase's Hanri on the
-  main line and the space-separated reading on the reading line.
+  main line and the joined reading on the reading line. (Changed after review: the
+  draft separated the words with spaces. A menu now shows no space the user did
+  not type.)
 
 ### 5.3 Android keyboard (D5)
 
@@ -350,9 +373,8 @@ Export it and add it to the engine's return list. It is browser-free, so
   top candidate already.
 - Check the strip width for long phrases in `android/keyboard/keyboard.css`.
 
-**As executed.** `controller.passiveCandidate()` picks what Space and Enter
-apply; it returns nothing for text a typed apostrophe attaches (5.4). With text
-in the strip, Enter finishes the composition without sending a line break, as it
+**As executed.** Space and Enter apply the strip's first candidate, which after
+a typed apostrophe is always Hangul (2.3). With text in the strip, Enter finishes the composition without sending a line break, as it
 did before; a second Enter sends it. The strip keeps a long phrase on one line
 and scrolls. A phrase containing a rare Hanri gets the same Hangul alternative
 as a single word.
@@ -406,14 +428,8 @@ The Pad also remembers words chosen in Hangul, so a later phrase or Space does
 not split them again, as on the web. The on-screen keyboard guide's Space
 converts like the physical key.
 
-**Changed while executing, for Haru to confirm (limits D5 and D8).** Space on
-the Pad, and Space and Enter on Android, **keep the text as typed** when the
-conversion would attach to a typed apostrophe: it directly follows ’ without
-writing its own, or it ends a dictionary word joined by ’. A menu reads only
-what follows the apostrophe, so converting would turn ’킈 into ’去, 꽈’에 into
-꽈’會 (’에 appears 1,367 times in content) and 림1’롷킈 into 림’롷去. The menus
-are unchanged, and picking a candidate still converts. The cost: Space also
-keeps a phrase typed straight after an apostrophe (감샤’킈쟣븡).
+After a typed apostrophe the Pad drops every choice that would write Hanri
+after it (2.3), so its Space needs no rule of its own there.
 
 ## 6. Tests
 

@@ -44,11 +44,12 @@ function show(ime, text) {
 }
 const signature = list => Array.from(list, c => [c.entry.id || null, c.entry.hanri, c.entry.reading, c.start, c.end]);
 const menus = [];
-// Apostrophe guard (docs/ime-phrase-conversion-plan.md, 3.5): a headword starting with ’ is
-// never first in a fresh menu unless a priority row ranks it first.
+// Apostrophe guard (docs/ime-phrase-conversion-plan.md, 3.5): unless the user typed ’, a headword
+// starting with ’ is never first in a fresh menu without a priority row ranking it first.
 const apostropheFirst = new Set();
 function checkFirst(text, [first]) {
   if (!first || !core.normalizeApostrophes(first.entry.hanri).startsWith('’')) return;
+  if (core.followsApostrophe(text, first.end)) return;
   const typed = text.slice(first.start, first.end).replace(/[12345ˆˋ`ˊˉꞈˎˏˍ]/gu, '');
   if (first.entry.staticRanks?.[core.rankingLookupKey(typed)] !== 1) {
     apostropheFirst.add(`${typed.normalize('NFC')}: ${first.entry.hanri} (${first.entry.raw?.entry_id})`);

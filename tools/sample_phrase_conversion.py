@@ -107,7 +107,8 @@ def runs(markup: str, join_spaces: bool):
     for kind, value in line_pieces(markup):
         if kind == "syllables":
             current.extend(value)
-        elif kind == "space" and join_spaces:
+        elif kind == "space" and join_spaces and not before:
+            # After an apostrophe a space always ends the run: it ends the Hangul-only stretch.
             continue
         else:
             if current:
@@ -151,13 +152,20 @@ def comparable(text: str) -> str:
     return unicodedata.normalize("NFC", text).replace("’", "")
 
 
-def offer(before: str, typed: list[str]):
+def offer_after_apostrophe(typed: list[str]) -> str:
+    """What the IME's first choice writes for a run typed after an apostrophe: Hangul only."""
+    text = "".join(typed)
+    match = engine.menu_suffix_match(INDEX, text, after_apostrophe=True)
+    if match and match["words"]:
+        text = text[:match["start"]] + engine.phrase_entry_output(match["words"][0])
+    return engine.strip_reading_tones(text)
+
+
+def offer(typed: list[str]):
     """The IME's phrase for a typed run, or None, and the word menu at its end."""
     suffix = engine.menu_suffix_match(INDEX, "".join(typed))
     converted = (engine.phrase_syllable_count("".join(typed)[suffix["start"]:])
                  if suffix and suffix["words"] else 0)
-    if before and engine.is_apostrophe_joined_word(INDEX, before + "".join(typed)):
-        return None, suffix
     return engine.phrase_for_run(typed, engine.phrase_span_lookup(INDEX, typed), converted), suffix
 
 
@@ -167,17 +175,22 @@ def measure(join_spaces: bool, toned: bool) -> dict:
     samples = []
     for title, markup in sources():
         for before, syllables in runs(markup, join_spaces):
+            typed = [item[0] if toned else engine.strip_reading_tones(item[0]) for item in syllables]
+            original = written_slice(syllables, 0, len(syllables))
+            if original is None:
+                original = "".join({item[2]: item[3] for item in syllables}.values())
+            if before:
+                totals["after apostrophe"] += 1
+                totals["after apostrophe matches"] += (
+                    comparable(offer_after_apostrophe(typed)) == comparable(original))
+                continue
             if len(syllables) < 2:
                 totals["one syllable"] += 1
                 continue
             if len(syllables) > engine.PHRASE_SYLLABLE_LIMIT:
                 totals["over 16 syllables"] += 1
                 continue
-            typed = [item[0] if toned else engine.strip_reading_tones(item[0]) for item in syllables]
-            original = written_slice(syllables, 0, len(syllables))
-            if original is None:
-                original = "".join({item[2]: item[3] for item in syllables}.values())
-            result, suffix = offer(before, typed)
+            result, suffix = offer(typed)
             if not result:
                 if suffix and suffix["words"] and suffix["start"] == 0:
                     first = engine.phrase_entry_output(suffix["words"][0])
@@ -207,7 +220,7 @@ def measure(join_spaces: bool, toned: bool) -> dict:
             matches = comparable(phrase) == comparable(original)
             totals["phrases offered"] += 1
             totals["phrases match"] += matches
-            samples.append((title, " ".join(typed), original, phrase, matches))
+            samples.append((title, tuple(typed), original, phrase, matches))
     return {"totals": totals, "wrong": wrong, "samples": samples}
 
 
@@ -231,14 +244,21 @@ def summary_rows(results: dict) -> list[str]:
             lambda t: percent(t["whole word matches"], t["whole run is one word"])),
         row("Other runs without a phrase", lambda t: str(t["no phrase"])),
         row("Runs over 16 syllables", lambda t: str(t["over 16 syllables"])),
+        row("Stretches after an apostrophe (Hangul only)", lambda t: str(t["after apostrophe"])),
+        row("…first choice identical to the text",
+            lambda t: percent(t["after apostrophe matches"], t["after apostrophe"])),
     ]
 
 
 def pick(samples: list, matches: bool, count: int) -> list:
     """A fixed spread of samples, at most one per title."""
     chosen = {}
-    for sample in sorted(samples, key=lambda s: hashlib.sha256("|".join(s[:3]).encode()).hexdigest()):
-        if sample[4] == matches and 3 <= len(sample[1].split()) <= 8:
+    def order(sample) -> str:
+        key = "|".join((sample[0], " ".join(sample[1]), sample[2]))
+        return hashlib.sha256(key.encode()).hexdigest()
+
+    for sample in sorted(samples, key=order):
+        if sample[4] == matches and 3 <= len(sample[1]) <= 8:
             chosen.setdefault(sample[0], sample)
     return list(chosen.values())[:count]
 
@@ -262,6 +282,8 @@ def report() -> str:
         "*Continuous* types straight through to the next punctuation mark or apostrophe, which",
         "asks much more of the splitting. A difference is not always an IME error: the text may",
         "choose to write a word in Hangul, or use a Hanri the dictionary ranks second.",
+        "Text after an apostrophe is offered in Hangul only, up to the next space or punctuation,",
+        "so it is counted apart from phrases.",
         "",
         "## Summary",
         "",
@@ -281,7 +303,8 @@ def report() -> str:
     for matches, heading in ((False, "Sample phrases that differ"), (True, "Sample phrases that match")):
         lines += ["", f"## {heading}", "",
                   "| From | Typed | Text writes | Phrase |", "|---|---|---|---|",
-                  *[f"| {title} | {typed} | {original} | {phrase} |"
+                  # The syllables were typed straight through, so no space joins them.
+                  *[f"| {title} | {''.join(typed)} | {original} | {phrase} |"
                     for title, typed, original, phrase, _ in pick(main["samples"], matches, 30 if not matches else 12)]]
     return "\n".join(lines) + "\n"
 

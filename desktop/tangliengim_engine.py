@@ -1914,16 +1914,33 @@ def phrase_for_run(units: list, lookup, suffix_syllables: int = 0) -> dict | Non
     return result
 
 
-def is_apostrophe_joined_word(index: dict, joined_text: str) -> bool:
-    """True when the text after the last apostrophe is the end of one dictionary word.
+def follows_apostrophe(text: str) -> bool:
+    """True when the Hangul at the end of text follows a typed apostrophe.
 
-    A menu reads only that text, so 飲’롷킈 must be recognised across the apostrophe.
+    Everything there, up to a space, punctuation or Hanri, is written in Hangul
+    (꽈’에, ’킈, 飲’롷킈).
     """
-    pieces = _phrase_apostrophes(joined_text).split('\u2019')
-    return any(phrase_lookup_key(''.join(pieces[start:])) in index for start in range(len(pieces) - 1))
+    start = len(text)
+    while start and (text[start - 1] in TONE_DIGITS or text[start - 1] in TONE_SYMBOLS
+                     or is_hangulish_for_tone(text[start - 1])):
+        start -= 1
+    return _phrase_apostrophes(text[:start]).endswith('’')
 
 
-def menu_suffix_match(index: dict, text: str) -> dict | None:
+def hangul_entries_after_apostrophe(entries: list[dict], directly: bool) -> list[dict]:
+    """The words a menu may offer after a typed apostrophe: Hangul ones only.
+
+    An apostrophe form such as ’에 belongs directly after the typed ’, where it comes in
+    place of the plain Hangul word spelled alike.
+    """
+    words = [entry for entry in entries if entry.get('entry_type') == 'hangul_override']
+    marked = [entry for entry in words if _phrase_apostrophes(entry.get('hanri', '')).startswith('’')]
+    if directly and marked:
+        return marked
+    return [entry for entry in words if entry not in marked]
+
+
+def menu_suffix_match(index: dict, text: str, after_apostrophe: bool = False) -> dict | None:
     """The word at the end of text that a web menu is built for: its longest known ending.
 
     Returns where it starts, the typed form, the words in static order, and whether the
@@ -1938,6 +1955,8 @@ def menu_suffix_match(index: dict, text: str) -> dict | None:
             continue
         typed_form = phrase_typed_form(suffix)
         words = filter_phrase_entries(typed_form, entries)
+        if after_apostrophe:
+            words = hangul_entries_after_apostrophe(words, start == 0)
         exact_override = any(
             entry.get('entry_type') == 'hangul_override'
             and normalize_tone_symbols_to_digits(phrase_entry_reading(entry)) == typed_form
@@ -4340,8 +4359,10 @@ ENGINE_NAMES = (
     'final_hangul_unit_needs_implicit_tone',
     'final_jamo_before_tone',
     'find_audio_file',
+    'follows_apostrophe',
     'format_text_tones_for_output',
     'github_repo_path_candidates',
+    'hangul_entries_after_apostrophe',
     'hangul_unit_to_lomari',
     'hanri_reading_prefixes',
     'hanri_tsv_path_candidates',
@@ -4349,7 +4370,6 @@ ENGINE_NAMES = (
     'hokkien_shortcut_midway_prefixes',
     'infer_default_form',
     'is_apostrophe_boundary_after_tone',
-    'is_apostrophe_joined_word',
     'is_audio_hangul_only_override_field',
     'is_audio_phrase_boundary',
     'is_checked_final_before_tone',

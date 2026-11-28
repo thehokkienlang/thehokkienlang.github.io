@@ -778,14 +778,21 @@ const TangliengimEngine = (() => {
     return lookup;
   }
 
-  // A menu reads only the text after the last apostrophe. When that text and what ’ joins it to
-  // spell one dictionary word (飲’롷킈), the run is already a word, so its end gets no phrase.
-  function isApostropheJoinedWord(candidatesByReading, joinedText) {
-    const pieces = normalizeApostrophes(joinedText).split("’");
-    return pieces.slice(0, -1).some((_, index) => {
-      const reading = TangliengimHangulIme.normalizeNativeCandidateInput(pieces.slice(index).join(""));
-      return candidatesByReading.has(normalizeText(TangliengimHangulIme.normalizeReadingBase(reading)));
-    });
+  // What follows a typed apostrophe, up to a space, punctuation or Hanri, is written in Hangul
+  // (꽈’에, ’킈, 飲’롷킈). True when the Hangul ending at end follows ’ in that way.
+  function followsApostrophe(text, end) {
+    let start = end;
+    while (start > 0 && /[ᄀ-ᇿ㄰-㆏가-힣ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(text[start - 1])) start -= 1;
+    return normalizeApostrophes(text.slice(0, start)).endsWith("’");
+  }
+
+  // The words a menu may offer there: Hangul ones only. An apostrophe form such as ’에 belongs
+  // directly after the typed ’, where it comes in place of the plain Hangul word spelled alike.
+  function hangulEntriesAfterApostrophe(entries, directly) {
+    const words = entries.filter(entry => entry.kind === "hangul_override");
+    const marked = words.filter(entry => normalizeApostrophes(entry.hanri).startsWith("’"));
+    if (directly && marked.length) return marked;
+    return words.filter(entry => !marked.includes(entry));
   }
 
   // Fewer unconverted syllables, then fewer words, then lower static slots; ties then compare
@@ -1179,7 +1186,7 @@ const TangliengimEngine = (() => {
     typedTonesAreCompatibleWithEntry, filterCandidateEntries, createSimplifiedNormalizationIndex,
     createSimplifiedNormalizationSession, createDictionaryIndex, isImeCandidateChar,
     candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup, segmentReadingRun,
-    phraseForRun, isApostropheJoinedWord,
+    phraseForRun, followsApostrophe, hangulEntriesAfterApostrophe,
   };
 })();
 // END TLI ENGINE (browser-free)
@@ -1199,7 +1206,7 @@ const TangliengimImeCore = (() => {
     buildReadingCandidateMap, tonesByBasePosition, typedTonesAreCompatibleWithEntry, filterCandidateEntries,
     createSimplifiedNormalizationIndex, createSimplifiedNormalizationSession, createDictionaryIndex,
     isImeCandidateChar, candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup,
-    segmentReadingRun, phraseForRun, isApostropheJoinedWord,
+    segmentReadingRun, phraseForRun, followsApostrophe, hangulEntriesAfterApostrophe,
   } = TangliengimEngine;
 
   function displayTextNode(text) {
@@ -2532,31 +2539,11 @@ const TangliengimImeCore = (() => {
       return units;
     }
 
-    // Walk back from start over the Hangul, tones and apostrophes joined to it.
-    apostropheJoinedStart(text, start) {
-      while (start > 0 && /[’\u1100-\u11FF\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(text[start - 1])) start -= 1;
-      return start;
-    }
-
-    // What Space and Enter apply on the Android keyboard: the first candidate, or null to keep the
-    // text as typed. A menu reads only what follows ’, so text a typed apostrophe attaches is
-    // kept: ’에 must not become ’會, nor the end of 飲’롷킈 be converted on its own.
-    passiveCandidate() {
-      const [first] = this.activeCandidates;
-      if (!first) return null;
-      const text = this.control.value;
-      if (text.slice(0, first.start).endsWith("’")) return null;
-      const joined = text.slice(this.apostropheJoinedStart(text, first.start), first.end);
-      return isApostropheJoinedWord(this.candidatesByReading, joined) ? null : first;
-    }
-
     // One candidate that converts the whole stretch into words, or null. topSuffix is the first
     // of the ordinary candidates, which convert only the end of the range.
     findPhraseCandidate(range, topSuffix) {
       const units = this.phraseStretch(range);
       if (units.length < 2 || units.length > PHRASE_SYLLABLE_LIMIT) return null;
-      const joinedStart = this.apostropheJoinedStart(range.text, units[0].start);
-      if (isApostropheJoinedWord(this.candidatesByReading, range.text.slice(joinedStart, range.end))) return null;
       const typedUnits = units.map(({ start, end }) =>
         TangliengimHangulIme.normalizeNativeCandidateInput(this.typedCandidateForm(start, end)));
       const lookup = phraseSpanLookup(this.candidatesByReading, typedUnits);
@@ -2581,7 +2568,8 @@ const TangliengimImeCore = (() => {
       return {
         entry: {
           hanri: segments.map((segment) => segment.output).join(""),
-          reading: segments.map((segment) => segment.reading).join(" "),
+          // Joined as typed: a menu never shows a space the user did not enter.
+          reading: segments.map((segment) => segment.reading).join(""),
           kind: "phrase",
           generatedCandidate: true,
         },
@@ -2604,6 +2592,7 @@ const TangliengimImeCore = (() => {
         offset += char.length;
       }
 
+      const afterApostrophe = followsApostrophe(range.text, range.end);
       const found = [];
       for (let index = 0; index < chars.length; index += 1) {
         const suffix = chars.slice(index).join("");
@@ -2617,7 +2606,11 @@ const TangliengimImeCore = (() => {
         const typedForm = typedSandhiToTaipei(TangliengimHangulIme.normalizeNativeCandidateInput(
           this.typedCandidateForm(start, range.end)
         ));
-        const filteredEntries = filterCandidateEntries(typedForm, entries);
+        const typedEntries = filterCandidateEntries(typedForm, entries);
+        const directly = afterApostrophe && start === range.start;
+        const filteredEntries = afterApostrophe
+          ? hangulEntriesAfterApostrophe(typedEntries, directly)
+          : typedEntries;
         const exactHangulOverride = filteredEntries.some(
           (entry) => entry.kind === "hangul_override" &&
             TangliengimHangulIme.normalizeReadingToneKey(entry.reading) ===
@@ -2629,7 +2622,9 @@ const TangliengimImeCore = (() => {
             : entry.hanri;
           found.push({
             entry,
-            lookupKey: adaptiveLookupKey(typedSandhiToTaipei(this.typedCandidateForm(start, range.end))),
+            // A choice made after ’ is learned apart from the same syllables typed without it.
+            lookupKey: adaptiveLookupKey((directly ? "’" : "") +
+              typedSandhiToTaipei(this.typedCandidateForm(start, range.end))),
             start: candidateReplacementStart(range.text, start, replacement),
             end: range.end,
             length: suffix.length,
@@ -2666,7 +2661,7 @@ const TangliengimImeCore = (() => {
         );
       const ranked = this.preferences.rank(staticCandidates, staticCandidates[0]?.lookupKey || "");
       // The phrase goes above the ordinary candidates, which learning orders as before.
-      const phrase = this.findPhraseCandidate(range, staticCandidates[0]);
+      const phrase = afterApostrophe ? null : this.findPhraseCandidate(range, staticCandidates[0]);
       return (phrase ? [phrase, ...ranked] : ranked).slice(0, this.candidateLimit);
     }
 
@@ -2899,7 +2894,7 @@ const TangliengimImeCore = (() => {
 
   return {
     PHRASE_SYLLABLE_LIMIT,
-    isApostropheJoinedWord,
+    followsApostrophe,
     phraseForRun,
     phraseSpanLookup,
     segmentReadingRun,

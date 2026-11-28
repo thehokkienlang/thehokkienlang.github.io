@@ -6691,23 +6691,43 @@ class HokkienIMEPad:
             index = end
         return spans
 
-    def apostrophe_joined_start(self, before: str, start: int) -> int:
-        """Walk back from start over the Hangul, tones and apostrophes joined to it."""
-        while start and (before[start - 1] in "'\u2019" or before[start - 1] in TONE_DIGITS
-                         or before[start - 1] in TONE_SYMBOLS or is_hangulish_for_tone(before[start - 1])):
-            start -= 1
-        return start
+    def keep_hangul_after_apostrophe(self, candidate: dict | None) -> dict | None:
+        """Drop every choice that would write Hanri after a typed apostrophe.
+
+        A whole word such as 飲’롷킈 stays, because only Hangul follows its apostrophe.
+        """
+        if not candidate:
+            return None
+        before = self.composer.text()[:self.composer.display_cursor_pos()]
+        if not follows_apostrophe(before):
+            return candidate
+
+        def stays_hangul(choice: str) -> bool:
+            written = candidate['prefix'] + choice
+            return (written.count('’') >= before.count('’')
+                    and not field_has_hanri(written.rpartition('’')[2]))
+
+        keep = [position for position, choice in enumerate(candidate['choices']) if stays_hangul(choice)]
+        if not keep:
+            return None
+        result = dict(candidate)
+        for field in ('choices', 'labels', 'choice_readings', 'choice_auto_sandhi', 'choice_entries'):
+            if candidate.get(field):
+                result[field] = [candidate[field][position] for position in keep]
+        result['labels'] = [f'{number}  {label.split("  ", 1)[-1]}'
+                            for number, label in enumerate(result['labels'], 1)]
+        return result
 
     def phrase_conversion(self, current: str, cursor_pos: int) -> dict | None:
         """The phrase for the Hangul before the cursor: its span and the words it writes."""
         before = current[:cursor_pos]
+        if follows_apostrophe(before):
+            return None
         run_start = self.menu_run_start(before)
         spans = self.phrase_stretch(before, run_start)
         if not 2 <= len(spans) <= PHRASE_SYLLABLE_LIMIT:
             return None
         index = self.phrase_index()
-        if is_apostrophe_joined_word(index, before[self.apostrophe_joined_start(before, spans[0][0]):]):
-            return None
         typed_units = [normalize_tone_symbols_to_digits(before[start:end]) for start, end in spans]
         suffix = menu_suffix_match(index, before[run_start:])
         converted = (phrase_syllable_count(before[run_start + suffix['start']:])
@@ -6750,7 +6770,8 @@ class HokkienIMEPad:
             return candidate
 
         text = ''.join(segment['output'] for segment in phrase['segments'])
-        readings = ' '.join(segment['reading'] for segment in phrase['segments'])
+        # Joined as typed: a menu never shows a space the user did not enter.
+        readings = ''.join(segment['reading'] for segment in phrase['segments'])
         if candidate is None:
             typed = current[phrase['start']:cursor_pos]
             candidate = {
@@ -6810,26 +6831,10 @@ class HokkienIMEPad:
     def space_conversion(self) -> dict | None:
         """What Space writes before its space, or None to keep the text as typed.
 
-        Space does not convert what a typed apostrophe attaches to the word before it:
-        a menu reads only what follows ’, so ’에 would become ’會, and the end of a word
-        such as 飲’롷킈 would be converted on its own. The Android keyboard does the same.
-        """
-        conversion = self.first_conversion()
-        if not conversion:
-            return None
-        before = self.composer.text()[:conversion['end']]
-        start = conversion['start']
-        if before[:start].endswith('\u2019') or is_apostrophe_joined_word(
-                self.phrase_index(), before[self.apostrophe_joined_start(before, start):]):
-            return None
-        return conversion
-
-    def first_conversion(self) -> dict | None:
-        """The website's first candidate for the text before the cursor, as a conversion.
-
-        The Pad's own menu lists the typed Hangul first, so Space does not take the menu's
-        first row; it takes what the website and the Android keyboard offer first, which is
-        Hangul only where the dictionary writes Hangul. None when nothing is offered.
+        This is the website's first candidate. The Pad's own menu lists the typed Hangul
+        first, so Space does not take the menu's first row; it takes what the website and
+        the Android keyboard offer first, which is Hangul where the dictionary writes
+        Hangul and always after a typed apostrophe.
         """
         current = self.composer.text()
         cursor_pos = self.composer.display_cursor_pos()
@@ -6838,13 +6843,16 @@ class HokkienIMEPad:
             return phrase
         before = current[:cursor_pos]
         run_start = self.menu_run_start(before)
-        match = menu_suffix_match(self.phrase_index(), before[run_start:])
+        after_apostrophe = follows_apostrophe(before)
+        match = menu_suffix_match(self.phrase_index(), before[run_start:], after_apostrophe)
         if not match or not match['words']:
             return None
         start = run_start + match['start']
         raw = before[start:]
         if self.input_mode.get() == 'lomari' and self.lomari_raw:
             raw = 'lomari:' + self.lomari_raw
+        if after_apostrophe and match['start'] == 0:
+            raw = '’' + raw  # learned apart from the same syllables typed without ’
         key = candidate_preferences_api().lookup_key(typed_lookup_text(raw))
         ranked = self.candidate_preference_store().rank([{'entry': entry} for entry in match['words']], key)
         entry = ranked[0]['entry']
@@ -6888,7 +6896,7 @@ class HokkienIMEPad:
             return None
         if self.current_hanri_candidate_is_suppressed():
             return None
-        return self.with_phrase_candidate(self.find_word_candidate())
+        return self.keep_hangul_after_apostrophe(self.with_phrase_candidate(self.find_word_candidate()))
 
     def find_word_candidate(self) -> dict | None:
         """Return an exact or predictive Hanri candidate record.

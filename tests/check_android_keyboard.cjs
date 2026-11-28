@@ -104,10 +104,18 @@ async function loadKeyboard() {
   assert.equal(buffer.value, '', 'The strip is empty after Space');
 
   // The desktop Pad's Space is held to the same list in tests/test_phrase_conversion.py.
-  for (const [typed, written] of fixture.space) {
+  for (const [typed, written] of [...fixture.space, ...fixture.afterApostrophe]) {
     assert.deepEqual(sentAfter(() => { typeText(typed); tap('Space'); }), [`${written} `], `Space: ${typed}`);
   }
   assert.equal(learned(), '{}', 'Space teaches nothing');
+
+  // After a typed apostrophe the strip itself offers no Hanri.
+  for (const [typed] of fixture.afterApostrophe) {
+    typeText(typed);
+    assert.deepEqual(Array.from(controller.activeCandidates.filter(c => !c.entry.kind.startsWith('hangul_'))), [],
+      `strip: ${typed}`);
+    sentAfter(() => tap('Space'));
+  }
 
   // Enter converts too, then finishes the composition. With an empty strip it reaches the app.
   assert.deepEqual(sentAfter(() => { typeText('킈쟣븡'); tap('Enter'); }), ['去食飯']);
