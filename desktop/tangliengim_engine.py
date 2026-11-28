@@ -1808,6 +1808,13 @@ def _phrase_tones_by_position(reading: str) -> tuple[str, dict[int, str]]:
     return ''.join(base), tones
 
 
+def _phrase_tones_fit(typed_tones: dict[int, str], typed_key: str, reading: str) -> bool:
+    """True when reading spells typed_key and has every tone the user typed."""
+    base, tones = _phrase_tones_by_position(reading)
+    return (phrase_lookup_key(base) == typed_key
+            and all(tones.get(position) == tone for position, tone in typed_tones.items()))
+
+
 def filter_phrase_entries(typed_form: str, entries: list[dict]) -> list[dict]:
     """Keep the entries the typed tones allow, as filterCandidateEntries() does."""
     typed_base, typed_tones = _phrase_tones_by_position(typed_form)
@@ -1816,9 +1823,7 @@ def filter_phrase_entries(typed_form: str, entries: list[dict]) -> list[dict]:
     typed_key = phrase_lookup_key(typed_base)
 
     def fits(reading: str) -> bool:
-        base, tones = _phrase_tones_by_position(reading)
-        return (phrase_lookup_key(base) == typed_key
-                and all(tones.get(position) == tone for position, tone in typed_tones.items()))
+        return _phrase_tones_fit(typed_tones, typed_key, reading)
 
     compatible = [
         entry for entry in entries
@@ -1833,8 +1838,47 @@ def filter_phrase_entries(typed_form: str, entries: list[dict]) -> list[dict]:
             and phrase_lookup_key(phrase_entry_reading(entry)) == typed_key]
 
 
+def joined_word_reading(entry: dict) -> str:
+    """A word's reading when more text follows it with no space.
+
+    A Hanri word's last syllable takes its sandhi tone, as the Lomari and audio read it.
+    A word written in Hangul keeps its listed tone, as an accepted one does there.
+    """
+    reading = phrase_entry_reading(entry)
+    if entry.get('auto_sandhi') or phrase_entry_is_hangul(entry):
+        return reading
+    sandhi = citation_to_sandhi_reading(reading)
+    if not sandhi:
+        return reading
+    changed = next(i for i, ch in enumerate(sandhi) if i >= len(reading) or reading[i] != ch)
+    # Tone 3 is written unmarked, as on the web.
+    return sandhi[:changed] + sandhi[changed + 1:] if sandhi[changed] == '3' else sandhi
+
+
+def phrase_surface_reading(segments: list[dict], followed_by_text: bool = False) -> str:
+    """The reading a phrase will have once written, which its menu shows.
+
+    Words keep their citation tone at the end of the text and beside an apostrophe.
+    Mirrors phraseSurfaceReading() in shared/web-ime-core.js.
+    """
+    parts = []
+    for position, segment in enumerate(segments):
+        following = segments[position + 1] if position + 1 < len(segments) else None
+        joined = not following['output'].startswith('\u2019') if following else followed_by_text
+        entry = segment['entry']
+        if joined and entry and '\u2019' not in segment['output']:
+            parts.append(joined_word_reading(entry))
+        else:
+            parts.append(segment['reading'])
+    return ''.join(parts)
+
+
 def phrase_span_lookup(index: dict, typed_units: list[str]):
-    """Return lookup(i, j): the words a menu would offer for those syllables typed alone."""
+    """Return lookup(i, j): the words a menu would offer for those syllables typed alone.
+
+    A tone typed on the last syllable of a span that more syllables follow is a sandhi
+    tone, so words that have it there come first.
+    """
     typed = phrase_typed_form(''.join(typed_units))
     forms = []
     offset = 0
@@ -1845,7 +1889,16 @@ def phrase_span_lookup(index: dict, typed_units: list[str]):
     def lookup(start: int, end: int) -> list[dict]:
         form = ''.join(forms[start:end])
         entries = index.get(phrase_lookup_key(form))
-        return filter_phrase_entries(form, entries) if entries else []
+        if not entries:
+            return []
+        base, tones = _phrase_tones_by_position(form)
+        if end < len(typed_units) and len(base) - 1 in tones:
+            key = phrase_lookup_key(base)
+            joined = [entry for entry in entries
+                      if _phrase_tones_fit(tones, key, joined_word_reading(entry))]
+            if joined:
+                return joined
+        return filter_phrase_entries(form, entries)
 
     # Whether the dictionary stores this spelling at all, whatever tones were typed.
     lookup.is_reading = lambda start, end: phrase_lookup_key(''.join(forms[start:end])) in index
@@ -4386,6 +4439,7 @@ ENGINE_NAMES = (
     'is_standalone_consonant_audio_unit',
     'is_vowel_jamo',
     'jamo_pronunciation_reading',
+    'joined_word_reading',
     'last_non_tone_char',
     'last_tone_digit_index',
     'latin_word_end',
@@ -4412,6 +4466,7 @@ ENGINE_NAMES = (
     'phrase_lookup_key',
     'phrase_reading_index',
     'phrase_span_lookup',
+    'phrase_surface_reading',
     'phrase_syllable_count',
     'phrase_typed_form',
     'phrase_unit_at',

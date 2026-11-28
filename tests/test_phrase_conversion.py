@@ -149,6 +149,8 @@ class PadMenu(unittest.TestCase):
                     self.assertFalse(menu and menu.get('phrase'))
                     continue
                 self.assertEqual(menu['choices'][0], case['text'], 'the phrase is the first choice')
+                self.assertEqual(menu['labels'][0],
+                                 f"1  {case['text']}  {PAD.is_fully_toned_reading(case['reading'])}")
                 self.assertEqual([part['entry'] and part['entry']['entry_id'] for part in menu['phrase']['segments']],
                                  [identity for _start, _end, identity in case['phrase']])
                 self.assertEqual(len(menu['choices']), len(menu['labels']))
@@ -156,6 +158,15 @@ class PadMenu(unittest.TestCase):
                 self.assertEqual(len(menu['labels'][0].split()), 3, menu['labels'][0])
                 self.assertEqual(menu['choices'].count(case['text']), 1)
         self.assertFalse(self.preferences.exists(), 'Showing menus must not learn')
+
+    def test_text_straight_after_a_phrase_joins_its_last_word(self):
+        for after, reading in (('', '킈2감1샤5'), ('。', '킈2감1샤5'), (' 食', '킈2감1샤5'),
+                               ('食', '킈2감1샤'), ('-', '킈2감1샤')):
+            with self.subTest(repr(after)):
+                self.pad.suppressed_hanri_contexts = set()
+                self.pad.composer = PAD.Composer(output='킈감샤' + after, cursor_pos=3)
+                menu = self.pad.find_hanri_candidate()
+                self.assertEqual(menu['labels'][0], f'1  去感謝  {PAD.is_fully_toned_reading(reading)}')
 
     def test_no_choice_writes_hanri_after_a_typed_apostrophe(self):
         for typed, _written in FIXTURE['afterApostrophe']:
@@ -190,7 +201,7 @@ class PadMenu(unittest.TestCase):
         self.pad.composer = PAD.Composer(output=text, cursor_pos=len(text))
         words = self.pad.adapt_candidate_menu(self.pad.find_word_candidate())
         self.assertEqual(menu['choices'], ['去食飯', *words['choices']])
-        self.assertEqual(menu['labels'][0], '1  去食飯  킈쟣븡ˉ')
+        self.assertEqual(menu['labels'][0], '1  去食飯  킈ˋ쟣븡ˉ')
 
     def test_the_hangul_tones_setting_adds_no_marks_to_a_hangul_word(self):
         self.pad.output_tones_on = SimpleNamespace(get=lambda: True)  # the Pad's default

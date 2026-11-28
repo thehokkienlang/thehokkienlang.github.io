@@ -3,7 +3,7 @@
 Drafted 2026-11-28 against commit `50cb543` (main). All decisions answered by Haru
 on 2026-11-28 (section 9).
 
-**Status (2026-11-29):** executed. Haru approved the release of Android 0.6 and
+**Status (2026-11-28):** executed, and 0.6 is released. Haru approved the release of Android 0.6 and
 the push to `main`. Notes headed "executing" or "executed" record what differs
 from the draft, and section 2.3 is the rule for typed apostrophes added after
 review. The [sample report](ime-phrase-conversion-review.md) stays as the record
@@ -117,6 +117,26 @@ replaces the draft wherever they differ.
 The content agrees. Of 1,511 stretches from an apostrophe to the next space,
 1,510 are all Hangul. The exception is 淡薄 in The Egg, which could now be
 typed in Hanri only after a space.
+
+### 2.4 Tones in a phrase's reading
+
+**Added after the 0.6 release.** A phrase's menu showed each word's dictionary
+reading, so 歌去食飯 read 과1킈쟣븡5. It now shows the tones as they will be read,
+by the spacing rule the Lomari and audio already follow: **과5킈2쟣븡5**.
+
+- When more text follows with no space, a Hanri word's last syllable shows its
+  Taipei sandhi tone. A word keeps its citation tone at the end of the text,
+  before a space or punctuation, and beside an apostrophe.
+- No space appears that the user did not type.
+- A word written in Hangul keeps its listed tone (꽈2), because that is how an
+  accepted Hangul word is read today. The songs mostly write a sandhi tone on a
+  joined Hangul word, such as 꽈 or 릐, so this is open for Haru to decide.
+- The same rule applies to input. A tone typed on the last syllable of a joined
+  word is a sandhi tone, so words that have it there come first: 시4쟣븡 now gives
+  死食飯 (死 시2 reads 시1), not 施食飯. This changes section 4.2.
+- Menus always show Taipei tones, as before.
+- Stored and remembered readings are unchanged. Only the menu shows joined
+  tones, and what is read after accepting follows the text's spacing.
 
 ## 3. Apostrophe forms: push down, do not remove
 
@@ -607,6 +627,9 @@ On the Windows Pad today, Space after 킈쟣븡 types a space and keeps
 `킈쟣븡` in Hangul. After the change, it types `去食飯 `, as on Android. To keep
 the Hangul, press Escape or → before the space. All three IMEs then behave the
 same way on Space (section 5.4).
+
+**Android 0.61** (`versionCode` 26) fixes the 0.6 phrase readings. Haru made a
+one-off exception to the version rule, which gives public releases steps of 0.1.
 
 ## 10. Later phases
 

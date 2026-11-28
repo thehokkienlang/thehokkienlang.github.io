@@ -82,6 +82,7 @@ for (const testCase of cases) {
     assert.deepEqual(plain(Array.from(list[0].segments, s => s.entry?.id || null)),
       testCase.phrase.map(([, , id]) => id), `menu words: ${testCase.name}`);
     assert.equal(list[0].entry.hanri, testCase.text, `menu text: ${testCase.name}`);
+    assert.equal(list[0].entry.reading, testCase.reading, `menu reading: ${testCase.name}`);
     assert.doesNotMatch(list[0].entry.hanri + list[0].entry.reading, /\s/u, `no added space: ${testCase.name}`);
     ime.applyCandidate(list[0]);
     const head = testCase.typed.slice(0, testCase.typed.lastIndexOf('’') + 1);
@@ -144,7 +145,7 @@ for (const text of ['꽈’에 킈쟣븡', '꽈’에\n킈쟣븡', '꽈’에　
 {
   const list = type(controller(), '킈쟣븡');
   assert.deepEqual(Array.from(list.slice(0, 3), c => c.entry.hanri), ['去食飯', '食飯', '쟣븡']);
-  assert.equal(list[0].entry.reading, '킈쟣븡5', 'The reading line adds no space between the words');
+  assert.equal(list[0].entry.reading, '킈2쟣븡5', 'Joined words show sandhi tones, with no space added');
   assert.equal(list[1].start, 1, '食飯 still replaces only 쟣븡');
 }
 
@@ -250,6 +251,18 @@ for (const text of ['꽈’에 킈쟣븡', '꽈’에\n킈쟣븡', '꽈’에　
 }
 
 // 10. The reading shown for an unknown syllable is what was typed.
-assert.equal(type(controller(), '킈뷁쟣븡')[0].entry.reading, '킈뷁쟣븡5');
+assert.equal(type(controller(), '킈뷁쟣븡')[0].entry.reading, '킈2뷁쟣븡5');
+
+// 11. The spacing rule at the edge of a phrase: more text straight after it joins the last word,
+// while punctuation, a space or an apostrophe leaves that word its citation tone.
+for (const [after, reading] of [
+  ['', '킈2감1샤5'], ['。', '킈2감1샤5'], [' 食', '킈2감1샤5'], ['’에', '킈2감1샤5'],
+  ['食', '킈2감1샤'], ['-', '킈2감1샤'],
+]) {
+  const ime = controller();
+  ime.control.value = after;
+  ime.control.setSelectionRange(0, 0);
+  assert.equal(type(ime, '킈감샤')[0].entry.reading, reading, `before ${JSON.stringify(after)}`);
+}
 
 console.log(`OK: phrase conversion; ${cases.length} shared cases, tie-breaks and controller commits.`);

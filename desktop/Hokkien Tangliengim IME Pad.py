@@ -6775,8 +6775,10 @@ class HokkienIMEPad:
             return candidate
 
         text = ''.join(segment['output'] for segment in phrase['segments'])
-        # Joined as typed: a menu never shows a space the user did not enter.
-        readings = ''.join(segment['reading'] for segment in phrase['segments'])
+        # The tones as they will be read, joined as typed: a menu never shows a space the
+        # user did not enter.
+        readings = phrase_surface_reading(
+            phrase['segments'], bool(cursor_pos) and is_reading_followed_by_connected_text(current, cursor_pos - 1))
         if candidate is None:
             typed = current[phrase['start']:cursor_pos]
             candidate = {

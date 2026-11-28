@@ -17,9 +17,9 @@ so those runs are counted apart from phrases.
 | Measure | Group by group, no tones | Continuous, no tones | Continuous, with tones |
 |---|---|---|---|
 | Runs that got a phrase | 4835 | 3728 | 3728 |
-| Phrase identical to the text | 50.9% | 39.3% | 48.2% |
-| Words in phrases that match | 75.1% | 77.7% | 82.0% |
-| Syllables in phrases that match | 79.8% | 82.5% | 85.6% |
+| Phrase identical to the text | 50.9% | 39.3% | 52.8% |
+| Words in phrases that match | 75.1% | 77.7% | 83.9% |
+| Syllables in phrases that match | 79.8% | 82.5% | 87.0% |
 | Runs that are one word (no phrase) | 2793 | 797 | 797 |
 | …first choice identical to the text | 97.5% | 97.4% | 98.0% |
 | Other runs without a phrase | 11 | 5 | 5 |

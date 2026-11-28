@@ -758,9 +758,34 @@ const TangliengimEngine = (() => {
   // mirrors these rules; tests/fixtures/phrase-conversion-cases.json keeps the two in step.
   const PHRASE_SYLLABLE_LIMIT = 16;
 
+  // The spacing rule, as the Lomari and audio apply it (shared/web-phonetic-output.js): when more
+  // text follows with no space, a Hanri word's last syllable takes its Taipei sandhi tone. A word
+  // written in Hangul keeps its listed tone, as an accepted one does there.
+  function joinedWordReading(entry) {
+    const reading = entry.reading || entry.readingBase || "";
+    return entry.autoSandhi || entry.kind === "hangul_override" || normalizeApostrophes(reading).includes("’")
+      ? reading
+      : citationReadingToTaipeiSandhi(reading);
+  }
+
+  // The reading a phrase will have once written, which its menu shows. Words keep their citation
+  // tone at the end of the text and beside an apostrophe. textAfter is what follows the phrase.
+  function phraseSurfaceReading(segments, textAfter = "") {
+    return segments.map((segment, index) => {
+      const next = segments[index + 1];
+      const joined = next
+        ? !next.output.startsWith("’")
+        : /^[-0-9A-Za-z\u1100-\u11FF\uAC00-\uD7A3\p{Script=Han}]/u.test(textAfter);
+      return joined && segment.entry && !segment.output.includes("’")
+        ? joinedWordReading(segment.entry)
+        : segment.reading;
+    }).join("");
+  }
+
   // lookup(i, j) for the syllables typedUnits[i..j): the entries a menu would offer for that span
   // typed alone, in static order. The run is read as a whole, so a typed open 4 on a syllable
-  // joined to the next one reads as Taipei's 1 even where a word ends there.
+  // joined to the next one reads as Taipei's 1 even where a word ends there. A tone typed on the
+  // last syllable of such a joined span is a sandhi tone, so words that have it there come first.
   function phraseSpanLookup(candidatesByReading, typedUnits) {
     const typed = typedSandhiToTaipei(typedUnits.join(""));
     let offset = 0;
@@ -771,7 +796,13 @@ const TangliengimEngine = (() => {
     const lookup = (startUnit, endUnit) => {
       const form = formOf(startUnit, endUnit);
       const entries = entriesFor(form);
-      return entries?.length ? filterCandidateEntries(form, entries) : [];
+      if (!entries?.length) return [];
+      const typedTones = tonesByBasePosition(form);
+      if (endUnit < typedUnits.length && typedTones.tones.has(typedTones.base.length - 1)) {
+        const joined = entries.filter(entry => typedTonesAreCompatibleWithEntry(form, joinedWordReading(entry)));
+        if (joined.length) return joined;
+      }
+      return filterCandidateEntries(form, entries);
     };
     // Whether the dictionary stores this spelling at all, whatever tones were typed.
     lookup.isReading = (startUnit, endUnit) => Boolean(entriesFor(formOf(startUnit, endUnit))?.length);
@@ -1185,7 +1216,7 @@ const TangliengimEngine = (() => {
     typedTonesAreCompatibleWithEntry, filterCandidateEntries, createSimplifiedNormalizationIndex,
     createSimplifiedNormalizationSession, createDictionaryIndex, isImeCandidateChar,
     candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup, segmentReadingRun,
-    phraseForRun, followsApostrophe, hangulEntriesAfterApostrophe,
+    phraseForRun, followsApostrophe, hangulEntriesAfterApostrophe, phraseSurfaceReading,
   };
 })();
 // END TLI ENGINE (browser-free)
@@ -1206,6 +1237,7 @@ const TangliengimImeCore = (() => {
     createSimplifiedNormalizationIndex, createSimplifiedNormalizationSession, createDictionaryIndex,
     isImeCandidateChar, candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup,
     segmentReadingRun, phraseForRun, followsApostrophe, hangulEntriesAfterApostrophe,
+    phraseSurfaceReading,
   } = TangliengimEngine;
 
   function displayTextNode(text) {
@@ -2585,8 +2617,9 @@ const TangliengimImeCore = (() => {
       return {
         entry: {
           hanri: segments.map((segment) => segment.output).join(""),
-          // Joined as typed: a menu never shows a space the user did not enter.
-          reading: segments.map((segment) => segment.reading).join(""),
+          // The tones as they will be read, joined as typed: a menu never shows a space the
+          // user did not enter.
+          reading: phraseSurfaceReading(segments, range.text.slice(range.end)),
           kind: "phrase",
           generatedCandidate: true,
         },
@@ -2909,6 +2942,7 @@ const TangliengimImeCore = (() => {
     followsApostrophe,
     phraseForRun,
     phraseSpanLookup,
+    phraseSurfaceReading,
     segmentReadingRun,
     TAIPEI_SANDHI: Object.freeze({
       open: OPEN_TAIPEI_SANDHI,
