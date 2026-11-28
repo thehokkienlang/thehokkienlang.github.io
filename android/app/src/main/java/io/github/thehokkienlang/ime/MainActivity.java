@@ -3,6 +3,7 @@ package io.github.thehokkienlang.ime;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.ViewGroup;
@@ -28,8 +29,15 @@ public class MainActivity extends Activity {
         TextView intro = new TextView(this);
         intro.setText(R.string.setup_intro);
         intro.setTextSize(16);
-        intro.setPadding(0, 0, 0, pad);
+        intro.setPadding(0, 0, 0, pad / 2);
         column.addView(intro, matchWidth());
+
+        TextView version = new TextView(this);
+        version.setText(getString(R.string.app_version, versionName()));
+        version.setTextSize(14);
+        version.setPadding(0, 0, 0, pad);
+        version.setTextIsSelectable(true); // so it can be copied into a bug report
+        column.addView(version, matchWidth());
 
         Button enable = new Button(this);
         enable.setText(R.string.setup_enable);
@@ -68,6 +76,15 @@ public class MainActivity extends Activity {
         ScrollView scroll = new ScrollView(this);
         scroll.addView(column);
         setContentView(scroll);
+    }
+
+    /** The installed version, as named in build.gradle. */
+    private String versionName() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+        } catch (PackageManager.NameNotFoundException impossible) {
+            return "?"; // an app can always find itself
+        }
     }
 
     private static LinearLayout.LayoutParams matchWidth() {

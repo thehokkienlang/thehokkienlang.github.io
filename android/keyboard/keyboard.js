@@ -129,7 +129,7 @@
       option.querySelector(".candidate-hanri").replaceChildren(...parts.map(part => {
         if (!part.hangul) return part.text;
         const span = document.createElement("span");
-        span.className = "written-hangul";
+        span.className = "written-hangul candidate-hangul";
         span.textContent = part.text;
         return span;
       }));

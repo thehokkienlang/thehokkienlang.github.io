@@ -1595,6 +1595,20 @@ const TangliengimImeCore = (() => {
     return { position, schedule };
   }
 
+  // A choice's text with its Hangul runs marked, so that they take the Hangul font at a size
+  // that matches the Hanri beside them.
+  function choiceTextParts(text) {
+    return String(text).split(/([\u1100-\u11FF\u3130-\u318F\uA960-\uA97F\uAC00-\uD7FF]+)/u)
+      .map((part, index) => ({ part, hangul: index % 2 === 1 }))
+      .filter(({ part }) => part)
+      .map(({ part, hangul }) => {
+        const span = document.createElement("span");
+        if (hangul) span.className = "candidate-hangul";
+        span.textContent = part;
+        return span;
+      });
+  }
+
   // Syllables in a stretch of text: each Hangul syllable or Hanri, not its tone mark.
   function syllableCount(text) {
     let count = 0;
@@ -2747,15 +2761,8 @@ const TangliengimImeCore = (() => {
         if (["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) {
           hanri.classList.add("candidate-hangul");
           hanri.append(renderToneMarkedReading(candidate.entry.reading));
-        } else if (candidate.entry.kind === "phrase") {
-          hanri.append(...candidate.segments.map((segment) => {
-            const part = document.createElement("span");
-            if (segment.hangul) part.className = "candidate-hangul";
-            part.textContent = segment.output;
-            return part;
-          }));
         } else {
-          hanri.textContent = candidate.entry.hanri;
+          hanri.append(...choiceTextParts(candidate.entry.hanri));
         }
 
         const reading = document.createElement("span");

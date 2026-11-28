@@ -3,14 +3,16 @@
 Drafted 2026-11-28 against commit `50cb543` (main). All decisions answered by Haru
 on 2026-11-28 (section 9).
 
-**Status (2026-11-28):** steps 1–6 of section 7 are written and committed on the
-branch `ime-phrase-conversion`. Only that branch is pushed, to build the Android
-0.51 test APK; `main` and the website are unchanged. **Waiting for Haru:** tests
-of 0.51 on a phone and of the Windows Pad,
-the step 6 review ([sample report](ime-phrase-conversion-review.md)). The rule
-for typed apostrophes (section 2.3) was added after review. The release
-steps in section 8 (push, Android 0.6, Windows build) are **not done**. Notes
-headed "executing" or "executed" record what differs from the draft.
+**Status (2026-11-29):** executed. Haru approved the release of Android 0.6 and
+the push to `main`. Notes headed "executing" or "executed" record what differs
+from the draft, and section 2.3 is the rule for typed apostrophes added after
+review. The [sample report](ime-phrase-conversion-review.md) stays as the record
+of default choices to revisit. The Windows app rebuild (section 8, step 5) is
+**not done**: the repository has no build script for it.
+
+**Changed after the 0.51 test build.** Hangul on a menu's choice line is set a
+little larger, so it no longer looks smaller than the Hanri. The Android setup
+screen shows the installed version.
 
 Two changes, released together:
 

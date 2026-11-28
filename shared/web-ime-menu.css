@@ -134,6 +134,14 @@
   color: #667386;
 }
 
+/* Hangul in the choice itself must not look smaller than the Hanri beside it. At one size its
+   glyphs stand about 4% shorter, so it is set a little larger and in the same weight. */
+.hanri-candidate-menu .candidate-hanri.candidate-hangul,
+.hanri-candidate-menu .candidate-hanri .candidate-hangul {
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+
 .hanri-candidate-menu .hangul-tone {
   margin-top: 0;
 }

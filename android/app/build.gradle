@@ -42,8 +42,8 @@ android {
         applicationId "io.github.thehokkienlang.ime"
         minSdk 24
         targetSdk 34
-        versionCode 24
-        versionName "0.51"
+        versionCode 25
+        versionName "0.6"
     }
 
     // The release key is never in git. CI passes it through environment variables (from the

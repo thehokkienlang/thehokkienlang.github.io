@@ -4,6 +4,7 @@
     <!-- Android's keyboard picker shows the language as the main line and the IME name below it. -->
     <string name="ime_name">TLI IME</string>
     <string name="keyboard_language">閩南語</string>
+    <string name="app_version">Version %1$s</string>
     <string name="setup_intro">Type Hokkien in Tangliengim (TLI) in any app. The keyboard works offline and has no internet access.</string>
     <string name="setup_enable">1. Turn on TLI Keyboard</string>
     <string name="setup_choose">2. Switch to TLI Keyboard</string>
