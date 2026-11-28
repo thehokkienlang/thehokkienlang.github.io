@@ -54,8 +54,10 @@ function element() {
   return node;
 }
 
-async function loadKeyboard() {
+// appKeepsText: whether the stand-in app can say what is before its cursor.
+async function loadKeyboard({ appKeepsText = false } = {}) {
   const sent = [];
+  const app = { text: '' };
   const elements = new Map(['#buffer', '#candidates', '#keys'].map(selector => [selector, element()]));
   const context = vm.createContext({
     console: { log() {} }, setTimeout, clearTimeout, queueMicrotask,
@@ -67,8 +69,10 @@ async function loadKeyboard() {
   });
   context.window = context;
   context.TliHost = {
-    setComposing() {}, deleteBackward: () => sent.push('<delete>'), enter: () => sent.push('<enter>'),
-    commit: text => sent.push(text), showKeyboardPicker() {},
+    setComposing() {}, enter: () => { sent.push('<enter>'); app.text += '\n'; },
+    deleteBackward: () => { sent.push('<delete>'); app.text = app.text.slice(0, -1); },
+    commit: text => { sent.push(text); app.text += text; }, showKeyboardPicker() {},
+    ...(appKeepsText ? { textBeforeCursor: () => app.text } : {}),
   };
   for (const file of ['shared/web-hangul-ime.js', 'shared/web-ime-core.js']) vm.runInContext(read(file), context);
   let controller;
@@ -86,10 +90,55 @@ async function loadKeyboard() {
     for (const type of ['pointerdown', 'pointerup']) for (const listener of keys.listeners[type]) listener(event);
   };
   const strip = elements.get('#candidates');
-  return { context, controller, sent, tap, strip, buffer: elements.get('#buffer') };
+  return { context, controller, sent, tap, strip, app, buffer: elements.get('#buffer') };
+}
+
+// Once an apostrophe is typed, nothing becomes Hanri until a space, even after the keyboard has
+// handed part of the text to the app by a tapped candidate or punctuation.
+async function checkApostropheAcrossCommits(appKeepsText) {
+  const { controller, tap, strip, app, buffer } = await loadKeyboard({ appKeepsText });
+  const label = appKeepsText ? 'app text' : 'keyboard memory';
+  const keys = text => { for (const key of text) tap(key); };
+  const hanri = () => controller.activeCandidates.filter(c => !c.entry.kind.startsWith('hangul_'));
+  const choose = async () => {
+    const button = strip.children[0];
+    const event = { target: { closest: () => button } };
+    for (const listener of button.listeners.click) listener(event);
+    for (const listener of strip.listeners.click) listener(event);
+    await new Promise(resolve => setImmediate(resolve));
+  };
+  const KHI = 'zml';
+  keys('’dp'); // ’ then 에
+  assert.equal(buffer.value, '’에');
+  await choose();
+  assert.equal(app.text, '’에', label);
+  keys(KHI);
+  assert.deepEqual(Array.from(hanri()), [], `after a tapped candidate: ${label}`);
+  tap(','); // punctuation hands over the text as typed
+  keys(KHI);
+  assert.deepEqual(Array.from(hanri()), [], `after punctuation: ${label}`);
+  tap('Space');
+  assert.equal(app.text, '’에킈,킈 ', `Space keeps the Hangul and ends the stretch: ${label}`);
+  keys(KHI);
+  assert.equal(controller.activeCandidates[0].entry.hanri, '去', `after a space: ${label}`);
+  tap('Space');
+
+  // A line break ends it too: one Enter finishes the word, the next reaches the app.
+  keys('’dp'); tap('Enter'); tap('Enter'); keys(KHI);
+  assert.ok(app.text.endsWith('’에\n'), `line break sent: ${label}`);
+  assert.equal(controller.activeCandidates[0].entry.hanri, '去', `after a line break: ${label}`);
+  tap('Space');
+
+  // So does deleting back past the apostrophe.
+  keys('’dp'); tap(',');
+  tap('Backspace'); tap('Backspace'); tap('Backspace');
+  keys(KHI);
+  assert.equal(controller.activeCandidates[0].entry.hanri, '去', `after deleting the apostrophe: ${label}`);
 }
 
 (async () => {
+  await checkApostropheAcrossCommits(true);
+  await checkApostropheAcrossCommits(false);
   const { context, controller, sent, tap, strip, buffer } = await loadKeyboard();
   const sentAfter = action => { sent.length = 0; action(); return [...sent]; };
   const typeText = text => controller.insertText(text);

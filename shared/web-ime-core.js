@@ -778,12 +778,11 @@ const TangliengimEngine = (() => {
     return lookup;
   }
 
-  // What follows a typed apostrophe, up to a space, punctuation or Hanri, is written in Hangul
-  // (꽈’에, ’킈, 飲’롷킈). True when the Hangul ending at end follows ’ in that way.
-  function followsApostrophe(text, end) {
-    let start = end;
-    while (start > 0 && /[ᄀ-ᇿ㄰-㆏가-힣ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(text[start - 1])) start -= 1;
-    return normalizeApostrophes(text.slice(0, start)).endsWith("’");
+  // Every character after a typed apostrophe, up to the next space or line break, stays in
+  // Hangul (꽈’에, ’킈, 飲’롷킈). Punctuation and Hanri do not end it. True when the text before
+  // end is in such a stretch.
+  function followsApostrophe(text, end = text.length) {
+    return /’\S*$/u.test(normalizeApostrophes(text.slice(0, end)));
   }
 
   // The words a menu may offer there: Hangul ones only. An apostrophe form such as ’에 belongs
@@ -1623,6 +1622,9 @@ const TangliengimImeCore = (() => {
       preferences = null,
       normalizationContainer = null,
       toneInputStyle = "hidden",
+      // Text that sits before the control's own, where the control holds only the part still
+      // being typed (the Android keyboard).
+      precedingText = () => "",
     }) {
       this.control = control;
       this.candidateContainer = candidateContainer;
@@ -1631,6 +1633,7 @@ const TangliengimImeCore = (() => {
       this.onCandidatesChanged = onCandidatesChanged;
       this.enterBehavior = enterBehavior;
       this.toneInputStyle = toneInputStyle;
+      this.precedingText = precedingText;
       this.candidateLimit = candidateLimit;
       this.recomposeNativeKoreanInput = Boolean(recomposeNativeKoreanInput);
       this.dictionaryIndex = dictionaryIndex;
@@ -2592,7 +2595,7 @@ const TangliengimImeCore = (() => {
         offset += char.length;
       }
 
-      const afterApostrophe = followsApostrophe(range.text, range.end);
+      const afterApostrophe = followsApostrophe(this.precedingText() + range.text.slice(0, range.end));
       const found = [];
       for (let index = 0; index < chars.length; index += 1) {
         const suffix = chars.slice(index).join("");
@@ -2607,7 +2610,9 @@ const TangliengimImeCore = (() => {
           this.typedCandidateForm(start, range.end)
         ));
         const typedEntries = filterCandidateEntries(typedForm, entries);
-        const directly = afterApostrophe && start === range.start;
+        // Only an apostrophe in this text can be taken over by an apostrophe form, so one the
+        // app already holds never gets a second ’ written after it.
+        const directly = normalizeApostrophes(range.text.slice(0, start)).endsWith("’");
         const filteredEntries = afterApostrophe
           ? hangulEntriesAfterApostrophe(typedEntries, directly)
           : typedEntries;

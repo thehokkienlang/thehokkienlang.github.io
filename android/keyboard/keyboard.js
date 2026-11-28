@@ -147,7 +147,27 @@
     onCandidatesChanged: () => { offerHangulForRareHanri(); candidates.scrollLeft = 0; },
     enterBehavior: "none",
     candidateLimit: 24,
+    precedingText: () => preceding,
   });
+
+  // After a typed apostrophe everything up to the next space stays in Hangul, even once part of
+  // it has been handed to the app (a tapped candidate or punctuation), so the IME needs the text
+  // before the composition. It is read as a composition starts, while none of it is composing.
+  // An app that cannot say leaves what this keyboard itself has sent.
+  const CONTEXT_LENGTH = 200;
+  var sent = "";
+  var preceding = "";
+
+  function send(text) {
+    sent = (sent + text).slice(-CONTEXT_LENGTH);
+    host.commit(text);
+  }
+
+  function startComposition() {
+    if (buffer.value) return;
+    const known = host.textBeforeCursor?.();
+    preceding = typeof known === "string" ? known : sent;
+  }
 
   function sync() {
     const text = buffer.value;
@@ -165,7 +185,7 @@
       text = text.slice(0, replacement.start) + replacement.written +
         text.slice(replacement.start + replacement.hanri.length);
     }
-    host.commit(text + suffix);
+    send(text + suffix);
     lastSent = "";
     controller.clear();
     return true;
@@ -181,6 +201,8 @@
   // The app moved on (new field, cursor moved away): drop the buffer without touching its text.
   function reset() {
     lastSent = "";
+    sent = "";
+    preceding = "";
     if (buffer.value) controller.clear();
     setShift(false);
   }
@@ -198,10 +220,11 @@
       const cursor = buffer.selectionStart ?? buffer.value.length;
       if (!controller.previousHangulUnit(buffer.value, cursor)) {
         commitBuffer();
-        host.commit(hangul.keyboardGuideOutput(input));
+        send(hangul.keyboardGuideOutput(input));
         return;
       }
     }
+    startComposition();
     controller.insertText(input);
   }
 
@@ -224,26 +247,35 @@
       case "Emoji": layer = "emoji"; shifted = false; render(); return;
       case "Letters": layer = "tli"; render(); return;
       case "Backspace":
-        if (buffer.value) controller.backspace(); else host.deleteBackward();
+        if (buffer.value) {
+          controller.backspace();
+        } else {
+          sent = sent.slice(0, -1);
+          host.deleteBackward();
+        }
         return;
       case "Space":
         // One press finishes the composition and types the space, as on Gboard's Korean keyboard.
         convertFirst();
-        if (!commitBuffer(null, " ")) host.commit(" ");
+        if (!commitBuffer(null, " ")) send(" ");
         return;
       case "Enter":
         convertFirst();
-        if (!commitBuffer()) host.enter();
+        if (!commitBuffer()) {
+          sent = ""; // a line break, or the field's action: either ends the stretch
+          host.enter();
+        }
         return;
     }
     if (layer === "tli" && key === APOSTROPHE) {
+      startComposition();
       controller.insertText(APOSTROPHE);
       if (shifted) setShift(false);
       return;
     }
     if (layer !== "tli" || key === "," || key === ".") {
       commitBuffer();
-      host.commit(key);
+      send(key);
       return;
     }
     insertInput(inputFor(key));
@@ -383,7 +415,7 @@
       insertInput(alternate.input);
     } else {
       commitBuffer();
-      host.commit(alternate.text);
+      send(alternate.text);
     }
   }
 

@@ -40,6 +40,7 @@ public class TliKeyboardService extends InputMethodService {
     // The setup screen cannot reach the keyboard page, so it leaves a request here.
     private static final String SETTINGS = "tli-keyboard";
     private static final String RESET_LEARNED = "resetLearnedChoices";
+    private static final int CONTEXT_LENGTH = 200;
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private WebView keyboard;
@@ -231,6 +232,16 @@ public class TliKeyboardService extends InputMethodService {
                 composing = false;
                 connection.commitText(text, 1);
             });
+        }
+
+        // What the app holds before the cursor, or null if it cannot say. The page only checks it
+        // for an apostrophe since the last space; it is not stored.
+        @JavascriptInterface
+        public String textBeforeCursor() {
+            InputConnection connection = getCurrentInputConnection();
+            if (connection == null) return null;
+            CharSequence text = connection.getTextBeforeCursor(CONTEXT_LENGTH, 0);
+            return text == null ? null : text.toString();
         }
 
         @JavascriptInterface

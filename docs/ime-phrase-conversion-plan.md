@@ -91,21 +91,28 @@ See section 3. This is about text typed **without** an apostrophe.
 have turned 꽈’에 into 꽈’會 and ’킈 into ’去. Both stay pure Hangul. This
 replaces the draft wherever they differ.
 
-- After an apostrophe the user typed, up to the next space, punctuation or
-  Hanri, every menu offers **Hangul only**: no Hanri and no phrase. This
-  applies to the web IME, the translator, the Android keyboard and the Pad, by
-  Enter, a tap or Space.
+- **Every character after a typed apostrophe, up to the next space, stays pure
+  Hangul.** A line break counts as a space. Punctuation and Hanri do not end the
+  rule: in 꽈’에,킈 the 킈 stays Hangul.
+- There every menu offers **Hangul only**: no Hanri and no phrase. This applies
+  to the web IME, the translator, the Android keyboard and the Pad, by Enter, a
+  tap or Space.
 - Directly after ’, the apostrophe form comes first, in place of the plain
   Hangul word spelled alike, so ’이 keeps its own reading and not 이5.
 - A choice made there is learned apart from the same syllables typed without ’,
   so picking ’에 never moves it above 會 for a bare 에.
-- A space ends the attachment: 꽈’에 킈쟣븡 offers 去食飯.
+- After a space, conversion works as usual: 꽈’에 킈쟣븡 offers 去食飯.
 - A whole dictionary word typed without ’ is unaffected, as are Pad choices that
   keep everything after ’ in Hangul (食飽’ᄅᆤ).
+- **Android** hands text to the app when a candidate is tapped or punctuation is
+  typed. As each word is started, the keyboard therefore reads up to 200
+  characters before the cursor (`textBeforeCursor` in `TliKeyboardService`), so
+  the rule still holds. If an app cannot say, the keyboard uses what it sent
+  itself.
 
-The content agrees: of 1,511 stretches written after an apostrophe, 1,510 are
-all Hangul. The exception is a 淡薄 in The Egg, which now needs a space before
-it to be offered in Hanri.
+The content agrees. Of 1,511 stretches from an apostrophe to the next space,
+1,510 are all Hangul. The exception is 淡薄 in The Egg, which could now be
+typed in Hanri only after a space.
 
 ## 3. Apostrophe forms: push down, do not remove
 
@@ -295,7 +302,7 @@ all, not only that no entry passes the typed tones. The two differ only for
 correction aliases: 능잡3 (stored as 능잡1*, 二十) had no tone-compatible entry,
 so 兩十 was offered above 二十. The static desktop snapshot caught this.
 
-**After a typed apostrophe** (2.3) no phrase is offered, and the other
+**After a typed apostrophe, up to the next space** (2.3), no phrase is offered, and the other
 candidates are limited to Hangul (`followsApostrophe`,
 `hangulEntriesAfterApostrophe`). This changes the static menus typed with ’: 24
 on the web and 2 on the Pad, each reviewed and now offering Hangul only. No menu

@@ -102,22 +102,29 @@ def line_pieces(markup: str):
 
 
 def runs(markup: str, join_spaces: bool):
-    """Yield (apostrophe-joined text before the run, syllables) for each run a user would type."""
-    current, before = [], ""
+    """Yield (after an apostrophe, directly after it, syllables) for each run a user would type.
+
+    From an apostrophe to the next space everything is typed in Hangul, so that space is
+    typed even in continuous typing. Punctuation ends a run but not that stretch.
+    """
+    current, attached, directly = [], False, False
     for kind, value in line_pieces(markup):
         if kind == "syllables":
             current.extend(value)
-        elif kind == "space" and join_spaces and not before:
-            # After an apostrophe a space always ends the run: it ends the Hangul-only stretch.
             continue
-        else:
-            if current:
-                yield before, current
-            joined = "".join(item[0] for item in current)
-            before = f"{before}{joined}’" if kind == "break" and value == "’" else ""
+        if kind == "space" and join_spaces and not attached:
+            continue
+        if current:
+            yield attached, directly, current
             current = []
+        if kind == "space":
+            attached = directly = False
+        elif value == "’":
+            attached = directly = True
+        else:
+            directly = False
     if current:
-        yield before, current
+        yield attached, directly, current
 
 
 def sources():
@@ -152,10 +159,10 @@ def comparable(text: str) -> str:
     return unicodedata.normalize("NFC", text).replace("’", "")
 
 
-def offer_after_apostrophe(typed: list[str]) -> str:
+def offer_after_apostrophe(typed: list[str], directly: bool) -> str:
     """What the IME's first choice writes for a run typed after an apostrophe: Hangul only."""
     text = "".join(typed)
-    match = engine.menu_suffix_match(INDEX, text, after_apostrophe=True)
+    match = engine.menu_suffix_match(INDEX, text, "’" if directly else "’,")
     if match and match["words"]:
         text = text[:match["start"]] + engine.phrase_entry_output(match["words"][0])
     return engine.strip_reading_tones(text)
@@ -174,15 +181,15 @@ def measure(join_spaces: bool, toned: bool) -> dict:
     wrong = Counter()
     samples = []
     for title, markup in sources():
-        for before, syllables in runs(markup, join_spaces):
+        for attached, directly, syllables in runs(markup, join_spaces):
             typed = [item[0] if toned else engine.strip_reading_tones(item[0]) for item in syllables]
             original = written_slice(syllables, 0, len(syllables))
             if original is None:
                 original = "".join({item[2]: item[3] for item in syllables}.values())
-            if before:
+            if attached:
                 totals["after apostrophe"] += 1
                 totals["after apostrophe matches"] += (
-                    comparable(offer_after_apostrophe(typed)) == comparable(original))
+                    comparable(offer_after_apostrophe(typed, directly)) == comparable(original))
                 continue
             if len(syllables) < 2:
                 totals["one syllable"] += 1
@@ -244,7 +251,7 @@ def summary_rows(results: dict) -> list[str]:
             lambda t: percent(t["whole word matches"], t["whole run is one word"])),
         row("Other runs without a phrase", lambda t: str(t["no phrase"])),
         row("Runs over 16 syllables", lambda t: str(t["over 16 syllables"])),
-        row("Stretches after an apostrophe (Hangul only)", lambda t: str(t["after apostrophe"])),
+        row("Runs between an apostrophe and a space (Hangul only)", lambda t: str(t["after apostrophe"])),
         row("…first choice identical to the text",
             lambda t: percent(t["after apostrophe matches"], t["after apostrophe"])),
     ]
@@ -282,8 +289,8 @@ def report() -> str:
         "*Continuous* types straight through to the next punctuation mark or apostrophe, which",
         "asks much more of the splitting. A difference is not always an IME error: the text may",
         "choose to write a word in Hangul, or use a Hanri the dictionary ranks second.",
-        "Text after an apostrophe is offered in Hangul only, up to the next space or punctuation,",
-        "so it is counted apart from phrases.",
+        "Every character from an apostrophe to the next space is offered in Hangul only,",
+        "so those runs are counted apart from phrases.",
         "",
         "## Summary",
         "",

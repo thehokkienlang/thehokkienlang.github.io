@@ -107,8 +107,8 @@ for (const [typed, written] of afterApostrophe) {
   for (let position = 0; position < list.length; position += 1) {
     const ime = controller();
     ime.applyCandidate(type(ime, typed)[position]);
-    assert.doesNotMatch(ime.control.value.slice(ime.control.value.lastIndexOf('’')), /\p{Script=Han}/u,
-      `choice ${position + 1} writes Hangul: ${typed}`);
+    assert.deepEqual(ime.control.value.match(/\p{Script=Han}/gu), typed.match(/\p{Script=Han}/gu),
+      `choice ${position + 1} writes no new Hanri: ${typed}`);
     assert.ok(ime.control.value.includes('’'), `the typed apostrophe stays: ${typed}`);
     if (!position) assert.equal(ime.control.value, written, `first choice: ${typed}`);
   }
@@ -135,8 +135,10 @@ for (const [typed, written] of afterApostrophe) {
   assert.equal(first('에'), '會', 'Choosing ’에 after an apostrophe does not move it above 會');
   ime.preferences.reset();
 }
-// A space ends the attachment: what follows converts again.
-assert.equal(type(controller(), '꽈’에 킈쟣븡')[0].entry.hanri, '去食飯');
+// Only a space or a line break ends it: what follows converts again.
+for (const text of ['꽈’에 킈쟣븡', '꽈’에\n킈쟣븡', '꽈’에　킈쟣븡', '꽈’에, 킈쟣븡']) {
+  assert.equal(type(controller(), text)[0].entry.hanri, '去食飯', JSON.stringify(text));
+}
 
 // 2. The plan's headline menu: the whole phrase first, the word it used to offer still below.
 {

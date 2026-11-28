@@ -6702,10 +6702,15 @@ class HokkienIMEPad:
         if not follows_apostrophe(before):
             return candidate
 
+        def hanri_after_apostrophe(text: str) -> list[str]:
+            # Within the stretch since the last space, from its first apostrophe on.
+            stretch = re.split(r'\s', text)[-1]
+            return [ch for ch in stretch.partition('’')[2] if is_hanri_char(ch)]
+
         def stays_hangul(choice: str) -> bool:
             written = candidate['prefix'] + choice
             return (written.count('’') >= before.count('’')
-                    and not field_has_hanri(written.rpartition('’')[2]))
+                    and hanri_after_apostrophe(written) == hanri_after_apostrophe(before))
 
         keep = [position for position, choice in enumerate(candidate['choices']) if stays_hangul(choice)]
         if not keep:
@@ -6843,15 +6848,14 @@ class HokkienIMEPad:
             return phrase
         before = current[:cursor_pos]
         run_start = self.menu_run_start(before)
-        after_apostrophe = follows_apostrophe(before)
-        match = menu_suffix_match(self.phrase_index(), before[run_start:], after_apostrophe)
+        match = menu_suffix_match(self.phrase_index(), before[run_start:], before[:run_start])
         if not match or not match['words']:
             return None
         start = run_start + match['start']
         raw = before[start:]
         if self.input_mode.get() == 'lomari' and self.lomari_raw:
             raw = 'lomari:' + self.lomari_raw
-        if after_apostrophe and match['start'] == 0:
+        if before[:start].endswith('’'):
             raw = '’' + raw  # learned apart from the same syllables typed without ’
         key = candidate_preferences_api().lookup_key(typed_lookup_text(raw))
         ranked = self.candidate_preference_store().rank([{'entry': entry} for entry in match['words']], key)

@@ -9,8 +9,8 @@ No content or dictionary data was changed.
 *Continuous* types straight through to the next punctuation mark or apostrophe, which
 asks much more of the splitting. A difference is not always an IME error: the text may
 choose to write a word in Hangul, or use a Hanri the dictionary ranks second.
-Text after an apostrophe is offered in Hangul only, up to the next space or punctuation,
-so it is counted apart from phrases.
+Every character from an apostrophe to the next space is offered in Hangul only,
+so those runs are counted apart from phrases.
 
 ## Summary
 
@@ -24,7 +24,7 @@ so it is counted apart from phrases.
 | …first choice identical to the text | 97.5% | 97.4% | 98.0% |
 | Other runs without a phrase | 11 | 5 | 5 |
 | Runs over 16 syllables | 3 | 8 | 8 |
-| Stretches after an apostrophe (Hangul only) | 1511 | 1511 | 1511 |
+| Runs between an apostrophe and a space (Hangul only) | 1511 | 1511 | 1511 |
 | …first choice identical to the text | 99.9% | 99.9% | 99.9% |
 
 ## Most frequent differences

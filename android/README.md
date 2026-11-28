@@ -13,6 +13,9 @@ website build; nothing here is published by GitHub Pages.
   copy of the engine or the dictionary.
 - `TliKeyboardService` passes the page's output to the focused app. The app has no
   INTERNET permission.
+- As a word is started, the page reads up to 200 characters before the cursor, to
+  tell whether an apostrophe since the last space keeps the word in Hangul. The
+  text is not stored.
 
 ## Build
 

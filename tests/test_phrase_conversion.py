@@ -170,10 +170,17 @@ class PadMenu(unittest.TestCase):
                 for choice in menu['choices']:
                     written = menu['prefix'] + choice
                     self.assertGreaterEqual(written.count('’'), typed.count('’'), written)
-                    self.assertFalse(PAD.field_has_hanri(written.rpartition('’')[2]), written)
+                    # Hanri may be written before the apostrophe (食飽’ᄅᆤ), never after it.
+                    self.assertEqual([ch for ch in written.partition('’')[2] if PAD.is_hanri_char(ch)],
+                                     [ch for ch in typed.partition('’')[2] if PAD.is_hanri_char(ch)], written)
 
-    def test_a_space_ends_the_apostrophe_attachment(self):
-        self.assertEqual(self.open_menu('꽈’에 킈쟣븡')['choices'][0], '去食飯')
+    def test_only_a_space_or_line_break_ends_the_apostrophe_rule(self):
+        for text in ('꽈’에 킈쟣븡', '꽈’에\n킈쟣븡', '꽈’에\u3000킈쟣븡', '꽈’에, 킈쟣븡'):
+            with self.subTest(repr(text)):
+                self.pad.chosen_hangul_prefixes = []
+                self.pad.suppressed_hanri_contexts = set()
+                self.assertEqual(self.open_menu(text)['choices'][0], '去食飯')
+        self.assertFalse(PAD.follows_apostrophe('꽈’에\n'))
         self.pad.suppressed_hanri_contexts = set()
         self.assertIn('去', self.open_menu('킈')['choices'], 'without ’, Hanri are offered')
 

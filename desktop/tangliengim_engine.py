@@ -1915,16 +1915,12 @@ def phrase_for_run(units: list, lookup, suffix_syllables: int = 0) -> dict | Non
 
 
 def follows_apostrophe(text: str) -> bool:
-    """True when the Hangul at the end of text follows a typed apostrophe.
+    """True when the end of text follows a typed apostrophe with no space since.
 
-    Everything there, up to a space, punctuation or Hanri, is written in Hangul
-    (꽈’에, ’킈, 飲’롷킈).
+    Every character after the apostrophe, up to the next space or line break, stays in
+    Hangul (꽈’에, ’킈, 飲’롷킈). Punctuation and Hanri do not end it.
     """
-    start = len(text)
-    while start and (text[start - 1] in TONE_DIGITS or text[start - 1] in TONE_SYMBOLS
-                     or is_hangulish_for_tone(text[start - 1])):
-        start -= 1
-    return _phrase_apostrophes(text[:start]).endswith('’')
+    return bool(re.search(r'’\S*\Z', _phrase_apostrophes(text)))
 
 
 def hangul_entries_after_apostrophe(entries: list[dict], directly: bool) -> list[dict]:
@@ -1940,12 +1936,15 @@ def hangul_entries_after_apostrophe(entries: list[dict], directly: bool) -> list
     return [entry for entry in words if entry not in marked]
 
 
-def menu_suffix_match(index: dict, text: str, after_apostrophe: bool = False) -> dict | None:
+def menu_suffix_match(index: dict, text: str, before: str = '') -> dict | None:
     """The word at the end of text that a web menu is built for: its longest known ending.
 
     Returns where it starts, the typed form, the words in static order, and whether the
-    menu also offers the ending in plain Hangul. None when no ending is known.
+    menu also offers the ending in plain Hangul. None when no ending is known. before is
+    the text in front of text, which may hold the apostrophe that keeps it in Hangul.
     """
+    after_apostrophe = follows_apostrophe(before + text)
+    before = _phrase_apostrophes(before)
     for start in range(len(text)):
         if text[start] in TONE_DIGITS or text[start] in TONE_SYMBOLS:
             continue
@@ -1956,7 +1955,8 @@ def menu_suffix_match(index: dict, text: str, after_apostrophe: bool = False) ->
         typed_form = phrase_typed_form(suffix)
         words = filter_phrase_entries(typed_form, entries)
         if after_apostrophe:
-            words = hangul_entries_after_apostrophe(words, start == 0)
+            directly = start == 0 and before.endswith('’')
+            words = hangul_entries_after_apostrophe(words, directly)
         exact_override = any(
             entry.get('entry_type') == 'hangul_override'
             and normalize_tone_symbols_to_digits(phrase_entry_reading(entry)) == typed_form
