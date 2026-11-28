@@ -765,12 +765,17 @@ const TangliengimEngine = (() => {
     const typed = typedSandhiToTaipei(typedUnits.join(""));
     let offset = 0;
     const forms = typedUnits.map(unit => typed.slice(offset, offset += unit.length));
-    return (startUnit, endUnit) => {
-      const form = forms.slice(startUnit, endUnit).join("");
-      const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(form));
-      const entries = candidatesByReading.get(key);
+    const formOf = (startUnit, endUnit) => forms.slice(startUnit, endUnit).join("");
+    const entriesFor = form =>
+      candidatesByReading.get(normalizeText(TangliengimHangulIme.normalizeReadingBase(form)));
+    const lookup = (startUnit, endUnit) => {
+      const form = formOf(startUnit, endUnit);
+      const entries = entriesFor(form);
       return entries?.length ? filterCandidateEntries(form, entries) : [];
     };
+    // Whether the dictionary stores this spelling at all, whatever tones were typed.
+    lookup.isReading = (startUnit, endUnit) => Boolean(entriesFor(formOf(startUnit, endUnit))?.length);
+    return lookup;
   }
 
   // A menu reads only the text after the last apostrophe. When that text and what ’ joins it to
@@ -846,7 +851,9 @@ const TangliengimEngine = (() => {
   // the menu's top word at the end of the run already converts.
   function phraseForRun(units, lookup, suffixSyllables = 0) {
     if (units.length < 2 || units.length > PHRASE_SYLLABLE_LIMIT) return null;
-    if (lookup(0, units.length).length) return null;
+    // A whole run the dictionary stores is already a word (D1), even when no typed tone fits it,
+    // as with a mistyped spelling kept as a correction alias.
+    if (lookup.isReading(0, units.length)) return null;
     const result = segmentReadingRun(units, lookup);
     const converted = result.segments.reduce(
       (total, segment) => total + (segment.entry ? segment.endUnit - segment.startUnit : 0), 0);

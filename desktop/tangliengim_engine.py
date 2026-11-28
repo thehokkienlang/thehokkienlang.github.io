@@ -1707,6 +1707,247 @@ HANRI_EXACT_CANDIDATE_BUCKETS, HANRI_BASE_CANDIDATE_BUCKETS = build_hanri_candid
 )
 
 
+# Phrase conversion (docs/ime-phrase-conversion-plan.md, section 4): a typed run that is not
+# itself a dictionary reading is split into dictionary words. These functions mirror the web
+# engine in shared/web-ime-core.js, including how its menus find and order words, so every
+# Tangliengim IME offers the same text. tests/fixtures/phrase-conversion-cases.json keeps the
+# two in step.
+PHRASE_SYLLABLE_LIMIT = 16
+
+
+def _phrase_apostrophes(text: str) -> str:
+    return str(text or '').replace("'", '’')
+
+
+def phrase_unit_at(text: str, index: int) -> tuple[int, bool]:
+    """Return (end, is a Hangul syllable) for the unit at index, as readingUnitAt() does."""
+    def initial(position: int) -> bool:
+        ch = text[position:position + 1]
+        return bool(ch) and ('\u1100' <= ch <= '\u1112' or ch == '\u1159')
+
+    def vowel(position: int) -> bool:
+        ch = text[position:position + 1]
+        return bool(ch) and ('\u1161' <= ch <= '\u1175' or ch in '\u1177\u11a4\ud7bb')
+
+    ch = text[index]
+    if '\uac00' <= ch <= '\ud7a3':
+        return index + 1, True
+    if (ch == '\u115f' or initial(index)) and vowel(index + 1):
+        end = index + 2
+        final = text[end:end + 1]
+        if ch != '\u115f' and final and '\u11a8' <= final <= '\u11ff' and not vowel(end):
+            end += 1
+        return end, True
+    return index + 1, False
+
+
+def phrase_syllable_count(text: str) -> int:
+    """Count the Hangul syllables and Hanri in text, not their tone marks."""
+    count = 0
+    index = 0
+    while index < len(text):
+        end, syllable = phrase_unit_at(text, index)
+        count += 1 if syllable or is_hanri_char(text[index]) else 0
+        index = end
+    return count
+
+
+def phrase_lookup_key(text: str) -> str:
+    """The tone-free, apostrophe-free key the web menus look words up by."""
+    return dictionary_ranking_api().reading_base(normalize_tone_symbols_to_digits(text))
+
+
+def phrase_typed_form(text: str) -> str:
+    """Typed text as tone digits, reading a non-final open 4 as Taipei's 1."""
+    return normalize_tone_symbols_to_digits(typed_sandhi_to_taipei(_phrase_apostrophes(text)))
+
+
+def phrase_entry_reading(entry: dict) -> str:
+    """The reading the web dictionary gives an entry: the correction where there is one."""
+    return entry.get('corrected') or entry.get('reading', '')
+
+
+def phrase_entry_is_hangul(entry: dict) -> bool:
+    return not field_has_hanri(entry.get('hanri', ''))
+
+
+def phrase_entry_output(entry: dict) -> str:
+    """What choosing the entry writes: its Hanri, or its reading for a Hangul word."""
+    if phrase_entry_is_hangul(entry):
+        reading = normalize_tone_symbols_to_digits(phrase_entry_reading(entry))
+        return strip_reading_tones(reading)
+    return ''.join(ch for ch in entry.get('hanri', '') if ch not in TONE_SYMBOLS)
+
+
+def phrase_reading_index(hanri_dict: dict) -> dict[str, list[dict]]:
+    """Every word under each key the web menus find it by, in the web menus' static order."""
+    groups: dict[str, dict[int, dict]] = {}
+    for entries in hanri_dict.values():
+        for entry in entries:
+            readings = [phrase_entry_reading(entry), entry.get('raw', {}).get('reading', '')]
+            if not entry.get('auto_sandhi'):
+                readings.extend(entry.get('headwordAliases', []))
+            for reading in readings:
+                key = phrase_lookup_key(reading)
+                if key:
+                    groups.setdefault(key, {}).setdefault(id(entry), entry)
+    ranking = dictionary_ranking_api()
+    return {key: ranking.rank_entries(list(group.values()), key) for key, group in groups.items()}
+
+
+def _phrase_tones_by_position(reading: str) -> tuple[str, dict[int, str]]:
+    base: list[str] = []
+    tones: dict[int, str] = {}
+    text = normalize_tone_symbols_to_digits(_phrase_apostrophes(reading))
+    for ch in unicodedata.normalize('NFC', text):
+        if ch in TONE_DIGITS:
+            if base:
+                tones[len(base) - 1] = ch
+        elif ch != NONSTANDARD_READING_MARK:
+            base.append(ch)
+    return ''.join(base), tones
+
+
+def filter_phrase_entries(typed_form: str, entries: list[dict]) -> list[dict]:
+    """Keep the entries the typed tones allow, as filterCandidateEntries() does."""
+    typed_base, typed_tones = _phrase_tones_by_position(typed_form)
+    if not typed_tones:
+        return [entry for entry in entries if not entry.get('auto_sandhi')]
+    typed_key = phrase_lookup_key(typed_base)
+
+    def fits(reading: str) -> bool:
+        base, tones = _phrase_tones_by_position(reading)
+        return (phrase_lookup_key(base) == typed_key
+                and all(tones.get(position) == tone for position, tone in typed_tones.items()))
+
+    compatible = [
+        entry for entry in entries
+        if fits(phrase_entry_reading(entry))
+        or (entry.get('corrected') and fits(entry.get('citation_reading') or entry.get('reading', '')))
+    ]
+    if compatible:
+        return compatible
+    # A TSV row may leave tones out, so an unmatched typed tone still finds the word.
+    return [entry for entry in entries
+            if not entry.get('auto_sandhi')
+            and phrase_lookup_key(phrase_entry_reading(entry)) == typed_key]
+
+
+def phrase_span_lookup(index: dict, typed_units: list[str]):
+    """Return lookup(i, j): the words a menu would offer for those syllables typed alone."""
+    typed = phrase_typed_form(''.join(typed_units))
+    forms = []
+    offset = 0
+    for unit in typed_units:
+        forms.append(typed[offset:offset + len(unit)])
+        offset += len(unit)
+
+    def lookup(start: int, end: int) -> list[dict]:
+        form = ''.join(forms[start:end])
+        entries = index.get(phrase_lookup_key(form))
+        return filter_phrase_entries(form, entries) if entries else []
+
+    # Whether the dictionary stores this spelling at all, whatever tones were typed.
+    lookup.is_reading = lambda start, end: phrase_lookup_key(''.join(forms[start:end])) in index
+    return lookup
+
+
+def segment_reading_run(units: list, lookup) -> dict:
+    """Split units into words: fewest syllables left over, then fewest words.
+
+    lookup(i, j) gives the ranked words for units[i:j]; a word is the first of them.
+    Ties prefer the longest last word, then canonical order from the left.
+    """
+    ranking = dictionary_ranking_api()
+
+    def word_key(word: tuple) -> tuple:
+        start, end, entry = word
+        return (ranking.canonical_key(entry), ranking.generated(entry), start - end, start)
+
+    def path_key(path: tuple) -> tuple:
+        cost, words, _segments = path
+        return cost, tuple(word_key(word) for word in words)
+
+    count = len(units)
+    # best[i] holds, for each length of a path's last word, the best path over i units.
+    best: list[dict[int, tuple]] = [{} for _ in range(count + 1)]
+    best[0][0] = ((0, 0, 0), (), ())
+
+    def keep(end: int, last_length: int, path: tuple) -> None:
+        held = best[end].get(last_length)
+        if held is None or path_key(path) < path_key(held):
+            best[end][last_length] = path
+
+    for end in range(1, count + 1):
+        for start in range(end):
+            entries = lookup(start, end)
+            for last_length, ((left, words_used, slots), words, segments) in list(best[start].items()):
+                if entries:
+                    word = (start, end, entries[0])
+                    # The word is the span's first entry, so its static slot is 0.
+                    keep(end, end - start,
+                         ((left, words_used + 1, slots), words + (word,), segments + (word,)))
+                if start == end - 1:
+                    keep(end, last_length,
+                         ((left + 1, words_used, slots), words, segments + ((start, end, None),)))
+
+    _length, winner = min(best[count].items(),
+                          key=lambda item: (item[1][0], -item[0], path_key(item[1])))
+    return {'cost': winner[0], 'segments': [
+        {'start_unit': start, 'end_unit': end, 'entry': entry} for start, end, entry in winner[2]]}
+
+
+def phrase_for_run(units: list, lookup, suffix_syllables: int = 0) -> dict | None:
+    """The split to offer as a phrase, or None (section 4.4).
+
+    suffix_syllables is how many syllables the menu's top word at the end already converts.
+    """
+    # A whole run the dictionary stores is already a word (D1), even when no typed tone fits
+    # it, as with a mistyped spelling kept as a correction alias.
+    if not 2 <= len(units) <= PHRASE_SYLLABLE_LIMIT or lookup.is_reading(0, len(units)):
+        return None
+    result = segment_reading_run(units, lookup)
+    converted = sum(segment['end_unit'] - segment['start_unit']
+                    for segment in result['segments'] if segment['entry'])
+    if len(result['segments']) < 2 or not converted or converted <= suffix_syllables:
+        return None
+    return result
+
+
+def is_apostrophe_joined_word(index: dict, joined_text: str) -> bool:
+    """True when the text after the last apostrophe is the end of one dictionary word.
+
+    A menu reads only that text, so 飲’롷킈 must be recognised across the apostrophe.
+    """
+    pieces = _phrase_apostrophes(joined_text).split('\u2019')
+    return any(phrase_lookup_key(''.join(pieces[start:])) in index for start in range(len(pieces) - 1))
+
+
+def menu_suffix_match(index: dict, text: str) -> dict | None:
+    """The word at the end of text that a web menu is built for: its longest known ending.
+
+    Returns where it starts, the typed form, the words in static order, and whether the
+    menu also offers the ending in plain Hangul. None when no ending is known.
+    """
+    for start in range(len(text)):
+        if text[start] in TONE_DIGITS or text[start] in TONE_SYMBOLS:
+            continue
+        suffix = text[start:]
+        entries = index.get(phrase_lookup_key(suffix))
+        if not entries:
+            continue
+        typed_form = phrase_typed_form(suffix)
+        words = filter_phrase_entries(typed_form, entries)
+        exact_override = any(
+            entry.get('entry_type') == 'hangul_override'
+            and normalize_tone_symbols_to_digits(phrase_entry_reading(entry)) == typed_form
+            for entry in words)
+        plain = not exact_override and not field_has_hanri(suffix)
+        if words or plain:
+            return {'start': start, 'typed': typed_form, 'words': words, 'plain': plain}
+    return None
+
+
 def reload_hanri_resources() -> None:
     """Reload TSV-backed dictionaries and every derived lookup index."""
     global HANRI_DICT, HANRI_PREFIX_INDEX, HANRI_PREFIX_LOOKUP_BUCKETS
@@ -4021,6 +4262,7 @@ ENGINE_NAMES = (
     'L_TO_COMPAT',
     'MIXED_AUDIO_HANRI_INDEX',
     'NONSTANDARD_READING_MARK',
+    'PHRASE_SYLLABLE_LIMIT',
     'PREVIEW_CHOSEONG_TO_LOMARI',
     'PREVIEW_JONGSEONG_TO_LOMARI',
     'PREVIEW_JUNGSEONG_TO_LOMARI',
@@ -4094,6 +4336,7 @@ ENGINE_NAMES = (
     'entry_audio_reading',
     'field_has_hanri',
     'field_is_plain_hanri_key',
+    'filter_phrase_entries',
     'final_hangul_unit_needs_implicit_tone',
     'final_jamo_before_tone',
     'find_audio_file',
@@ -4106,6 +4349,7 @@ ENGINE_NAMES = (
     'hokkien_shortcut_midway_prefixes',
     'infer_default_form',
     'is_apostrophe_boundary_after_tone',
+    'is_apostrophe_joined_word',
     'is_audio_hangul_only_override_field',
     'is_audio_phrase_boundary',
     'is_checked_final_before_tone',
@@ -4136,10 +4380,21 @@ ENGINE_NAMES = (
     'lomari_glide_if_null_initial',
     'mark_untoned_audio_units',
     'medial_typing_components',
+    'menu_suffix_match',
     'mixed_audio_hanri_match',
     'normalize_keyboard_char',
     'normalize_tone_symbols_to_digits',
     'numeric_key_digit_prefix_len',
+    'phrase_entry_is_hangul',
+    'phrase_entry_output',
+    'phrase_entry_reading',
+    'phrase_for_run',
+    'phrase_lookup_key',
+    'phrase_reading_index',
+    'phrase_span_lookup',
+    'phrase_syllable_count',
+    'phrase_typed_form',
+    'phrase_unit_at',
     'precomposed_syllable_typing_prefixes',
     'preview_add_combining_mark_to_lomari_target',
     'preview_cluster_to_base_lomari',
@@ -4156,6 +4411,7 @@ ENGINE_NAMES = (
     'replace_audio_unit_initial',
     'repo_data_path',
     'resolve_audio_parts_for_unit',
+    'segment_reading_run',
     'singapore_tone1_audio_replacement',
     'source_repo_root',
     'split_audio_reading_units',

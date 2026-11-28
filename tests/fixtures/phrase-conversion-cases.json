@@ -1,5 +1,24 @@
 {
-  "about": "Shared by tests/check_phrase_conversion.cjs (web, Android) and tests/test_phrase_conversion.py (desktop). 'typed' is the run as typed, with tone digits. 'phrase' is null when no phrase is offered, otherwise one [first syllable, end syllable, entry ID or null] per segment; null leaves the syllable as typed. 'text' is what accepting the phrase writes. See docs/ime-phrase-conversion-plan.md, section 4.",
+  "about": "Shared by tests/check_phrase_conversion.cjs (web, Android) and tests/test_phrase_conversion.py (desktop). 'typed' is the run as typed, with tone digits. 'phrase' is null when no phrase is offered, otherwise one [first syllable, end syllable, entry ID or null] per segment; null leaves the syllable as typed. 'text' is what accepting the phrase writes. 'space' lists what Space leaves before its space on Android and the desktop Pad, with tone digits dropped: the first candidate, except that text a typed apostrophe attaches is kept. See docs/ime-phrase-conversion-plan.md, sections 4 and 5.",
+  "space": [
+    ["킈쟣븡", "去食飯"],
+    ["킈쟣븡5", "去食飯"],
+    ["꽈킈쟣븡", "꽈去食飯"],
+    ["킈뷁", "去뷁"],
+    ["쟣븡", "食飯"],
+    ["감샤", "感謝"],
+    ["킈", "去"],
+    ["래", "來"],
+    ["꽈", "꽈"],
+    ["이", "이"],
+    ["뷁", "뷁"],
+    ["’킈", "’킈"],
+    ["’래", "’래"],
+    ["꽈’에", "꽈’에"],
+    ["림1’롷킈", "림’롷킈"],
+    ["쟣바’ᄅᆤ", "쟣바’ᄅᆤ"],
+    ["감샤’킈쟣븡", "감샤’킈쟣븡"]
+  ],
   "cases": [
     {
       "name": "a run that is not a word becomes words, longest word kept whole",
@@ -40,6 +59,11 @@
       "typed": "킈쳰5커2",
       "phrase": [[0, 1, "U+53BB_00"], [1, 2, "U+5343_00-sandhi"], [2, 3, "U+82E6_00"]],
       "text": "去千苦"
+    },
+    {
+      "name": "a stored spelling typed with a tone it lacks is still one word",
+      "typed": "능잡3",
+      "phrase": null
     },
     {
       "name": "a typed open tone 4 joined to the next word reads as Taipei's 1",

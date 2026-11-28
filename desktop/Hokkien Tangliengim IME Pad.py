@@ -726,7 +726,7 @@ def normalize_final_j_candidate_lookup(text: str) -> str:
     return ''.join(output)
 
 
-DISPLAY_HANRI_HELP = "Hanri candidates: numerals 1–5 after Hangul are tones; Alt+digit inserts a literal number. ↑/↓ choose, Enter commits, Space keeps Hangul, Esc closes. (本)=citation, (變)=auto sandhi; checked finals ㄱ/ㄷ/ㅂ/ㅎ/ㅀ use 1↔3."
+DISPLAY_HANRI_HELP = "Hanri candidates: numerals 1–5 after Hangul are tones; Alt+digit inserts a literal number. ↑/↓ choose, Enter commits, Space commits the first choice and types a space, Esc or → keeps the Hangul. (本)=citation, (變)=auto sandhi; checked finals ㄱ/ㄷ/ㅂ/ㅎ/ㅀ use 1↔3."
 
 
 def should_autocorrect_e_to_ye_before_final(initial: str, medial: str, final: str) -> bool:
@@ -3140,6 +3140,8 @@ class HokkienIMEPad:
         self.hanri_instance_readings = []
         self.hangul_instance_readings = []
         self.hanri_instance_text_snapshot = ''
+        # Text up to the end of each word the user chose to write in Hangul.
+        self.chosen_hangul_prefixes = []
         # Stores recent raw keypresses plus the composer state before each key.
         # This lets Hokkien shortcuts rewrite instantly after the full sequence is typed,
         # without delaying normal Korean input such as fkd → 랑.
@@ -5036,6 +5038,10 @@ class HokkienIMEPad:
         was_shifted = self.keyboard_help_shifted
         was_ctrled = self.keyboard_help_ctrled
         replacing_selection = self.selected_offsets() is not None
+        if sequence == ' ' and self.candidate and self.ime_on.get() and not replacing_selection:
+            self.handle_candidate_key('space', sequence)
+            self.text.focus_set()
+            return
         self.close_candidate_popup()
         if replacing_selection:
             self.push_undo_state()
@@ -6642,6 +6648,211 @@ class HokkienIMEPad:
             'choice_entries': merged_entries,
         }
 
+    # Phrase conversion (docs/ime-phrase-conversion-plan.md). The rules live in the engine and
+    # match the website; this class finds the text they apply to and writes the result.
+    def phrase_index(self) -> dict:
+        if getattr(self, '_phrase_index_dictionary', None) is not HANRI_DICT:
+            self._phrase_index = phrase_reading_index(HANRI_DICT)
+            self._phrase_index_dictionary = HANRI_DICT
+        return self._phrase_index
+
+    def prune_chosen_hangul(self) -> None:
+        """Forget chosen Hangul words once the text up to them has changed."""
+        current = self.composer.text()
+        self.chosen_hangul_prefixes = [
+            prefix for prefix in getattr(self, 'chosen_hangul_prefixes', []) if current.startswith(prefix)]
+
+    def menu_run_start(self, before: str) -> int:
+        """Where the Hanri, Hangul and tones just before the cursor begin, as on the website."""
+        start = len(before)
+        while start and (before[start - 1] in TONE_DIGITS or before[start - 1] in TONE_SYMBOLS
+                         or is_hangul_or_hanri_char(before[start - 1])):
+            start -= 1
+        return start
+
+    def phrase_stretch(self, before: str, run_start: int) -> list[tuple[int, int]]:
+        """The syllables at the end of the run that no word has been chosen for yet.
+
+        Written Hanri and words chosen in Hangul end the stretch and are never split again.
+        """
+        chosen = [len(prefix) for prefix in getattr(self, 'chosen_hangul_prefixes', [])
+                  if before.startswith(prefix)]
+        spans: list[tuple[int, int]] = []
+        index = max([run_start, *chosen])
+        while index < len(before):
+            end, syllable = phrase_unit_at(before, index)
+            if not syllable:
+                spans = []
+                index = end
+                continue
+            if end < len(before) and (before[end] in TONE_DIGITS or before[end] in TONE_SYMBOLS):
+                end += 1
+            spans.append((index, end))
+            index = end
+        return spans
+
+    def apostrophe_joined_start(self, before: str, start: int) -> int:
+        """Walk back from start over the Hangul, tones and apostrophes joined to it."""
+        while start and (before[start - 1] in "'\u2019" or before[start - 1] in TONE_DIGITS
+                         or before[start - 1] in TONE_SYMBOLS or is_hangulish_for_tone(before[start - 1])):
+            start -= 1
+        return start
+
+    def phrase_conversion(self, current: str, cursor_pos: int) -> dict | None:
+        """The phrase for the Hangul before the cursor: its span and the words it writes."""
+        before = current[:cursor_pos]
+        run_start = self.menu_run_start(before)
+        spans = self.phrase_stretch(before, run_start)
+        if not 2 <= len(spans) <= PHRASE_SYLLABLE_LIMIT:
+            return None
+        index = self.phrase_index()
+        if is_apostrophe_joined_word(index, before[self.apostrophe_joined_start(before, spans[0][0]):]):
+            return None
+        typed_units = [normalize_tone_symbols_to_digits(before[start:end]) for start, end in spans]
+        suffix = menu_suffix_match(index, before[run_start:])
+        converted = (phrase_syllable_count(before[run_start + suffix['start']:])
+                     if suffix and suffix['words'] else 0)
+        result = phrase_for_run(typed_units, phrase_span_lookup(index, typed_units), converted)
+        if not result:
+            return None
+
+        segments = []
+        for segment in result['segments']:
+            first, last = segment['start_unit'], segment['end_unit']
+            start, end, entry = spans[first][0], spans[last - 1][1], segment['entry']
+            if entry:
+                segments.append(self.conversion_segment(before, start, end, entry))
+            else:
+                segments.append({'start': start, 'end': end, 'output': before[start:end], 'entry': None,
+                                 'reading': ''.join(typed_units[first:last])})
+        return {'start': segments[0]['start'], 'end': cursor_pos, 'segments': segments}
+
+    def conversion_segment(self, before: str, start: int, end: int, entry: dict) -> dict:
+        """What one word writes over before[start:end]."""
+        reading = phrase_entry_reading(entry)
+        if phrase_entry_is_hangul(entry):
+            output = self.format_hangul_output(normalize_tone_symbols_to_digits(reading))
+        else:
+            output = phrase_entry_output(entry)
+        # A word spelled with a leading apostrophe takes over one that was already typed.
+        if output.startswith('\u2019') and before[:start].endswith('\u2019'):
+            start -= 1
+        return {'start': start, 'end': end, 'output': output, 'entry': entry, 'reading': reading}
+
+    def with_phrase_candidate(self, candidate: dict | None) -> dict | None:
+        """Put the phrase, if there is one, above the word menu's choices."""
+        current = self.composer.text()
+        cursor_pos = self.composer.display_cursor_pos()
+        phrase = self.phrase_conversion(current, cursor_pos)
+        if not phrase:
+            return candidate
+
+        text = ''.join(segment['output'] for segment in phrase['segments'])
+        readings = ' '.join(segment['reading'] for segment in phrase['segments'])
+        if candidate is None:
+            typed = current[phrase['start']:cursor_pos]
+            candidate = {
+                'prefix': current[:phrase['start']], 'suffix': current[cursor_pos:],
+                'matched_text': normalize_tone_symbols_to_digits(typed),
+                'reading': strip_reading_tones(normalize_tone_symbols_to_digits(typed)),
+                'choices': [typed], 'labels': [f'1  {typed}'], 'choice_readings': [None],
+                'choice_auto_sandhi': [False], 'choice_entries': [None],
+            }
+        written = current[:phrase['start']] + text
+        keep = [position for position, choice in enumerate(candidate['choices'])
+                if candidate['prefix'] + choice != written]
+        result = dict(candidate, phrase=phrase)
+        empty = {'choice_readings': None, 'choice_auto_sandhi': False, 'choice_entries': None}
+        for field, first in {'choices': text, **empty}.items():
+            values = candidate.get(field) or [empty.get(field)] * len(candidate['choices'])
+            result[field] = [first, *(values[position] for position in keep)]
+        labels = [f'{text}  {is_fully_toned_reading(readings)}',
+                  *(candidate['labels'][position].split('  ', 1)[-1] for position in keep)]
+        result['labels'] = [f'{number}  {label}' for number, label in enumerate(labels, 1)]
+        return result
+
+    def apply_conversion(self, conversion: dict) -> None:
+        """Write each word of a conversion and remember its reading, as single choices do."""
+        current = self.composer.text()
+        self.sync_hanri_instance_readings()
+        written = ''
+        position = 0
+        placed = []
+        for segment in conversion['segments']:
+            written += current[position:segment['start']]
+            placed.append((len(written), segment))
+            written += segment['output']
+            position = segment['end']
+        self.composer.output = written + current[position:]
+        self.composer.cursor_pos = len(written)
+        self.composer.initial = self.composer.medial = self.composer.final = ''
+        self.sync_hanri_instance_readings()
+        for start, segment in placed:
+            entry = segment['entry']
+            if not entry:
+                continue
+            output = segment['output']
+            if phrase_entry_is_hangul(entry):
+                self.mark_chosen_hangul(self.composer.output[:start + len(output)])
+                continue
+            sandhi = bool(entry.get('auto_sandhi'))
+            citation = entry.get('citation_reading') if sandhi else None
+            self.remember_hanri_instance_reading(
+                start, output, citation or entry_audio_reading(entry),
+                auto_sandhi=sandhi and not citation,
+                entry_id=dictionary_ranking_api().source_id(entry))
+
+    def mark_chosen_hangul(self, prefix: str) -> None:
+        self.chosen_hangul_prefixes = [*getattr(self, 'chosen_hangul_prefixes', []), prefix]
+
+    def space_conversion(self) -> dict | None:
+        """What Space writes before its space, or None to keep the text as typed.
+
+        Space does not convert what a typed apostrophe attaches to the word before it:
+        a menu reads only what follows ’, so ’에 would become ’會, and the end of a word
+        such as 飲’롷킈 would be converted on its own. The Android keyboard does the same.
+        """
+        conversion = self.first_conversion()
+        if not conversion:
+            return None
+        before = self.composer.text()[:conversion['end']]
+        start = conversion['start']
+        if before[:start].endswith('\u2019') or is_apostrophe_joined_word(
+                self.phrase_index(), before[self.apostrophe_joined_start(before, start):]):
+            return None
+        return conversion
+
+    def first_conversion(self) -> dict | None:
+        """The website's first candidate for the text before the cursor, as a conversion.
+
+        The Pad's own menu lists the typed Hangul first, so Space does not take the menu's
+        first row; it takes what the website and the Android keyboard offer first, which is
+        Hangul only where the dictionary writes Hangul. None when nothing is offered.
+        """
+        current = self.composer.text()
+        cursor_pos = self.composer.display_cursor_pos()
+        phrase = self.phrase_conversion(current, cursor_pos)
+        if phrase:
+            return phrase
+        before = current[:cursor_pos]
+        run_start = self.menu_run_start(before)
+        match = menu_suffix_match(self.phrase_index(), before[run_start:])
+        if not match or not match['words']:
+            return None
+        start = run_start + match['start']
+        raw = before[start:]
+        if self.input_mode.get() == 'lomari' and self.lomari_raw:
+            raw = 'lomari:' + self.lomari_raw
+        key = candidate_preferences_api().lookup_key(typed_lookup_text(raw))
+        ranked = self.candidate_preference_store().rank([{'entry': entry} for entry in match['words']], key)
+        entry = ranked[0]['entry']
+        segment = self.conversion_segment(before, start, cursor_pos, entry)
+        if phrase_entry_is_hangul(entry) and phrase_entry_output(entry) == strip_reading_tones(
+                normalize_tone_symbols_to_digits(before[segment['start']:])):
+            # The word is already spelled this way: keep the typed text and its tone marks.
+            segment['output'] = before[segment['start']:]
+        return {'start': segment['start'], 'end': cursor_pos, 'segments': [segment]}
+
     def suppress_current_hanri_candidate_once(self) -> None:
         """Remember that the user chose to keep the current text as Hangul.
 
@@ -6668,11 +6879,21 @@ class HokkienIMEPad:
         return False
 
     def find_hanri_candidate(self, force: bool = False) -> dict | None:
-        """Return an exact or predictive Hanri candidate record.
+        """Return the candidate menu for the text before the cursor, phrase first.
 
         Candidate lookup is anchored at the current text cursor, but the menu is
         only requested by input/edit actions. Moving the caret over committed
         text alone never opens a candidate menu.
+        """
+        self.prune_chosen_hangul()
+        if not self.hanri_on.get() or not self.composer.text():
+            return None
+        if self.current_hanri_candidate_is_suppressed():
+            return None
+        return self.with_phrase_candidate(self.find_word_candidate())
+
+    def find_word_candidate(self) -> dict | None:
+        """Return an exact or predictive Hanri candidate record.
 
         Longest-match rule:
             When several entries can match the text before the cursor, the menu
@@ -6680,13 +6901,7 @@ class HokkienIMEPad:
             Example: if 림롷킈 can match a longer dictionary reading, it should
             not fall back to the suffix 킈 just because 킈 also has an entry.
         """
-        if not self.hanri_on.get():
-            return None
-
         current = self.composer.text()
-        if not current:
-            return None
-
         cursor_pos = self.composer.display_cursor_pos()
         before_cursor = current[:cursor_pos]
         after_cursor = current[cursor_pos:]
@@ -6698,9 +6913,6 @@ class HokkienIMEPad:
         # and a typed non-final open 4 (Singapore) as Taipei's 1.
         before_lookup = typed_lookup_text(before_cursor)
         before_loose_lookup = remove_apostrophes_for_lookup(before_lookup)
-
-        if self.current_hanri_candidate_is_suppressed():
-            return None
 
         def match_score(matched_text: str, phase: int) -> tuple[int, int, int]:
             """Sort key for choosing which candidate owns the menu.
@@ -7049,6 +7261,7 @@ class HokkienIMEPad:
             and self.candidate.get('labels') == candidate.get('labels')
             and self.candidate.get('choice_readings') == candidate.get('choice_readings')
             and self.candidate.get('choice_auto_sandhi') == candidate.get('choice_auto_sandhi')
+            and self.candidate.get('phrase') == candidate.get('phrase')
             and [choice_identity(self.candidate, index) for index in range(len(self.candidate['choices']))]
             == [choice_identity(candidate, index) for index in range(len(candidate['choices']))]
         ):
@@ -7231,6 +7444,15 @@ class HokkienIMEPad:
             return
         if index is None:
             index = self.candidate_index
+        if index == 0 and self.candidate.get('phrase'):
+            # A phrase teaches nothing about its words (decision D4).
+            self.push_undo_state()
+            self.apply_conversion(self.candidate['phrase'])
+            self.key_history = []
+            self.reset_lomari_buffer()
+            self.suppress_current_hanri_candidate_once()
+            self.close_candidate_popup()
+            return
         choice = self.candidate['choices'][index]
         sources = self.candidate.get('choice_entries', [])
         source = sources[index] if index < len(sources) else None
@@ -7261,6 +7483,8 @@ class HokkienIMEPad:
             )
         else:
             self.sync_hanri_instance_readings()
+        if chose_pure_hangul:
+            self.mark_chosen_hangul(replacement)
         self.key_history = []
         self.reset_lomari_buffer()
         # After any candidate is committed, do not immediately reopen another
@@ -7319,13 +7543,17 @@ class HokkienIMEPad:
             self.close_candidate_popup()
             return None
         if char == ' ':
-            # Space means "keep the Hangul as typed" and continue typing.
-            # It should not accept the highlighted Hanri candidate and should
-            # not reopen/force the same menu again.
-            self.cancel_candidate_keep_hangul()
+            # Space converts as on the website and Android (decision D8): it writes the
+            # first conversion, never the highlighted row, teaches nothing, then types
+            # the space. One undo step covers both. Escape or Right keeps the Hangul.
+            self.close_candidate_popup()
             self.key_history = []
             self.push_undo_state()
-            if not self.maybe_commit_lomari_pronoun_li_before_delimiter(char):
+            pronoun = self.maybe_commit_lomari_pronoun_li_before_delimiter(char)
+            conversion = self.space_conversion()
+            if conversion:
+                self.apply_conversion(conversion)
+            if not pronoun:
                 self.reset_lomari_buffer()
             self.composer.insert_literal(' ')
             self.render()
@@ -8231,9 +8459,8 @@ class HokkienIMEPad:
 
         char = self.normalize_apostrophe_input(char)
 
-        # Space keeps the current Hangul text as typed.  Candidate conversion
-        # is handled by Enter/clicking the popup; Space must not force-open or
-        # accept the Hanri menu.
+        # With no candidate menu open, Space only types a space; it never forces
+        # one open. With a menu open, handle_candidate_key() converts first.
 
         if not self.ime_on.get():
             self.close_candidate_popup()

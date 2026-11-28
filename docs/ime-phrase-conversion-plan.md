@@ -259,6 +259,12 @@ Offer the phrase candidate only when **all** of these hold:
   This avoids offering 킈食飯 twice, once as a phrase and once as today's
   suffix candidate.
 
+**Added while executing: stored spellings with other tones.** "No direct
+dictionary match" means that the dictionary does not store the run's spelling at
+all, not only that no entry passes the typed tones. The two differ only for
+correction aliases: 능잡3 (stored as 능잡1*, 二十) had no tone-compatible entry,
+so 兩十 was offered above 二十. The static desktop snapshot caught this.
+
 **Added while executing: words joined by an apostrophe.** A menu reads only
 what follows the last apostrophe, so typing 림1’롷킈 (飲’롷킈, "drink") made
 롷킈 look like a run of its own and offered 落去. The static web snapshot caught
@@ -371,6 +377,29 @@ Export it and add it to the engine's return list. It is browser-free, so
   single words, Space takes the first **non-Hangul** choice instead. Decide
   which while implementing, and record the result here.
 - A PyInstaller build must still bundle `tangliengim_engine.py` (`AGENTS.md`).
+
+**Decided while executing.** The typed Hangul stays first in the Pad's menu, so
+its menus for single words are unchanged. Space does not take "the first
+non-Hangul choice", which would turn 꽈 into 外 and break D5 and D8. It works
+out the **web's first candidate** (`first_conversion()`): the phrase, otherwise
+the word the web menu would put first, learned choices included. That is Hangul
+only where the dictionary writes Hangul. On 7,710 of 7,716 single-word
+spellings it writes what the web writes. The other six use the vowel ힻ
+(U+D7BB, 短): the web's candidate range does not include that character, an
+older gap.
+
+The Pad also remembers words chosen in Hangul, so a later phrase or Space does
+not split them again, as on the web. The on-screen keyboard guide's Space
+converts like the physical key.
+
+**Changed while executing, for Haru to confirm (limits D5 and D8).** Space on
+the Pad, and Space and Enter on Android, **keep the text as typed** when the
+conversion would attach to a typed apostrophe: it directly follows ’ without
+writing its own, or it ends a dictionary word joined by ’. A menu reads only
+what follows the apostrophe, so converting would turn ’킈 into ’去, 꽈’에 into
+꽈’會 (’에 appears 1,367 times in content) and 림1’롷킈 into 림’롷去. The menus
+are unchanged, and picking a candidate still converts. The cost: Space also
+keeps a phrase typed straight after an apostrophe (감샤’킈쟣븡).
 
 ## 6. Tests
 
