@@ -85,4 +85,13 @@ for (const [typed, expected] of [
   assert.equal(core.typedSandhiToTaipei(typed), expected, `typed sandhi (browser core): ${typed}`);
 }
 
+// Phrase conversion runs with no browser too, and splits a run as the browser core does.
+const split = (api, dictionary) => {
+  const units = ['킈', '쟣', '븡'];
+  const result = api.segmentReadingRun(units, api.phraseSpanLookup(dictionary.candidatesByReading, units));
+  return JSON.stringify(Array.from(result.segments, s => [s.startUnit, s.endUnit, s.entry?.id || null]));
+};
+assert.equal(split(engine, headless), '[[0,1,"U+53BB_00"],[1,3,"U+98DF_U+98EF_00"]]', 'Headless phrase split');
+assert.equal(split(core, reference), split(engine, headless), 'Headless phrase split differs');
+
 console.log(`OK: the TLI engine runs with no browser; ${headless.candidatesByReading.size} reading keys match the browser core.`);

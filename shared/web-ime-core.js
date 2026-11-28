@@ -753,6 +753,106 @@ const TangliengimEngine = (() => {
     );
   }
 
+  // Phrase conversion (docs/ime-phrase-conversion-plan.md, section 4): a typed run that is not
+  // itself a dictionary reading is split into dictionary words. desktop/tangliengim_engine.py
+  // mirrors these rules; tests/fixtures/phrase-conversion-cases.json keeps the two in step.
+  const PHRASE_SYLLABLE_LIMIT = 16;
+
+  // lookup(i, j) for the syllables typedUnits[i..j): the entries a menu would offer for that span
+  // typed alone, in static order. The run is read as a whole, so a typed open 4 on a syllable
+  // joined to the next one reads as Taipei's 1 even where a word ends there.
+  function phraseSpanLookup(candidatesByReading, typedUnits) {
+    const typed = typedSandhiToTaipei(typedUnits.join(""));
+    let offset = 0;
+    const forms = typedUnits.map(unit => typed.slice(offset, offset += unit.length));
+    return (startUnit, endUnit) => {
+      const form = forms.slice(startUnit, endUnit).join("");
+      const key = normalizeText(TangliengimHangulIme.normalizeReadingBase(form));
+      const entries = candidatesByReading.get(key);
+      return entries?.length ? filterCandidateEntries(form, entries) : [];
+    };
+  }
+
+  // A menu reads only the text after the last apostrophe. When that text and what ’ joins it to
+  // spell one dictionary word (飲’롷킈), the run is already a word, so its end gets no phrase.
+  function isApostropheJoinedWord(candidatesByReading, joinedText) {
+    const pieces = normalizeApostrophes(joinedText).split("’");
+    return pieces.slice(0, -1).some((_, index) => {
+      const reading = TangliengimHangulIme.normalizeNativeCandidateInput(pieces.slice(index).join(""));
+      return candidatesByReading.has(normalizeText(TangliengimHangulIme.normalizeReadingBase(reading)));
+    });
+  }
+
+  // Fewer unconverted syllables, then fewer words, then lower static slots; ties then compare
+  // the words from left to right.
+  function comparePhrasePaths(left, right) {
+    for (let i = 0; i < left.cost.length; i += 1) {
+      if (left.cost[i] !== right.cost[i]) return left.cost[i] - right.cost[i];
+    }
+    for (let i = 0; i < left.words.length; i += 1) {
+      const a = left.words[i];
+      const b = right.words[i];
+      const difference = compareCanonicalEntries(a.entry, b.entry) ||
+        (b.endUnit - b.startUnit) - (a.endUnit - a.startUnit) || a.startUnit - b.startUnit;
+      if (difference) return difference;
+    }
+    return 0;
+  }
+
+  // The best split of units into words. Each word is the first entry of lookup(i, j); a syllable
+  // no word covers stays as typed (entry null).
+  function segmentReadingRun(units, lookup) {
+    const count = units.length;
+    // best[i] holds, for each length of a path's last word, the best path over the first i
+    // syllables. The final tie-break prefers the longest last word.
+    const best = Array.from({ length: count + 1 }, () => new Map());
+    best[0].set(0, { cost: [0, 0, 0], words: [], segments: [], lastLength: 0 });
+    const keep = (end, path) => {
+      const held = best[end].get(path.lastLength);
+      if (!held || comparePhrasePaths(path, held) < 0) best[end].set(path.lastLength, path);
+    };
+    for (let end = 1; end <= count; end += 1) {
+      for (let start = 0; start < end; start += 1) {
+        const entry = lookup(start, end)?.[0];
+        for (const path of best[start].values()) {
+          if (entry) {
+            const word = { startUnit: start, endUnit: end, entry };
+            // The word is the span's first entry, so its static slot is 0.
+            keep(end, {
+              cost: [path.cost[0], path.cost[1] + 1, path.cost[2]],
+              words: [...path.words, word],
+              segments: [...path.segments, word],
+              lastLength: end - start,
+            });
+          }
+          if (start === end - 1) {
+            keep(end, {
+              cost: [path.cost[0] + 1, path.cost[1], path.cost[2]],
+              words: path.words,
+              segments: [...path.segments, { startUnit: start, endUnit: end, entry: null }],
+              lastLength: path.lastLength,
+            });
+          }
+        }
+      }
+    }
+    const [winner] = [...best[count].values()].sort((a, b) =>
+      a.cost[0] - b.cost[0] || a.cost[1] - b.cost[1] || a.cost[2] - b.cost[2] ||
+      b.lastLength - a.lastLength || comparePhrasePaths(a, b));
+    return { cost: winner.cost, segments: winner.segments };
+  }
+
+  // The split to offer as a phrase, or null (section 4.4). suffixSyllables is how many syllables
+  // the menu's top word at the end of the run already converts.
+  function phraseForRun(units, lookup, suffixSyllables = 0) {
+    if (units.length < 2 || units.length > PHRASE_SYLLABLE_LIMIT) return null;
+    if (lookup(0, units.length).length) return null;
+    const result = segmentReadingRun(units, lookup);
+    const converted = result.segments.reduce(
+      (total, segment) => total + (segment.entry ? segment.endUnit - segment.startUnit : 0), 0);
+    return result.segments.length >= 2 && converted > 0 && converted > suffixSyllables ? result : null;
+  }
+
   function createSimplifiedNormalizationIndex(entries) {
     const forms = new Map();
     const canonicalForms = new Set();
@@ -1071,7 +1171,8 @@ const TangliengimEngine = (() => {
     createCandidatePreferences, buildReadingCandidateMap, tonesByBasePosition,
     typedTonesAreCompatibleWithEntry, filterCandidateEntries, createSimplifiedNormalizationIndex,
     createSimplifiedNormalizationSession, createDictionaryIndex, isImeCandidateChar,
-    candidateReplacementStart,
+    candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup, segmentReadingRun,
+    phraseForRun, isApostropheJoinedWord,
   };
 })();
 // END TLI ENGINE (browser-free)
@@ -1090,7 +1191,8 @@ const TangliengimImeCore = (() => {
     adaptiveLookupKey, adaptiveScore, sanitizeCandidatePreferences, createCandidatePreferences,
     buildReadingCandidateMap, tonesByBasePosition, typedTonesAreCompatibleWithEntry, filterCandidateEntries,
     createSimplifiedNormalizationIndex, createSimplifiedNormalizationSession, createDictionaryIndex,
-    isImeCandidateChar, candidateReplacementStart,
+    isImeCandidateChar, candidateReplacementStart, PHRASE_SYLLABLE_LIMIT, phraseSpanLookup,
+    segmentReadingRun, phraseForRun, isApostropheJoinedWord,
   } = TangliengimEngine;
 
   function displayTextNode(text) {
@@ -1478,6 +1580,18 @@ const TangliengimImeCore = (() => {
     control.addEventListener("click", schedule);
     if (typeof window.addEventListener === "function") window.addEventListener("resize", schedule);
     return { position, schedule };
+  }
+
+  // Syllables in a stretch of text: each Hangul syllable or Hanri, not its tone mark.
+  function syllableCount(text) {
+    let count = 0;
+    for (let index = 0; index < text.length;) {
+      const unit = readingUnitAt(text, index);
+      if (!unit) break;
+      if (unit.canCarryTone || isHanriChar(unit.text)) count += 1;
+      index = unit.end;
+    }
+    return count;
   }
 
   class TextImeController {
@@ -2386,6 +2500,76 @@ const TangliengimImeCore = (() => {
       return output;
     }
 
+    // The syllables at the end of the range that no word has been chosen for yet. Hanri and
+    // chosen Hangul words end the stretch; hidden typed tones do not.
+    phraseStretch(range) {
+      const { text } = range;
+      this.syncRememberedReadings(text);
+      const chosen = [
+        ...this.rememberedHanriReadings,
+        ...this.rememberedHangulReadings.filter((span) => !span.explicit),
+      ];
+      let units = [];
+      for (let index = range.start; index < range.end;) {
+        const word = chosen.find((span) => span.start <= index && index < span.end);
+        const unit = word ? null : readingUnitAt(text, index);
+        if (!unit?.canCarryTone || unit.end > range.end) {
+          units = [];
+          index = word?.end ?? unit?.end ?? index + 1;
+          continue;
+        }
+        const end = unit.end < range.end && isToneMark(text[unit.end]) ? unit.end + 1 : unit.end;
+        units.push({ start: index, end });
+        index = end;
+      }
+      return units;
+    }
+
+    // One candidate that converts the whole stretch into words, or null. topSuffix is the first
+    // of the ordinary candidates, which convert only the end of the range.
+    findPhraseCandidate(range, topSuffix) {
+      const units = this.phraseStretch(range);
+      if (units.length < 2 || units.length > PHRASE_SYLLABLE_LIMIT) return null;
+      let joinedStart = units[0].start;
+      while (joinedStart > 0 && /[’\u1100-\u11FF\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(range.text[joinedStart - 1])) {
+        joinedStart -= 1;
+      }
+      if (isApostropheJoinedWord(this.candidatesByReading, range.text.slice(joinedStart, range.end))) return null;
+      const typedUnits = units.map(({ start, end }) =>
+        TangliengimHangulIme.normalizeNativeCandidateInput(this.typedCandidateForm(start, end)));
+      const lookup = phraseSpanLookup(this.candidatesByReading, typedUnits);
+      const result = phraseForRun(typedUnits, lookup, topSuffix?.convertedSyllables || 0);
+      if (!result) return null;
+
+      const segments = result.segments.map(({ startUnit, endUnit, entry }) => {
+        let { start } = units[startUnit];
+        const { end } = units[endUnit - 1];
+        const hangul = !entry || ["hangul_override", "hangul_plain"].includes(entry.kind);
+        let output = range.text.slice(start, end);
+        if (entry) {
+          output = hangul
+            ? TangliengimHangulIme.normalizeReadingBase(entry.reading || entry.hanri)
+            : entry.hanri;
+          start = candidateReplacementStart(range.text, start, output);
+        }
+        // An unconverted syllable reads as typed, not as lookup normalised it.
+        const reading = entry ? entry.reading : this.typedCandidateForm(start, end);
+        return { start, end, entry, hangul, output, reading };
+      });
+      return {
+        entry: {
+          hanri: segments.map((segment) => segment.output).join(""),
+          reading: segments.map((segment) => segment.reading).join(" "),
+          kind: "phrase",
+          generatedCandidate: true,
+        },
+        segments,
+        start: segments[0].start,
+        end: range.end,
+        length: range.end - segments[0].start,
+      };
+    }
+
     findCandidates() {
       const range = this.activeCandidateRange();
       if (!range) return [];
@@ -2427,6 +2611,7 @@ const TangliengimImeCore = (() => {
             start: candidateReplacementStart(range.text, start, replacement),
             end: range.end,
             length: suffix.length,
+            convertedSyllables: syllableCount(suffix),
           });
         }
         if (!exactHangulOverride && ![...suffix].some(isHanriChar)) {
@@ -2457,8 +2642,10 @@ const TangliengimImeCore = (() => {
       const staticCandidates = uniqueCandidates.sort((left, right) =>
           Number(Boolean(left.entry.generatedCandidate)) - Number(Boolean(right.entry.generatedCandidate))
         );
-      return this.preferences.rank(staticCandidates, staticCandidates[0]?.lookupKey || "")
-        .slice(0, this.candidateLimit);
+      const ranked = this.preferences.rank(staticCandidates, staticCandidates[0]?.lookupKey || "");
+      // The phrase goes above the ordinary candidates, which learning orders as before.
+      const phrase = this.findPhraseCandidate(range, staticCandidates[0]);
+      return (phrase ? [phrase, ...ranked] : ranked).slice(0, this.candidateLimit);
     }
 
     renderCandidates() {
@@ -2522,7 +2709,9 @@ const TangliengimImeCore = (() => {
         const button = document.createElement("button");
         button.type = "button";
         button.tabIndex = -1;
-        button.className = "ime-candidate";
+        button.className = candidate.entry.kind === "phrase"
+          ? "ime-candidate ime-candidate-phrase"
+          : "ime-candidate";
         button.setAttribute("role", "option");
         button.setAttribute("aria-selected", String(index === this.activeCandidateIndex));
         button.classList.toggle("selected", index === this.activeCandidateIndex);
@@ -2536,6 +2725,13 @@ const TangliengimImeCore = (() => {
         if (["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) {
           hanri.classList.add("candidate-hangul");
           hanri.append(renderToneMarkedReading(candidate.entry.reading));
+        } else if (candidate.entry.kind === "phrase") {
+          hanri.append(...candidate.segments.map((segment) => {
+            const part = document.createElement("span");
+            if (segment.hangul) part.className = "candidate-hangul";
+            part.textContent = segment.output;
+            return part;
+          }));
         } else {
           hanri.textContent = candidate.entry.hanri;
         }
@@ -2603,6 +2799,11 @@ const TangliengimImeCore = (() => {
       if (explicit && !candidate.entry.generatedCandidate) {
         this.preferences.record(candidate.lookupKey, sourceEntryId(candidate.entry));
       }
+      if (candidate.entry.kind === "phrase") {
+        // Not recorded above: a phrase teaches nothing about its words (decision D4).
+        this.commitPhrase(candidate);
+        return;
+      }
       const text = this.control.value;
       const isHangul = ["hangul_override", "hangul_plain"].includes(candidate.entry.kind);
       const replacement = isHangul
@@ -2626,6 +2827,48 @@ const TangliengimImeCore = (() => {
       this.updateControlFromComposer({ allowCandidateMenu: false });
       this.dismissCandidates();
     }
+
+    // Write every word of a phrase at once, remembering each word's reading as if it had been
+    // chosen alone.
+    commitPhrase(candidate) {
+      this.syncRememberedReadings(this.control.value);
+      // Typed tones on syllables that stay as typed must survive the rewrite around them.
+      const typedTones = candidate.segments.filter((segment) => !segment.entry).flatMap((segment) =>
+        this.rememberedHangulReadings
+          .filter((span) => span.explicit && span.start >= segment.start && span.end <= segment.end)
+          .map((span) => ({ ...span, segment, offset: span.start - segment.start })));
+      let next = this.control.value;
+      // Right to left, so the earlier offsets stay valid.
+      for (const segment of [...candidate.segments].reverse()) {
+        next = `${next.slice(0, segment.start)}${segment.output}${next.slice(segment.end)}`;
+      }
+      const placed = new Map();
+      let shift = 0;
+      for (const segment of candidate.segments) {
+        placed.set(segment, segment.start + shift);
+        shift += segment.output.length - (segment.end - segment.start);
+      }
+      this.syncRememberedReadings(next);
+      this.composer.setText(next, candidate.end + shift);
+      for (const segment of candidate.segments) {
+        if (!segment.entry) continue;
+        const start = placed.get(segment);
+        if (segment.hangul) {
+          this.rememberHangulReading(
+            start, start + segment.output.length, segment.entry.reading || segment.output,
+            segment.entry, next, false
+          );
+        } else {
+          this.rememberHanriReading(start, segment.entry, next);
+        }
+      }
+      for (const tone of typedTones) {
+        const start = placed.get(tone.segment) + tone.offset;
+        this.rememberHangulReading(start, start + tone.hangul.length, tone.reading, tone.entry, next, true);
+      }
+      this.updateControlFromComposer({ allowCandidateMenu: false });
+      this.dismissCandidates();
+    }
   }
 
   function createTextImeController(options) {
@@ -2633,6 +2876,11 @@ const TangliengimImeCore = (() => {
   }
 
   return {
+    PHRASE_SYLLABLE_LIMIT,
+    isApostropheJoinedWord,
+    phraseForRun,
+    phraseSpanLookup,
+    segmentReadingRun,
     TAIPEI_SANDHI: Object.freeze({
       open: OPEN_TAIPEI_SANDHI,
       checked: CHECKED_TAIPEI_SANDHI,

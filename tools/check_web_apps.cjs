@@ -1226,5 +1226,31 @@ async function loadApp(route, script) {
       assert.ok(plan.segments.every(segment => segment.file.startsWith('/public/audio/')));
     }
   }
+  // Phrase conversion on /ime/ (docs/ime-phrase-conversion-plan.md): 킈쟣븡 offers 去食飯 first,
+  // Enter writes it, and a phrase with a Hangul word keeps that word's tone mark over it.
+  for (const [typed, written, tones] of [
+    ['킈쟣븡', '去食飯', []],
+    ['꽈킈쟣븡', '꽈去食飯', [[0, '꽈2']]],
+  ]) {
+    const result = JSON.parse(vm.runInContext(`(() => {
+      imeController.clear();
+      imeController.insertText(${JSON.stringify(typed)});
+      const first = imeController.activeCandidates[0];
+      imeController.handleKeydown({ key: 'Enter', preventDefault() {} });
+      return JSON.stringify({
+        first: [first?.entry.kind, first?.entry.hanri],
+        text: imeText.value,
+        tones: imeController.getHangulToneReadingsForDisplay(imeText.value).map(s => [s.start, s.reading]),
+        overlay: [...lomariRenderer.resolvedHangulToneSpans(imeText.value)].map(s => [s.start, s.reading]),
+      });
+    })()`, context));
+    assert.deepEqual(result.first, ['phrase', written], `${typed}: the phrase is the first candidate`);
+    assert.equal(result.text, written, `${typed}: Enter writes the phrase`);
+    assert.deepEqual(result.tones, tones, `${typed}: tone overlay readings`);
+    for (const [start, reading] of result.overlay) {
+      assert.ok(tones.some(([at, value]) => at === start && value[0] === reading[0]),
+        `${typed}: no tone mark over written Hanri (${start} ${reading})`);
+    }
+  }
   console.log('OK: both app bootstraps load shared data; composition, candidates, and Taipei/Singapore audio match the desktop reference.');
 })().catch(error => { console.error(error); process.exitCode = 1; });

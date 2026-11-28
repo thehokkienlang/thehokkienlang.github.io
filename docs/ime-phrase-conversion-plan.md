@@ -259,6 +259,14 @@ Offer the phrase candidate only when **all** of these hold:
   This avoids offering 킈食飯 twice, once as a phrase and once as today's
   suffix candidate.
 
+**Added while executing: words joined by an apostrophe.** A menu reads only
+what follows the last apostrophe, so typing 림1’롷킈 (飲’롷킈, "drink") made
+롷킈 look like a run of its own and offered 落去. The static web snapshot caught
+this for 飲’롷킈 and 跳’롷킈. No phrase is now offered when the text joined
+across the apostrophe is itself a dictionary reading
+(`isApostropheJoinedWord`), which is D1 applied to the whole typed word. Both
+static snapshots stay unchanged by phrase conversion.
+
 ### 4.5 One definition for both engines
 
 The algorithm runs in JavaScript (web, Android) and Python (desktop). To keep

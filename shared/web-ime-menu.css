@@ -138,6 +138,18 @@
   margin-top: 0;
 }
 
+/* A long phrase wraps inside the menu. Its reading keeps room above each line for tone marks. */
+.hanri-candidate-menu .ime-candidate-phrase .candidate-hanri,
+.hanri-candidate-menu .ime-candidate-phrase .candidate-reading {
+  flex: 0 1 auto;
+  min-width: 0;
+  white-space: normal;
+}
+
+.hanri-candidate-menu .ime-candidate-phrase .candidate-reading {
+  line-height: 1.8;
+}
+
 @media (max-width: 640px) {
   .hanri-candidate-menu {
     min-width: min(250px, calc(100% - 16px));

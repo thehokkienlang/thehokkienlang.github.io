@@ -1,0 +1,105 @@
+{
+  "about": "Shared by tests/check_phrase_conversion.cjs (web, Android) and tests/test_phrase_conversion.py (desktop). 'typed' is the run as typed, with tone digits. 'phrase' is null when no phrase is offered, otherwise one [first syllable, end syllable, entry ID or null] per segment; null leaves the syllable as typed. 'text' is what accepting the phrase writes. See docs/ime-phrase-conversion-plan.md, section 4.",
+  "cases": [
+    {
+      "name": "a run that is not a word becomes words, longest word kept whole",
+      "typed": "킈쟣븡",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 3, "U+98DF_U+98EF_00"]],
+      "text": "去食飯"
+    },
+    {
+      "name": "a word alone offers no phrase",
+      "typed": "쟣븡",
+      "phrase": null
+    },
+    {
+      "name": "a whole word is not split, although its parts are words too",
+      "typed": "감샤",
+      "phrase": null
+    },
+    {
+      "name": "fewer words win over more words",
+      "typed": "킈감샤",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 3, "U+611F_U+8B1D_00"]],
+      "text": "去感謝"
+    },
+    {
+      "name": "a whole word may come first",
+      "typed": "감샤킈",
+      "phrase": [[0, 2, "U+611F_U+8B1D_00"], [2, 3, "U+53BB_00"]],
+      "text": "感謝去"
+    },
+    {
+      "name": "a typed tone that fits keeps the word",
+      "typed": "킈쳰5커1",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 3, "U+5343_U+7B8D_01"]],
+      "text": "去千箍"
+    },
+    {
+      "name": "a typed tone that rules out a word changes the split",
+      "typed": "킈쳰5커2",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 2, "U+5343_00-sandhi"], [2, 3, "U+82E6_00"]],
+      "text": "去千苦"
+    },
+    {
+      "name": "a typed open tone 4 joined to the next word reads as Taipei's 1",
+      "typed": "시4쟣븡",
+      "phrase": [[0, 1, "U+65BD_00"], [1, 3, "U+98DF_U+98EF_00"]],
+      "text": "施食飯"
+    },
+    {
+      "name": "a word the dictionary writes in Hangul stays in Hangul",
+      "typed": "꽈킈쟣븡",
+      "phrase": [[0, 1, "U+AF48_00"], [1, 2, "U+53BB_00"], [2, 4, "U+98DF_U+98EF_00"]],
+      "text": "꽈去食飯"
+    },
+    {
+      "name": "an unknown syllable in the middle stays as typed",
+      "typed": "킈뷁쟣븡",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 2, null], [2, 4, "U+98DF_U+98EF_00"]],
+      "text": "去뷁食飯"
+    },
+    {
+      "name": "an unknown last syllable still converts the rest",
+      "typed": "킈뷁",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 2, null]],
+      "text": "去뷁"
+    },
+    {
+      "name": "no phrase unless it converts more than the word at the end already does",
+      "typed": "뷁킈",
+      "phrase": null
+    },
+    {
+      "name": "the end of a dictionary word joined by an apostrophe gets no phrase",
+      "typed": "림1’롷킈",
+      "phrase": null
+    },
+    {
+      "name": "an apostrophe after other text does not stop a phrase",
+      "typed": "감샤’킈쟣븡",
+      "phrase": [[0, 1, "U+53BB_00"], [1, 3, "U+98DF_U+98EF_00"]],
+      "text": "去食飯"
+    },
+    {
+      "name": "one syllable offers no phrase",
+      "typed": "킈",
+      "phrase": null
+    },
+    {
+      "name": "sixteen syllables still get a phrase",
+      "typed": "킈쟣븡킈쟣븡킈쟣븡킈쟣븡킈쟣븡킈",
+      "phrase": [
+        [0, 1, "U+53BB_00"], [1, 3, "U+98DF_U+98EF_00"], [3, 4, "U+53BB_00"], [4, 6, "U+98DF_U+98EF_00"],
+        [6, 7, "U+53BB_00"], [7, 9, "U+98DF_U+98EF_00"], [9, 10, "U+53BB_00"], [10, 12, "U+98DF_U+98EF_00"],
+        [12, 13, "U+53BB_00"], [13, 15, "U+98DF_U+98EF_00"], [15, 16, "U+53BB_00"]
+      ],
+      "text": "去食飯去食飯去食飯去食飯去食飯去"
+    },
+    {
+      "name": "seventeen syllables get no phrase",
+      "typed": "킈쟣븡킈쟣븡킈쟣븡킈쟣븡킈쟣븡킈킈",
+      "phrase": null
+    }
+  ]
+}
