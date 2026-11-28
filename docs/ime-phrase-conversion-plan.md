@@ -4,7 +4,9 @@ Drafted 2026-11-28 against commit `50cb543` (main). All decisions answered by Ha
 on 2026-11-28 (section 9).
 
 **Status (2026-11-28):** steps 1–6 of section 7 are written and committed on the
-local branch `ime-phrase-conversion`; nothing is pushed. **Waiting for Haru:**
+branch `ime-phrase-conversion`. Only that branch is pushed, to build the Android
+0.51 test APK; `main` and the website are unchanged. **Waiting for Haru:** tests
+of 0.51 on a phone and of the Windows Pad,
 the step 6 review ([sample report](ime-phrase-conversion-review.md)). The rule
 for typed apostrophes (section 2.3) was added after review. The release
 steps in section 8 (push, Android 0.6, Windows build) are **not done**. Notes
@@ -512,8 +514,8 @@ Each step is a separate commit, so it can be reviewed and reverted on its own.
    to completion, then `git diff --check`.
 3. Push to `main` and check the Pages run once.
 4. **Android 0.6.** In the same push or the next one:
-   - set `versionName` to `"0.6"` and `versionCode` to `24` in
-     `android/app/build.gradle`;
+   - set `versionName` to `"0.6"` and `versionCode` to `25` in
+     `android/app/build.gradle` (the 0.51 test build used 24);
    - set `android/published-version.txt` to `0.6`;
    - check the "Build Android Keyboard" run, the `android-v0.6` release and the
      version on `/ime/`.
