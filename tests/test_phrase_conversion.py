@@ -162,6 +162,15 @@ class PadMenu(unittest.TestCase):
         self.assertEqual(menu['choices'], ['去食飯', *words['choices']])
         self.assertEqual(menu['labels'][0], '1  去食飯  킈 쟣븡ˉ')
 
+    def test_the_hangul_tones_setting_adds_no_marks_to_a_hangul_word(self):
+        self.pad.output_tones_on = SimpleNamespace(get=lambda: True)  # the Pad's default
+        self.assertEqual(self.open_menu('꽈킈쟣븡')['choices'][0], '꽈去食飯')
+        self.press('Return')
+        self.assertEqual(self.pad.composer.text(), '꽈去食飯')
+        typed = f'꽈{PAD.INTERNAL_TONE_MARKS["2"]}'
+        self.pad.chosen_hangul_prefixes = []
+        self.assertEqual(self.space(f'{typed}킈쟣븡'), f'{typed}去食飯 ', 'a typed tone stays')
+
     def test_enter_writes_each_word_and_learns_nothing(self):
         self.open_menu('킈쟣븡')
         self.press('Return')

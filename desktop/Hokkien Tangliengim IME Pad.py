@@ -6729,15 +6729,17 @@ class HokkienIMEPad:
 
     def conversion_segment(self, before: str, start: int, end: int, entry: dict) -> dict:
         """What one word writes over before[start:end]."""
-        reading = phrase_entry_reading(entry)
-        if phrase_entry_is_hangul(entry):
-            output = self.format_hangul_output(normalize_tone_symbols_to_digits(reading))
-        else:
-            output = phrase_entry_output(entry)
+        output = phrase_entry_output(entry)
         # A word spelled with a leading apostrophe takes over one that was already typed.
         if output.startswith('\u2019') and before[:start].endswith('\u2019'):
             start -= 1
-        return {'start': start, 'end': end, 'output': output, 'entry': entry, 'reading': reading}
+        if phrase_entry_is_hangul(entry) and output == strip_reading_tones(
+                normalize_tone_symbols_to_digits(before[start:end])):
+            # The word is already spelled this way: keep it with the tone marks typed, if any.
+            # The Hangul tones setting never adds marks that were not typed.
+            output = before[start:end]
+        return {'start': start, 'end': end, 'output': output, 'entry': entry,
+                'reading': phrase_entry_reading(entry)}
 
     def with_phrase_candidate(self, candidate: dict | None) -> dict | None:
         """Put the phrase, if there is one, above the word menu's choices."""
@@ -6847,10 +6849,6 @@ class HokkienIMEPad:
         ranked = self.candidate_preference_store().rank([{'entry': entry} for entry in match['words']], key)
         entry = ranked[0]['entry']
         segment = self.conversion_segment(before, start, cursor_pos, entry)
-        if phrase_entry_is_hangul(entry) and phrase_entry_output(entry) == strip_reading_tones(
-                normalize_tone_symbols_to_digits(before[segment['start']:])):
-            # The word is already spelled this way: keep the typed text and its tone marks.
-            segment['output'] = before[segment['start']:]
         return {'start': segment['start'], 'end': cursor_pos, 'segments': [segment]}
 
     def suppress_current_hanri_candidate_once(self) -> None:
