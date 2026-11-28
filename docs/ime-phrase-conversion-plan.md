@@ -343,6 +343,13 @@ Export it and add it to the engine's return list. It is browser-free, so
   top candidate already.
 - Check the strip width for long phrases in `android/keyboard/keyboard.css`.
 
+**As executed.** `controller.passiveCandidate()` picks what Space and Enter
+apply; it returns nothing for text a typed apostrophe attaches (5.4). With text
+in the strip, Enter finishes the composition without sending a line break, as it
+did before; a second Enter sends it. The strip keeps a long phrase on one line
+and scrolls. A phrase containing a rare Hanri gets the same Hangul alternative
+as a single word.
+
 ### 5.4 Desktop Pad (D3)
 
 - Add `segment_reading_run(units, lookup)` to `desktop/tangliengim_engine.py`.

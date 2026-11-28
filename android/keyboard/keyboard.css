@@ -124,6 +124,14 @@ body.composing #buffer {
   color: #667386;
 }
 
+/* The website wraps a long phrase; the strip keeps it on one line and scrolls to the rest. */
+#candidates.hanri-candidate-menu .ime-candidate-phrase .candidate-hanri,
+#candidates.hanri-candidate-menu .ime-candidate-phrase .candidate-reading {
+  flex: 0 0 auto;
+  line-height: normal;
+  white-space: nowrap;
+}
+
 #candidates .candidate-number {
   display: none;
 }

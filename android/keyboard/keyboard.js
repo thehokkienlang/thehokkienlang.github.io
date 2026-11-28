@@ -99,6 +99,14 @@
       ? { text: char, hangul: false }
       : { text: units[index], hangul: true }));
   }
+  // The pieces of a candidate that need Hangul standing in for a rare Hanri, or null.
+  function candidateParts(candidate) {
+    if (candidate.entry.kind !== "phrase") return writtenParts(candidate.entry);
+    const words = candidate.segments.map(segment => (segment.hangul ? null : writtenParts(segment.entry)));
+    if (!words.some(Boolean)) return null;
+    return candidate.segments.flatMap((segment, index) =>
+      words[index] || [{ text: segment.output, hangul: segment.hangul }]);
+  }
   // A Hanri this phone may draw as an empty box keeps its candidate, and a second candidate
   // right after it offers the same word with those characters in Hangul (到𦤾, then 到달).
   // The user picks whichever reads correctly on their screen.
@@ -106,7 +114,7 @@
     [...candidates.querySelectorAll(".ime-candidate")].forEach((button, index) => {
       const candidate = controller.activeCandidates[index];
       if (!candidate || ["hangul_override", "hangul_plain"].includes(candidate.entry.kind)) return;
-      const parts = writtenParts(candidate.entry);
+      const parts = candidateParts(candidate);
       if (!parts) return;
       const written = parts.map(part => part.text).join("");
       const option = button.cloneNode(true);
@@ -163,6 +171,13 @@
     return true;
   }
 
+  // Space and Enter first convert to the strip's first candidate, as if it had been taken
+  // without choosing it, so nothing is learned. To keep Hangul, tap the Hangul candidate.
+  function convertFirst() {
+    const first = controller.passiveCandidate();
+    if (first) controller.applyCandidate(first, false);
+  }
+
   // The app moved on (new field, cursor moved away): drop the buffer without touching its text.
   function reset() {
     lastSent = "";
@@ -213,9 +228,11 @@
         return;
       case "Space":
         // One press finishes the composition and types the space, as on Gboard's Korean keyboard.
+        convertFirst();
         if (!commitBuffer(null, " ")) host.commit(" ");
         return;
       case "Enter":
+        convertFirst();
         if (!commitBuffer()) host.enter();
         return;
     }

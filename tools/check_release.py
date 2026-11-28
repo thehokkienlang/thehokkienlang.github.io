@@ -183,6 +183,7 @@ def build_sections(source_only: bool, website: bool = False) -> list[Section]:
     add("Browser-free engine (mobile keyboard source)", "node", "tests/check_engine_headless.cjs")
     add("Phrase conversion", "node", "tests/check_phrase_conversion.cjs")
     add("Desktop phrase conversion", *py, "tests/test_phrase_conversion.py")
+    add("Android keyboard Space and Enter", "node", "tests/check_android_keyboard.cjs")
     add("Sandhi preference", "node", "tests/check_sandhi_preference.cjs")
     add("Sandhi display on song pages", "node", "tests/check_sandhi_display.cjs")
     add("Static priority and reading defaults", "node", "tools/check_static_ranking.cjs")

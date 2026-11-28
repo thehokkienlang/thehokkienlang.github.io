@@ -2532,15 +2532,30 @@ const TangliengimImeCore = (() => {
       return units;
     }
 
+    // Walk back from start over the Hangul, tones and apostrophes joined to it.
+    apostropheJoinedStart(text, start) {
+      while (start > 0 && /[’\u1100-\u11FF\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(text[start - 1])) start -= 1;
+      return start;
+    }
+
+    // What Space and Enter apply on the Android keyboard: the first candidate, or null to keep the
+    // text as typed. A menu reads only what follows ’, so text a typed apostrophe attaches is
+    // kept: ’에 must not become ’會, nor the end of 飲’롷킈 be converted on its own.
+    passiveCandidate() {
+      const [first] = this.activeCandidates;
+      if (!first) return null;
+      const text = this.control.value;
+      if (text.slice(0, first.start).endsWith("’")) return null;
+      const joined = text.slice(this.apostropheJoinedStart(text, first.start), first.end);
+      return isApostropheJoinedWord(this.candidatesByReading, joined) ? null : first;
+    }
+
     // One candidate that converts the whole stretch into words, or null. topSuffix is the first
     // of the ordinary candidates, which convert only the end of the range.
     findPhraseCandidate(range, topSuffix) {
       const units = this.phraseStretch(range);
       if (units.length < 2 || units.length > PHRASE_SYLLABLE_LIMIT) return null;
-      let joinedStart = units[0].start;
-      while (joinedStart > 0 && /[’\u1100-\u11FF\uAC00-\uD7A3ˆˋ`ˊˉꞈˎˏˍ1-5]/u.test(range.text[joinedStart - 1])) {
-        joinedStart -= 1;
-      }
+      const joinedStart = this.apostropheJoinedStart(range.text, units[0].start);
       if (isApostropheJoinedWord(this.candidatesByReading, range.text.slice(joinedStart, range.end))) return null;
       const typedUnits = units.map(({ start, end }) =>
         TangliengimHangulIme.normalizeNativeCandidateInput(this.typedCandidateForm(start, end)));
