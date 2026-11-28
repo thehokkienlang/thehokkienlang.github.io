@@ -8,4 +8,6 @@
     <string name="setup_enable">1. Turn on TLI Keyboard</string>
     <string name="setup_choose">2. Switch to TLI Keyboard</string>
     <string name="setup_try">Try it here</string>
+    <string name="reset_learned">Reset learned choices</string>
+    <string name="reset_learned_done">Learned choices reset</string>
 </resources>

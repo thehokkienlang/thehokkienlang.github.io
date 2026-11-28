@@ -403,6 +403,7 @@ async function loadApp(route, script) {
     ),
     'Web IME must consume the shared dictionary index for priority Hanri matching'
   );
+  assert.match(imeMarkup, /id="resetLearnedButton"/, 'The IME page needs its reset button');
   assert.equal(elements.get('#keyboardLayout').children.length, 5, 'IME keyboard guide must render five key rows');
   assert.equal(
     elements.has('#keyboardSwitchHint'),

@@ -2,6 +2,7 @@ package io.github.thehokkienlang.ime;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.inputmethodservice.InputMethodService;
 import android.net.Uri;
@@ -36,12 +37,38 @@ public class TliKeyboardService extends InputMethodService {
     private static final String PAGE = "https://" + HOST + "/keyboard/index.html";
     private static final int HEIGHT_PORTRAIT_DP = 272;
     private static final int HEIGHT_LANDSCAPE_DP = 190;
+    // The setup screen cannot reach the keyboard page, so it leaves a request here.
+    private static final String SETTINGS = "tli-keyboard";
+    private static final String RESET_LEARNED = "resetLearnedChoices";
 
     private final Handler main = new Handler(Looper.getMainLooper());
     private WebView keyboard;
     private FrameLayout frame;
     private boolean pageReady;
     private boolean composing;
+    // Held in a field because SharedPreferences keeps only a weak reference to its listeners.
+    private final SharedPreferences.OnSharedPreferenceChangeListener settingsChanged = (settings, key) -> {
+        if (RESET_LEARNED.equals(key)) applyLearnedReset();
+    };
+
+    static void requestLearnedReset(Context context) {
+        context.getSharedPreferences(SETTINGS, MODE_PRIVATE).edit().putBoolean(RESET_LEARNED, true).apply();
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        getSharedPreferences(SETTINGS, MODE_PRIVATE).registerOnSharedPreferenceChangeListener(settingsChanged);
+    }
+
+    /** Applies a waiting reset now if the page is loaded, otherwise when it next is. */
+    private void applyLearnedReset() {
+        SharedPreferences settings = getSharedPreferences(SETTINGS, MODE_PRIVATE);
+        if (keyboard == null || !pageReady || !settings.getBoolean(RESET_LEARNED, false)) return;
+        keyboard.evaluateJavascript("Boolean(window.TliKeyboard && window.TliKeyboard.resetLearned())", done -> {
+            if ("true".equals(done)) settings.edit().remove(RESET_LEARNED).apply();
+        });
+    }
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -116,10 +143,12 @@ public class TliKeyboardService extends InputMethodService {
 
     @Override
     public void onDestroy() {
+        getSharedPreferences(SETTINGS, MODE_PRIVATE).unregisterOnSharedPreferenceChangeListener(settingsChanged);
         if (keyboard != null) {
             keyboard.destroy();
             keyboard = null;
             frame = null;
+            pageReady = false;
         }
         super.onDestroy();
     }
@@ -156,6 +185,7 @@ public class TliKeyboardService extends InputMethodService {
         @Override
         public void onPageFinished(WebView view, String url) {
             pageReady = true;
+            applyLearnedReset();
         }
     }
 

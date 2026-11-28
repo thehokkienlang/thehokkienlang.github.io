@@ -469,5 +469,11 @@
     })
     .catch(() => document.body.classList.add("no-dictionary"));
 
-  window.TliKeyboard = { reset, commitBuffer };
+  // Asked for from the app's setup screen: forget which candidates this keyboard has learned.
+  function resetLearned() {
+    controller.preferences.reset();
+    return true;
+  }
+
+  window.TliKeyboard = { reset, commitBuffer, resetLearned };
 })();

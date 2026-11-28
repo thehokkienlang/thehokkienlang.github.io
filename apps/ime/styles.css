@@ -154,6 +154,27 @@ h1 {
   visibility: hidden;
 }
 
+.ime-learning {
+  margin: 10px 0 0;
+  text-align: right;
+}
+
+.reset-learned-button {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--muted);
+  font: inherit;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.reset-learned-button:hover,
+.reset-learned-button:focus-visible {
+  color: var(--accent);
+}
+
 .android-keyboard {
   margin: 14px auto 0;
   font-size: 14px;

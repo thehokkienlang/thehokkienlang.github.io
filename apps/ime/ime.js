@@ -23,6 +23,7 @@ const imeToneOverlay = document.querySelector("#imeToneOverlay");
 const lomariPreview = document.querySelector("#lomariPreview");
 const statusLine = document.querySelector("#statusLine");
 const toast = document.querySelector("#toast");
+const resetLearnedButton = document.querySelector("#resetLearnedButton");
 const textWrap = document.querySelector(".text-wrap");
 const keyboardGuideButton = document.querySelector("#keyboardGuideButton");
 const keyboardGuide = document.querySelector("#keyboardGuide");
@@ -407,6 +408,12 @@ copyButton.addEventListener("click", async () => {
   } catch {
     showToast("Could not copy");
   }
+});
+
+// Forget which candidates this browser has learned to offer first.
+resetLearnedButton.addEventListener("click", () => {
+  imeController.preferences.reset();
+  showToast("Learned choices reset");
 });
 
 audioButton.addEventListener("click", playPadAudio);

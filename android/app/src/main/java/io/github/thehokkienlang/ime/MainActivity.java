@@ -12,6 +12,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /** Setup screen: turn the keyboard on, switch to it, and try it. */
 public class MainActivity extends Activity {
@@ -52,6 +53,17 @@ public class MainActivity extends Activity {
         LinearLayout.LayoutParams trialParams = matchWidth();
         trialParams.topMargin = pad;
         column.addView(trial, trialParams);
+
+        Button reset = new Button(this);
+        reset.setText(R.string.reset_learned);
+        reset.setAllCaps(false);
+        reset.setOnClickListener(view -> {
+            TliKeyboardService.requestLearnedReset(this);
+            Toast.makeText(this, R.string.reset_learned_done, Toast.LENGTH_SHORT).show();
+        });
+        LinearLayout.LayoutParams resetParams = matchWidth();
+        resetParams.topMargin = pad;
+        column.addView(reset, resetParams);
 
         ScrollView scroll = new ScrollView(this);
         scroll.addView(column);
